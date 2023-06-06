@@ -59,6 +59,9 @@ include_directories(
     "src/core"
     "src/map"
     "src/tools"
+    "src/communicator"
+    # "src/communicator/msg"
+    # ${CMAKE_SOURCE_DIR}/thirdparty/cereal
     # "include/covins"
     # ${PROJECT_SOURCE_DIR}/thirdparty
 )
@@ -101,8 +104,17 @@ add_executable(colive_test_timer src/tools/test_timer.cpp)
 
 add_executable(colive_backend_node src/core/backend_node.cpp
     src/core/backend.cpp 
-    src/map/rgb_map.cpp 
-    src/map/image_frame.cpp 
+    src/core/config_backend.cpp
+    src/map/map_co.cpp 
+    src/communicator/communicator_base.cpp
+    src/communicator/config_comm.cpp
+    src/communicator/communicator_base.cpp
+    src/communicator/msgs/msg_landmark.cpp
+    src/communicator/msgs/msg_keyframe.cpp
+    src/communicator/msgs/msg_pointcloud.cpp
+    src/communicator/msgs/msg_odometry.cpp
+    # src/map/rgb_map.cpp 
+    # src/map/image_frame.cpp 
 )
 
 target_link_libraries(colive_backend_node

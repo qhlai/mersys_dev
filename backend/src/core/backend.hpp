@@ -5,181 +5,102 @@
 #include <mutex>
 #include <vector>
 #include <thread>
-
+#include <iostream>   // std::cout  
+#include <string>     // std::string, std::to_string
 
 #include <ros/ros.h>
+#include <condition_variable>
+
+#include "tools_logger.hpp"
+#include "tools_color_printf.hpp"
+#include "tools_eigen.hpp"
+#include "tools_data_io.hpp"
+#include "tools_timer.hpp"
+#include "tools_thread_pool.hpp"
+#include "tools_ros.hpp"
+
+#include "config_comm.hpp"
+#include "config_backend.hpp"
+
+#include "map_co.hpp"
+
+// Socket Programming
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#include <netdb.h>
+#include <atomic>
 
 #include "typedefs_base.hpp"
 
-// namespace colive {
+namespace colive {
 
-// class AgentHandler;
-// class Map;
-// class MapManager;
-// class Visualizer;
+class Client{
+public:
+    using MapPtr                     = TypeDefs::MapPtr;
+    using MapManagerPtr              = TypeDefs::MapManagerPtr;
 
-// class AgentPackage : public std::enable_shared_from_this<AgentPackage> {
-// public:
-//     // using MapPtr                        = TypeDefs::MapPtr;
-//     // using ManagerPtr                    = TypeDefs::ManagerPtr;
-//     using HandlerPtr                    = std::shared_ptr<AgentHandler>;
-//     // using VisPtr                        = TypeDefs::VisPtr;
+    MapPtr  map_ptr;
+public:
+    Client()=delete;
+    Client(size_t client_id_);
+    Client(size_t client_id, int newfd, MapManagerPtr man);
+    auto Run()->void;
 
-// public:
-//     // AgentPackage(size_t client_id, int newfd, VisPtr vis, ManagerPtr man);
+protected:
+    size_t client_id_;
+    MapManagerPtr mapmanager_;
+};
 
-// protected:
-//     HandlerPtr agent_;
-// };
+class Backend{
+    public:
+    using ThreadPtr                  = TypeDefs::ThreadPtr;
+    using MapPtr                     = TypeDefs::MapPtr;
+    using MapManagerPtr              = TypeDefs::MapManagerPtr;
+    using ClientPtr                  = TypeDefs::ClientPtr;
+    using ClientVector               = TypeDefs::ClientVector;
+    public:
+    
 
-// class CovinsBackend {
-// public:
-//     using AgentPtr                      = std::shared_ptr<AgentPackage>;
-//     using AgentVector                   = std::vector<AgentPtr>;
-//     // using ManagerPtr                    = TypeDefs::ManagerPtr;
-//     // using VisPtr                        = TypeDefs::VisPtr;
-//     using ThreadPtr                     = TypeDefs::ThreadPtr;
-//     using VocabularyPtr                 = CovinsVocabulary::VocabularyPtr;
+    ros::NodeHandle             m_ros_node_handle;
+    ClientPtr m_client;
 
-// public:
-//     CovinsBackend();
-//     auto Run()                                                                          ->void;
-
-//     // Service Interfaces
-//     auto CallbackGBA(covins_backend::ServiceGBA::Request &req,
-//                      covins_backend::ServiceGBA::Response &res)                         ->bool;
-
-//     auto CallbackSaveMap(covins_backend::ServiceSaveMap::Request &req,
-//                          covins_backend::ServiceSaveMap::Response &res)                 ->bool;
-
-//     auto CallbackLoadMap(covins_backend::ServiceLoadMap::Request &req,
-//                                covins_backend::ServiceLoadMap::Response &res)           ->bool;
-
-//     auto CallbackPruneMap(covins_backend::ServicePruneMap::Request &req,
-//                          covins_backend::ServicePruneMap::Response &res)                ->bool;
-
-// protected:
-//     auto AddAgent()                                                                     ->void;
-//     auto AcceptAgent()                                                                  ->void;
-//     auto ConnectSocket()                                                                ->void;
-//     auto LoadVocabulary()                                                               ->void;
-
-//     auto add_counter()                                                                  ->void;
-//     auto sub_counter()                                                                  ->void;
-//     auto disp_counter()                                                                 ->void;
-//     auto get_counter()                                                                  ->int;
-
-//     // Infrastructure
-//     AgentVector                 agents_;
-//     ManagerPtr                  mapmanager_;
-//     VisPtr                      vis_;
-//     VocabularyPtr               voc_;
-
-//     ThreadPtr                   thread_mapmanager_;
-//     ThreadPtr                   thread_vis_;
-
-//     int                         agent_next_id_                                          = 0;
-
-//     ros::NodeHandle             nh_;
-//     ros::ServiceServer          service_gba_;
-//     ros::ServiceServer          service_savemap_;
-//     ros::ServiceServer          service_loadmap_;
-//     ros::ServiceServer          service_prune_;
-
-//     fd_set                      master_;
-//     fd_set                      read_fds_;
-//     int                         listener_, newfd_;
-
-//     // Device Counter
-//     std::atomic<int>            counter_, overall_counter_;
-
-//     // Sync
-//     std::mutex                  mtx_num_agents_;
-// };
-
-// } //end ns
+    Backend();
 
 
-// // class AgentHandler;
-// // class Map;
-// // class MapManager;
-// // class Visualizer;
+    auto Run()->void;
 
-// // class AgentPackage : public std::enable_shared_from_this<AgentPackage> {
-// // public:
-// //     using MapPtr                        = TypeDefs::MapLIVPtr;
-// //     // using ManagerPtr                    = TypeDefs::ManagerPtr;
-// //     using HandlerPtr                    = std::shared_ptr<AgentHandler>;
-// //     // using VisPtr                        = TypeDefs::VisPtr;
+    // void feat_points_callback(const sensor_msgs::PointCloud2::ConstPtr &msg_in);
+    // void image_callback(const sensor_msgs::ImageConstPtr &msg);
+    // void image_comp_callback(const sensor_msgs::CompressedImageConstPtr &msg);
+    
+    std::condition_variable sig_buffer;
 
-// // public:
-// //     // AgentPackage(size_t client_id, int newfd, VisPtr vis, ManagerPtr man);
 
-// // protected:
-// //     HandlerPtr agent_;
-// // };
 
-// // class CovinsBackend {
-// // public:
-// //     using AgentPtr                      = std::shared_ptr<AgentPackage>;
-// //     using AgentVector                   = std::vector<AgentPtr>;
-// //     // using ManagerPtr                    = TypeDefs::ManagerPtr;
-// //     // using VisPtr                        = TypeDefs::VisPtr;
-// //     using ThreadPtr                     = TypeDefs::ThreadPtr;
-// //     // using VocabularyPtr                 = CovinsVocabulary::VocabularyPtr;
+protected:
 
-// // public:
-// //     CovinsBackend();
-// //     auto Run()                                                                          ->void;
+    auto AddClient()                ->void;
+    auto AcceptClient()             ->void;
+    auto ConnectSocket()            ->void;
 
-// //     // Service Interfaces
-// //     // auto CallbackGBA(covins_backend::ServiceGBA::Request &req,
-// //     //                  covins_backend::ServiceGBA::Response &res)                         ->bool;
+    int agent_next_id_              = 0;
+    //comm
+    fd_set                      master_;
+    fd_set                      read_fds_;
+    int                         listener_, newfd_;
 
-// //     // auto CallbackSaveMap(covins_backend::ServiceSaveMap::Request &req,
-// //     //                      covins_backend::ServiceSaveMap::Response &res)                 ->bool;
+    ThreadPtr                   thread_mapmanager_;
 
-// //     // auto CallbackLoadMap(covins_backend::ServiceLoadMap::Request &req,
-// //     //                            covins_backend::ServiceLoadMap::Response &res)           ->bool;
+    MapManagerPtr                mapmanager_;
+    ClientVector                 clients_;
 
-// //     // auto CallbackPruneMap(covins_backend::ServicePruneMap::Request &req,
-// //     //                      covins_backend::ServicePruneMap::Response &res)                ->bool;
+    // Device Counter
+    std::atomic<int>            counter_, overall_counter_;
 
-// // protected:
-// //     auto AddAgent()                                                                     ->void;
-// //     auto AcceptAgent()                                                                  ->void;
-// //     auto ConnectSocket()                                                                ->void;
-// //     auto LoadVocabulary()                                                               ->void;
 
-// //     auto add_counter()                                                                  ->void;
-// //     auto sub_counter()                                                                  ->void;
-// //     auto disp_counter()                                                                 ->void;
-// //     auto get_counter()                                                                  ->int;
+    std::mutex mtx_buffer;
+};
 
-// //     // Infrastructure
-// //     AgentVector                 agents_;
-// //     // ManagerPtr                  mapmanager_;
-// //     // VisPtr                      vis_;
-// //     // VocabularyPtr               voc_;
-
-// //     ThreadPtr                   thread_mapmanager_;
-// //     ThreadPtr                   thread_vis_;
-
-// //     int                         agent_next_id_                                          = 0;
-
-// //     ros::NodeHandle             nh_;
-// //     ros::ServiceServer          service_gba_;
-// //     ros::ServiceServer          service_savemap_;
-// //     ros::ServiceServer          service_loadmap_;
-// //     ros::ServiceServer          service_prune_;
-
-// //     fd_set                      master_;
-// //     fd_set                      read_fds_;
-// //     int                         listener_, newfd_;
-
-// //     // Device Counter
-// //     std::atomic<int>            counter_, overall_counter_;
-
-// //     // Sync
-// //     std::mutex                  mtx_num_agents_;
-// // };
+}
