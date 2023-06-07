@@ -6,6 +6,8 @@
 #include <map>
 #include <set>
 
+#include "print_enhancement.hpp"
+#include "value_redefine.hpp"
 
 #include <eigen3/Eigen/Core>
 #include <eigen3/Eigen/Geometry>
@@ -24,8 +26,12 @@
 #include <cereal/access.hpp>
 
 
-#include <pcl/point_types.h>
+#include <pcl_conversions/pcl_conversions.h>
 #include <pcl/point_cloud.h>
+#include <pcl/point_types.h>
+#include <pcl/filters/voxel_grid.h>
+#include <pcl/kdtree/kdtree_flann.h>
+#include <pcl/io/pcd_io.h>
 
 #define MAPRANGE std::numeric_limits<uint8_t>::max()
 #define KFRANGE std::numeric_limits<uint16_t>::max()
@@ -38,13 +44,7 @@
 #define FRAME_GRID_ROWS 48
 #define FRAME_GRID_COLS 64
 
-// Useful defines
-#define COUTERROR "\033[1;31m!!!!! ERROR !!!!!\033[0m " << __func__ << ":" << __LINE__ << ": "
-#define COUTFATAL "\033[1;31m!!!!! FATAL ERROR !!!!!\033[0m " << __func__ << ":"  << __LINE__ << ": "
-#define COUTWARN "\033[1;33m!!! WARN !!!\033[0m " << __func__ << ":" << __LINE__ << ": "
-#define COUTNOTICE "\033[1;34m!!! NOTICE !!!\033[0m " << __func__ << ":" << __LINE__ << ": "
-#define DEPRECATED_FUNCTION {cout << "\033[1;31m!!!!! FATAL ERROR !!!!!\033[0m " << __func__ << ":"  << __LINE__ << " Use of deprecated function" << std::endl; exit(-1);}
-#define NOT_IMPLEMENTED {std::cout << "\033[1;33m!!! WARN !!!\033[0m " << __func__ << ":" << __LINE__ << ": This functionality is not implemented" << std::endl; }
+
 
 #include <opencv2/opencv.hpp>
 namespace read_parm {
@@ -103,7 +103,7 @@ struct MsgLandmark;
 struct MsgPointcloud;
 struct MsgOdometry;
 
-typedef pcl::PointXYZINormal PointType;
+// typedef pcl::PointXYZINormal PointType;
 
 namespace TypeDefs {
 
@@ -112,9 +112,16 @@ namespace TypeDefs {
     using idpair                        = std::pair<size_t,size_t>;
     using ThreadPtr                     = std::unique_ptr<std::thread>;
 
+    using PointType                     = pcl::PointXYZINormal;
+    using RGBPointType                  = pcl::PointXYZINormal;
+    using VoxelGrid                     = pcl::VoxelGrid<PointType>;
+    using PointCloud                    = pcl::PointCloud<PointType>;
+    using PointCloudRBG                 = pcl::PointCloud<pcl::PointXYZRGB>;
+
     // using CommPtr                       = std::shared_ptr<Communicator>;
     using KeyframePtr                   = std::shared_ptr<Keyframe>;
     using LandmarkPtr                   = std::shared_ptr<Landmark>;
+    using PointcloudPtr                 = std::shared_ptr<pcl::VoxelGrid<PointType>>;
     using ClientPtr                        = std::shared_ptr<Client>;
     using ClientVector                     = std::vector<ClientPtr>;
     using MapPtr                           = std::shared_ptr<Map>;

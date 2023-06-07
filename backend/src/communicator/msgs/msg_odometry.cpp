@@ -23,7 +23,7 @@ auto MsgOdometry::SetMsgType(int msg_size)->void {
     msg_type[1] = (int)is_update_msg;
     msg_type[2] = id.first;
     msg_type[3] = id.second;
-    msg_type[4] = 1;
+    msg_type[4] = 3;
 }
 
 auto MsgOdometry::SetMsgType(MsgTypeVector msgtype)->void {

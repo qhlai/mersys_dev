@@ -38,8 +38,11 @@ public:
     using TransformType                 = TypeDefs::TransformType;
 
     using MsgTypeVector                 = TypeDefs::MsgTypeVector;
+    using PointType                     = TypeDefs::PointType;
+    using VoxelGrid                     = TypeDefs::VoxelGrid;
+    using PointCloud                    = TypeDefs::PointCloud;
 
-    struct compare_less{bool operator() (const MsgLandmark &a, const MsgLandmark &b) const;};
+    struct compare_less{bool operator() (const MsgPointcloud &a, const MsgPointcloud &b) const;};
 
 public:
 
@@ -63,53 +66,57 @@ public:
     Vector3Type             pos_ref;
     Vector3Type             pos_w;
     
-    double                        downSample;
-    double                    leafsize_xyz[3];
-    pcl::VoxelGrid<PointType>      pts_cloud;
+    double                  downSample;
+    double                  leafsize_xyz[3];
+    VoxelGrid               vox_cloud;
+
+    PointCloud              pts_cloud;
 
 
 
 protected:
 
-    // friend class cereal::access;                                                                                                // Serialization
+    friend class cereal::access;                                                                                                // Serialization
 
-    // template<class Archive>
-    // auto save(Archive &archive) const ->void {
-    //     if(save_to_file) {
-    //         archive(id,
-    //                 pos_w,
-    //                 observations,id_reference
-    //                 );
-    //     } else if(is_update_msg){
-    //         archive(id,
-    //                 pos_ref,id_reference,
-    //                 is_update_msg);
-    //     } else {
-    //         archive(id,
-    //                 pos_ref,
-    //                 observations,id_reference,
-    //                 is_update_msg);
-    //     }
-    // }
+    template<class Archive>
+    auto save(Archive &archive) const ->void {
+        if(save_to_file) {
+            archive(id,
+                    pos_w,
+                    // observations,id_reference
+                    is_update_msg);
+        } else if(is_update_msg){
+            archive(id,
+                    pos_w,
+                    // observations,id_reference
+                    is_update_msg);
+        } else {
+            archive(id,
+                    pos_w,
+                    // observations,id_reference
+                    is_update_msg);
+        }
+    }
 
-    // template<class Archive>
-    // auto load(Archive &archive)->void {
-    //     if(save_to_file) {
-    //         archive(id,
-    //                 pos_w,
-    //                 observations,id_reference
-    //                 );
-    //     } else if(msg_type[1] == true){
-    //         archive(id,
-    //                 pos_ref,id_reference,
-    //                 is_update_msg);
-    //     } else {
-    //         archive(id,
-    //                 pos_ref,
-    //                 observations,id_reference,
-    //                 is_update_msg);
-    //     }
-    // }
+    template<class Archive>
+    auto load(Archive &archive)->void {
+        if(save_to_file) {
+             archive(id,
+                    pos_w,
+                    // observations,id_reference
+                    is_update_msg);
+        } else if(msg_type[1] == true){
+            archive(id,
+                    pos_w,
+                    // observations,id_reference
+                    is_update_msg);
+        } else {
+            archive(id,
+                    pos_w,
+                    // observations,id_reference
+                    is_update_msg);
+        }
+    }
 };
 
 } //end ns
