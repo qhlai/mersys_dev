@@ -52,9 +52,9 @@ public:
     auto SetMsgType(MsgTypeVector msgtype)                              ->void;
 
     // Infrastructure
-    MsgTypeVector           msg_type                                                            = std::vector<uint32_t>(5);     // size, is_update, ID of Keyframe, ???,;
-    bool                    is_update_msg                                                       = false;
-    bool                    save_to_file                                                        = false;                        // indicates that this LM will be saved to a file, not send over network
+    MsgTypeVector           msg_type                                    = std::vector<uint32_t>(5);     // size, is_update, ID of Keyframe, ???,;
+    bool                    is_update_msg                               = false;
+    bool                    save_to_file                                = false;                        // indicates that this LM will be saved to a file, not send over network
 
     // Identifier
     idpair                  id;
@@ -65,11 +65,51 @@ public:
     
     double                        downSample;
     double                    leafsize_xyz[3];
-    pcl::VoxelGrid<PointType>     pts_cloud;
+    pcl::VoxelGrid<PointType>      pts_cloud;
+
 
 
 protected:
 
+    // friend class cereal::access;                                                                                                // Serialization
+
+    // template<class Archive>
+    // auto save(Archive &archive) const ->void {
+    //     if(save_to_file) {
+    //         archive(id,
+    //                 pos_w,
+    //                 observations,id_reference
+    //                 );
+    //     } else if(is_update_msg){
+    //         archive(id,
+    //                 pos_ref,id_reference,
+    //                 is_update_msg);
+    //     } else {
+    //         archive(id,
+    //                 pos_ref,
+    //                 observations,id_reference,
+    //                 is_update_msg);
+    //     }
+    // }
+
+    // template<class Archive>
+    // auto load(Archive &archive)->void {
+    //     if(save_to_file) {
+    //         archive(id,
+    //                 pos_w,
+    //                 observations,id_reference
+    //                 );
+    //     } else if(msg_type[1] == true){
+    //         archive(id,
+    //                 pos_ref,id_reference,
+    //                 is_update_msg);
+    //     } else {
+    //         archive(id,
+    //                 pos_ref,
+    //                 observations,id_reference,
+    //                 is_update_msg);
+    //     }
+    // }
 };
 
 } //end ns

@@ -179,5 +179,44 @@ protected:
     MsgInfoType         msg_type_deserialize_   = MsgInfoType(5);   // msg size, SentOnce, id.first, id.second
 };
 
+// class Communicator : public CommunicatorBase, public std::enable_shared_from_this<Communicator> {
+// public:
+
+//     struct cmp_by_id{
+//         bool operator() (const std::pair<size_t,KeyFrame*> a, const std::pair<size_t,KeyFrame*> b){
+//             if(a.first < b.first) return true;
+//             else return false;
+//     }};
+
+// public:
+//     Communicator(std::string server_ip, std::string port, Atlas*);
+
+//     // main function
+//     virtual auto Run()                                                                  ->void;
+
+//     virtual auto PassKfToComm(KeyFrame* kf)                                             ->void {
+//         std::unique_lock<std::mutex>(mtx_kf_queue_);
+//         kf_out_buffer_.push_back(kf);
+//     }
+
+// protected:
+
+//     // data handling
+//     virtual auto ProcessAdditional()                                                    ->void;
+//     virtual auto ProcessKeyframeMessages()                                              ->void;
+//     virtual auto ProcessLandmarkMessages()                                              ->void;
+//     virtual auto ProcessNewKeyframes()                                                  ->void;
+//     virtual auto ProcessNewLandmarks()                                                  ->void;
+
+//     virtual auto ProcessKfBuffer()                                                      ->void;
+
+//     // Infrastructure
+//     Atlas*                  map_                                                                = nullptr;  // the map is not necessary to send data to the server. However, we keep a ptr to it to facilitate implementing potetnial interaction
+
+//     bool sending_init_ = false;
+//     std::list<KeyFrame*>   kf_out_buffer_;
+//     std::mutex              mtx_kf_queue_;
+// };
+
 } //end ns
 
