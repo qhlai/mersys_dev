@@ -8,6 +8,7 @@
 
 #include "print_enhancement.hpp"
 #include "value_redefine.hpp"
+#include "read_parm.hpp"
 
 #include <eigen3/Eigen/Core>
 #include <eigen3/Eigen/Geometry>
@@ -46,44 +47,6 @@
 
 
 
-#include <opencv2/opencv.hpp>
-namespace read_parm {
-template<typename T> inline static T GetValFromYaml(std::string path, std::string paramname)
-{
-    cv::FileStorage fSettings(path, cv::FileStorage::READ);
-
-    if(!fSettings.isOpened())
-    {
-       std::cerr << "Failed to open config file at: " << path << std::endl;
-       exit(-1);
-    }
-
-    const double val = fSettings[paramname];
-    return (T)val;
-}
-
-inline static std::string GetStringFromYaml(std::string path, std::string paramname)
-{
-    cv::FileStorage fSettings(path, cv::FileStorage::READ);
-
-    if(!fSettings.isOpened())
-    {
-       std::cerr << "Failed to open config file at: " << path << std::endl;
-       exit(-1);
-    }
-
-    const std::string val = fSettings[paramname];
-    return val;
-}
-}
-
-#define REDL "\033[1;31m"
-#define REDR "\033[0m"
-#define COUTRED(...) REDL #__VA_ARGS__ REDR
-#define PURPLEL "\033[1;34m"
-#define PURPLER "\033[0m"
-#define COUTPURPLE(...) PURPLEL #__VA_ARGS__ PURPLER
-
 namespace colive {
 struct IMU_Measurement;
 
@@ -97,11 +60,13 @@ class MapManager;
 class PlacerecBase;
 class Visualizer;
 class Client;
+class PointCloud_ex;
 
 struct MsgKeyframe;
 struct MsgLandmark;
 struct MsgPointcloud;
 struct MsgOdometry;
+
 
 // typedef pcl::PointXYZINormal PointType;
 
@@ -117,11 +82,13 @@ namespace TypeDefs {
     using VoxelGrid                     = pcl::VoxelGrid<PointType>;
     using PointCloud                    = pcl::PointCloud<PointType>;
     using PointCloudRBG                 = pcl::PointCloud<pcl::PointXYZRGB>;
+    using PointCloudEX                  = PointCloud_ex;
 
     // using CommPtr                       = std::shared_ptr<Communicator>;
     using KeyframePtr                   = std::shared_ptr<Keyframe>;
     using LandmarkPtr                   = std::shared_ptr<Landmark>;
     using PointcloudPtr                 = std::shared_ptr<pcl::VoxelGrid<PointType>>;
+    using PointCloudEXPtr                 = std::shared_ptr<PointCloudEX>;
     using ClientPtr                        = std::shared_ptr<Client>;
     using ClientVector                     = std::vector<ClientPtr>;
     using MapPtr                           = std::shared_ptr<Map>;
@@ -165,13 +132,16 @@ namespace TypeDefs {
 
     using KeyframeList                  = std::list<KeyframePtr,Eigen::aligned_allocator<KeyframePtr>>;
     using LandmarkList                  = std::list<LandmarkPtr,Eigen::aligned_allocator<LandmarkPtr>>;
+    using PointCloudEXList              = std::list<PointCloudEXPtr,Eigen::aligned_allocator<PointCloudEXPtr>>;
 
     using KeyframeSet                   = std::set<KeyframePtr,std::less<KeyframePtr>,Eigen::aligned_allocator<KeyframePtr>>;
     using LandmarkSet                   = std::set<LandmarkPtr,std::less<LandmarkPtr>,Eigen::aligned_allocator<LandmarkPtr>>;
+    using PointCloudEXSet                 = std::set<PointCloudEXPtr,std::less<PointCloudEXPtr>,Eigen::aligned_allocator<PointCloudEXPtr>>;
 
     using KeyframeMap                   = std::map<idpair,KeyframePtr,std::less<idpair>,Eigen::aligned_allocator<std::pair<const idpair,KeyframePtr>>>; // map allocator: first element of pair must be declared const
     using LandmarkMap                   = std::map<idpair,LandmarkPtr,std::less<idpair>,Eigen::aligned_allocator<std::pair<const idpair,LandmarkPtr>>>; // map allocator: first element of pair must be declared const
-
+    using PointCloudEXMap                 = std::map<idpair,PointCloudEXPtr,std::less<idpair>,Eigen::aligned_allocator<std::pair<const idpair,PointCloudEXPtr>>>; // map allocator: first element of pair must be declared const
+    
     using KeyframePairVector            = std::vector<std::pair<KeyframePtr,KeyframePtr>, Eigen::aligned_allocator<std::pair<KeyframePtr,KeyframePtr>>>;
     using KeyframeIntMap                = std::map<KeyframePtr,int,std::less<KeyframePtr>,Eigen::aligned_allocator<std::pair<const KeyframePtr,int>>>;
     // using LoopVector                    = std::vector<LoopConstraint, Eigen::aligned_allocator<LoopConstraint>>;

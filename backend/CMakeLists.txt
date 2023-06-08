@@ -55,11 +55,12 @@ include_directories(
     ${EIGEN3_INCLUDE_DIR}
     # ${PCL_INCLUDE_DIRS}
     ${PROJECT_SOURCE_DIR}/src
-    "src/base"
-    "src/core"
-    "src/map"
-    "src/tools"
-    "src/communicator"
+    ${PROJECT_SOURCE_DIR}/src/base
+    ${PROJECT_SOURCE_DIR}/src/core
+    ${PROJECT_SOURCE_DIR}/src/map
+    ${PROJECT_SOURCE_DIR}/src/map/frames
+    ${PROJECT_SOURCE_DIR}/src/tools
+    ${PROJECT_SOURCE_DIR}/src/communicator
     # "src/communicator/msg"
     # ${CMAKE_SOURCE_DIR}/thirdparty/cereal
     # "include/covins"
@@ -99,26 +100,26 @@ message(STATUS "===== OpenCV include path: ${OpenCV_INCLUDE_DIRS} =====")
 #     src/backend/backend/backend.hpp
 
 # )
-file(GLOB_RECURSE COMM_SRC_FILES     
-# ${PROJECT_SOURCE_DIR}/src/communicator/*.cc 
-${PROJECT_SOURCE_DIR}/src/communicator/*.cpp
-${PROJECT_SOURCE_DIR}/src/communicator/msg/*.cpp
-${PROJECT_SOURCE_DIR}/src/communicator/server/*.cpp
-${PROJECT_SOURCE_DIR}/src/communicator/client/*.cpp
+
+file(GLOB_RECURSE FRAME_SRC_FILES     
+${PROJECT_SOURCE_DIR}/src/map/frames/*.cpp
 )
 
+file(GLOB_RECURSE COMM_SRC_FILES     
+${PROJECT_SOURCE_DIR}/src/communicator/*.cpp
+)
+
+file(GLOB_RECURSE MAP_SRC_FILES     
+${PROJECT_SOURCE_DIR}/src/map/map_co.cpp
+${PROJECT_SOURCE_DIR}/src/map/mapmanager.cpp
+)
 add_executable(colive_test_timer src/tools/test_timer.cpp)
 
 add_executable(colive_backend_node src/core/backend_node.cpp
     src/core/backend.cpp 
     src/core/config_backend.cpp
-    src/map/map_co.cpp 
-    # src/communicator/*.cpp
-    # src/communicator/client/*.cpp
-    # src/communicator/msgs/*.cpp
+    ${MAP_SRC_FILES}
     ${COMM_SRC_FILES}   
-    # src/map/rgb_map.cpp 
-    # src/map/image_frame.cpp 
 )
 
 target_link_libraries(colive_backend_node

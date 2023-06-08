@@ -161,9 +161,9 @@ auto CommunicatorBase::ProcessBufferIn()->void {
                 iarchive(msg);
                 buffer_pointclouds_in_.push_back(msg);
             }else if(msg_type_deserialize_[4] == 3) { // odometry
-                MsgLandmark msg(msg_type_deserialize_);
-                iarchive(msg);
-                buffer_landmarks_in_.push_back(msg);
+                // MsgOdometry msg(msg_type_deserialize_);
+                // iarchive(msg);
+                // buffer_landmarks_in_.push_back(msg);
             } else {
                 std::cout << COUTERROR << "msg_type_deserialize[4]: " << msg_type_deserialize_[4] << std::endl;
                 exit(-1);
