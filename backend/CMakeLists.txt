@@ -112,6 +112,14 @@ ${PROJECT_SOURCE_DIR}/src/communicator/*.cpp
 file(GLOB_RECURSE MAP_SRC_FILES     
 ${PROJECT_SOURCE_DIR}/src/map/map_co.cpp
 ${PROJECT_SOURCE_DIR}/src/map/mapmanager.cpp
+${PROJECT_SOURCE_DIR}/src/map/frames/*.cpp
+)
+file(GLOB_RECURSE MAP_INC_FILES     
+${PROJECT_SOURCE_DIR}/src/map/*.hpp
+)
+include_directories(
+
+
 )
 add_executable(colive_test_timer src/tools/test_timer.cpp)
 

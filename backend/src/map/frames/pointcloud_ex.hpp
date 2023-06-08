@@ -1,12 +1,17 @@
 #include "typedefs_base.hpp"
-#include "../msgs/msg_pointcloud.hpp"
+// #include "../communicator/msgs/msg_pointcloud.hpp"
+#include "msgs/msg_pointcloud.hpp"
 
 namespace colive {
+    
 
-class Pointcloud_ex
+class PointCloud_ex
 {
 public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
+    using precision_t                   = TypeDefs::precision_t;
+    using idpair                        = TypeDefs::idpair;
     using PointType                     = TypeDefs::PointType;
     using VoxelGrid                     = TypeDefs::VoxelGrid;
     using PointCloud                    = TypeDefs::PointCloud;
@@ -23,8 +28,11 @@ public:
     Vector3Type             pos_w;
 
     // Pointclou
+    // Identifier
+    idpair                      id_;
+    double                      timestamp_;
 
-    auto ConvertToMsg(colive::MsgPointcloud &msg, Vector3Type &pos_w, bool is_update, size_t cliend_id)->void;
+    auto ConvertToMsg(MsgPointCloud &msg, Vector3Type &pos_w, bool is_update, size_t cliend_id)->void;
 
 
 };

@@ -63,7 +63,7 @@ auto Communicator_client::ProcessPointCloudBuffer()->void {
         // if(kfi->sent_once_ && !Map_V_params::comm::send_updates) continue;
         // if(kfi->sent_once_ && kfi->mnId == 0) continue;
         colive::data_bundle map_chunk;
-        colive::MsgPointcloud msg_ptcloud;
+        colive::MsgPointCloud msg_ptcloud;
         Vector3Type m(1.0,2.0,3.0);
         ptcloud->ConvertToMsg(msg_ptcloud,m ,ptcloud->sent_once_,client_id_);
         ptcloud->sent_once_ = true;

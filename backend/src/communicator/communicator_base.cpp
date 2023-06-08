@@ -157,7 +157,7 @@ auto CommunicatorBase::ProcessBufferIn()->void {
                 iarchive(msg);
                 buffer_landmarks_in_.push_back(msg);
             }else if(msg_type_deserialize_[4] == 2) { // pointcloud
-                MsgPointcloud msg(msg_type_deserialize_);
+                MsgPointCloud msg(msg_type_deserialize_);
                 iarchive(msg);
                 buffer_pointclouds_in_.push_back(msg);
             }else if(msg_type_deserialize_[4] == 3) { // odometry
@@ -199,7 +199,7 @@ auto CommunicatorBase::ProcessBufferOut()->void {
 
         for(int i=0;db.pointclouds.size();++i){
             message_container pointcloud_out_container;
-            MsgPointcloud msg = db.pointclouds.front();
+            MsgPointCloud msg = db.pointclouds.front();
             db.pointclouds.pop_front();
             Serialize(msg);
             pointcloud_out_container.ser_msg << send_ser_.str();
@@ -399,7 +399,7 @@ auto CommunicatorBase::Serialize(MsgLandmark &msg)->void {
     package_size_send_ = (int)send_ser_.str().length();
     msg.SetMsgType(package_size_send_);
 }
-auto CommunicatorBase::Serialize(MsgPointcloud &msg)->void {
+auto CommunicatorBase::Serialize(MsgPointCloud &msg)->void {
     //clear stringstream
     send_ser_.str("");
     send_ser_.clear();

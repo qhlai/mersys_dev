@@ -50,7 +50,7 @@ namespace colive {
 
 
 class KeyFrame;
-class Pointcloud;
+class PointCloud;
 
 class Communicator_client : public CommunicatorBase, public std::enable_shared_from_this<Communicator> {
 public:
@@ -84,7 +84,7 @@ public:
     virtual auto ProcessNewKeyframes()                                                  ->void;
     virtual auto ProcessNewLandmarks()                                                  ->void;
 
-    // virtual auto ProcessPointcloudMessages()                                            ->void;
+    // virtual auto ProcessPointCloudMessages()                                            ->void;
 
     virtual auto ProcessKfBuffer()                                                      ->void;
     virtual auto ProcessPointCloudBuffer()                                              ->void;
@@ -93,7 +93,7 @@ public:
 
     bool sending_init_ = false;
     std::list<KeyFrame*>   kf_out_buffer_;
-    std::list<Pointcloud_ex*>   pointcloud_out_buffer_;
+    std::list<PointCloud_ex*>   pointcloud_out_buffer_;
     std::mutex              mtx_kf_queue_;
 
     std::mutex              mtx_pointcloud_queue_;

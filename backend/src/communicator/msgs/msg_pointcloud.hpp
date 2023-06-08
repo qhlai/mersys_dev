@@ -27,7 +27,7 @@
 
 namespace colive {
 
-struct MsgPointcloud {
+struct MsgPointCloud {
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     using precision_t                   = TypeDefs::precision_t;
@@ -42,13 +42,13 @@ public:
     using VoxelGrid                     = TypeDefs::VoxelGrid;
     using PointCloud                    = TypeDefs::PointCloud;
 
-    struct compare_less{bool operator() (const MsgPointcloud &a, const MsgPointcloud &b) const;};
+    struct compare_less{bool operator() (const MsgPointCloud &a, const MsgPointCloud &b) const;};
 
 public:
 
-    MsgPointcloud();
-    MsgPointcloud(bool filesave);
-    MsgPointcloud(MsgTypeVector msgtype);
+    MsgPointCloud();
+    MsgPointCloud(bool filesave);
+    MsgPointCloud(MsgTypeVector msgtype);
 
     // Interfaces
     auto SetMsgType(int msg_size)                                       ->void;

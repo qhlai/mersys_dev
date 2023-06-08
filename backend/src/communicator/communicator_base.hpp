@@ -47,7 +47,7 @@ namespace colive {
 
 struct MsgKeyframe;
 struct MsgLandmark;
-struct MsgPointcloud;
+struct MsgPointCloud;
 struct MsgOdometry;
 
 struct data_bundle {
@@ -57,7 +57,7 @@ public:
 
     TypeDefs::KeyframeMsgList   keyframes;
     TypeDefs::LandmarkMsgList   landmarks;
-    TypeDefs::PointcloudMsgList pointclouds;
+    TypeDefs::PointCloudMsgList pointclouds;
     TypeDefs::OdometryMsgList   odometrys;
 
 };
@@ -84,7 +84,7 @@ public:
     using DataBundleBufferType          = std::list<data_bundle>;
     using KeyframeBufferType            = TypeDefs::KeyframeMsgList;
     using LandmarkBufferType            = TypeDefs::LandmarkMsgList;
-    using PointcloudBufferType          = TypeDefs::PointcloudMsgList;
+    using PointCloudBufferType          = TypeDefs::PointCloudMsgList;
     using OdometryBufferType            = TypeDefs::OdometryMsgList;
 
 public:
@@ -104,7 +104,7 @@ public:
     // Message handling
     virtual auto Serialize(MsgKeyframe &msg)                                            ->void;
     virtual auto Serialize(MsgLandmark &msg)                                            ->void;
-    virtual auto Serialize(MsgPointcloud &msg)                                            ->void;
+    virtual auto Serialize(MsgPointCloud &msg)                                            ->void;
     virtual auto Serialize(MsgOdometry &msg)                                            ->void;
 
     // Message passing
@@ -150,12 +150,12 @@ protected:
 
     KeyframeBufferType          buffer_keyframes_out_;
     LandmarkBufferType          buffer_landmarks_out_;
-    PointcloudBufferType        buffer_pointclouds_out_;
+    PointCloudBufferType        buffer_pointclouds_out_;
     OdometryBufferType          buffer_odometrys_out_;
 
     KeyframeBufferType          buffer_keyframes_in_;
     LandmarkBufferType          buffer_landmarks_in_;
-    PointcloudBufferType        buffer_pointclouds_in_;
+    PointCloudBufferType        buffer_pointclouds_in_;
     OdometryBufferType          buffer_odometrys_in_;
 
     // Sync

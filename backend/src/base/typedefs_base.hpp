@@ -64,7 +64,7 @@ class PointCloud_ex;
 
 struct MsgKeyframe;
 struct MsgLandmark;
-struct MsgPointcloud;
+struct MsgPointCloud;
 struct MsgOdometry;
 
 
@@ -87,7 +87,7 @@ namespace TypeDefs {
     // using CommPtr                       = std::shared_ptr<Communicator>;
     using KeyframePtr                   = std::shared_ptr<Keyframe>;
     using LandmarkPtr                   = std::shared_ptr<Landmark>;
-    using PointcloudPtr                 = std::shared_ptr<pcl::VoxelGrid<PointType>>;
+    using PointCloudPtr                 = std::shared_ptr<pcl::VoxelGrid<PointType>>;
     using PointCloudEXPtr                 = std::shared_ptr<PointCloudEX>;
     using ClientPtr                        = std::shared_ptr<Client>;
     using ClientVector                     = std::vector<ClientPtr>;
@@ -157,7 +157,7 @@ namespace TypeDefs {
 
     using KeyframeMsgList               = std::list<MsgKeyframe,Eigen::aligned_allocator<MsgKeyframe>>;
     using LandmarkMsgList               = std::list<MsgLandmark,Eigen::aligned_allocator<MsgLandmark>>;
-    using PointcloudMsgList             = std::list<MsgPointcloud,Eigen::aligned_allocator<MsgPointcloud>>;
+    using PointCloudMsgList             = std::list<MsgPointCloud,Eigen::aligned_allocator<MsgPointCloud>>;
     using OdometryMsgList               = std::list<MsgOdometry,Eigen::aligned_allocator<MsgOdometry>>;
 }
 

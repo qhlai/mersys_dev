@@ -27,7 +27,7 @@
 
 namespace colive {
 
-// struct MsgPointcloud {
+// struct MsgPointCloud {
 // public:
 //     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 //     using precision_t                   = TypeDefs::precision_t;
@@ -43,9 +43,9 @@ namespace colive {
 
 // public:
 
-//     MsgPointcloud();
-//     MsgPointcloud(bool filesave);
-//     MsgPointcloud(MsgTypeVector msgtype);
+//     MsgPointCloud();
+//     MsgPointCloud(bool filesave);
+//     MsgPointCloud(MsgTypeVector msgtype);
 
 //     // Interfaces
 //     auto SetMsgType(int msg_size)                                       ->void;

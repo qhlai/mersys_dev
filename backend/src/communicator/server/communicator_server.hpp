@@ -53,7 +53,7 @@ class Communicator_server : public CommunicatorBase, public std::enable_shared_f
 public:
 
     using MapPtr                        = TypeDefs::MapPtr;
-    using MapManagerPtr                    = TypeDefs::MapManagerPtr;
+    using MapManagerPtr                 = TypeDefs::MapManagerPtr;
     using PlacerecPtr                   = TypeDefs::PlacerecPtr;
     using VisPtr                        = TypeDefs::VisPtr;
 
@@ -66,7 +66,10 @@ public:
 
     // main function
     virtual auto Run()            ->void;
+
 protected:
+    virtual auto CollectDataForAgent()              ->void;
+
     // virtual auto ClientTest()            ->void;
 
     // virtual auto PassKfToComm(KeyFrame* kf)                               ->void {
@@ -78,6 +81,7 @@ protected:
     // virtual auto CollectDataForAgent()                                                  ->void;
 
     // // data handling
+    virtual auto ProcessPointCloudMessages()                                               ->void;
     // virtual auto ProcessAdditional()                                                    ->void;
     // virtual auto ProcessKeyframeMessages()                                              ->void;
     // virtual auto ProcessLandmarkMessages()                                              ->void;
@@ -108,4 +112,3 @@ protected:
 };
 
 } //end ns
-

@@ -40,16 +40,126 @@ Communicator_server::Communicator_server(int client_id, int newfd, MapManagerPtr
     //   placerec_(placerec)
 {
     //Send client ID
-    // std::cout << "Pass new ID " << client_id_ << " to client" << std::endl;
-    // message_container out_container;
-    // out_container.msg_info.push_back(1);
-    // out_container.msg_info.push_back(client_id_);
-    // while(out_container.msg_info.size() != ContainerSize*5)
-    //     out_container.msg_info.push_back(0);
-    // SendMsgContainer(out_container);
+    std::cout << "Pass new ID " << client_id_ << " to client" << std::endl;
+
+    message_container out_container;
+    out_container.msg_info.push_back(1);
+    out_container.msg_info.push_back(client_id_);
+    while(out_container.msg_info.size() != ContainerSize*5)
+        out_container.msg_info.push_back(0);
+    SendMsgContainer(out_container);
+
+}
+auto Communicator_server::CollectDataForAgent()->void {
+    // if(most_recent_kf_id_ == defpair) return;
+    // KeyframePtr kf_newest = map_->GetKeyframe(most_recent_kf_id_);
+    // if(!kf_newest) {
+    //     std::cout << COUTWARN << "cannot find KF " << most_recent_kf_id_ << std::endl;
+    //     return;
+    // }
+    // KeyframePtr kf0 = map_->GetKeyframe(0,client_id_);
+    // if(!kf_newest) {
+    //     std::cout << COUTWARN << "cannot find KF 0" << std::endl;
+    //     return;
+    // }
+    // if(kf_newest == kf0) return;
+    // data_bundle map_chunk;
+    // MsgKeyframe msg_kf;
+    // kf_newest->ConvertToMsg(msg_kf,kf0,true);
+    // map_chunk.keyframes.push_back(msg_kf);
+    // this->PassDataBundle(map_chunk);
+}
+
+auto Communicator_server::ProcessPointCloudMessages()->void {
+    std::unique_lock<std::mutex>(mtx_in_);
+    u16 cnt =0;
+
+    while(!buffer_pointclouds_in_.empty()) {
+
+        MsgPointCloud msg = buffer_pointclouds_in_.front();
+
+        // if(msg.id_reference.first > last_processed_kf_msg_.first) break;
+
+        buffer_pointclouds_in_.pop_front();
+        if(msg.is_update_msg){
+            if(!colive_params::comm::send_updates) continue;
+            else {
+                // auto kf = map_->GetKeyframe(msg.id,false);
+                // if(kf && kf->id_.first == 0) continue;
+                // if(kf) kf->UpdatePoseFromMsg(msg,map_);
+            }
+
+        }else{
+
+        }
+        // auto ptcloud = pointcloud_out_buffer_.front();
+        // pointcloud_out_buffer_.pop_front();
+
+        // // if(kfi->sent_once_ && !Map_V_params::comm::send_updates) continue;
+        // // if(kfi->sent_once_ && kfi->mnId == 0) continue;
+        // colive::data_bundle map_chunk;
+        // colive::MsgPointCloud msg_ptcloud;
+        // Vector3Type m(1.0,2.0,3.0);
+        // ptcloud->ConvertToMsg(msg_ptcloud,m ,ptcloud->sent_once_,client_id_);
+        // ptcloud->sent_once_ = true;
+        // map_chunk.pointclouds.push_back(msg_ptcloud);
+
+        // this->PassDataBundle(map_chunk);
+
+        // if(cnt >= colive_params::comm::max_sent_kfs_per_iteration) break;
+
+
+    }
+    // while(!kf_out_buffer_.empty())
+
+
 }
 
 auto Communicator_server::Run()->void {
+    std::thread thread_recv(&Communicator_server::RecvMsg, this);
+    thread_recv.detach();
+
+    auto last = std::chrono::steady_clock::now();
+    double wait_time = 1.0/colive_params::comm::to_agent_freq;
+    while(true)
+    {
+        int check_num_map;
+        // map_ = mapmanager_->CheckoutMapOrWait(client_id_,check_num_map);
+
+        if(colive_params::comm::data_to_client) {
+            auto now = std::chrono::steady_clock::now();
+            std::chrono::duration<double> diff = now-last;
+            if(diff.count() > wait_time) {
+                // this->CollectDataForAgent();
+                last = now;
+            }
+            this->ProcessBufferOut();
+        }
+
+        this->ProcessBufferIn();
+        if(this->TryLock()){
+            this->ProcessPointCloudMessages();
+            // this->ProcessKeyframeMessages();
+            // this->ProcessLandmarkMessages();
+            // this->ProcessNewKeyframes();
+            // this->ProcessNewLandmarks();
+            // this->ProcessAdditional();
+            this->UnLock();
+        }
+        // vis_->DrawMap(map_);
+
+        // mapmanager_->ReturnMap(client_id_,check_num_map);
+        // map_ = nullptr; //make sure the MapManager is used correctly - this will cause SEGFAULT if accessed
+
+        if(this->ShallFinish()){
+            std::cout << "Comm " << client_id_ << ": close" << std::endl;
+            break;
+        }
+        usleep(1000);
+    }
+
+    std::unique_lock<std::mutex> lock(mtx_finish_);
+    is_finished_ = true;
     // std::thread thread_recv(&Communicator_server::RecvMsg, this);
     // thread_recv.detach();
 

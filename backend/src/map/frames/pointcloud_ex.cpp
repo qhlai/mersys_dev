@@ -2,7 +2,7 @@
 #include "pointcloud_ex.hpp"
 namespace colive {
 
-auto Pointcloud_ex::ConvertToMsg(colive::MsgPointcloud &msg,Vector3Type &pos_w, bool is_update, size_t cliend_id)->void{
+auto PointCloud_ex::ConvertToMsg(colive::MsgPointCloud &msg,Vector3Type &pos_w, bool is_update, size_t cliend_id)->void{
 
 
     // std::unique_lock<std::mutex> lock_conn(mMutexConnections);

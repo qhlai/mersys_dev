@@ -2,23 +2,23 @@
 
 namespace colive {
 
-MsgPointcloud::MsgPointcloud() {
+MsgPointCloud::MsgPointCloud() {
     //...
 }
 
-MsgPointcloud::MsgPointcloud(bool filesave)
+MsgPointCloud::MsgPointCloud(bool filesave)
     : save_to_file(filesave)
 {
     //...
 }
 
-MsgPointcloud::MsgPointcloud(MsgTypeVector msgtype)
+MsgPointCloud::MsgPointCloud(MsgTypeVector msgtype)
     : msg_type(msgtype)
 {
     //...
 }
 
-auto MsgPointcloud::SetMsgType(int msg_size)->void {
+auto MsgPointCloud::SetMsgType(int msg_size)->void {
     msg_type[0] = msg_size;
     msg_type[1] = (int)is_update_msg;
     msg_type[2] = id.first;
@@ -26,7 +26,7 @@ auto MsgPointcloud::SetMsgType(int msg_size)->void {
     msg_type[4] = 2;
 }
 
-auto MsgPointcloud::SetMsgType(MsgTypeVector msgtype)->void {
+auto MsgPointCloud::SetMsgType(MsgTypeVector msgtype)->void {
     msg_type = msgtype;
 }
 
