@@ -111,7 +111,7 @@ auto Backend::ConnectSocket()->void {
         fprintf(stderr, "selectserver: failed to bind\n");
         exit(2);
     }
-
+    std::cout << "socket bind success" << std::endl;
     freeaddrinfo(ai); // all done with this
 }
 auto Backend::AddClient()->void {
@@ -136,6 +136,7 @@ auto Backend::AcceptClient()->void {
     // add the listener to the master set
     FD_SET(listener_, &master_);
 
+    std::cout << "waiting for connection" << std::endl;
     // main loop
     for(;;) {
         read_fds_ = master_; // copy it

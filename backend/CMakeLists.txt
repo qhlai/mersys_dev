@@ -79,29 +79,10 @@ message(STATUS "===== OpenCV include path: ${OpenCV_INCLUDE_DIRS} =====")
 #   pthread
 # )
 
-# set(BASE_SOURCE_FILES
-    
-# )
-
-# set(BASE_HEADER_FILES
-#     # include/covins/covins_base/keyframe_base.hpp
-#     # include/covins/covins_base/landmark_base.hpp
-#     # include/covins/covins_base/map_base.hpp
-#     # include/covins/covins_base/optimization_base.hpp
-#     # include/covins/covins_base/visualization_base.hpp
-
-#     # # config
-#     # include/covins/covins_base/config_backend.hpp
-# )
-
-# set(BACKEND_SOURCE_FILES
-#     src/backend/backend/backend.cpp
-
-# )
-# set(BACKEND_HEADER_FILES
-#     src/backend/backend/backend.hpp
-
-# )
+file(GLOB_RECURSE BACKEND_SRC_FILES     
+# ${PROJECT_SOURCE_DIR}/src/base/*.cpp
+${PROJECT_SOURCE_DIR}/src/core/*.cpp
+)
 
 file(GLOB_RECURSE FRAME_SRC_FILES     
 ${PROJECT_SOURCE_DIR}/src/map/frames/*.cpp
@@ -126,8 +107,7 @@ include_directories(
 add_executable(colive_test_timer src/tools/test_timer.cpp)
 
 add_executable(colive_backend_node src/core/backend_node.cpp
-    src/core/backend.cpp 
-    src/core/config_backend.cpp
+    ${BACKEND_SRC_FILES}
     ${MAP_SRC_FILES}
     ${COMM_SRC_FILES}   
 )
@@ -142,7 +122,23 @@ target_link_libraries(colive_backend_node
                           pcl_common 
                           pcl_io) 
 
+add_executable(colive_test_node src/test/test_node.cpp
+${PROJECT_SOURCE_DIR}/src/core/backend.cpp
+${PROJECT_SOURCE_DIR}/src/core/config_backend.cpp
+    ${MAP_SRC_FILES}
+    ${COMM_SRC_FILES}   
+)
 
+target_link_libraries(colive_test_node
+                        ${catkin_LIBRARIES}
+                        ${Boost_LIBRARIES}
+                        ${Boost_FILESYSTEM_LIBRARY}
+                        ${Boost_SERIALIZATION_LIBRARY} # serialization
+                        ${OpenCV_LIBRARIES}
+                        # ${OpenMVS_LIBRARIES}
+                        pcl_common 
+                        pcl_io) 
+                        
 # if (NOT BUILD_LIBRARY)
     # cs_add_library(covins_base ${BASE_SOURCE_FILES} ${BASE_HEADER_FILES})
     # target_link_libraries(covins_base ${catkin_LIBRARIES} ${EXTERNAL_LIBRARIES})
