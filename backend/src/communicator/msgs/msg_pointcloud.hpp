@@ -26,8 +26,7 @@
 #include <pcl/io/pcd_io.h>
 
 namespace colive {
-
-struct MsgPointCloud {
+class MsgPointCloud{
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     using precision_t                   = TypeDefs::precision_t;
@@ -68,8 +67,8 @@ public:
     
     double                  downSample;
     double                  leafsize_xyz[3];
-    VoxelGrid               vox_cloud;
 
+    VoxelGrid               vox_cloud;
     PointCloud              pts_cloud;
 
 

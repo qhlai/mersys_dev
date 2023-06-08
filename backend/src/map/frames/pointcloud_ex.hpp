@@ -3,7 +3,7 @@
 #include "msgs/msg_pointcloud.hpp"
 
 namespace colive {
-    
+
 
 class PointCloud_ex
 {
@@ -25,6 +25,8 @@ public:
     bool sent_once_ = false;
     VoxelGrid  vox_cloud;
     PointCloud pts_cloud;
+    // Position
+    Vector3Type             pos_ref;
     Vector3Type             pos_w;
 
     // Pointclou
