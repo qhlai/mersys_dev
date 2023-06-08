@@ -36,6 +36,8 @@
 // COVINS
 #include "typedefs_base.hpp"
 #include "config_comm.hpp"
+#include "mapmanager.hpp"
+#include "pointcloud_ex.hpp"
 
 #include "msgs/msg_landmark.hpp"
 #include "msgs/msg_keyframe.hpp"
@@ -49,7 +51,7 @@ namespace colive {
 
 
 class KeyFrame;
-class Communicator_server : public CommunicatorBase, public std::enable_shared_from_this<Communicator> {
+class Communicator_server : public CommunicatorBase, public std::enable_shared_from_this<Communicator_server> {
 public:
 
     using MapPtr                        = TypeDefs::MapPtr;
@@ -57,12 +59,14 @@ public:
     using PlacerecPtr                   = TypeDefs::PlacerecPtr;
     using VisPtr                        = TypeDefs::VisPtr;
 
+    using PointCloudEXPtr          = TypeDefs::PointCloudEXPtr;
     using KeyframeList                  = TypeDefs::KeyframeList;
     using LandmarkList                  = TypeDefs::LandmarkList;
-
+    using PointCloudEXList  = TypeDefs::PointCloudEXList;  
+    // using MsgPointCloud  = TypeDefs::MsgPointCloud;  
 
 public:
-    Communicator_server(int client_id, int newfd, MapManagerPtr man);
+    Communicator_server(int client_id, int newfd, MapManagerPtr man,PlacerecPtr placerec);
 
     // main function
     virtual auto Run()            ->void;
@@ -96,7 +100,10 @@ protected:
     MapPtr                         map_                                                    = nullptr;
     MapManagerPtr                  mapmanager_                                             = nullptr;
     // VisPtr                      vis_                                                    = nullptr;
-    // PlacerecPtr                 placerec_                                               = nullptr;
+    PlacerecPtr                 placerec_                                               = nullptr;
+
+    PointCloudEXList                pointclouds_new_;
+    // LandmarkList                landmarks_new_;
 
     //data
     // idpair                      most_recent_kf_id_                                      = defpair;

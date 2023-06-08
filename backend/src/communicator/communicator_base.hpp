@@ -136,8 +136,9 @@ protected:
     // Data handling
     virtual auto ProcessBufferOut()                                                     ->void;
     virtual auto ProcessBufferIn()                                                      ->void;
-    virtual auto ProcessKeyframeMessages()                                              ->void      = 0;
-    virtual auto ProcessLandmarkMessages()                                              ->void      = 0;
+    // virtual auto ProcessKeyframeMessages()                                              ->void      = 0;
+    // virtual auto ProcessLandmarkMessages()                                              ->void      = 0;
+    virtual auto ProcessPointCloudMessages()                                              ->void      = 0;
 
     // Infrastructure
     int                         client_id_                                              = -1;

@@ -21,7 +21,7 @@
 
 #include "config_comm.hpp"
 #include "config_backend.hpp"
-
+#include "communicator_server.hpp"
 #include "map_co.hpp"
 
 // Socket Programming
@@ -32,16 +32,21 @@
 #include <netdb.h>
 #include <atomic>
 
+#include "mapmanager.hpp"
 #include "typedefs_base.hpp"
-
+#include "communicator_base.hpp"
+#include "communicator_server.hpp"
 namespace colive {
 
 class Client{
 public:
+    using CommPtr                       = TypeDefs::CommServerPtr;
     using MapPtr                     = TypeDefs::MapPtr;
     using MapManagerPtr              = TypeDefs::MapManagerPtr;
-
-    MapPtr  map_ptr;
+    using PlacerecPtr                   = TypeDefs::PlacerecPtr;
+    using VisPtr                        = TypeDefs::VisPtr;
+    using ThreadPtr                     = TypeDefs::ThreadPtr;
+    
 public:
     Client()=delete;
     Client(size_t client_id_);
@@ -50,12 +55,18 @@ public:
 
 protected:
     size_t client_id_;
+    MapPtr  map_ptr;
+    CommPtr                     comm_;
     MapManagerPtr mapmanager_;
+    PlacerecPtr                 placerec_;
+    ThreadPtr                   thread_comm_;
+    ThreadPtr                   thread_placerec_;
 };
 
 class Backend{
     public:
     using ThreadPtr                  = TypeDefs::ThreadPtr;
+    
     using MapPtr                     = TypeDefs::MapPtr;
     using MapManagerPtr              = TypeDefs::MapManagerPtr;
     using ClientPtr                  = TypeDefs::ClientPtr;

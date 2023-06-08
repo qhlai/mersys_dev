@@ -5,13 +5,14 @@
 namespace colive {
 
 
-class PointCloud_ex
+class PointCloud_ex: public std::enable_shared_from_this<Map>
 {
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
     using precision_t                   = TypeDefs::precision_t;
     using idpair                        = TypeDefs::idpair;
+    using MapPtr                        = TypeDefs::MapPtr;
     using PointType                     = TypeDefs::PointType;
     using VoxelGrid                     = TypeDefs::VoxelGrid;
     using PointCloud                    = TypeDefs::PointCloud;
@@ -33,7 +34,8 @@ public:
     // Identifier
     idpair                      id_;
     double                      timestamp_;
-
+    PointCloud_ex()=default;
+    PointCloud_ex(MsgPointCloud msg, MapPtr map);
     auto ConvertToMsg(MsgPointCloud &msg, Vector3Type &pos_w, bool is_update, size_t cliend_id)->void;
 
 

@@ -52,11 +52,12 @@ namespace colive {
 class KeyFrame;
 class PointCloud;
 
-class Communicator_client : public CommunicatorBase, public std::enable_shared_from_this<Communicator> {
+class Communicator_client : public CommunicatorBase, public std::enable_shared_from_this<Communicator_client> {
 public:
     using Vector3Type                   = TypeDefs::Vector3Type;
     using Matrix3Type                   = TypeDefs::Matrix3Type;
     using TransformType                 = TypeDefs::TransformType;
+    using PointCloudEXList  = TypeDefs::PointCloudEXList;  
     // struct cmp_by_id{
     //     bool operator() (const std::pair<size_t,KeyFrame*> a, const std::pair<size_t,KeyFrame*> b){
     //         if(a.first < b.first) return true;
@@ -68,6 +69,7 @@ public:
 
     // main function
     virtual auto Run()            ->void;
+    
     // virtual auto ClientTest()            ->void;
 
     // virtual auto PassKfToComm(KeyFrame* kf)                               ->void {
@@ -79,6 +81,7 @@ public:
 
 //     // data handling
     virtual auto ProcessAdditional()                                                    ->void;
+    virtual auto ProcessPointCloudMessages()->void;
     virtual auto ProcessKeyframeMessages()                                              ->void;
     virtual auto ProcessLandmarkMessages()                                              ->void;
     virtual auto ProcessNewKeyframes()                                                  ->void;
@@ -90,6 +93,8 @@ public:
     virtual auto ProcessPointCloudBuffer()                                              ->void;
 //     // Infrastructure
 //     Atlas*                  map_                                                                = nullptr;  // the map is not necessary to send data to the server. However, we keep a ptr to it to facilitate implementing potetnial interaction
+
+
 
     bool sending_init_ = false;
     std::list<KeyFrame*>   kf_out_buffer_;

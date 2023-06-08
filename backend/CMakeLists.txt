@@ -61,6 +61,8 @@ include_directories(
     ${PROJECT_SOURCE_DIR}/src/map/frames
     ${PROJECT_SOURCE_DIR}/src/tools
     ${PROJECT_SOURCE_DIR}/src/communicator
+    ${PROJECT_SOURCE_DIR}/src/communicator/server
+    ${PROJECT_SOURCE_DIR}/src/communicator/client
     # "src/communicator/msg"
     # ${CMAKE_SOURCE_DIR}/thirdparty/cereal
     # "include/covins"

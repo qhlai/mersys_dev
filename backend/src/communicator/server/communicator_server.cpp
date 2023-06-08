@@ -33,11 +33,11 @@
 
 namespace colive {
 
-Communicator_server::Communicator_server(int client_id, int newfd, MapManagerPtr man)
+Communicator_server::Communicator_server(int client_id, int newfd, MapManagerPtr man, PlacerecPtr placerec)
     : CommunicatorBase(client_id,newfd),
-      mapmanager_(man)
+      mapmanager_(man),
     //   vis_(vis),
-    //   placerec_(placerec)
+      placerec_(placerec)
 {
     //Send client ID
     std::cout << "Pass new ID " << client_id_ << " to client" << std::endl;
@@ -71,47 +71,34 @@ auto Communicator_server::CollectDataForAgent()->void {
 }
 
 auto Communicator_server::ProcessPointCloudMessages()->void {
-    std::unique_lock<std::mutex>(mtx_in_);
-    u16 cnt =0;
-
+    std::unique_lock<std::mutex> lock(mtx_in_);
     while(!buffer_pointclouds_in_.empty()) {
-
         MsgPointCloud msg = buffer_pointclouds_in_.front();
-
         // if(msg.id_reference.first > last_processed_kf_msg_.first) break;
-
         buffer_pointclouds_in_.pop_front();
         if(msg.is_update_msg){
             if(!colive_params::comm::send_updates) continue;
-            else {
-                // auto kf = map_->GetKeyframe(msg.id,false);
-                // if(kf && kf->id_.first == 0) continue;
-                // if(kf) kf->UpdatePoseFromMsg(msg,map_);
+            else{
+                // TODO: update
+                // auto pc =map_->GetPointCloud();
+            }
+        }
+        else{
+            PointCloudEXPtr pc;
+            pc = map_->GetPointCloudEX(msg.id);// id: id+pointcloud
+            if(!pc){
+                // pc.reset(new PointCloud_ex(msg,map_));
+                // map_->AddPointCloud(pc);
+                pointclouds_new_.push_back(pc);
+            }else{
+                // TODO: 
             }
 
-        }else{
-
         }
-        // auto ptcloud = pointcloud_out_buffer_.front();
-        // pointcloud_out_buffer_.pop_front();
-
-        // // if(kfi->sent_once_ && !Map_V_params::comm::send_updates) continue;
-        // // if(kfi->sent_once_ && kfi->mnId == 0) continue;
-        // colive::data_bundle map_chunk;
-        // colive::MsgPointCloud msg_ptcloud;
-        // Vector3Type m(1.0,2.0,3.0);
-        // ptcloud->ConvertToMsg(msg_ptcloud,m ,ptcloud->sent_once_,client_id_);
-        // ptcloud->sent_once_ = true;
-        // map_chunk.pointclouds.push_back(msg_ptcloud);
-
-        // this->PassDataBundle(map_chunk);
-
-        // if(cnt >= colive_params::comm::max_sent_kfs_per_iteration) break;
-
-
+    
+    
     }
-    // while(!kf_out_buffer_.empty())
-
+    
 
 }
 
@@ -124,7 +111,7 @@ auto Communicator_server::Run()->void {
     while(true)
     {
         int check_num_map;
-        // map_ = mapmanager_->CheckoutMapOrWait(client_id_,check_num_map);
+        map_ = mapmanager_->CheckoutMapOrWait(client_id_,check_num_map);
 
         if(colive_params::comm::data_to_client) {
             auto now = std::chrono::steady_clock::now();
@@ -148,8 +135,8 @@ auto Communicator_server::Run()->void {
         }
         // vis_->DrawMap(map_);
 
-        // mapmanager_->ReturnMap(client_id_,check_num_map);
-        // map_ = nullptr; //make sure the MapManager is used correctly - this will cause SEGFAULT if accessed
+        mapmanager_->ReturnMap(client_id_,check_num_map);
+        map_ = nullptr; //make sure the MapManager is used correctly - this will cause SEGFAULT if accessed
 
         if(this->ShallFinish()){
             std::cout << "Comm " << client_id_ << ": close" << std::endl;
@@ -160,8 +147,7 @@ auto Communicator_server::Run()->void {
 
     std::unique_lock<std::mutex> lock(mtx_finish_);
     is_finished_ = true;
-    // std::thread thread_recv(&Communicator_server::RecvMsg, this);
-    // thread_recv.detach();
+
 
 }
 

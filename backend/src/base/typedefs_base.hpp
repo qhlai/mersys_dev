@@ -51,7 +51,8 @@ namespace colive {
 struct IMU_Measurement;
 
 // Forward Decs
-class Communicator;
+class Communicator_server;
+class Communicator_client;
 class Keyframe;
 class Landmark;
 class Map;
@@ -84,11 +85,13 @@ namespace TypeDefs {
     using PointCloudRBG                 = pcl::PointCloud<pcl::PointXYZRGB>;
     using PointCloudEX                  = PointCloud_ex;
 
-    // using CommPtr                       = std::shared_ptr<Communicator>;
+    using CommClientPtr                       = std::shared_ptr<Communicator_client>;
+    using CommServerPtr                       = std::shared_ptr<Communicator_server>;
     using KeyframePtr                   = std::shared_ptr<Keyframe>;
     using LandmarkPtr                   = std::shared_ptr<Landmark>;
-    using PointCloudPtr                 = std::shared_ptr<pcl::VoxelGrid<PointType>>;
+    using PointCloudPtr                 = std::shared_ptr<PointCloud>;
     using PointCloudEXPtr                 = std::shared_ptr<PointCloudEX>;
+
     using ClientPtr                        = std::shared_ptr<Client>;
     using ClientVector                     = std::vector<ClientPtr>;
     using MapPtr                           = std::shared_ptr<Map>;
@@ -140,6 +143,7 @@ namespace TypeDefs {
 
     using KeyframeMap                   = std::map<idpair,KeyframePtr,std::less<idpair>,Eigen::aligned_allocator<std::pair<const idpair,KeyframePtr>>>; // map allocator: first element of pair must be declared const
     using LandmarkMap                   = std::map<idpair,LandmarkPtr,std::less<idpair>,Eigen::aligned_allocator<std::pair<const idpair,LandmarkPtr>>>; // map allocator: first element of pair must be declared const
+    using PointCloudMap                 = std::map<idpair,PointCloudEXPtr,std::less<idpair>,Eigen::aligned_allocator<std::pair<const idpair,PointCloudEXPtr>>>; // map allocator: first element of pair must be declared const
     using PointCloudEXMap                 = std::map<idpair,PointCloudEXPtr,std::less<idpair>,Eigen::aligned_allocator<std::pair<const idpair,PointCloudEXPtr>>>; // map allocator: first element of pair must be declared const
     
     using KeyframePairVector            = std::vector<std::pair<KeyframePtr,KeyframePtr>, Eigen::aligned_allocator<std::pair<KeyframePtr,KeyframePtr>>>;

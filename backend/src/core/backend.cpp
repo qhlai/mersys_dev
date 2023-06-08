@@ -1,6 +1,6 @@
 #include "backend.hpp"
 
-
+#include "map_co.hpp"
 // #include <ros/ros.h>
 
 // AgentPackage::AgentPackage(size_t client_id, int newfd, VisPtr vis, ManagerPtr man) {
@@ -9,10 +9,21 @@
 namespace colive {
 
 Client::Client(size_t client_id, int newfd, MapManagerPtr man)
-: client_id_(client_id)
-    //   mapmanager_(man)
+:   client_id_(client_id),
+    mapmanager_(man)
 {
     std::cout << "Client:"<<client_id_ <<" start"<< std::endl;
+    mapmanager_->InitializeMap(client_id);
+    // placerec_.reset(new PlaceRecognitionG(mapmanager_,covins_params::opt::perform_pgo));
+    // thread_placerec_.reset(new std::thread(&PlacerecBase::Run,placerec_));
+    // thread_placerec_->detach();
+
+    comm_.reset(new Communicator_server(client_id_,newfd,man,placerec_));
+    thread_comm_.reset(new std::thread(&Communicator_server::Run,comm_));
+    thread_comm_->detach();
+
+
+
     // mapmanager_->InitializeMap(client_id);
 
     // Other types of place recognition system could be integrated and activated using the placerec::type parameter
@@ -143,7 +154,7 @@ auto Backend::AcceptClient()->void {
                 perror("accept failed");
             } else {
                 // ok
-                // printf("selectserver: new connection from %s on socket %d\n", inet_ntop(remoteaddr.ss_family, CommunicatorBase::GetInAddr((struct sockaddr *) &remoteaddr), remoteIP, INET6_ADDRSTRLEN), newfd_);
+                printf("selectserver: new connection from %s on socket %d\n", inet_ntop(remoteaddr.ss_family, CommunicatorBase::GetInAddr((struct sockaddr *) &remoteaddr), remoteIP, INET6_ADDRSTRLEN), newfd_);
             }
 
             //Creating new threads for every agent

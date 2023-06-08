@@ -2,6 +2,12 @@
 #include "pointcloud_ex.hpp"
 namespace colive {
 
+
+PointCloud_ex::PointCloud_ex(MsgPointCloud msg, MapPtr map){
+    pts_cloud=msg.pts_cloud;
+    pos_w = msg.pos_w;
+}
+
 auto PointCloud_ex::ConvertToMsg(colive::MsgPointCloud &msg,Vector3Type &pos_w, bool is_update, size_t cliend_id)->void{
 
 

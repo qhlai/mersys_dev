@@ -2,80 +2,20 @@
 
 namespace colive {
 
-Map_V::Map_V(size_t id)
-    : id_map_(id)
+
+MapInstance::MapInstance(int id) {
+    map.reset(new Map(id));
+}
+MapInstance::MapInstance(MapInstancePtr map_target, MapInstancePtr map_tofuse, TransformType T_wmatch_wtofuse)
+    : usage_cnt(-1)
 {
-    if(id_map_ > 1000) {
-        std::cout << COUTFATAL << "Map initialized with ID " << id_map_ << std::endl;
-        exit(-1);
-    }
+    map.reset(new Map(map_target->map,map_tofuse->map,T_wmatch_wtofuse));
 }
 
-auto Map_V::Clear()->void {
-    keyframes_.clear();
-    landmarks_.clear();
-    max_id_kf_ = 0;
-    max_id_lm_ = 0;
+MapInstance::MapInstance(MapPtr external_map) {
+    map = external_map;
 }
 
-auto Map_V::GetKeyframe(idpair idp, bool expect_null)->KeyframePtr {
-    std::unique_lock<std::mutex> lock(mtx_map_);
-    KeyframeMap::iterator mit = keyframes_.find(idp);
-    if(mit != keyframes_.end()) return mit->second;
-    else {
-        return nullptr;
-    }
-}
-
-auto Map_V::GetKeyframes()->KeyframeMap {
-    std::unique_lock<std::mutex> lock(mtx_map_);
-    return keyframes_;
-}
-
-auto Map_V::GetKeyframesErased()->KeyframeMap {
-    std::unique_lock<std::mutex> lock(mtx_map_);
-    return keyframes_erased_;
-}
-
-auto Map_V::GetKeyframesVec()->KeyframeVector {
-    std::unique_lock<std::mutex> lock(mtx_map_);
-    KeyframeVector kfs;
-    for(KeyframeMap::iterator mit = keyframes_.begin();mit!=keyframes_.end();++mit)
-        kfs.push_back(mit->second);
-    return kfs;
-}
-
-auto Map_V::GetLandmark(idpair idp)->LandmarkPtr {
-    std::unique_lock<std::mutex> lock(mtx_map_);
-    LandmarkMap::iterator mit = landmarks_.find(idp);
-    if(mit != landmarks_.end()) return mit->second;
-    else {
-        return nullptr;
-    }
-}
-
-auto Map_V::GetLandmarks()->LandmarkMap {
-    std::unique_lock<std::mutex> lock(mtx_map_);
-    return landmarks_;
-}
-
-auto Map_V::GetLandmarksVec()->LandmarkVector {
-    std::unique_lock<std::mutex> lock(mtx_map_);
-    LandmarkVector lms;
-    for(LandmarkMap::iterator mit = landmarks_.begin();mit!=landmarks_.end();++mit)
-        lms.push_back(mit->second);
-    return lms;
-}
-
-auto Map_V::GetMaxKfId()->size_t {
-    std::unique_lock<std::mutex> lock(mtx_map_);
-    return max_id_kf_;
-}
-
-auto Map_V::GetMaxLmId()->size_t {
-    std::unique_lock<std::mutex> lock(mtx_map_);
-    return max_id_lm_;
-}
 
 Map::Map(size_t id_)
 : id_map_(id_)
@@ -136,21 +76,15 @@ Map::Map(MapPtr map_target, MapPtr map_tofuse, TransformType T_wtarget_wtofuse)
     // }
 }
 
-
-
-MapInstance::MapInstance(int id) {
-    map.reset(new Map(id));
+auto Map::GetPointCloudEX(idpair idp)->PointCloudEXPtr {
+    std::unique_lock<std::mutex> lock(mtx_map_);
+    PointCloudEXMap::iterator mit =  pointclouds_.find(idp);
+    if(mit != pointclouds_.end()) return mit->second;
+    else {
+        return nullptr;
+    }
 }
 
-MapInstance::MapInstance(MapInstancePtr map_target, MapInstancePtr map_tofuse, TransformType T_wmatch_wtofuse)
-    : usage_cnt(-1)
-{
-    map.reset(new Map(map_target->map,map_tofuse->map,T_wmatch_wtofuse));
-}
-
-MapInstance::MapInstance(MapPtr external_map) {
-    map = external_map;
-}
 
 
 }
