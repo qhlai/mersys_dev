@@ -50,6 +50,8 @@ int main(int argc, char* argv[]) {
     colive::Backend::ThreadPtr main_thread(new std::thread(&colive::Backend::Run,backend));
     main_thread->detach(); // Thread will be cleaned up when exiting main()
     
+
+    
     // std::shared_ptr<Communicator> comm_;
     // covins::TypeDefs::ThreadPtr thread_comm_;
 

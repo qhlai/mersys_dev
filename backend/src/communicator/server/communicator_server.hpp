@@ -92,7 +92,7 @@ protected:
     // virtual auto ProcessLandmarkMessages()                                              ->void;
     // virtual auto ProcessNewKeyframes()                                                  ->void;
     // virtual auto ProcessNewLandmarks()                                                  ->void;
-
+    virtual auto ProcessNewPointClouds()->void;
     // LM Culling
     // auto LandmarkCulling(size_t min_obs, size_t max_gap)                                ->int;
     // auto KeyframeCulling(double th_red, int recent_window_size)                         ->void;
@@ -102,6 +102,10 @@ protected:
     MapManagerPtr                  mapmanager_                                             = nullptr;
     // VisPtr                      vis_                                                    = nullptr;
     PlacerecPtr                 placerec_                                               = nullptr;
+
+     //data
+    // idpair                      most_recent_kf_id_                                      = defpair;
+    idpair                      most_recent_pc_id_                                      = defpair;
 
     PointCloudEXList                pointclouds_new_;
     // LandmarkList                landmarks_new_;

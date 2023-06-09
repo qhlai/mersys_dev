@@ -75,7 +75,19 @@ Map::Map(MapPtr map_target, MapPtr map_tofuse, TransformType T_wtarget_wtofuse)
     //     lm->SetWorldPos(pos_w_corrected);
     // }
 }
-
+auto Map::AddPointCloud(PointCloudEXPtr pc)->void {
+    this->AddPointCloud(pc,false);
+}
+auto Map::AddPointCloud(PointCloudEXPtr pc, bool suppress_output)->void {
+    std::unique_lock<std::mutex> lock(mtx_map_);
+    pointclouds_[pc->id_] = pc;
+    max_id_pc_ = std::max(max_id_pc_,pc->id_.first);
+    if(!suppress_output && !(pointclouds_.size() % 50)) {
+        // std::cout << "Map " << this->id_map_  << " : " << keyframes_.size() << " KFs | " << landmarks_.size() << " LMs" << std::endl;
+        // this->WriteKFsToFile();
+        // this->WriteKFsToFileAllAg();
+    }
+}
 auto Map::GetPointCloudEX(idpair idp)->PointCloudEXPtr {
     std::unique_lock<std::mutex> lock(mtx_map_);
     PointCloudEXMap::iterator mit =  pointclouds_.find(idp);
@@ -84,7 +96,12 @@ auto Map::GetPointCloudEX(idpair idp)->PointCloudEXPtr {
         return nullptr;
     }
 }
-
+auto Map::Display()->void {
+    std::unique_lock<std::mutex> lock(mtx_map_);
+    // keyframes_.size();
+    // landmarks_
+    std::cout<<"pointcloud frames num:"<<pointclouds_.size()<<std::endl;
+}
 
 
 }

@@ -32,6 +32,7 @@
 
 // #include "tools/tools_eigen.hpp"
 #include "typedefs_base.hpp"
+#include "pointcloud_ex.hpp"
 
 namespace colive {
 
@@ -96,6 +97,10 @@ public:
     Map(MapPtr map_target, MapPtr map_tofuse, TransformType T_wtarget_wtofuse);
 
     virtual auto GetPointCloudEX(idpair idp)        ->PointCloudEXPtr;
+    virtual auto Display()->void;
+
+    virtual auto AddPointCloud(PointCloudEXPtr pc)->void;
+    virtual auto AddPointCloud(PointCloudEXPtr pc, bool suppress_output)->void;
     // void feat_points_callback(const sensor_msgs::PointCloud2::ConstPtr &msg_in);
     // void image_callback(const sensor_msgs::ImageConstPtr &msg);
     // void image_comp_callback(const sensor_msgs::CompressedImageConstPtr &msg);
@@ -111,7 +116,7 @@ protected:
     // Data
     KeyframeMap                 keyframes_;
     LandmarkMap                 landmarks_;
-    PointCloudMap             pointclouds_;
+    PointCloudEXMap             pointclouds_;
 
     KeyframeMap                 keyframes_erased_;
 

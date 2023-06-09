@@ -91,7 +91,7 @@ auto Communicator_server::ProcessPointCloudMessages()->void {
                 // map_->AddPointCloud(pc);
                 
                 pc.reset(new PointCloudEX(msg,map_));
-                std::cout<<"Added point cloud id: "<<pc->id_.first<<"of client:"<<pc->id_.second <<" pos_w: "<<pc->pos_w<<std::endl;
+                std::cout<<"Added point cloud id: "<<pc->id_.first<<" of client:"<<pc->id_.second <<" pos_w: "<<pc->pos_w<<std::endl;
                 pointclouds_new_.push_back(pc);
                 last_processed_pc_msg_ = pc->id_;
             }else{
@@ -104,6 +104,36 @@ auto Communicator_server::ProcessPointCloudMessages()->void {
     }
     
 
+}
+
+auto Communicator_server::ProcessNewPointClouds()->void {
+    std::unique_lock<std::mutex> lock(mtx_in_);
+    while(!pointclouds_new_.empty()) {
+        PointCloudEXPtr pc = pointclouds_new_.front();
+        pointclouds_new_.pop_front();
+
+        // if(covins_params::placerec::active)
+        //     placerec_->InsertKeyframe(kf);
+        // map_->UpdateCovisibilityConnections(kf->id_);
+
+        // Keyframe::LandmarkVector landmarks = kf->GetLandmarks();
+
+        // for(size_t idx=0;idx<landmarks.size();++idx) {
+        //     LandmarkPtr i = landmarks[idx];
+        //     if(!i) {
+        //         continue;
+        //     }
+        //     i->ComputeDescriptor();
+        //     i->UpdateNormal();
+        // }
+
+        if(static_cast<int>(pc->id_.second) == client_id_) {
+            if(most_recent_pc_id_ == defpair) most_recent_pc_id_ = pc->id_;
+            else most_recent_pc_id_.first = std::max(most_recent_pc_id_.first,pc->id_.first);
+            // map_->pointclouds_.push_back(pc);
+            map_->AddPointCloud(pc);
+        }
+    }
 }
 
 auto Communicator_server::Run()->void {
@@ -130,8 +160,11 @@ auto Communicator_server::Run()->void {
         this->ProcessBufferIn();
         if(this->TryLock()){
             this->ProcessPointCloudMessages();
+            this->ProcessNewPointClouds();
+
             // this->ProcessKeyframeMessages();
             // this->ProcessLandmarkMessages();
+            
             // this->ProcessNewKeyframes();
             // this->ProcessNewLandmarks();
             // this->ProcessAdditional();

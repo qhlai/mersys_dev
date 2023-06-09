@@ -8,6 +8,15 @@
 // }
 namespace colive {
 
+
+// void vis(){
+//     while (true)
+//     {
+//         mapmanager_->Display();
+//         sleep(3);
+//     } 
+// }
+
 Client::Client(size_t client_id, int newfd, MapManagerPtr man)
 :   client_id_(client_id),
     mapmanager_(man)
@@ -23,7 +32,16 @@ Client::Client(size_t client_id, int newfd, MapManagerPtr man)
     thread_comm_.reset(new std::thread(&Communicator_server::Run,comm_));
     thread_comm_->detach();
 
-
+    // ThreadPtr vis_;
+    // vis_.reset(new std::thread(&MapManager::Display,mapmanager_));
+    // vis_->detach();
+    // TODO:   blocked here should be fixed
+    // while (true)
+    // {
+    //     mapmanager_->Display();
+    //     sleep(3);
+    // }
+    
 
     // mapmanager_->InitializeMap(client_id);
 
@@ -62,7 +80,7 @@ Backend::Backend(){
     // some init 
     colive_params::ShowParamsComm();
     colive_params::ShowParamsBackend();
-    
+
     mapmanager_.reset(new MapManager());
     thread_mapmanager_.reset(new std::thread(&MapManager::Run,mapmanager_));
     thread_mapmanager_->detach(); // Thread will be cleaned up when exiting main()

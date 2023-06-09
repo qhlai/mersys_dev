@@ -61,6 +61,7 @@ public:
 
     auto RegisterMerge(MergeInformation merge_data)                                     ->void;
 
+    auto Display()->void;
     // auto GetVoc()                                                                       ->VocabularyPtr {   // will never change - no need to be guarded by mutex
     //     return voc_;
     // }
@@ -73,7 +74,7 @@ protected:
 
     auto CheckMergeBuffer()            ->bool;
     auto PerformMerge()                ->void;
-
+    // auto Display_()->void;
     // Data
     MapContainer                maps_;
     MergeBuffer                 buffer_merge_;

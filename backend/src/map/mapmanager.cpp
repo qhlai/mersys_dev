@@ -5,6 +5,8 @@ namespace colive
 MapManager::MapManager()
 {
     std::cout << "new MapManager" << std::endl;
+
+    
     // // Other types of place recognition system could be integrated and activated using the placerec::type parameter
     // if(covins_params::placerec::type == "COVINS" || covins_params::placerec::type == "COVINS_G") {
     //     database_.reset(new KeyframeDatabase(voc_));
@@ -146,8 +148,11 @@ auto MapManager::InitializeMap(int map_id)->void {
         std::cout << COUTFATAL << "Existing map with Map-ID " << map_id << std::endl;
         exit(-1);
     }
+    std::cout << "create a new map with Map-ID " << map_id << std::endl;
     MapInstancePtr map(new MapInstance(map_id));
     maps_[map_id] = map;
+
+    // this->Display();
 }
 auto MapManager::ReturnMap(int map_id, int &check_num)->void {
     std::unique_lock<std::mutex> lock(mtx_access_);
@@ -256,5 +261,24 @@ auto MapManager::PerformMerge()->void {
 
     std::cout << "\033[1;32m+++ MAPS MERGED +++\033[0m" << std::endl;
 }
+auto MapManager::Display()->void {
+    std::unique_lock<std::mutex> lock(mtx_access_);
+
+    // while(true) {//temp should be deleted
+    for(auto iter = maps_.begin(); iter != maps_.end(); iter++)  {
+            std::cout<<"Mapmanager: map id:"<<iter->first<<"  "<<std::endl;;
+            auto map = iter->second->map;
+            // std::cout<<"poitcloud frame num:"<<map->pointclouds_.size()<<"  "<<std::endl;
+            map->Display();
+        }
+    // sleep(5);
+    // }
+   
+}
+// auto MapManager::Display()->void {
+//     this->Display();
+// }
+
+
 
 }
