@@ -41,10 +41,18 @@ Communicator_client::Communicator_client(std::string server_ip, std::string port
     // map_ = map;
 
     std::cout << "--> Connect to server" << std::endl;
+    // 加入等待重连 TODO：断线重连
     newfd_ = ConnectToServer(server_ip.c_str(),port);
-    if(newfd_ == 2){
-        std::cout << COUTFATAL << ": Could no establish connection - exit" << std::endl;
-        exit(-1);
+    uint8_t cnt_retry=0;
+    while(newfd_ == 2){
+        std::cout << COUTFATAL << ": Could no establish connection - retry "<< str(cnt_retry++) << std::endl;
+        ConnectToServer(server_ip.c_str(),port);
+
+        sleep(5);
+        if(cnt_retry >=5){
+            std::cout << COUTFATAL << ": Could no establish connection - exit" << std::endl;
+            exit(-1);
+        }
     }
     std::cout << "newfd_: " << newfd_ << std::endl;
     std::cout << "--> Connected" << std::endl;

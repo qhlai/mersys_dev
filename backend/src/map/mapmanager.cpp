@@ -141,13 +141,11 @@ auto MapManager::SetCheckoutBlock(int map_id, bool val)->bool {
 
 auto MapManager::InitializeMap(int map_id)->void {
     std::unique_lock<std::mutex> lock(mtx_access_);
-
     MapContainer::iterator mit = maps_.find(map_id);
     if(mit != maps_.end()){
         std::cout << COUTFATAL << "Existing map with Map-ID " << map_id << std::endl;
         exit(-1);
     }
-
     MapInstancePtr map(new MapInstance(map_id));
     maps_[map_id] = map;
 }

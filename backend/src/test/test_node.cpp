@@ -52,9 +52,9 @@ int main(int argc, char* argv[]) {
     m_map_output_dir =Common_tools::get_home_folder().append( "/r3live_output" );
     g_cost_time_logger.init_log( std::string(m_map_output_dir).append("/cost_time_logger.log"));
 
-    std::shared_ptr<colive::Backend> backend(new colive::Backend());
-    colive::Backend::ThreadPtr main_thread(new std::thread(&colive::Backend::Run,backend));
-    main_thread->detach(); // Thread will be cleaned up when exiting main()
+    // std::shared_ptr<colive::Backend> backend(new colive::Backend());
+    // colive::Backend::ThreadPtr main_thread(new std::thread(&colive::Backend::Run,backend));
+    // main_thread->detach(); // Thread will be cleaned up when exiting main()
     
     std::shared_ptr<colive::Frontend> frontend(new colive::Frontend());
     colive::Backend::ThreadPtr sub_thread(new std::thread(&colive::Frontend::Run,frontend));

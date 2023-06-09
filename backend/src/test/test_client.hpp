@@ -110,7 +110,8 @@ protected:
     // // Device Counter
     // std::atomic<int>            counter_, overall_counter_;
 
-
+    std::shared_ptr<Communicator_client> comm_;
+    TypeDefs::ThreadPtr thread_comm_;
     // std::mutex mtx_buffer;
 };
 

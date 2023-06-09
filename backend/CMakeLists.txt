@@ -123,8 +123,9 @@ target_link_libraries(colive_backend_node
                           pcl_io) 
 
 add_executable(colive_test_node src/test/test_node.cpp
-${PROJECT_SOURCE_DIR}/src/core/backend.cpp
-${PROJECT_SOURCE_DIR}/src/core/config_backend.cpp
+    ${PROJECT_SOURCE_DIR}/src/core/backend.cpp
+    ${PROJECT_SOURCE_DIR}/src/core/config_backend.cpp
+    ${PROJECT_SOURCE_DIR}/src/test/test_client.cpp
     ${MAP_SRC_FILES}
     ${COMM_SRC_FILES}   
 )

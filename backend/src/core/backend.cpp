@@ -14,6 +14,7 @@ Client::Client(size_t client_id, int newfd, MapManagerPtr man)
 {
     std::cout << "Client:"<<client_id_ <<" start"<< std::endl;
     mapmanager_->InitializeMap(client_id);
+    std::cout << "map init done"<< std::endl;
     // placerec_.reset(new PlaceRecognitionG(mapmanager_,covins_params::opt::perform_pgo));
     // thread_placerec_.reset(new std::thread(&PlacerecBase::Run,placerec_));
     // thread_placerec_->detach();
@@ -61,6 +62,10 @@ Backend::Backend(){
     // some init 
     colive_params::ShowParamsComm();
     colive_params::ShowParamsBackend();
+    
+    mapmanager_.reset(new MapManager());
+    thread_mapmanager_.reset(new std::thread(&MapManager::Run,mapmanager_));
+    thread_mapmanager_->detach(); // Thread will be cleaned up when exiting main()
 }
 
 auto Backend::Run()->void {
