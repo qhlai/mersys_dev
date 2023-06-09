@@ -43,10 +43,10 @@ Communicator_client::Communicator_client(std::string server_ip, std::string port
     std::cout << "--> Connect to server" << std::endl;
     // 加入等待重连 TODO：断线重连
     newfd_ = ConnectToServer(server_ip.c_str(),port);
-    uint8_t cnt_retry=0;
+    int cnt_retry=0;
     while(newfd_ == 2){
-        std::cout << COUTFATAL << ": Could no establish connection - retry "<< str(cnt_retry++) << std::endl;
-        ConnectToServer(server_ip.c_str(),port);
+        std::cout << COUTFATAL << ": Could no establish connection - retry "<< (cnt_retry++) << std::endl;
+        newfd_ = ConnectToServer(server_ip.c_str(),port);
 
         sleep(5);
         if(cnt_retry >=5){
@@ -65,6 +65,7 @@ auto Communicator_client::ProcessPointCloudBuffer()->void {
     u16 cnt =0;
 
     while(!pointcloud_out_buffer_.empty()) {
+        std::cout<< "comm: processing point cloud"<<std::endl;
         auto ptcloud = pointcloud_out_buffer_.front();
         pointcloud_out_buffer_.pop_front();
 

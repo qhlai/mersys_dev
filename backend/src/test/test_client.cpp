@@ -35,8 +35,26 @@ auto Frontend::Run()->void {
     }
     std::cout << ">>> COVINS: client id: " << comm_->GetClientId() << std::endl;
 
-    PointCloud_ex pc;
+    PointCloud_ex pc1;
+    TypeDefs::Vector3Type m(1.0,2.0,3.0);
+    pc1.pos_w =  m;
+    PointCloud_ex* pc;
+    pc = &pc1;
+while(true){
+    std::cout << "new pointcloud " << std::endl;
+    comm_->PassPcToComm(pc);
+    sleep(3);
+}
 
+
+    // PointCloud_ex* pc;
+    // pc
+    // TypeDefs::PointCloudEXPtr pc;
+    // pc.reset(new TypeDefs::PointCloudEX());
+    // TypeDefs::Vector3Type m(1.0,2.0,3.0);
+    // pc->pos_w =  m;
+
+    // comm_->pointcloud_out_buffer_.push_back(pc);
     // pointcloud_out_buffer_.push_back(
 
 }

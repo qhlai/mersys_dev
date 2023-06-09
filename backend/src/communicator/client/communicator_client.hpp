@@ -28,6 +28,7 @@
 #include <mutex>
 #include <thread>
 #include <list>
+#include <string>
 #include <netinet/in.h>
 #include <eigen3/Eigen/Core>
 
@@ -57,6 +58,7 @@ public:
     using Vector3Type                   = TypeDefs::Vector3Type;
     using Matrix3Type                   = TypeDefs::Matrix3Type;
     using TransformType                 = TypeDefs::TransformType;
+    using PointCloudEX  = TypeDefs::PointCloudEX; 
     using PointCloudEXList  = TypeDefs::PointCloudEXList;  
     // struct cmp_by_id{
     //     bool operator() (const std::pair<size_t,KeyFrame*> a, const std::pair<size_t,KeyFrame*> b){
@@ -76,8 +78,11 @@ public:
     //     std::unique_lock<std::mutex>(mtx_kf_queue_);
     //     kf_out_buffer_.push_back(kf);
     // }
-
-// protected:
+    virtual auto PassPcToComm(PointCloudEX* pc)                                             ->void {
+        std::unique_lock<std::mutex>(mtx_pc_queue_);
+        pointcloud_out_buffer_.push_back(pc);
+    }
+protected:
 
 //     // data handling
     virtual auto ProcessAdditional()                                                    ->void;
@@ -98,7 +103,8 @@ public:
 
     bool sending_init_ = false;
     std::list<KeyFrame*>   kf_out_buffer_;
-    std::list<PointCloud_ex*>   pointcloud_out_buffer_;
+    std::list<PointCloudEX*>   pointcloud_out_buffer_;
+    std::mutex              mtx_pc_queue_;
     std::mutex              mtx_kf_queue_;
 
     std::mutex              mtx_pointcloud_queue_;

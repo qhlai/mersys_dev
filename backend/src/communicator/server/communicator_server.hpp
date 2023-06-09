@@ -59,6 +59,7 @@ public:
     using PlacerecPtr                   = TypeDefs::PlacerecPtr;
     using VisPtr                        = TypeDefs::VisPtr;
 
+    using PointCloudEX          = TypeDefs::PointCloudEX;
     using PointCloudEXPtr          = TypeDefs::PointCloudEXPtr;
     using KeyframeList                  = TypeDefs::KeyframeList;
     using LandmarkList                  = TypeDefs::LandmarkList;

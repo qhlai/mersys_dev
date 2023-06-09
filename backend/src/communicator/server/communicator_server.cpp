@@ -89,6 +89,9 @@ auto Communicator_server::ProcessPointCloudMessages()->void {
             if(!pc){
                 // pc.reset(new PointCloud_ex(msg,map_));
                 // map_->AddPointCloud(pc);
+                
+                pc.reset(new PointCloudEX(msg,map_));
+                std::cout<<"Added point cloud pos_w: "<<pc->pos_w<<std::endl;
                 pointclouds_new_.push_back(pc);
             }else{
                 // TODO: 

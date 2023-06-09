@@ -6,7 +6,7 @@
 namespace colive {
 
 
-class PointCloud_ex: public std::enable_shared_from_this<Map>
+class PointCloud_ex: public std::enable_shared_from_this<PointCloud_ex>
 {
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
