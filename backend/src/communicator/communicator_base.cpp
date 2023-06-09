@@ -143,7 +143,7 @@ auto CommunicatorBase::PassDataBundle(data_bundle &msg)->void {
 auto CommunicatorBase::ProcessBufferIn()->void {
     std::unique_lock<std::mutex> lock(mtx_in_);
     while(CheckBufferAndPop()){
-        std::cout<<"recvive msg"<<std::endl;
+        // std::cout<<"recvive msg"<<std::endl;
         std::stringstream temp;
         temp.write(send_buf_.data(), std::streamsize(send_buf_.size()));
         cereal::BinaryInputArchive iarchive(temp);
@@ -199,7 +199,7 @@ auto CommunicatorBase::ProcessBufferOut()->void {
         buffer_data_out_.pop_front();
 
         for(int i=0;db.pointclouds.size();++i){
-            std::cout << "send pointcloiud"<<std::endl;
+            // std::cout << "send pointcloiud"<<std::endl;
             message_container pointcloud_out_container;
             MsgPointCloud msg = db.pointclouds.front();
             db.pointclouds.pop_front();

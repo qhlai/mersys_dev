@@ -113,7 +113,7 @@ protected:
     // LandmarkList                landmarks_new_;
 
     idpair                      last_processed_kf_msg_                                  = defpair;
-
+    idpair                      last_processed_pc_msg_                                  = defpair;
     // LM Culling
     LandmarkList                recent_landmarks_;
     KeyframeList                recent_keyframes_;

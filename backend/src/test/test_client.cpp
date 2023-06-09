@@ -34,19 +34,22 @@ auto Frontend::Run()->void {
         usleep(1000); //wait until ID is received from server
     }
     std::cout << ">>> COVINS: client id: " << comm_->GetClientId() << std::endl;
+    {
+        PointCloud_ex pc1;
+        TypeDefs::Vector3Type m(1.0,2.0,3.0);
+        pc1.pos_w =  m;
+        PointCloud_ex* pc;
+        pc = &pc1;
+        int cnt=0;
+    while(true){
+        pc->id_.second = comm_->GetClientId() ;
+        pc->id_.first = cnt++ ;
+        std::cout << "send new pointcloud "<<pc->id_.first << std::endl;
+        comm_->PassPcToComm(pc);
+        sleep(3);
+    }
 
-    PointCloud_ex pc1;
-    TypeDefs::Vector3Type m(1.0,2.0,3.0);
-    pc1.pos_w =  m;
-    PointCloud_ex* pc;
-    pc = &pc1;
-while(true){
-    std::cout << "new pointcloud " << std::endl;
-    comm_->PassPcToComm(pc);
-    sleep(3);
-}
-
-
+    }
     // PointCloud_ex* pc;
     // pc
     // TypeDefs::PointCloudEXPtr pc;

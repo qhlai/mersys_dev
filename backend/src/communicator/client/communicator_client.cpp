@@ -33,20 +33,25 @@
 
 namespace colive {
 
+
+
+
 Communicator_client::Communicator_client(std::string server_ip, std::string port)
-    : CommunicatorBase()
+    : CommunicatorBase(),
+    server_ip_(server_ip),
+    port_(port)
 {
     colive_params::ShowParamsComm();
 
     // map_ = map;
 
     std::cout << "--> Connect to server" << std::endl;
-    // 加入等待重连 TODO：断线重连
-    newfd_ = ConnectToServer(server_ip.c_str(),port);
+
+    newfd_ = ConnectToServer(server_ip_.c_str(),port_);
     int cnt_retry=0;
     while(newfd_ == 2){
         std::cout << COUTFATAL << ": Could no establish connection - retry "<< (cnt_retry++) << std::endl;
-        newfd_ = ConnectToServer(server_ip.c_str(),port);
+        newfd_ = ConnectToServer(server_ip_.c_str(),port_);
 
         sleep(5);
         if(cnt_retry >=5){
@@ -57,6 +62,34 @@ Communicator_client::Communicator_client(std::string server_ip, std::string port
     std::cout << "newfd_: " << newfd_ << std::endl;
     std::cout << "--> Connected" << std::endl;
 }
+// 用于断线重连
+auto Communicator_client::tryReConnect()->void
+{
+    // colive_params::ShowParamsComm();
+
+    // map_ = map;
+
+    std::cout << "--> try Reconnecting to server" << std::endl;
+    // 加入等待重连 TODO：断线重连
+    newfd_ = ConnectToServer(server_ip_.c_str(),port_);
+    int cnt_retry=0;
+    while(newfd_ == 2){
+        std::cout << COUTFATAL << ": Could no establish connection - retry "<< (cnt_retry++) << std::endl;
+        newfd_ = ConnectToServer(server_ip_.c_str(),port_);
+
+        sleep(10);
+        if(cnt_retry >=5){
+            std::cout << COUTFATAL << ": Could no establish connection - exit" << std::endl;
+            exit(-1);
+        }
+    }
+    std::cout << "newfd_: " << newfd_ << std::endl;
+    std::cout << "--> Connected" << std::endl;
+
+    this->SetUnFinish();
+    std::cout << ">>> COVINS: client id: " << this->GetClientId() << std::endl;
+}
+
 auto Communicator_client::ProcessAdditional()->void {
 
 }
@@ -65,7 +98,7 @@ auto Communicator_client::ProcessPointCloudBuffer()->void {
     u16 cnt =0;
 
     while(!pointcloud_out_buffer_.empty()) {
-        std::cout<< "comm: processing point cloud"<<std::endl;
+        // std::cout<< "comm: processing point cloud"<<std::endl;
         auto ptcloud = pointcloud_out_buffer_.front();
         pointcloud_out_buffer_.pop_front();
 
@@ -202,6 +235,7 @@ auto Communicator_client::Run()->void {
         }
 
         if(this->ShallFinish()){
+            this->tryReConnect();
             std::unique_lock<std::mutex>(mtx_pointcloud_queue_);
             if(!pointcloud_out_buffer_.empty()) {
                 std::cout << "Comm:: waiting for pc_out_buffer_" << std::endl;
@@ -209,6 +243,7 @@ auto Communicator_client::Run()->void {
                 std::cout << "Comm " << client_id_ << ": close" << std::endl;
                 break;
             }
+            
         }
         usleep(1000);
     }

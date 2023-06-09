@@ -118,7 +118,8 @@ public:
         std::unique_lock<std::mutex> lock(mtx_finish_); return finish_;}
     virtual auto IsFinished()                                                           ->bool {
         std::unique_lock<std::mutex> lock(mtx_finish_); return is_finished_;}
-
+    virtual auto SetUnFinish()                                                            ->void {
+        std::unique_lock<std::mutex> lock(mtx_finish_); finish_ = false;}
 protected:
 
     // Message passing

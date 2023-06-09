@@ -43,7 +43,7 @@ int main(int argc, char* argv[]) {
     signal(SIGINT, SignalHandler);
     // extern Common_tools::Cost_time_logger g_cost_time_logger;
     std::string m_map_output_dir;
-    m_map_output_dir =Common_tools::get_home_folder().append( "/r3live_output" );
+    m_map_output_dir =Common_tools::get_home_folder().append( "/colive_output" );
     g_cost_time_logger.init_log( std::string(m_map_output_dir).append("/cost_time_logger.log"));
 
     std::shared_ptr<colive::Backend> backend(new colive::Backend());

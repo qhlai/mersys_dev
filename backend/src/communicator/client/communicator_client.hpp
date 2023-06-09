@@ -67,8 +67,10 @@ public:
     // }};
 
 public:
+
     Communicator_client(std::string server_ip, std::string port);
 
+    virtual auto tryReConnect()      ->void;
     // main function
     virtual auto Run()            ->void;
     
@@ -100,6 +102,8 @@ protected:
 //     Atlas*                  map_                                                                = nullptr;  // the map is not necessary to send data to the server. However, we keep a ptr to it to facilitate implementing potetnial interaction
 
 
+    std::string server_ip_;
+    std::string port_;
 
     bool sending_init_ = false;
     std::list<KeyFrame*>   kf_out_buffer_;
