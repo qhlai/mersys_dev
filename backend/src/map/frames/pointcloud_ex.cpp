@@ -22,5 +22,15 @@ auto PointCloud_ex::ConvertToMsg(colive::MsgPointCloud &msg,Vector3Type &pos_w_2
     msg.pos_w = pos_w;
 
 }
+auto PointCloud_ex::pc_less::operator ()(const PointCloudEXPtr a, const PointCloudEXPtr b) const ->bool
+{
+    if(a->id_.second < b->id_.second)
+        return true;
+    else if(a->id_.second > b->id_.second)
+        return false;
+    else {
+        return a->id_.first < b->id_.first;
+    }
+}
 
 }

@@ -33,10 +33,10 @@
 
 namespace colive {
 
-Communicator_server::Communicator_server(int client_id, int newfd, MapManagerPtr man, PlacerecPtr placerec)
+Communicator_server::Communicator_server(int client_id, int newfd, MapManagerPtr man, PlacerecPtr placerec, VisPtr vis)
     : CommunicatorBase(client_id,newfd),
       mapmanager_(man),
-    //   vis_(vis),
+      vis_(vis),
       placerec_(placerec)
 {
     //Send client ID

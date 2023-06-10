@@ -17,11 +17,14 @@ public:
     using PointType                     = TypeDefs::PointType;
     using VoxelGrid                     = TypeDefs::VoxelGrid;
     using PointCloud                    = TypeDefs::PointCloud;
+    using PointCloudEXPtr                    = TypeDefs::PointCloudEXPtr;
 
     using Vector3Type                   = TypeDefs::Vector3Type;
     using Matrix3Type                   = TypeDefs::Matrix3Type;
     using TransformType                 = TypeDefs::TransformType;
-
+    struct pc_less{
+        auto operator() (const PointCloudEXPtr a, const PointCloudEXPtr b) const                ->bool;
+    };
 public:
 
     bool sent_once_ = false;

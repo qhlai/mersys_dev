@@ -1,6 +1,8 @@
 #include "backend.hpp"
 
-#include "map_co.hpp"
+// #include "sb.hpp"
+
+
 // #include <ros/ros.h>
 
 // AgentPackage::AgentPackage(size_t client_id, int newfd, VisPtr vis, ManagerPtr man) {
@@ -17,52 +19,25 @@ namespace colive {
 //     } 
 // }
 
-Client::Client(size_t client_id, int newfd, MapManagerPtr man)
+Client::Client(size_t client_id, int newfd, MapManagerPtr man, VisPtr vis)
 :   client_id_(client_id),
     mapmanager_(man)
 {
     std::cout << "Client:"<<client_id_ <<" start"<< std::endl;
     mapmanager_->InitializeMap(client_id);
+    mapmanager_->Display();
     std::cout << "map init done"<< std::endl;
+
     // placerec_.reset(new PlaceRecognitionG(mapmanager_,covins_params::opt::perform_pgo));
     // thread_placerec_.reset(new std::thread(&PlacerecBase::Run,placerec_));
     // thread_placerec_->detach();
 
-    comm_.reset(new Communicator_server(client_id_,newfd,man,placerec_));
+    comm_.reset(new Communicator_server(client_id_,newfd,man,placerec_,vis));
     thread_comm_.reset(new std::thread(&Communicator_server::Run,comm_));
     thread_comm_->detach();
 
-    // ThreadPtr vis_;
-    // vis_.reset(new std::thread(&MapManager::Display,mapmanager_));
-    // vis_->detach();
-    // TODO:   blocked here should be fixed
-    // while (true)
-    // {
-    //     mapmanager_->Display();
-    //     sleep(3);
-    // }
-    
-
-    // mapmanager_->InitializeMap(client_id);
-
-    // Other types of place recognition system could be integrated and activated using the placerec::type parameter
-    // if(covins_params::placerec::type == "COVINS") {
-    //     placerec_.reset(new PlaceRecognition(mapmanager_,covins_params::opt::perform_pgo));
-    // } else if (covins_params::placerec::type == "COVINS_G") {
-    //     placerec_.reset(new PlaceRecognitionG(mapmanager_,covins_params::opt::perform_pgo));
-    // } else {
-    //     std::cout << COUTFATAL << "Place Recognition System Type \"" << covins_params::placerec::type << "\" not valid" << std::endl;
-    //     exit(-1);
-    // }
-
-    // comm_.reset(new Communicator(client_id_,newfd,man,vis,placerec_));
-
-    // thread_placerec_.reset(new std::thread(&PlacerecBase::Run,placerec_));
-    // thread_placerec_->detach(); // Thread will be cleaned up when exiting main()
-
-    // thread_comm_.reset(new std::thread(&Communicator::Run,comm_));
-    // thread_comm_->detach(); // Thread will be cleaned up when exiting main()
 }
+
 Client::Client(size_t client_id_)
 :client_id_(client_id_)
 {
@@ -84,6 +59,18 @@ Backend::Backend(){
     mapmanager_.reset(new MapManager());
     thread_mapmanager_.reset(new std::thread(&MapManager::Run,mapmanager_));
     thread_mapmanager_->detach(); // Thread will be cleaned up when exiting main()
+
+    // auto sb =new Sb(1);
+
+        //+++++ Create Viewer +++++
+    if(colive_params::vis::active){
+        // auto sb =new colive::Visualizer();
+        // std::string a;
+        // a="_be";
+        vis_.reset(new Visualizer("_be"));
+        // thread_vis_.reset(new std::thread(&Visualizer::Run,vis_));
+        // thread_vis_->detach(); // Thread will be cleaned up when exiting main()
+    }
 }
 
 auto Backend::Run()->void {
@@ -182,7 +169,7 @@ auto Backend::AcceptClient()->void {
             }
 
             //Creating new threads for every agent
-            ClientPtr client{new Client(agent_next_id_++,newfd_,mapmanager_)};
+            ClientPtr client{new Client(agent_next_id_++,newfd_,mapmanager_,vis_)};
             clients_.push_back(client);
         }
         usleep(100);

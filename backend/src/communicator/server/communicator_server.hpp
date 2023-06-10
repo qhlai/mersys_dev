@@ -67,7 +67,7 @@ public:
     // using MsgPointCloud  = TypeDefs::MsgPointCloud;  
 
 public:
-    Communicator_server(int client_id, int newfd, MapManagerPtr man,PlacerecPtr placerec);
+    Communicator_server(int client_id, int newfd, MapManagerPtr man, PlacerecPtr placerec, VisPtr vis);
 
     // main function
     virtual auto Run()            ->void;
@@ -100,7 +100,7 @@ protected:
     // Infrastructure
     MapPtr                         map_                                                    = nullptr;
     MapManagerPtr                  mapmanager_                                             = nullptr;
-    // VisPtr                      vis_                                                    = nullptr;
+    VisPtr                      vis_                                                    = nullptr;
     PlacerecPtr                 placerec_                                               = nullptr;
 
      //data

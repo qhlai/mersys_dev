@@ -21,8 +21,7 @@
 
 #include "config_comm.hpp"
 #include "config_backend.hpp"
-#include "communicator_server.hpp"
-#include "map_co.hpp"
+
 
 // Socket Programming
 #include <sys/types.h>
@@ -32,10 +31,16 @@
 #include <netdb.h>
 #include <atomic>
 
-#include "mapmanager.hpp"
-#include "typedefs_base.hpp"
 #include "communicator_base.hpp"
 #include "communicator_server.hpp"
+#include "map_co.hpp"
+#include "mapmanager.hpp"
+#include "typedefs_base.hpp"
+#include "visualizer_be.hpp"
+
+
+
+
 namespace colive {
 
 class Client{
@@ -50,7 +55,7 @@ public:
 public:
     Client()=delete;
     Client(size_t client_id_);
-    Client(size_t client_id, int newfd, MapManagerPtr man);
+    Client(size_t client_id, int newfd, MapManagerPtr man, VisPtr vis);
     auto Run()->void;
 
 protected:
@@ -69,6 +74,7 @@ class Backend{
     
     using MapPtr                     = TypeDefs::MapPtr;
     using MapManagerPtr              = TypeDefs::MapManagerPtr;
+    using VisPtr                        = TypeDefs::VisPtr;
     using ClientPtr                  = TypeDefs::ClientPtr;
     using ClientVector               = TypeDefs::ClientVector;
     public:
@@ -96,16 +102,24 @@ protected:
     auto AcceptClient()             ->void;
     auto ConnectSocket()            ->void;
 
-    int agent_next_id_              = 0;
+ 
+
+
+
+
+    MapManagerPtr                mapmanager_;
+    VisPtr                      vis_;
+    ClientVector                 clients_;
+
+    ThreadPtr                   thread_mapmanager_;
+    ThreadPtr                   thread_vis_;
+
+   int agent_next_id_              = 0;    
+
     //comm
     fd_set                      master_;
     fd_set                      read_fds_;
     int                         listener_, newfd_;
-
-    ThreadPtr                   thread_mapmanager_;
-
-    MapManagerPtr                mapmanager_;
-    ClientVector                 clients_;
 
     // Device Counter
     std::atomic<int>            counter_, overall_counter_;

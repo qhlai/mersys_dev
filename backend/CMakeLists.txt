@@ -63,6 +63,7 @@ include_directories(
     ${PROJECT_SOURCE_DIR}/src/communicator
     ${PROJECT_SOURCE_DIR}/src/communicator/server
     ${PROJECT_SOURCE_DIR}/src/communicator/client
+    ${PROJECT_SOURCE_DIR}/src/visualizer
     # "src/communicator/msg"
     # ${CMAKE_SOURCE_DIR}/thirdparty/cereal
     # "include/covins"
@@ -100,16 +101,21 @@ ${PROJECT_SOURCE_DIR}/src/map/frames/*.cpp
 file(GLOB_RECURSE MAP_INC_FILES     
 ${PROJECT_SOURCE_DIR}/src/map/*.hpp
 )
-include_directories(
 
-
+file(GLOB_RECURSE VIS_SRC_FILES     
+${PROJECT_SOURCE_DIR}/src/visualizer/*.cpp
+# ${PROJECT_SOURCE_DIR}/src/visualizer/visualizer.cpp
 )
+
 add_executable(colive_test_timer src/tools/test_timer.cpp)
 
 add_executable(colive_backend_node src/core/backend_node.cpp
     ${BACKEND_SRC_FILES}
+    
     ${MAP_SRC_FILES}
     ${COMM_SRC_FILES}   
+    ${VIS_SRC_FILES}
+    # ${PROJECT_SOURCE_DIR}/src/core/sb.cpp
 )
 
 target_link_libraries(colive_backend_node
@@ -128,6 +134,7 @@ add_executable(colive_test_node src/test/test_node.cpp
     ${PROJECT_SOURCE_DIR}/src/test/test_client.cpp
     ${MAP_SRC_FILES}
     ${COMM_SRC_FILES}   
+    ${VIS_SRC_FILES}
 )
 
 target_link_libraries(colive_test_node
