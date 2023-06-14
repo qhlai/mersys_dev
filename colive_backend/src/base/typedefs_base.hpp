@@ -14,6 +14,7 @@
 #include <eigen3/Eigen/Geometry>
 #include <eigen3/Eigen/StdVector>
 
+#define COLIVE_MOD
 
 #include <cereal/cereal.hpp>
 #include <cereal/types/memory.hpp>

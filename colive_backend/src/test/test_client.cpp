@@ -1,8 +1,5 @@
 #include "test_client.hpp"
 
-#include "map_co.hpp"
-#include "pointcloud_ex.hpp"
-// #include <ros/ros.h>
 
 // AgentPackage::AgentPackage(size_t client_id, int newfd, VisPtr vis, ManagerPtr man) {
 //     agent_.reset(new AgentHandler(client_id,newfd,vis,man));

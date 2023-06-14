@@ -34,12 +34,17 @@ public:
     Vector3Type             pos_ref;
     Vector3Type             pos_w;
 
+    // Vector3Type             pos_self;
+    TransformType           odom;
+
     // Pointclou
     // Identifier
+    
     idpair                      id_;
     double                      timestamp_;
     PointCloud_ex()=default;
     PointCloud_ex(MsgPointCloud msg, MapPtr map);
+    // PointCloud_ex(PointCloud msg, MapPtr map);
     auto ConvertToMsg(MsgPointCloud &msg, Vector3Type &pos_w, bool is_update, size_t cliend_id)->void;
 
 

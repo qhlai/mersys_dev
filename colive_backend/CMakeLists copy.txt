@@ -25,7 +25,7 @@ find_package(catkin REQUIRED COMPONENTS
                     nav_msgs
                     tf
                     cv_bridge
-                    livox_ros_driver
+                    # livox_ros_driver
             )
 
 # find_package(catkin_simple REQUIRED)
@@ -45,32 +45,82 @@ find_package(catkin REQUIRED COMPONENTS
 # ENDIF()
 
 # find_package(Eigen3 3.3.4 EXACT REQUIRED)
+
+
 set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 find_package(Eigen3)
-# find_package(PCL REQUIRED)
+find_package(PCL REQUIRED)
+# set(PCL_INCLUDE_DIRS /usr/local/include/pcl-1.10) 
 find_package(OpenCV REQUIRED)
+
+
+set (INCLUDE_DIRS
+
+${PROJECT_SOURCE_DIR}/src
+${PROJECT_SOURCE_DIR}/src/base
+${PROJECT_SOURCE_DIR}/src/core
+${PROJECT_SOURCE_DIR}/src/map
+${PROJECT_SOURCE_DIR}/src/map/frames
+${PROJECT_SOURCE_DIR}/src/tools
+${PROJECT_SOURCE_DIR}/src/communicator
+${PROJECT_SOURCE_DIR}/src/communicator/server
+${PROJECT_SOURCE_DIR}/src/communicator/client
+${PROJECT_SOURCE_DIR}/src/communicator/client/colive_backend
+${PROJECT_SOURCE_DIR}/src/visualizer
+)
+# file(INCLUDE_DIRS    
+# ${PROJECT_SOURCE_DIR}/src
+# ${PROJECT_SOURCE_DIR}/src/base
+# ${PROJECT_SOURCE_DIR}/src/core
+# ${PROJECT_SOURCE_DIR}/src/map
+# ${PROJECT_SOURCE_DIR}/src/map/frames
+# ${PROJECT_SOURCE_DIR}/src/tools
+# ${PROJECT_SOURCE_DIR}/src/communicator
+# ${PROJECT_SOURCE_DIR}/src/communicator/server
+# ${PROJECT_SOURCE_DIR}/src/communicator/client
+# ${PROJECT_SOURCE_DIR}/src/visualizer
+# )
 
 include_directories(
     ${catkin_INCLUDE_DIRS}
     ${EIGEN3_INCLUDE_DIR}
-    # ${PCL_INCLUDE_DIRS}
-    ${PROJECT_SOURCE_DIR}/src
-    ${PROJECT_SOURCE_DIR}/src/base
-    ${PROJECT_SOURCE_DIR}/src/core
-    ${PROJECT_SOURCE_DIR}/src/map
-    ${PROJECT_SOURCE_DIR}/src/map/frames
-    ${PROJECT_SOURCE_DIR}/src/tools
-    ${PROJECT_SOURCE_DIR}/src/communicator
-    ${PROJECT_SOURCE_DIR}/src/communicator/server
-    ${PROJECT_SOURCE_DIR}/src/communicator/client
-    ${PROJECT_SOURCE_DIR}/src/visualizer
+    ${PCL_INCLUDE_DIRS}
+    ${INCLUDE_DIRS}
+
+    # ${PROJECT_SOURCE_DIR}/src
+    # ${PROJECT_SOURCE_DIR}/src/base
+    # ${PROJECT_SOURCE_DIR}/src/core
+    # ${PROJECT_SOURCE_DIR}/src/map
+    # ${PROJECT_SOURCE_DIR}/src/map/frames
+    # ${PROJECT_SOURCE_DIR}/src/tools
+    # ${PROJECT_SOURCE_DIR}/src/communicator
+    # ${PROJECT_SOURCE_DIR}/src/communicator/server
+    # ${PROJECT_SOURCE_DIR}/src/communicator/client
+    # ${PROJECT_SOURCE_DIR}/src/communicator/client/colive_backend
+    # ${PROJECT_SOURCE_DIR}/src/visualizer
+
+    # ${PROJECT_SOURCE_DIR}/src
+    # ${PROJECT_SOURCE_DIR}/src/base
+    # ${PROJECT_SOURCE_DIR}/src/core
+    # ${PROJECT_SOURCE_DIR}/src/map
+    # ${PROJECT_SOURCE_DIR}/src/map/frames
+    # ${PROJECT_SOURCE_DIR}/src/tools
+    # ${PROJECT_SOURCE_DIR}/src/communicator
+    # ${PROJECT_SOURCE_DIR}/src/communicator/server
+    # ${PROJECT_SOURCE_DIR}/src/communicator/client
+    # ${PROJECT_SOURCE_DIR}/src/visualizer
     # "src/communicator/msg"
     # ${CMAKE_SOURCE_DIR}/thirdparty/cereal
     # "include/covins"
     # ${PROJECT_SOURCE_DIR}/thirdparty
 )
 
-catkin_package()
+# catkin_package()
+catkin_package(CATKIN_DEPENDS
+    INCLUDE_DIRS ${INCLUDE_DIRS}#src/
+    # LIBRARIES  colive_backend
+
+	)
 message(STATUS "===== ${PROJECT_NAME}: OpenCV library status: =====")
 message(STATUS "===== OpenCV ersion: ${OpenCV_VERSION}  =====")
 message(STATUS "===== OpenCV libraries: ${OpenCV_LIBS} =====")
@@ -91,6 +141,9 @@ ${PROJECT_SOURCE_DIR}/src/map/frames/*.cpp
 
 file(GLOB_RECURSE COMM_SRC_FILES     
 ${PROJECT_SOURCE_DIR}/src/communicator/*.cpp
+)
+file(GLOB_RECURSE COMM_INC_FILES     
+${PROJECT_SOURCE_DIR}/src/communicator/*.hpp
 )
 
 file(GLOB_RECURSE MAP_SRC_FILES     
@@ -125,8 +178,10 @@ target_link_libraries(colive_backend_node
                           ${Boost_SERIALIZATION_LIBRARY} # serialization
                           ${OpenCV_LIBRARIES}
                           # ${OpenMVS_LIBRARIES}
-                          pcl_common 
-                          pcl_io) 
+                          ${PCL_LIBRARIES}
+                        #   pcl_common 
+                        #   pcl_io
+                          ) 
 
 add_executable(colive_test_node src/test/test_node.cpp
     ${PROJECT_SOURCE_DIR}/src/core/backend.cpp
@@ -144,9 +199,34 @@ target_link_libraries(colive_test_node
                         ${Boost_SERIALIZATION_LIBRARY} # serialization
                         ${OpenCV_LIBRARIES}
                         # ${OpenMVS_LIBRARIES}
-                        pcl_common 
-                        pcl_io) 
-                        
+                        ${PCL_LIBRARIES}
+                        #   pcl_common 
+                        #   pcl_io
+                          ) 
+add_library(colive_backend src/core/backend_node.cpp
+    ${PROJECT_SOURCE_DIR}/src/core/backend.cpp
+    ${PROJECT_SOURCE_DIR}/src/core/config_backend.cpp
+    ${PROJECT_SOURCE_DIR}/src/test/test_client.cpp
+    ${MAP_SRC_FILES}
+    ${COMM_SRC_FILES}   
+    ${VIS_SRC_FILES}
+)
+        #---------------------------------------------------------------------------------------
+# Install
+#---------------------------------------------------------------------------------------
+
+# install(TARGETS ${PROJECT_NAME}
+# ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+# LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+# RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+# )
+
+# install(DIRECTORY
+# launch
+# config
+# DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
+# )
+            
 # if (NOT BUILD_LIBRARY)
     # cs_add_library(covins_base ${BASE_SOURCE_FILES} ${BASE_HEADER_FILES})
     # target_link_libraries(covins_base ${catkin_LIBRARIES} ${EXTERNAL_LIBRARIES})

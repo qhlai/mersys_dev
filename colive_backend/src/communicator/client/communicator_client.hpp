@@ -52,7 +52,10 @@ namespace colive {
 
 class KeyFrame;
 class PointCloud;
-
+class a{
+    public:
+    int b;
+};
 class Communicator_client : public CommunicatorBase, public std::enable_shared_from_this<Communicator_client> {
 public:
     using Vector3Type                   = TypeDefs::Vector3Type;

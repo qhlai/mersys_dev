@@ -69,7 +69,7 @@ public:
     using KeyframeMap                   = TypeDefs::KeyframeMap;
     using LandmarkMap                   = TypeDefs::LandmarkMap;
     using PointCloudMap                 = TypeDefs::PointCloudMap;
-    using PointCloudEXMap                 = TypeDefs::PointCloudEXMap;
+    using PointCloudEXMap               = TypeDefs::PointCloudEXMap;
     // using KeyframeVector                = TypeDefs::KeyframeVector;
     // using LandmarkVector                = TypeDefs::LandmarkVector;
     // using LandmarkSet                   = TypeDefs::LandmarkSet;
@@ -84,11 +84,10 @@ public:
     std::queue<sensor_msgs::PointCloud2ConstPtr> fullResBuf;//适用于需要实现先进先出（FIFO）的队列操作，不需要直接访问队列的其他位置。
 
     double last_timestamp_lidar = -1;
-    std::deque<sensor_msgs::PointCloud2::ConstPtr> lidar_buffer;//适用于需要在队列两端进行频繁插入和删除操作的场景，同时需要保持随机访问的能力。
 
-    std::deque<sensor_msgs::PointCloud2::ConstPtr> image_buffer;
-
-    std::deque<sensor_msgs::PointCloud2::ConstPtr> odom_buffer;
+    // std::deque<sensor_msgs::PointCloud2::ConstPtr> lidar_buffer;//适用于需要在队列两端进行频繁插入和删除操作的场景，同时需要保持随机访问的能力。
+    // std::deque<sensor_msgs::PointCloud2::ConstPtr> image_buffer;
+    // std::deque<sensor_msgs::PointCloud2::ConstPtr> odom_buffer;
 
     uint8_t map_type=0; // 0: unknow, 1: camera, 2: laser, 3: Cam + laser
 public:
@@ -111,13 +110,16 @@ public:
 public:
     // Identifier
     size_t                      id_map_      = std::numeric_limits<size_t>::max();
-    std::set<size_t>            associated_clients_;
+    std::set<size_t>            associated_clients_; // set of clients
+    TransformType               tf_to_world; // 单机地图与全局地图的估计位姿关系
+
 protected:
 
     // Data
+    // vector<PointCloudXYZI::Ptr>
     KeyframeMap                 keyframes_;
     LandmarkMap                 landmarks_;
-    PointCloudEXMap             pointclouds_;
+    PointCloudEXMap             pointclouds_;// 收集到的所用lidar frame
 
     KeyframeMap                 keyframes_erased_;
 

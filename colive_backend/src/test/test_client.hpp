@@ -1,36 +1,9 @@
 #pragma once
 
-// C++
-#include <memory>
-#include <mutex>
-#include <vector>
-#include <thread>
-#include <iostream>   // std::cout  
-#include <string>     // std::string, std::to_string
+#include "enable_client.hpp"
 
-#include <ros/ros.h>
-#include <condition_variable>
-
-#include "tools_logger.hpp"
-#include "tools_color_printf.hpp"
-#include "tools_eigen.hpp"
-#include "tools_data_io.hpp"
-#include "tools_timer.hpp"
-#include "tools_thread_pool.hpp"
-#include "tools_ros.hpp"
-
-#include "config_comm.hpp"
-// #include "config_backend.hpp"
-#include "communicator_client.hpp"
 // #include "map_co.hpp"
 
-// Socket Programming
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
-#include <netdb.h>
-#include <atomic>
 
 // #include "mapmanager.hpp"
 // #include "typedefs_base.hpp"
@@ -111,7 +84,7 @@ protected:
     // std::atomic<int>            counter_, overall_counter_;
 
     std::shared_ptr<Communicator_client> comm_;
-    TypeDefs::ThreadPtr thread_comm_;
+    std::unique_ptr<std::thread> thread_comm_;
     // std::mutex mtx_buffer;
 };
 

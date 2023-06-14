@@ -13,5 +13,7 @@
   <run_depend>catkin</run_depend>
   <run_depend>roscpp</run_depend>
   <!-- <run_depend>livox_ros_driver</run_depend> -->
-
+ <!-- <export>
+    <cpp cflags="-I${prefix}/include" lflags="-L${prefix}/lib -lcolive_backend"/>
+  </export> -->
 </package>
