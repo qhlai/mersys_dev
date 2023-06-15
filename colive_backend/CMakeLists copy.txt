@@ -46,6 +46,13 @@ find_package(catkin REQUIRED COMPONENTS
 
 # find_package(Eigen3 3.3.4 EXACT REQUIRED)
 
+# if(TARGET ${PROJECT_NAME}_package)
+#     message(WARNING "Could not create target '${${PROJECT_NAME}_package}' for project ${PROJECT_NAME}, as it already exists.")
+# endif()
+# add_custom_target(${PROJECT_NAME}_package)
+set(${PROJECT_NAME}_TARGETS)
+set(${PROJECT_NAME}_LIBRARIES)
+
 
 set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 find_package(Eigen3)
@@ -68,18 +75,7 @@ ${PROJECT_SOURCE_DIR}/src/communicator/client
 ${PROJECT_SOURCE_DIR}/src/communicator/client/colive_backend
 ${PROJECT_SOURCE_DIR}/src/visualizer
 )
-# file(INCLUDE_DIRS    
-# ${PROJECT_SOURCE_DIR}/src
-# ${PROJECT_SOURCE_DIR}/src/base
-# ${PROJECT_SOURCE_DIR}/src/core
-# ${PROJECT_SOURCE_DIR}/src/map
-# ${PROJECT_SOURCE_DIR}/src/map/frames
-# ${PROJECT_SOURCE_DIR}/src/tools
-# ${PROJECT_SOURCE_DIR}/src/communicator
-# ${PROJECT_SOURCE_DIR}/src/communicator/server
-# ${PROJECT_SOURCE_DIR}/src/communicator/client
-# ${PROJECT_SOURCE_DIR}/src/visualizer
-# )
+
 
 include_directories(
     ${catkin_INCLUDE_DIRS}
@@ -87,40 +83,9 @@ include_directories(
     ${PCL_INCLUDE_DIRS}
     ${INCLUDE_DIRS}
 
-    # ${PROJECT_SOURCE_DIR}/src
-    # ${PROJECT_SOURCE_DIR}/src/base
-    # ${PROJECT_SOURCE_DIR}/src/core
-    # ${PROJECT_SOURCE_DIR}/src/map
-    # ${PROJECT_SOURCE_DIR}/src/map/frames
-    # ${PROJECT_SOURCE_DIR}/src/tools
-    # ${PROJECT_SOURCE_DIR}/src/communicator
-    # ${PROJECT_SOURCE_DIR}/src/communicator/server
-    # ${PROJECT_SOURCE_DIR}/src/communicator/client
-    # ${PROJECT_SOURCE_DIR}/src/communicator/client/colive_backend
-    # ${PROJECT_SOURCE_DIR}/src/visualizer
-
-    # ${PROJECT_SOURCE_DIR}/src
-    # ${PROJECT_SOURCE_DIR}/src/base
-    # ${PROJECT_SOURCE_DIR}/src/core
-    # ${PROJECT_SOURCE_DIR}/src/map
-    # ${PROJECT_SOURCE_DIR}/src/map/frames
-    # ${PROJECT_SOURCE_DIR}/src/tools
-    # ${PROJECT_SOURCE_DIR}/src/communicator
-    # ${PROJECT_SOURCE_DIR}/src/communicator/server
-    # ${PROJECT_SOURCE_DIR}/src/communicator/client
-    # ${PROJECT_SOURCE_DIR}/src/visualizer
-    # "src/communicator/msg"
-    # ${CMAKE_SOURCE_DIR}/thirdparty/cereal
-    # "include/covins"
-    # ${PROJECT_SOURCE_DIR}/thirdparty
 )
 
-# catkin_package()
-catkin_package(CATKIN_DEPENDS
-    INCLUDE_DIRS ${INCLUDE_DIRS}#src/
-    # LIBRARIES  colive_backend
 
-	)
 message(STATUS "===== ${PROJECT_NAME}: OpenCV library status: =====")
 message(STATUS "===== OpenCV ersion: ${OpenCV_VERSION}  =====")
 message(STATUS "===== OpenCV libraries: ${OpenCV_LIBS} =====")
@@ -129,38 +94,56 @@ message(STATUS "===== OpenCV include path: ${OpenCV_INCLUDE_DIRS} =====")
 # set(EXTERNAL_LIBRARIES
 #   pthread
 # )
-
+file(GLOB_RECURSE BACKEND_INC_FILES     
+${PROJECT_SOURCE_DIR}/src/core/*.hpp
+)
 file(GLOB_RECURSE BACKEND_SRC_FILES     
-# ${PROJECT_SOURCE_DIR}/src/base/*.cpp
 ${PROJECT_SOURCE_DIR}/src/core/*.cpp
 )
-
+file(GLOB_RECURSE FRAME_INC_FILES     
+${PROJECT_SOURCE_DIR}/src/map/frames/*.hpp
+)
 file(GLOB_RECURSE FRAME_SRC_FILES     
 ${PROJECT_SOURCE_DIR}/src/map/frames/*.cpp
-)
-
-file(GLOB_RECURSE COMM_SRC_FILES     
-${PROJECT_SOURCE_DIR}/src/communicator/*.cpp
 )
 file(GLOB_RECURSE COMM_INC_FILES     
 ${PROJECT_SOURCE_DIR}/src/communicator/*.hpp
 )
+file(GLOB_RECURSE COMM_SRC_FILES     
+${PROJECT_SOURCE_DIR}/src/communicator/*.cpp
+)
 
+file(GLOB_RECURSE MAP_INC_FILES     
+${PROJECT_SOURCE_DIR}/src/map/*.hpp
+)
 file(GLOB_RECURSE MAP_SRC_FILES     
 ${PROJECT_SOURCE_DIR}/src/map/map_co.cpp
 ${PROJECT_SOURCE_DIR}/src/map/mapmanager.cpp
 ${PROJECT_SOURCE_DIR}/src/map/frames/*.cpp
 )
-file(GLOB_RECURSE MAP_INC_FILES     
-${PROJECT_SOURCE_DIR}/src/map/*.hpp
+
+file(GLOB_RECURSE VIS_INC_FILES     
+${PROJECT_SOURCE_DIR}/src/visualizer/*.cpp
+# ${PROJECT_SOURCE_DIR}/src/visualizer/visualizer.cpp
 )
 
 file(GLOB_RECURSE VIS_SRC_FILES     
 ${PROJECT_SOURCE_DIR}/src/visualizer/*.cpp
 # ${PROJECT_SOURCE_DIR}/src/visualizer/visualizer.cpp
 )
+message("${PROJECT_SOURCE_DIR}/lib")
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/lib)
 
 add_executable(colive_test_timer src/tools/test_timer.cpp)
+
+
+# add_library(colive_backend_lib SHARED src/core/backend_node.cpp
+# ${BACKEND_SRC_FILES}
+# ${MAP_SRC_FILES}
+# ${COMM_SRC_FILES}   
+# ${VIS_SRC_FILES}
+# # ${PROJECT_SOURCE_DIR}/src/core/sb.cpp
+# )
 
 add_executable(colive_backend_node src/core/backend_node.cpp
     ${BACKEND_SRC_FILES}
@@ -170,7 +153,6 @@ add_executable(colive_backend_node src/core/backend_node.cpp
     ${VIS_SRC_FILES}
     # ${PROJECT_SOURCE_DIR}/src/core/sb.cpp
 )
-
 target_link_libraries(colive_backend_node
                           ${catkin_LIBRARIES}
                           ${Boost_LIBRARIES}
@@ -202,58 +184,63 @@ target_link_libraries(colive_test_node
                         ${PCL_LIBRARIES}
                         #   pcl_common 
                         #   pcl_io
-                          ) 
-add_library(colive_backend src/core/backend_node.cpp
-    ${PROJECT_SOURCE_DIR}/src/core/backend.cpp
-    ${PROJECT_SOURCE_DIR}/src/core/config_backend.cpp
-    ${PROJECT_SOURCE_DIR}/src/test/test_client.cpp
-    ${MAP_SRC_FILES}
-    ${COMM_SRC_FILES}   
-    ${VIS_SRC_FILES}
-)
-        #---------------------------------------------------------------------------------------
-# Install
-#---------------------------------------------------------------------------------------
+) 
 
-# install(TARGETS ${PROJECT_NAME}
+# add_library(${PROJECT_NAME}_LIB SHARED 
+#     ${BACKEND_INC_FILES}
+#     ${BACKEND_SRC_FILES}
+#     ${FRAME_INC_FILES}
+#     ${FRAME_SRC_FILES}  
+#     ${MAP_INC_FILES}
+#     ${MAP_SRC_FILES}
+#     ${COMM_INC_FILES}  
+#     ${COMM_SRC_FILES}  
+#     ${VIS_INC_FILES} 
+#     ${VIS_SRC_FILES}
+# )
+# target_link_libraries(${PROJECT_NAME}_LIB
+#                         ${catkin_LIBRARIES}
+#                         ${Boost_LIBRARIES}
+#                         ${Boost_FILESYSTEM_LIBRARY}
+#                         ${Boost_SERIALIZATION_LIBRARY} # serialization
+#                         ${OpenCV_LIBRARIES}
+#                         # ${OpenMVS_LIBRARIES}
+#                         # ${PCL_LIBRARIES}
+#                         #   pcl_common 
+#                         #   pcl_io
+# ) 
+message(STATUS "=======================================")
+
+# set(${PROJECT_NAME}_EXEC
+#     ${PROJECT_NAME}
+# )
+
+# set(${PROJECT_NAME}_LIBRARYS
+#     ${PROJECT_NAME}_LIB
+# )
+
+# set(${PROJECT_NAME}_TARGETS
+#     ${${PROJECT_NAME}_LIBRARYS}
+#     # colive_backend_node
+# )
+
+# install(TARGETS ${${PROJECT_NAME}_TARGETS}
 # ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
 # LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
 # RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 # )
 
-# install(DIRECTORY
-# launch
-# config
-# DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
-# )
-            
-# if (NOT BUILD_LIBRARY)
-    # cs_add_library(covins_base ${BASE_SOURCE_FILES} ${BASE_HEADER_FILES})
-    # target_link_libraries(covins_base ${catkin_LIBRARIES} ${EXTERNAL_LIBRARIES})
 
-    # cs_add_library(covins_backend ${BACKEND_SOURCE_FILES} ${BACKEND_HEADER_FILES})
-    # target_link_libraries(covins_backend covins_base ${PROJECT_SOURCE_DIR}/thirdparty/DBoW2/lib/libDBoW2.so)
+# # install(DIRECTORY
+# #   launch
+# #   config
+# #   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
+# # 	)
 
-    # cs_add_executable(covins_backend_node
-    #     covins_sys/src/covins_backend_node.cpp
-    # )
-    # target_link_libraries(covins_backend_node covins_backend)
 
-# else()
-#     if (NOT USE_CATKIN)
-        # include_directories(${CMAKE_SOURCE_DIR}/thirdparty/cereal)
-        # # create library
-        # message("${PROJECT_SOURCE_DIR}/lib")
-        # set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/lib)
+# catkin_package(CATKIN_DEPENDS
+#     INCLUDE_DIRS ${INCLUDE_DIRS}
+#     LIBRARIES ${${PROJECT_NAME}_LIBRARIES} ${${PROJECT_NAME}_LIBRARYS}
+#     # LIBRARIES  colive_backend
 
-        # add_library(${PROJECT_NAME} SHARED ${COMM_SOURCE_FILES} ${COMM_HEADER_FILES})
-        # option(BUILD_SHARED_LIBS "Build shared library" ON)
-
-        # target_link_libraries(${PROJECT_NAME} Eigen3::Eigen)
-        # target_link_libraries(${PROJECT_NAME} ${CERES_LIBRARIES})
-        # target_link_libraries(${PROJECT_NAME} ${GLOG_LIBRARIES})
-#     endif()
-
-# endif()
-
-# add_doxygen(NOT_AUTOMATIC)
+# 	)

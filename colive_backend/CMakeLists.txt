@@ -134,6 +134,17 @@ ${PROJECT_SOURCE_DIR}/src/visualizer/*.cpp
 message("${PROJECT_SOURCE_DIR}/lib")
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/lib)
 
+set(${PROJECT_NAME}_LIBRARIES
+    ${PROJECT_NAME}
+)
+# This function must be called before declaring any targets with add_library() or add_executable().
+catkin_package(CATKIN_DEPENDS
+    INCLUDE_DIRS ${INCLUDE_DIRS}
+    LIBRARIES ${${PROJECT_NAME}_LIBRARIES}
+    # LIBRARIES  colive_backend
+
+	)
+
 add_executable(colive_test_timer src/tools/test_timer.cpp)
 
 
@@ -212,20 +223,19 @@ target_link_libraries(${PROJECT_NAME}
 message(STATUS "=======================================")
 
 
-set(${PROJECT_NAME}_LIBRARYS
-    colive_backend
-)
+
 
 set(${PROJECT_NAME}_TARGETS
     ${${PROJECT_NAME}_LIBRARYS}
     colive_backend_node
+    colive_test_node
 )
 
-install(TARGETS ${${PROJECT_NAME}_TARGETS}
-ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
-)
+# install(TARGETS ${${PROJECT_NAME}_TARGETS}
+# ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+# LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+# RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+# )
 
 
 # install(DIRECTORY
@@ -235,9 +245,3 @@ RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 # 	)
 
 
-catkin_package(CATKIN_DEPENDS
-    INCLUDE_DIRS ${INCLUDE_DIRS}
-    LIBRARIES ${${PROJECT_NAME}_LIBRARIES} ${${PROJECT_NAME}_LIBRARYS}
-    # LIBRARIES  colive_backend
-
-	)

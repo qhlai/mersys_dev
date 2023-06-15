@@ -35,9 +35,9 @@ namespace colive_params {
 using precision_t = colive::TypeDefs::precision_t;
 
 const std::string s0 (__FILE__);
-const std::size_t p0 = s0.find("src/core");
+const std::size_t p0 = s0.find("colive/colive_backend/src/core");
 const std::string s1 (s0.substr(0,p0));
-const std::string s2 ("config/config_backend.yaml");
+const std::string s2 ("colive/colive_backend/config/config_backend.yaml");
 const std::string s3 = s1 + s2;
 const std::string conf (s3);
 

@@ -1,10 +1,12 @@
 {
 	"folders": [
 		{
-			"path": "."
+			"name": "FAST_LIO",
+			"path": "../FAST_LIO"
 		},
 		{
-			"path": "../FAST_LIO"
+			"name": "colive",
+			"path": "."
 		}
 	],
 	"settings": {

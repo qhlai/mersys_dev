@@ -12,3 +12,4 @@
 
 #include <condition_variable>
 #include "communicator_client.hpp"
+#include "pointcloud_ex.hpp"
