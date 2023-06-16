@@ -203,7 +203,7 @@ auto CommunicatorBase::ProcessBufferOut()->void {
             message_container pointcloud_out_container;
             MsgPointCloud msg = db.pointclouds.front();
             db.pointclouds.pop_front();
-            Serialize(msg);
+            Serialize(msg);   
             pointcloud_out_container.ser_msg << send_ser_.str();
             pointcloud_out_container.msg_info.insert(pointcloud_out_container.msg_info.end(), msg.msg_type.begin(), msg.msg_type.end());
             while(pointcloud_out_container.msg_info.size() != ContainerSize*5)

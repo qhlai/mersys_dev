@@ -113,7 +113,7 @@ target_include_directories(fastlio_mapping PRIVATE ${PYTHON_INCLUDE_DIRS})
 # 	${COMM_INC_FILES} )
 
 add_executable(fastlio_mapping_client src/laserMapping_client.cpp include/ikd-Tree/ikd_Tree.cpp src/preprocess.cpp )
-target_link_libraries(fastlio_mapping_client ${catkin_LIBRARIES} ${PCL_LIBRARIES} ${PYTHON_LIBRARIES}  ${OpenCV_LIBRARIES} ${colive_backend_LIBRARIES}  /home/lqh/ros/r3live_ws/devel/lib/libcolive_backend.so)
+target_link_libraries(fastlio_mapping_client ${catkin_LIBRARIES} ${PCL_LIBRARIES} ${PYTHON_LIBRARIES}  ${OpenCV_LIBRARIES} ${colive_backend_LIBRARIES}  )
 # ${colive_backend_LIBRARIES} 
 target_include_directories(fastlio_mapping_client PRIVATE  ${PYTHON_INCLUDE_DIRS} ${colive_backend_INCLUDE_DIRS})
 

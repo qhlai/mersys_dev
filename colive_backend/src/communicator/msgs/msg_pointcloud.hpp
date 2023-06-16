@@ -83,16 +83,19 @@ protected:
         if(save_to_file) {
             archive(id,
                     pos_w,
+                    // pts_cloud,
                     // observations,id_reference
                     is_update_msg);
         } else if(is_update_msg){
             archive(id,
                     pos_w,
+                    // pts_cloud,
                     // observations,id_reference
                     is_update_msg);
         } else {
             archive(id,
                     pos_w,
+                    // pts_cloud,
                     // observations,id_reference
                     is_update_msg);
         }
@@ -103,16 +106,19 @@ protected:
         if(save_to_file) {
              archive(id,
                     pos_w,
+                    // pts_cloud,
                     // observations,id_reference
                     is_update_msg);
         } else if(msg_type[1] == true){
             archive(id,
                     pos_w,
+                    // pts_cloud,
                     // observations,id_reference
                     is_update_msg);
         } else {
             archive(id,
                     pos_w,
+                    // pts_cloud,
                     // observations,id_reference
                     is_update_msg);
         }

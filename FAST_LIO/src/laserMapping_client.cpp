@@ -482,7 +482,7 @@ void map_incremental()
 
 PointCloudXYZI::Ptr pcl_wait_pub(new PointCloudXYZI(500000, 1));
 PointCloudXYZI::Ptr pcl_wait_save(new PointCloudXYZI());
-void publish_frame_world(const ros::Publisher & pubLaserCloudFull)
+void publish_frame_world(const ros::Publisher & pubLaserCloudFull,colive::PointCloud_ex* pc)
 {
     if(scan_pub_en)
     {
@@ -499,10 +499,13 @@ void publish_frame_world(const ros::Publisher & pubLaserCloudFull)
 
         sensor_msgs::PointCloud2 laserCloudmsg;
         pcl::toROSMsg(*laserCloudWorld, laserCloudmsg);
+        pc->pts_cloud=*laserCloudWorld;
         laserCloudmsg.header.stamp = ros::Time().fromSec(lidar_end_time);
+        pc->timestamp_ = lidar_end_time;
         laserCloudmsg.header.frame_id = "camera_init";
         pubLaserCloudFull.publish(laserCloudmsg);
         publish_count -= PUBFRAME_PERIOD;
+        
     }
 
     /**************** save map ****************/
@@ -547,6 +550,7 @@ void publish_frame_body(const ros::Publisher & pubLaserCloudFull_body)
                             &laserCloudIMUBody->points[i]);
     }
 
+    
     sensor_msgs::PointCloud2 laserCloudmsg;
     pcl::toROSMsg(*laserCloudIMUBody, laserCloudmsg);
     laserCloudmsg.header.stamp = ros::Time().fromSec(lidar_end_time);
@@ -593,7 +597,7 @@ void set_posestamp(T & out)
     
 }
 
-void publish_odometry(const ros::Publisher & pubOdomAftMapped)
+void publish_odometry(const ros::Publisher & pubOdomAftMapped ,colive::PointCloud_ex* pc)
 {
     odomAftMapped.header.frame_id = "camera_init";
     odomAftMapped.child_frame_id = "body";
@@ -618,10 +622,14 @@ void publish_odometry(const ros::Publisher & pubOdomAftMapped)
     transform.setOrigin(tf::Vector3(odomAftMapped.pose.pose.position.x, \
                                     odomAftMapped.pose.pose.position.y, \
                                     odomAftMapped.pose.pose.position.z));
+    pc->pos_w[0] = odomAftMapped.pose.pose.position.x;
+    pc->pos_w[1] = odomAftMapped.pose.pose.position.y;
+    pc->pos_w[2] = odomAftMapped.pose.pose.position.z;
     q.setW(odomAftMapped.pose.pose.orientation.w);
     q.setX(odomAftMapped.pose.pose.orientation.x);
     q.setY(odomAftMapped.pose.pose.orientation.y);
     q.setZ(odomAftMapped.pose.pose.orientation.z);
+    pc->quan_.coeffs() << odomAftMapped.pose.pose.orientation.x, odomAftMapped.pose.pose.orientation.y, odomAftMapped.pose.pose.orientation.z, odomAftMapped.pose.pose.orientation.w;
     transform.setRotation( q );
     br.sendTransform( tf::StampedTransform( transform, odomAftMapped.header.stamp, "camera_init", "body" ) );
 }
@@ -996,13 +1004,15 @@ int main(int argc, char** argv)
             double t_update_end = omp_get_wtime();
 
             /******* Publish odometry *******/
-            publish_odometry(pubOdomAftMapped);
+            publish_odometry(pubOdomAftMapped, pc);
+        
 
             /*******  comm *******/
             pc->id_.second = comm_->GetClientId() ;
             pc->id_.first = cnt++ ;
+            // pc->pts_cloud=
             std::cout << "send new pointcloud "<<pc->id_.first << std::endl;
-            comm_->PassPcToComm(pc);
+            
 
             /*** add the feature points to map kdtree ***/
             t3 = omp_get_wtime();
@@ -1011,8 +1021,9 @@ int main(int argc, char** argv)
             
             /******* Publish points *******/
             if (path_en)                         publish_path(pubPath);
-            if (scan_pub_en || pcd_save_en)      publish_frame_world(pubLaserCloudFull);
+            if (scan_pub_en || pcd_save_en)      publish_frame_world(pubLaserCloudFull,pc);
             if (scan_pub_en && scan_body_pub_en) publish_frame_body(pubLaserCloudFull_body);
+            comm_->PassPcToComm(pc);
             // publish_effect_world(pubLaserCloudEffect);
             // publish_map(pubLaserCloudMap);
 

@@ -20,6 +20,7 @@ public:
     using PointCloudEXPtr                    = TypeDefs::PointCloudEXPtr;
 
     using Vector3Type                   = TypeDefs::Vector3Type;
+    using QuaternionType                = TypeDefs::QuaternionType;
     using Matrix3Type                   = TypeDefs::Matrix3Type;
     using TransformType                 = TypeDefs::TransformType;
     struct pc_less{
@@ -33,7 +34,7 @@ public:
     // Position
     Vector3Type             pos_ref;
     Vector3Type             pos_w;
-
+    QuaternionType          quan_;
     // Vector3Type             pos_self;
     TransformType           odom;
 

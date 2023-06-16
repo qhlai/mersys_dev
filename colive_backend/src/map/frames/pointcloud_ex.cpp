@@ -20,6 +20,7 @@ auto PointCloud_ex::ConvertToMsg(colive::MsgPointCloud &msg,Vector3Type &pos_w_2
     msg.timestamp = 0;//std::chrono::system_clock::now();
     msg.pts_cloud = pts_cloud;
     msg.pos_w = pos_w;
+    // msg.pts_cloud=
 
 }
 auto PointCloud_ex::pc_less::operator ()(const PointCloudEXPtr a, const PointCloudEXPtr b) const ->bool
