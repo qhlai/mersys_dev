@@ -25,6 +25,8 @@
 #include <pcl/kdtree/kdtree_flann.h>
 #include <pcl/io/pcd_io.h>
 
+
+
 namespace colive {
 class MsgPointCloud{
 public:
@@ -40,6 +42,7 @@ public:
     using PointType                     = TypeDefs::PointType;
     using VoxelGrid                     = TypeDefs::VoxelGrid;
     using PointCloud                    = TypeDefs::PointCloud;
+    using QuaternionType                = TypeDefs::QuaternionType;
 
     struct compare_less{bool operator() (const MsgPointCloud &a, const MsgPointCloud &b) const;};
 
@@ -71,7 +74,7 @@ public:
 
     VoxelGrid               vox_cloud;
     PointCloud              pts_cloud;
-
+    QuaternionType          quan_;
 
 
 protected:
@@ -83,19 +86,22 @@ protected:
         if(save_to_file) {
             archive(id,
                     pos_w,
-                    // pts_cloud,
+                    quan_,
+                    pts_cloud,
                     // observations,id_reference
                     is_update_msg);
         } else if(is_update_msg){
             archive(id,
                     pos_w,
-                    // pts_cloud,
+                    quan_,
+                    pts_cloud,
                     // observations,id_reference
                     is_update_msg);
         } else {
             archive(id,
                     pos_w,
-                    // pts_cloud,
+                    quan_,
+                    pts_cloud,
                     // observations,id_reference
                     is_update_msg);
         }
@@ -106,19 +112,22 @@ protected:
         if(save_to_file) {
              archive(id,
                     pos_w,
-                    // pts_cloud,
+                    quan_,
+                    pts_cloud,
                     // observations,id_reference
                     is_update_msg);
         } else if(msg_type[1] == true){
             archive(id,
                     pos_w,
-                    // pts_cloud,
+                    quan_,
+                    pts_cloud,
                     // observations,id_reference
                     is_update_msg);
         } else {
             archive(id,
                     pos_w,
-                    // pts_cloud,
+                    quan_,
+                    pts_cloud,
                     // observations,id_reference
                     is_update_msg);
         }
@@ -126,3 +135,70 @@ protected:
 };
 
 } //end ns
+
+namespace cereal {
+    // Save function for pcl::PointCloud type
+    template<class Archive>
+    inline
+    void save(Archive& ar, const colive::TypeDefs::PointCloud& pointCloud) {
+        // Save the size of the point cloud
+        size_t size = pointCloud.size();
+        ar(size);
+
+        // Save each point in the point cloud
+        for (const auto& point : pointCloud) {
+            ar(point.x);
+            ar(point.y);
+            ar(point.z);
+            // Additional serialization for other point cloud properties
+            // ar(point.property1);
+            // ar(point.property2);
+            // ...
+        }
+    }
+     // Load function for pcl::PointCloud type
+    template<class Archive>
+    inline
+    void load(Archive& ar, colive::TypeDefs::PointCloud& pointCloud) {
+        // Load the size of the point cloud
+        size_t size;
+        ar(size);
+
+        // Resize the point cloud to the loaded size
+        pointCloud.resize(size);
+
+        // Load each point in the point cloud
+        for (auto& point : pointCloud) {
+            ar(point.x);
+            ar(point.y);
+            ar(point.z);
+            // Additional deserialization for other point cloud properties
+            // ar(point.property1);
+            // ar(point.property2);
+            // ...
+        }
+    }
+    template<class Archive>
+    inline
+    void save(Archive& ar, const colive::TypeDefs::QuaternionType& q) {
+        ar(q.x());
+        ar(q.y());
+        ar(q.z());
+        ar(q.w());
+       
+    }
+     // Load function for pcl::PointCloud type
+    template<class Archive>
+    inline
+    void load(Archive& ar, colive::TypeDefs::QuaternionType& q) {
+       colive::TypeDefs::precision_t  x, y, z, w;
+        ar(x);
+        ar(y);
+        ar(z);
+        ar(w);
+        q = colive::TypeDefs::QuaternionType(w, x, y, z);
+    }
+} 
+
+
+

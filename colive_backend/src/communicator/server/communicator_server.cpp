@@ -170,7 +170,7 @@ auto Communicator_server::Run()->void {
             // this->ProcessAdditional();
             this->UnLock();
         }
-        // vis_->DrawMap(map_);
+        vis_->DrawMap(map_);
 
         mapmanager_->ReturnMap(client_id_,check_num_map);
         map_ = nullptr; //make sure the MapManager is used correctly - this will cause SEGFAULT if accessed

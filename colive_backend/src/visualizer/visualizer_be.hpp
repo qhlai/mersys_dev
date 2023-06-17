@@ -21,7 +21,7 @@
 #include "config_backend.hpp"
 
 #include "pointcloud_ex.hpp"
-
+#include "map_co.hpp"
 namespace colive{
 
 
@@ -33,7 +33,6 @@ public:
 
     using TransformType                 = TypeDefs::TransformType;
 
-    using PointCloudEX = TypeDefs::PointCloudEX;
 
     using KeyframePtr                   = TypeDefs::KeyframePtr;
     using LandmarkPtr                   = TypeDefs::LandmarkPtr;
@@ -42,6 +41,8 @@ public:
 
     using KeyframeMap                   = TypeDefs::KeyframeMap;
     using LandmarkMap                   = TypeDefs::LandmarkMap;
+    using PointCloud               = TypeDefs::PointCloud;
+    using PointCloudEX               = TypeDefs::PointCloudEX;
     using PointCloudEXMap               = TypeDefs::PointCloudEXMap;
     using KeyframeVector                = TypeDefs::KeyframeVector;
     using LandmarkVector                = TypeDefs::LandmarkVector;
@@ -70,6 +71,7 @@ public:
     
     // Interfaces
     virtual auto DrawMap(MapPtr map)                                                    ->void;
+    virtual auto PubPointCloud()                                                        ->void;
     // Draw Loaded Map
     auto DrawMapBitByBit(MapPtr map, std::string frame)                                 ->void;
 

@@ -96,6 +96,10 @@ auto Map::GetPointCloudEX(idpair idp)->PointCloudEXPtr {
         return nullptr;
     }
 }
+auto Map::GetPointCloudEXs()->PointCloudEXMap {
+    std::unique_lock<std::mutex> lock(mtx_map_);
+    return pointclouds_;
+}
 auto Map::Display()->void {
     std::unique_lock<std::mutex> lock(mtx_map_);
     // keyframes_.size();

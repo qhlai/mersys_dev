@@ -68,8 +68,8 @@ Backend::Backend(){
         // std::string a;
         // a="_be";
         vis_.reset(new Visualizer("_be"));
-        // thread_vis_.reset(new std::thread(&Visualizer::Run,vis_));
-        // thread_vis_->detach(); // Thread will be cleaned up when exiting main()
+        thread_vis_.reset(new std::thread(&Visualizer::Run,vis_));
+        thread_vis_->detach(); // Thread will be cleaned up when exiting main()
     }
 }
 

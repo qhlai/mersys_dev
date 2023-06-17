@@ -38,6 +38,7 @@
 #include "config_comm.hpp"
 #include "mapmanager.hpp"
 #include "pointcloud_ex.hpp"
+#include "visualizer_be.hpp"
 
 #include "msgs/msg_landmark.hpp"
 #include "msgs/msg_keyframe.hpp"

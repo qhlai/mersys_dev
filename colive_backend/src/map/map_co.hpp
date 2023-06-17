@@ -97,6 +97,7 @@ public:
     Map(MapPtr map_target, MapPtr map_tofuse, TransformType T_wtarget_wtofuse);
 
     virtual auto GetPointCloudEX(idpair idp)        ->PointCloudEXPtr;
+    virtual auto GetPointCloudEXs()            ->PointCloudEXMap;
     virtual auto Display()->void;
 
     virtual auto AddPointCloud(PointCloudEXPtr pc)->void;
