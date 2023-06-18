@@ -139,16 +139,16 @@ auto Visualizer::PubPointCloud()->void {
 }
 
 auto Visualizer::Run()->void{
-    std::cout<<"run vis"<<std::endl;
+    // std::cout<<"run vis"<<std::endl;
     while(1) {
         if(this->CheckVisData()) {
         std::unique_lock<std::mutex> lock(mtx_draw_);
-         std::cout<<"run vis 1"<<std::endl;
+        //  std::cout<<"run vis 1"<<std::endl;
         for(std::map<size_t,VisBundle>::iterator mit = vis_data_.begin();mit!=vis_data_.end();++mit){
             curr_bundle_ = mit->second;
-            std::cout<<"run vis2"<<std::endl;
+            // std::cout<<"run vis2"<<std::endl;
             this->PubPointCloud();
-             std::cout<<"run vis3"<<std::endl;
+            //  std::cout<<"run vis3"<<std::endl;
         //     if(colive_params::vis::showkeyframes)
         //         this->PubKeyframesAsFrusta();
 

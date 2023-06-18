@@ -135,12 +135,15 @@ protected:
 };
 
 } //end ns
-
+// x = p.x; y = p.y; z = p.z; data[3] = 1.0f;
+//       normal_x = p.normal_x; normal_y = p.normal_y; normal_z = p.normal_z; data_n[3] = 0.0f;
+//       curvature = p.curvature;
+//       intensity = p.intensity;
 namespace cereal {
     // Save function for pcl::PointCloud type
     template<class Archive>
     inline
-    void save(Archive& ar, const colive::TypeDefs::PointCloud& pointCloud) {
+    void save(Archive& ar, const pcl::PointCloud<pcl::PointXYZINormal>& pointCloud) {
         // Save the size of the point cloud
         size_t size = pointCloud.size();
         ar(size);
@@ -150,16 +153,26 @@ namespace cereal {
             ar(point.x);
             ar(point.y);
             ar(point.z);
-            // Additional serialization for other point cloud properties
-            // ar(point.property1);
-            // ar(point.property2);
-            // ...
+            for (size_t i = 0; i <3;i++) {
+                ar(point.data[i]);
+            }
+            
+            ar(point.normal_x);
+            ar(point.normal_y);
+            ar(point.normal_z);
+            for (size_t i = 0; i <3;i++) {
+                ar(point.data_n[i]);
+            }
+            
+            ar(point.curvature);
+            ar(point.intensity);
+
         }
     }
      // Load function for pcl::PointCloud type
     template<class Archive>
     inline
-    void load(Archive& ar, colive::TypeDefs::PointCloud& pointCloud) {
+    void load(Archive& ar, pcl::PointCloud<pcl::PointXYZINormal>& pointCloud) {
         // Load the size of the point cloud
         size_t size;
         ar(size);
@@ -172,10 +185,19 @@ namespace cereal {
             ar(point.x);
             ar(point.y);
             ar(point.z);
-            // Additional deserialization for other point cloud properties
-            // ar(point.property1);
-            // ar(point.property2);
-            // ...
+            for (size_t i = 0; i <3;i++) {
+                ar(point.data[i]);
+            }
+            
+            ar(point.normal_x);
+            ar(point.normal_y);
+            ar(point.normal_z);
+            for (size_t i = 0; i <3;i++) {
+                ar(point.data_n[i]);
+            }
+            
+            ar(point.curvature);
+            ar(point.intensity);
         }
     }
     template<class Archive>
