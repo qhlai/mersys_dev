@@ -62,7 +62,7 @@ public:
     bool                    save_to_file                                = false;                        // indicates that this LM will be saved to a file, not send over network
 
     // Identifier
-    double                  timestamp;
+    double                  timestamp_;
     idpair                  id;
 
     // Position
@@ -141,6 +141,50 @@ protected:
 //       intensity = p.intensity;
 namespace cereal {
     // Save function for pcl::PointCloud type
+
+    template<class Archive>
+    inline
+    void save(Archive& ar, const pcl::PointCloud<pcl::PointXYZI>& pointCloud) {
+        // Save the size of the point cloud
+        size_t size = pointCloud.size();
+        ar(size);
+
+        // Save each point in the point cloud
+        for (const auto& point : pointCloud) {
+            ar(point.x);
+            ar(point.y);
+            ar(point.z);
+            for (size_t i = 0; i <3;i++) {
+                ar(point.data[i]);
+            }
+
+            ar(point.intensity);
+
+        }
+    }
+     // Load function for pcl::PointCloud type
+    template<class Archive>
+    inline
+    void load(Archive& ar, pcl::PointCloud<pcl::PointXYZI>& pointCloud) {
+        // Load the size of the point cloud
+        size_t size;
+        ar(size);
+
+        // Resize the point cloud to the loaded size
+        pointCloud.resize(size);
+
+        // Load each point in the point cloud
+        for (auto& point : pointCloud) {
+            ar(point.x);
+            ar(point.y);
+            ar(point.z);
+            for (size_t i = 0; i <3;i++) {
+                ar(point.data[i]);
+            }
+            
+            ar(point.intensity);
+        }
+    }
     template<class Archive>
     inline
     void save(Archive& ar, const pcl::PointCloud<pcl::PointXYZINormal>& pointCloud) {
@@ -200,6 +244,7 @@ namespace cereal {
             ar(point.intensity);
         }
     }
+
     template<class Archive>
     inline
     void save(Archive& ar, const colive::TypeDefs::QuaternionType& q) {

@@ -1023,6 +1023,7 @@ int main(int argc, char** argv)
             if (path_en)                         publish_path(pubPath);
             if (scan_pub_en || pcd_save_en)      publish_frame_world(pubLaserCloudFull,pc);
             if (scan_pub_en && scan_body_pub_en) publish_frame_body(pubLaserCloudFull_body);
+            
             comm_->PassPcToComm(pc);
             // publish_effect_world(pubLaserCloudEffect);
             // publish_map(pubLaserCloudMap);

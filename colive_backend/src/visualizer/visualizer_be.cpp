@@ -103,13 +103,24 @@ auto Visualizer::DrawMap(MapPtr map)->void {
     vb.id_map = map->id_map_;
     // vb.associated_clients = map->associated_clients_;
     // vb.loops = map->GetLoopConstraints();
-    vb.frame = "body";
+    vb.frame = "camera_init";
 
     // if(vb.keyframes.size() < 3) return;
     if(vb.pointCloud.size() < 3) return;
     vis_data_[map->id_map_] = vb;
 }
+void pointcloud_convert(pcl::PointCloud<pcl::PointXYZINormal>::Ptr pc_in,pcl::PointCloud<pcl::PointXYZI>::Ptr pc_out){
 
+    for (size_t i = 0; i < pc_in->size(); ++i)
+    {
+    pcl::PointXYZI point;
+    point.x = pc_in->points[i].x;
+    point.y = pc_in->points[i].y;
+    point.z = pc_in->points[i].z;
+    point.intensity = pc_in->points[i].intensity;
+    pc_out->push_back(point);
+    }
+}
 auto Visualizer::PubPointCloud()->void {
 
  
@@ -126,17 +137,37 @@ auto Visualizer::PubPointCloud()->void {
     //     // cloud.points.push_back(p);
     // }
 
-    PointCloudEXPtr p = curr_bundle_.pointCloud.rbegin()->second;
-    PointCloud tmp=p->pts_cloud;
+    PointCloudEXPtr pc = curr_bundle_.pointCloud.rbegin()->second;
+    
+    // PointCloud cloud_in_=pc->pts_cloud;
+    PointCloud cloud_in=pc->pts_cloud;
+    // pcl::PointCloud<pcl::PointXYZINormal>::Ptr cloud_in (new pcl::PointCloud<pcl::PointXYZINormal>);
+    // *cloud_in=pc->pts_cloud;
+    pcl::PointCloud<pcl::PointXYZI>::Ptr cloud_out(new pcl::PointCloud<pcl::PointXYZI>);
+
+    // pointcloud_convert(cloud_in,cloud_out);
+    for (size_t i = 0; i < cloud_in.size(); ++i)
+    {
+    pcl::PointXYZI point;
+    point.x = cloud_in.points[i].x;
+    point.y = cloud_in.points[i].y;
+    point.z = cloud_in.points[i].z;
+    point.intensity = cloud_in.points[i].intensity;
+    cloud_out->push_back(point);
+    }
+
     sensor_msgs::PointCloud2 pcl_msg;
-    pcl::toROSMsg(tmp,pcl_msg);
+    pcl::toROSMsg(*cloud_out,pcl_msg);
     pcl_msg.header.frame_id = curr_bundle_.frame;
-    pcl_msg.header.stamp = ros::Time::now();
+    // pcl_msg.header.stamp = ros::Time::now();
+    pcl_msg.header.stamp = ros::Time().fromSec(pc->timestamp_);
 
     pub_cloud_.publish(pcl_msg);
-    std::cout<<"pub vis"<<std::endl;
+    // std::cout<<"pub vis"<<std::endl;
         
 }
+
+
 
 auto Visualizer::Run()->void{
     // std::cout<<"run vis"<<std::endl;
@@ -144,6 +175,7 @@ auto Visualizer::Run()->void{
         if(this->CheckVisData()) {
         std::unique_lock<std::mutex> lock(mtx_draw_);
         //  std::cout<<"run vis 1"<<std::endl;
+        // 每个agent
         for(std::map<size_t,VisBundle>::iterator mit = vis_data_.begin();mit!=vis_data_.end();++mit){
             curr_bundle_ = mit->second;
             // std::cout<<"run vis2"<<std::endl;
@@ -164,12 +196,26 @@ auto Visualizer::Run()->void{
         //     this->PubLoopEdges();
         }
         vis_data_.clear();
+        // limit frequency, TODO: should be modified later may like this
+
+            // // float loopClosureFrequency = 3.0; // can change 
+            // ros::Rate rate(loopClosureFrequency);
+            // while (ros::ok())
+            // {
+            //     rate.sleep();
+            //     // performSCLoopClosure();
+            //     performRSLoopClosure(); // TODO
+            //     visualizeLoopClosure();
+            // }
+        usleep(100000);// limit frequency, TODO
     }
     this->ResetIfRequested();
     usleep(5000);
     }
     
 }
+
+
 
 
 

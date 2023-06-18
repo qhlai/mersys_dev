@@ -38,7 +38,8 @@ public:
     using LandmarkPtr                   = TypeDefs::LandmarkPtr;
     using PointCloudEXPtr                   = TypeDefs::PointCloudEXPtr;
     using MapPtr                        = TypeDefs::MapPtr;
-
+    using PointCloudPtr               = TypeDefs::PointCloudPtr;
+    
     using KeyframeMap                   = TypeDefs::KeyframeMap;
     using LandmarkMap                   = TypeDefs::LandmarkMap;
     using PointCloud               = TypeDefs::PointCloud;

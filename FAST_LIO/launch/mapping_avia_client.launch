@@ -1,7 +1,7 @@
 <launch>
 <!-- Launch file for Livox AVIA LiDAR -->
 
-	<arg name="rviz" default="true" />
+	<arg name="rviz" default="false" />
 
 	<rosparam command="load" file="$(find fast_lio)/config/avia.yaml" />
 

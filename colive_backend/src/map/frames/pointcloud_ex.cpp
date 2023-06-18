@@ -8,7 +8,7 @@ PointCloud_ex::PointCloud_ex(MsgPointCloud msg, MapPtr map){
     pos_w = msg.pos_w;
     quan_ = msg.quan_;
     pts_cloud=msg.pts_cloud;
-    
+    timestamp_=msg.timestamp_;
     
 }
 
@@ -20,11 +20,12 @@ auto PointCloud_ex::ConvertToMsg(colive::MsgPointCloud &msg,Vector3Type &pos_w_2
     // std::unique_lock<std::mutex> lock_pose(mMutexPose);
     // msg.downSample
     msg.id = id_;   // mnid clientid  
-    msg.timestamp = 0;//std::chrono::system_clock::now();
+    msg.timestamp_ = timestamp_;//std::chrono::system_clock::now();
     
     msg.pos_w = pos_w;
     msg.quan_ = quan_;
     msg.pts_cloud = pts_cloud;
+    
     // msg.pts_cloud=
 
 }

@@ -31,6 +31,7 @@
 #include <string>
 #include <netinet/in.h>
 #include <eigen3/Eigen/Core>
+// #include <eigen3/Eigen/Geometry>
 
 #include "communicator_base.hpp"
 #include "pointcloud_ex.hpp"
@@ -60,6 +61,7 @@ class Communicator_client : public CommunicatorBase, public std::enable_shared_f
 public:
     using Vector3Type                   = TypeDefs::Vector3Type;
     using Matrix3Type                   = TypeDefs::Matrix3Type;
+    using QuaternionType                = TypeDefs::QuaternionType;
     using TransformType                 = TypeDefs::TransformType;
     using PointCloudEX  = TypeDefs::PointCloudEX; 
     using PointCloudEXList  = TypeDefs::PointCloudEXList;  
@@ -83,6 +85,7 @@ public:
     //     std::unique_lock<std::mutex>(mtx_kf_queue_);
     //     kf_out_buffer_.push_back(kf);
     // }
+ 
     virtual auto PassPcToComm(PointCloudEX* pc)                                             ->void {
         std::unique_lock<std::mutex>(mtx_pc_queue_);
         pointcloud_out_buffer_.push_back(pc);
@@ -109,6 +112,10 @@ protected:
     std::string port_;
 
     bool sending_init_ = false;
+
+    Vector3Type             last_pos_ =Vector3Type::Zero();
+    QuaternionType          last_quan_=QuaternionType::Identity(); //https://quaternions.online/
+
     std::list<KeyFrame*>   kf_out_buffer_;
     std::list<PointCloudEX*>   pointcloud_out_buffer_;
     std::mutex              mtx_pc_queue_;
