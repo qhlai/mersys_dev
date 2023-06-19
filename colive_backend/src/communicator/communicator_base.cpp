@@ -409,6 +409,21 @@ auto CommunicatorBase::Serialize(MsgPointCloud &msg)->void {
     cereal::BinaryOutputArchive oarchive(send_ser_);
     oarchive(msg);
 
+    if(false){// compress 效果不太好
+    std::stringstream ss_compressed;
+    uLongf compressed_size = compressBound(send_ser_.str().size());
+    ss_compressed.str(std::string(compressed_size, '\0'));
+    int compression_level = 9; // 设置压缩级别为9
+    compress2(reinterpret_cast<Bytef*>(&ss_compressed.str()[0]), &compressed_size, reinterpret_cast<const Bytef*>(send_ser_.str().data()), send_ser_.str().size(),compression_level);
+    ss_compressed.str().resize(compressed_size);
+
+        // 输出压缩后的数据
+    std::cout << "Uncompressed data size: " << send_ser_.str().size() << std::endl;
+    // 输出压缩后的数据
+    std::cout << "Compressed data size: " << ss_compressed.str().size() << std::endl;
+    }
+  
+
     package_size_send_ = (int)send_ser_.str().length();
     msg.SetMsgType(package_size_send_);
 }

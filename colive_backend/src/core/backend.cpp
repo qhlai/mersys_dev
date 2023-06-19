@@ -53,6 +53,9 @@ auto Client::Run()->void {
 Backend::Backend(){
     std::cout<<"hello world!"<<std::endl;
     // some init 
+    printf_program("colive backend");
+    Common_tools::printf_software_version();
+    Eigen::initParallel();
     colive_params::ShowParamsComm();
     colive_params::ShowParamsBackend();
 
@@ -60,7 +63,6 @@ Backend::Backend(){
     thread_mapmanager_.reset(new std::thread(&MapManager::Run,mapmanager_));
     thread_mapmanager_->detach(); // Thread will be cleaned up when exiting main()
 
-    // auto sb =new Sb(1);
 
         //+++++ Create Viewer +++++
     if(colive_params::vis::active){

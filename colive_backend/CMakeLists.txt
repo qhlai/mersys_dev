@@ -59,6 +59,7 @@ find_package(Eigen3)
 find_package(PCL REQUIRED)
 # set(PCL_INCLUDE_DIRS /usr/local/include/pcl-1.10) 
 find_package(OpenCV REQUIRED)
+find_package(ZLIB)
 
 
 set (INCLUDE_DIRS
@@ -172,6 +173,7 @@ target_link_libraries(colive_backend_node
                           ${OpenCV_LIBRARIES}
                           # ${OpenMVS_LIBRARIES}
                           ${PCL_LIBRARIES}
+                          ZLIB::ZLIB
                         #   pcl_common 
                         #   pcl_io
                           ) 
@@ -193,6 +195,7 @@ target_link_libraries(colive_test_node
                         ${OpenCV_LIBRARIES}
                         # ${OpenMVS_LIBRARIES}
                         ${PCL_LIBRARIES}
+                        ZLIB::ZLIB
                         #   pcl_common 
                         #   pcl_io
 ) 
@@ -215,6 +218,7 @@ target_link_libraries(${PROJECT_NAME}
                         ${Boost_FILESYSTEM_LIBRARY}
                         ${Boost_SERIALIZATION_LIBRARY} # serialization
                         ${OpenCV_LIBRARIES}
+                        ZLIB::ZLIB
                         # ${OpenMVS_LIBRARIES}
                         # ${PCL_LIBRARIES}
                         #   pcl_common 

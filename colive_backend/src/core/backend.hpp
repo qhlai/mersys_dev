@@ -38,6 +38,7 @@
 #include "typedefs_base.hpp"
 #include "visualizer_be.hpp"
 
+#include "tools_logger.hpp"
 
 
 
