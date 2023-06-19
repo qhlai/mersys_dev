@@ -34,6 +34,8 @@
 #include <pcl/filters/voxel_grid.h>
 #include <pcl/kdtree/kdtree_flann.h>
 #include <pcl/io/pcd_io.h>
+#include <pcl/filters/radius_outlier_removal.h>
+#include <pcl/filters/statistical_outlier_removal.h>
 
 #define MAPRANGE std::numeric_limits<uint8_t>::max()
 #define KFRANGE std::numeric_limits<uint16_t>::max()
@@ -82,7 +84,7 @@ namespace TypeDefs {
     using PointType                     = pcl::PointXYZINormal;
     using RGBPointType                  = pcl::PointXYZINormal;
     using VoxelGrid                     = pcl::VoxelGrid<PointType>;
-    using PointCloud                    = pcl::PointCloud<PointType>;
+    using PointCloud                    = pcl::PointCloud<PointType>;// pcl::PointCloud<PointXYZINormal>
     using PointCloudRBG                 = pcl::PointCloud<pcl::PointXYZRGB>;
     using PointCloudEX                  = PointCloud_ex;
 

@@ -61,6 +61,9 @@ Communicator_client::Communicator_client(std::string server_ip, std::string port
     }
     std::cout << "newfd_: " << newfd_ << std::endl;
     std::cout << "--> Connected" << std::endl;
+
+    pc_final.reset(new PointCloud);
+    pc_final_filtered.reset(new PointCloud);
 }
 // 用于断线重连
 auto Communicator_client::tryReConnect()->void
@@ -202,7 +205,95 @@ auto Communicator_client::ProcessPointCloudMessages()->void {
     // while(!kf_out_buffer_.empty())
 
 }
+auto Communicator_client::TryPassKeyPcToComm(PointCloudEX* pc)      ->void{
+       Vector3Type pos_diff = pc->pos_w-last_pos_;
+        // Eigen::Quaternion<double> quan_now=pc->quan_;
 
+
+        // TODO: modify keyframe's max pos diff
+        precision_t pos_dis = sqrt(pos_diff[0]*pos_diff[0]+pos_diff[1]*pos_diff[1]+pos_diff[2]*pos_diff[2]);
+
+
+        // QuaternionType quan_diff =pc->quan_*last_quan_.conjugate();
+        // Eigen::Matrix3d R = quan_diff.toRotationMatrix();
+        Vector3Type rot_euler=pc->quan_.matrix().eulerAngles(2,1,0); // zyx, euler is [0,pi]
+        Vector3Type last_rot_euler=last_quan_.matrix().eulerAngles(2,1,0); // zyx, euler is [0,pi]
+
+        // std::cout << "roll_2 pitch_2 yaw_2 = " << rot_euler[2]
+        //                                 << " " << rot_euler[1]
+	    //                                 << " " << rot_euler[0] << std::endl << std::endl;
+        // std::cout << "diff roll_2 pitch_2 yaw_2 = " << rot_euler[2]-last_rot_euler[2]
+        //                                 << " " << rot_euler[1]-last_rot_euler[1]
+	    //                                 << " " << rot_euler[0]-last_rot_euler[0] << std::endl << std::endl;
+
+        precision_t rot_diff = (fabs(rot_euler[2]-last_rot_euler[2]) + fabs(rot_euler[1]-last_rot_euler[1]) + fabs(rot_euler[0]-last_rot_euler[0]))*(180.0 / M_PI);// TODO:  shoud fix, why max is 532?
+        precision_t time_diff = pc->timestamp_- last_timestamp_;
+        if (time_diff<0){
+                std::cout<<"Error time_diff<0"<< std::endl;
+                return;
+        }
+        // 把多个frame一起打包压缩，减少传输次数的同时可以合并一些重复点
+        // std::cout<<"pc->pts_cloud->size():"<<pc->pts_cloud.size()<< std::endl;  6000 per frame
+        *pc_final+=pc->pts_cloud;
+
+        if ( pos_dis > 0.5 || rot_diff > 10  || time_diff > 1 || pc_final->size() >= 20000){
+            if (pc_final->size() == 0){
+                std::cout<<"Error pc_final->size() == 0"<< std::endl;
+                return;
+            }
+            
+            // pc_sum.pts_cloud
+            std::cout<<"pos diff:"<<pos_dis<<", rot_diff:"<<rot_diff<<", time_diff:"<<time_diff<<", pc size:"<<pc_final->size()<< std::endl;
+            //  pcl 滤波
+            // https://blog.csdn.net/qq_34429849/article/details/128115900
+            if(true){
+                // 球半径滤波器
+                pcl::RadiusOutlierRemoval<PointType> outrem;  //创建滤波器
+                outrem.setInputCloud(pc_final);    //设置输入点云
+                outrem.setRadiusSearch(0.2);    //设置半径为0.2的范围内找临近点
+                outrem.setMinNeighborsInRadius (4);//设置查询点的邻域点集数小于2的删除
+                outrem.filter (*pc_final);
+            }
+            if(false){
+                // 统计滤波器用于去除明显离群点（离群点往往由测量噪声引入）。
+                pcl::StatisticalOutlierRemoval<PointType> sor;//创建滤波器对象
+                sor.setInputCloud (pc_final); //设置待滤波的点云
+                sor.setMeanK (50);//设置在进行统计时考虑查询点临近点数
+                sor.setStddevMulThresh (1.0); //设置判断是否为离群点的阀值
+                sor.filter (*pc_final);   
+            }
+            if(true){// 降采样
+
+                // 设置降采样的体素大小
+                float voxel_size = 0.05f;
+                // 创建降采样对象
+                pcl::VoxelGrid<PointType> voxel_grid;
+                voxel_grid.setInputCloud(pc_final);
+                voxel_grid.setLeafSize(voxel_size, voxel_size, voxel_size);
+                // 执行降采样操作
+                // pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_downsampled(new pcl::PointCloud<pcl::PointXYZ>);
+                voxel_grid.filter(*pc_final);
+            }
+            pc->id_.second = GetClientId() ;
+            pc->id_.first = send_cnt++ ;
+            pc->pts_cloud=*pc_final;
+            std::cout << "send new pointcloud "<<pc->id_.first <<", size:"<<pc->pts_cloud.size()<< std::endl;
+            PassPcToComm(pc);
+
+            last_pos_=pc->pos_w;
+            last_quan_=pc->quan_; 
+            last_timestamp_=pc->timestamp_;          
+            pc_final->clear(); // reset
+            // pc->pts_cloud.clear();
+        }else{
+            // pc
+            // 把多个frame一起打包压缩，减少传输次数的同时可以合并一些重复点
+            // *pc_final+=pc->pts_cloud;
+        }
+        // pc->pts_cloud.clear(); // shoud not clear it, because comm use 
+
+
+}
 auto Communicator_client::ProcessLandmarkMessages()->void {
 
 }

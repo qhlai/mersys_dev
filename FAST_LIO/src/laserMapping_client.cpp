@@ -1007,11 +1007,7 @@ int main(int argc, char** argv)
             publish_odometry(pubOdomAftMapped, pc);
         
 
-            /*******  comm *******/
-            pc->id_.second = comm_->GetClientId() ;
-            pc->id_.first = cnt++ ;
-            // pc->pts_cloud=
-            std::cout << "send new pointcloud "<<pc->id_.first << std::endl;
+
             
 
             /*** add the feature points to map kdtree ***/
@@ -1024,7 +1020,9 @@ int main(int argc, char** argv)
             if (scan_pub_en || pcd_save_en)      publish_frame_world(pubLaserCloudFull,pc);
             if (scan_pub_en && scan_body_pub_en) publish_frame_body(pubLaserCloudFull_body);
             
-            comm_->PassPcToComm(pc);
+/*******  comm *******/
+            comm_->TryPassKeyPcToComm(pc);
+            // comm_->PassPcToComm(pc);
             // publish_effect_world(pubLaserCloudEffect);
             // publish_map(pubLaserCloudMap);
 

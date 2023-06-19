@@ -45,6 +45,9 @@
 
 #include "msgs/msg_pointcloud.hpp"
 #include "msgs/msg_odometry.hpp"
+
+
+
 // #include "msgs/msg_landmark.hpp"
 #define ContainerSize 10
 
@@ -59,10 +62,14 @@ class a{
 };
 class Communicator_client : public CommunicatorBase, public std::enable_shared_from_this<Communicator_client> {
 public:
+    using precision_t                   = TypeDefs::precision_t;
     using Vector3Type                   = TypeDefs::Vector3Type;
     using Matrix3Type                   = TypeDefs::Matrix3Type;
     using QuaternionType                = TypeDefs::QuaternionType;
     using TransformType                 = TypeDefs::TransformType;
+    using PointType                     = TypeDefs::PointType;
+    using PointCloud                    = TypeDefs::PointCloud;
+    using PointCloudPtr                    = TypeDefs::PointCloudPtr;
     using PointCloudEX  = TypeDefs::PointCloudEX; 
     using PointCloudEXList  = TypeDefs::PointCloudEXList;  
     // struct cmp_by_id{
@@ -85,37 +92,7 @@ public:
     //     std::unique_lock<std::mutex>(mtx_kf_queue_);
     //     kf_out_buffer_.push_back(kf);
     // }
-    virtual auto TryPassKeyPcToComm(PointCloudEX* pc)                                          ->void {
-
-        Vector3Type pos_diff = pc->pos_w-last_pos_;
-        // Eigen::Quaternion<double> quan_now=pc->quan_;
-        QuaternionType quan_diff =pc->quan_.conjugate()*last_quan_;
-        // quan_diff=quan_diff.normalize();
-// 四元数的减法运算(逆/共轭)得到的结果不一定是一个合法的四元数。
-// 因此，在进行减法运算时，需要对结果进行规范化操作，以确保其仍然是一个合法的四元数。
-
-            // odom_pose_prev = odom_pose_curr;
-            // odom_pose_curr = pose_curr;
-            // Pose6D dtf = diffTransformation(odom_pose_prev, odom_pose_curr); // dtf means delta_transform
-
-            // double delta_translation = sqrt(dtf.x*dtf.x + dtf.y*dtf.y + dtf.z*dtf.z); // note: absolute value. 
-            // translationAccumulated += delta_translation;
-            // rotaionAccumulated += (dtf.roll + dtf.pitch + dtf.yaw); // sum just naive approach.  
-
-            // // 关键帧选择
-            // if( translationAccumulated > keyframeMeterGap || rotaionAccumulated > keyframeRadGap ) {
-            //     isNowKeyFrame = true;
-            //     translationAccumulated = 0.0; // reset 
-            //     rotaionAccumulated = 0.0; // reset 
-            // } else {
-            //     isNowKeyFrame = false;
-            // }
-
-        PassPcToComm(pc);
-        last_pos_=pc->pos_w;
-        last_quan_=pc->quan_;
-
-    }
+    virtual auto TryPassKeyPcToComm(PointCloudEX* pc)                                        ->void;
     virtual auto PassPcToComm(PointCloudEX* pc)                                             ->void {
         std::unique_lock<std::mutex>(mtx_pc_queue_);
         pointcloud_out_buffer_.push_back(pc);
@@ -141,10 +118,15 @@ protected:
     std::string server_ip_;
     std::string port_;
 
+    uint32_t send_cnt = 0;
+    pcl::PointCloud<PointType>::Ptr pc_final;// 这个是智能指针
+    pcl::PointCloud<PointType>::Ptr pc_final_filtered; 
+    // PointCloudPtr pc_final_filtered1(new PointCloud); 
     bool sending_init_ = false;
 
     Vector3Type             last_pos_ =Vector3Type::Zero();
     QuaternionType          last_quan_=QuaternionType::Identity(); //https://quaternions.online/
+    precision_t             last_timestamp_=0;
 
     std::list<KeyFrame*>   kf_out_buffer_;
     std::list<PointCloudEX*>   pointcloud_out_buffer_;
