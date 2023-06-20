@@ -61,7 +61,7 @@ class Landmark;
 class Map;
 class MapInstance;  
 class MapManager;
-class PlacerecBase;
+class PlaceRecognition;
 class Visualizer;
 class Client;
 class PointCloud_ex;
@@ -101,7 +101,7 @@ namespace TypeDefs {
     using MapInstancePtr                   = std::shared_ptr<MapInstance>;
     using MapManagerPtr                    = std::shared_ptr<MapManager>;
 
-    using PlacerecPtr                   = std::shared_ptr<PlacerecBase>;
+    using PlacerecPtr                   = std::shared_ptr<PlaceRecognition>;
 
     using VisPtr                        = std::shared_ptr<Visualizer>;
 

@@ -227,6 +227,9 @@ auto Communicator_client::TryPassKeyPcToComm(PointCloudEX* pc)      ->void{
 	    //                                 << " " << rot_euler[0]-last_rot_euler[0] << std::endl << std::endl;
 
         precision_t rot_diff = (fabs(rot_euler[2]-last_rot_euler[2]) + fabs(rot_euler[1]-last_rot_euler[1]) + fabs(rot_euler[0]-last_rot_euler[0]))*(180.0 / M_PI);// TODO:  shoud fix, why max is 532?
+        if (rot_diff > 350){
+            rot_diff = fabs(rot_diff-360);
+        }
         precision_t time_diff = pc->timestamp_- last_timestamp_;
         if (time_diff<0){
                 std::cout<<"Error time_diff<0"<< std::endl;
@@ -234,11 +237,19 @@ auto Communicator_client::TryPassKeyPcToComm(PointCloudEX* pc)      ->void{
         }
         // 把多个frame一起打包压缩，减少传输次数的同时可以合并一些重复点
         // std::cout<<"pc->pts_cloud->size():"<<pc->pts_cloud.size()<< std::endl;  6000 per frame
-        *pc_final+=pc->pts_cloud;
+        // if
+        // static int tmp=0;
+        // if (tmp%2==0){
+            *pc_final+=pc->pts_cloud;
+            // tmp++;
+        // }
 
-        if ( pos_dis > 0.5 || rot_diff > 10  || time_diff > 1 || pc_final->size() >= 20000){
+  
+        
+        if ( (pos_dis > 0.5 || rot_diff > 10 || time_diff > 1 || pc_final->size() >= 50000) ){
             if (pc_final->size() == 0){
                 std::cout<<"Error pc_final->size() == 0"<< std::endl;
+                // *pc_final+=pc->pts_cloud;
                 return;
             }
             
@@ -250,11 +261,11 @@ auto Communicator_client::TryPassKeyPcToComm(PointCloudEX* pc)      ->void{
                 // 球半径滤波器
                 pcl::RadiusOutlierRemoval<PointType> outrem;  //创建滤波器
                 outrem.setInputCloud(pc_final);    //设置输入点云
-                outrem.setRadiusSearch(0.2);    //设置半径为0.2的范围内找临近点
+                outrem.setRadiusSearch(0.15);    //设置半径为0.2的范围内找临近点
                 outrem.setMinNeighborsInRadius (4);//设置查询点的邻域点集数小于2的删除
                 outrem.filter (*pc_final);
             }
-            if(false){
+            if(true){
                 // 统计滤波器用于去除明显离群点（离群点往往由测量噪声引入）。
                 pcl::StatisticalOutlierRemoval<PointType> sor;//创建滤波器对象
                 sor.setInputCloud (pc_final); //设置待滤波的点云
@@ -291,7 +302,7 @@ auto Communicator_client::TryPassKeyPcToComm(PointCloudEX* pc)      ->void{
             // *pc_final+=pc->pts_cloud;
         }
         // pc->pts_cloud.clear(); // shoud not clear it, because comm use 
-
+        
 
 }
 auto Communicator_client::ProcessLandmarkMessages()->void {

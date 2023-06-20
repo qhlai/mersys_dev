@@ -73,7 +73,8 @@ ${PROJECT_SOURCE_DIR}/src/tools
 ${PROJECT_SOURCE_DIR}/src/communicator
 ${PROJECT_SOURCE_DIR}/src/communicator/server
 ${PROJECT_SOURCE_DIR}/src/communicator/client
-${PROJECT_SOURCE_DIR}/src/communicator/client/colive_backend
+# ${PROJECT_SOURCE_DIR}/src/communicator/client/colive_backend
+${PROJECT_SOURCE_DIR}/src/place_rec
 ${PROJECT_SOURCE_DIR}/src/visualizer
 )
 
@@ -122,7 +123,16 @@ ${PROJECT_SOURCE_DIR}/src/map/map_co.cpp
 ${PROJECT_SOURCE_DIR}/src/map/mapmanager.cpp
 ${PROJECT_SOURCE_DIR}/src/map/frames/*.cpp
 )
+file(GLOB_RECURSE PLACE_INC_FILES     
+# ${PROJECT_SOURCE_DIR}/src/place_rec/*.hpp
+${PROJECT_SOURCE_DIR}/src/place_rec/place_rec.hpp
+# ${PROJECT_SOURCE_DIR}/src/visualizer/visualizer.cpp
+)
 
+file(GLOB_RECURSE PLACE_SRC_FILES     
+${PROJECT_SOURCE_DIR}/src/place_rec/place_rec.cpp
+# ${PROJECT_SOURCE_DIR}/src/visualizer/visualizer.cpp
+)
 file(GLOB_RECURSE VIS_INC_FILES     
 ${PROJECT_SOURCE_DIR}/src/visualizer/*.cpp
 # ${PROJECT_SOURCE_DIR}/src/visualizer/visualizer.cpp
@@ -161,7 +171,8 @@ add_executable(colive_backend_node src/core/backend_node.cpp
     ${BACKEND_SRC_FILES}
     
     ${MAP_SRC_FILES}
-    ${COMM_SRC_FILES}   
+    ${COMM_SRC_FILES}
+    ${PLACE_SRC_FILES}   
     ${VIS_SRC_FILES}
     # ${PROJECT_SOURCE_DIR}/src/core/sb.cpp
 )
@@ -184,6 +195,7 @@ add_executable(colive_test_node src/test/test_node.cpp
     ${PROJECT_SOURCE_DIR}/src/test/test_client.cpp
     ${MAP_SRC_FILES}
     ${COMM_SRC_FILES}   
+    ${PLACE_SRC_FILES}
     ${VIS_SRC_FILES}
 )
 
@@ -209,6 +221,8 @@ add_library(${PROJECT_NAME} SHARED
     ${MAP_SRC_FILES}
     ${COMM_INC_FILES}  
     ${COMM_SRC_FILES}  
+    ${PLACE_INC_FILES}
+    ${PLACE_SRC_FILES}
     ${VIS_INC_FILES} 
     ${VIS_SRC_FILES}
 )
