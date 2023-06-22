@@ -112,8 +112,8 @@ auto Communicator_server::ProcessNewPointClouds()->void {
         PointCloudEXPtr pc = pointclouds_new_.front();
         pointclouds_new_.pop_front();
 
-        if(colive_params::placerec::active)
-            placerec_->InsertKeyframe(pc);
+        // if(colive_params::placerec::active)
+        //     placerec_->InsertKeyframe(pc);
         // map_->UpdateCovisibilityConnections(kf->id_);
 
         // Keyframe::LandmarkVector landmarks = kf->GetLandmarks();
@@ -151,7 +151,7 @@ auto Communicator_server::Run()->void {
             auto now = std::chrono::steady_clock::now();
             std::chrono::duration<double> diff = now-last;
             if(diff.count() > wait_time) {
-                // this->CollectDataForAgent();
+                this->CollectDataForAgent();
                 last = now;
             }
             this->ProcessBufferOut();

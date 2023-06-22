@@ -76,7 +76,7 @@ auto Communicator_client::tryReConnect()->void
     // 加入等待重连 TODO：断线重连
     newfd_ = ConnectToServer(server_ip_.c_str(),port_);
     int cnt_retry=0;
-    while(newfd_ == 2){
+    while(newfd_ == 2){// fd=2表示标准错误
         std::cout << COUTFATAL << ": Could no establish connection - retry "<< (cnt_retry++) << std::endl;
         newfd_ = ConnectToServer(server_ip_.c_str(),port_);
 
