@@ -1,5 +1,5 @@
 
-#include "device_status.hpp"
+#include "msg_device_info.hpp"
 namespace colive {
 
 

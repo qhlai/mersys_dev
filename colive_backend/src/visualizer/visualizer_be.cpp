@@ -4,18 +4,6 @@ namespace colive{
 
 
 
-Visualizer::Visualizer()
-{
-    std::string topic_prefix ="_be";
-    topic_prefix_=topic_prefix;
-
-    std::string marker_topic = "colive_markers";
-    std::string cloud_topic = "colive_cloud";
-    marker_topic += topic_prefix;
-    cloud_topic += topic_prefix;
-    pub_marker_ = nh_.advertise<visualization_msgs::Marker>(marker_topic,10);
-    pub_cloud_ = nh_.advertise<sensor_msgs::PointCloud2>(cloud_topic,10);
-}
 
 Visualizer::Visualizer(std::string topic_prefix)
     : topic_prefix_(topic_prefix)
@@ -27,6 +15,18 @@ Visualizer::Visualizer(std::string topic_prefix)
     pub_marker_ = nh_.advertise<visualization_msgs::Marker>(marker_topic,10);
     pub_cloud_ = nh_.advertise<sensor_msgs::PointCloud2>(cloud_topic,10);
     std::cout<<"init vis"<<std::endl;
+}
+Visualizer::Visualizer(std::string topic_prefix, MapManagerPtr mapmanager)
+    : topic_prefix_(topic_prefix)
+{
+    std::string marker_topic = "colive_markers";
+    std::string cloud_topic = "colive_cloud";
+    marker_topic += topic_prefix;
+    cloud_topic += topic_prefix;
+    pub_marker_ = nh_.advertise<visualization_msgs::Marker>(marker_topic,10);
+    pub_cloud_ = nh_.advertise<sensor_msgs::PointCloud2>(cloud_topic,10);
+    std::cout<<"init vis"<<std::endl;
+    mapmanager_=mapmanager;
 }
 auto Visualizer::CheckVisData()->bool
 {
@@ -123,7 +123,7 @@ void pointcloud_convert(pcl::PointCloud<pcl::PointXYZINormal>::Ptr pc_in,pcl::Po
 }
 auto Visualizer::PubPointCloud()->void {
 
- 
+
 
     // for(PointCloudEXMap::const_iterator mit=curr_bundle_.pointCloud.begin();mit!=curr_bundle_.pointCloud.end();++mit) {
     //     PointCloudEXPtr pc_i = mit->second;
@@ -140,22 +140,21 @@ auto Visualizer::PubPointCloud()->void {
     PointCloudEXPtr pc = curr_bundle_.pointCloud.rbegin()->second;
     
     // PointCloud cloud_in_=pc->pts_cloud;
-    PointCloud cloud_in=pc->pts_cloud;
+    // PointCloud cloud_in=pc->pts_cloud;
+    // PointCloud::Ptr cloud_in = pc->pts_cloud;
+    // PointCloud::Ptr cloud_in=&(pc->pts_cloud);
+    PointCloud::Ptr cloud_in(new PointCloud(pc->pts_cloud));
+
+    // cloud_in.reset(pc->pts_cloud);
     // pcl::PointCloud<pcl::PointXYZINormal>::Ptr cloud_in (new pcl::PointCloud<pcl::PointXYZINormal>);
     // *cloud_in=pc->pts_cloud;
     pcl::PointCloud<pcl::PointXYZI>::Ptr cloud_out(new pcl::PointCloud<pcl::PointXYZI>);
 
-    // pointcloud_convert(cloud_in,cloud_out);
-    for (size_t i = 0; i < cloud_in.size(); ++i)
-    {
-    pcl::PointXYZI point;
-    point.x = cloud_in.points[i].x;
-    point.y = cloud_in.points[i].y;
-    point.z = cloud_in.points[i].z;
-    point.intensity = cloud_in.points[i].intensity;
-    cloud_out->push_back(point);
-    }
 
+    pointcloud_convert(cloud_in,cloud_out);
+ 
+
+    // g_pointcloud_pts_num+=cloud_out->size();
     sensor_msgs::PointCloud2 pcl_msg;
     pcl::toROSMsg(*cloud_out,pcl_msg);
     pcl_msg.header.frame_id = curr_bundle_.frame;
@@ -167,17 +166,90 @@ auto Visualizer::PubPointCloud()->void {
         
 }
 
+std::string append_space_to_bits( std::string & in_str, int bits )
+{
+    while( in_str.length() < bits )
+    {
+        in_str.append(" ");
+    }
+    return in_str;
+}
+void Visualizer::print_dash_board()
+{
+#if DEBUG_PHOTOMETRIC
+    return;
+#endif
 
+    // 获取当前进程的物理内存占用量。
+    int mem_used_mb = ( int ) ( Common_tools::get_RSS_Mb() );
+    // clang-format off
+    if( (mem_used_mb - g_last_stamped_mem_mb < 1024 ) && g_last_stamped_mem_mb != 0 )
+    {
+        std::cout  << ANSI_DELETE_CURRENT_LINE << ANSI_DELETE_LAST_LINE ;
+    }
+    else
+    {
+        std::cout << "\r\n" << endl;
+        std::cout << ANSI_COLOR_WHITE_BOLD << "======================= R3LIVE Dashboard ======================" << ANSI_COLOR_RESET << std::endl;
+        g_last_stamped_mem_mb = mem_used_mb ;
+    }
+    
+    std::string out_str_line_1, out_str_line_2;
+    out_str_line_1 = std::string(        "| System-time | LiDAR-frame | Camera-frame |  Pts in maps | Memory used (Mb) |") ;
+    //                                    1             16            30             45             60     
+    // clang-format on
+    out_str_line_2.reserve( 1e3 );
+    out_str_line_2.append( "|   " ).append( Common_tools::get_current_time_str() );
+    append_space_to_bits( out_str_line_2, 14 );
+    out_str_line_2.append( "|    " ).append( std::to_string( g_lidar_frame_num ) );
+    append_space_to_bits( out_str_line_2, 28 );
+    out_str_line_2.append( "|    " ).append( std::to_string( g_camera_frame_num ) );
+    append_space_to_bits( out_str_line_2, 43 );
+    // out_str_line_2.append( "| " ).append( std::to_string( m_map_rgb_pts.m_rgb_pts_vec.size() ) );
+    out_str_line_2.append( "| " ).append( std::to_string( g_pointcloud_pts_num) );
+    append_space_to_bits( out_str_line_2, 58 );
+    out_str_line_2.append( "|    " ).append( std::to_string( mem_used_mb ) );
+
+    out_str_line_2.insert( 58, ANSI_COLOR_YELLOW, 7 );
+    out_str_line_2.insert( 43, ANSI_COLOR_BLUE, 7 );
+    out_str_line_2.insert( 28, ANSI_COLOR_GREEN, 7 );
+    out_str_line_2.insert( 14, ANSI_COLOR_RED, 7 );
+    out_str_line_2.insert( 0, ANSI_COLOR_WHITE, 7 );
+
+    out_str_line_1.insert( 58, ANSI_COLOR_YELLOW_BOLD, 7 );
+    out_str_line_1.insert( 43, ANSI_COLOR_BLUE_BOLD, 7 );
+    out_str_line_1.insert( 28, ANSI_COLOR_GREEN_BOLD, 7 );
+    out_str_line_1.insert( 14, ANSI_COLOR_RED_BOLD, 7 );
+    out_str_line_1.insert( 0, ANSI_COLOR_WHITE_BOLD, 7 );
+
+    std::cout << out_str_line_1 << std::endl;
+    std::cout << out_str_line_2 << ANSI_COLOR_RESET << "          "<< std::endl;
+    ANSI_SCREEN_FLUSH;
+    // std::cout     
+}
 
 auto Visualizer::Run()->void{
     // std::cout<<"run vis"<<std::endl;
+
     while(1) {
+
         if(this->CheckVisData()) {
         std::unique_lock<std::mutex> lock(mtx_draw_);
         //  std::cout<<"run vis 1"<<std::endl;
-        // 每个agent
+       
+        g_camera_frame_num=0;
+        g_lidar_frame_num=0;
+        g_pointcloud_pts_num =0;
+         // 每个agent
         for(std::map<size_t,VisBundle>::iterator mit = vis_data_.begin();mit!=vis_data_.end();++mit){
             curr_bundle_ = mit->second;
+            g_camera_frame_num+=curr_bundle_.keyframes.size();
+            g_lidar_frame_num+=curr_bundle_.pointCloud.size();
+
+            for(PointCloudEXMap::const_iterator mit=curr_bundle_.pointCloud.begin();mit!=curr_bundle_.pointCloud.end();++mit) {
+                PointCloudEXPtr pc_i = mit->second;
+                g_pointcloud_pts_num += pc_i->pts_cloud.size();
+            }
             // std::cout<<"run vis2"<<std::endl;
             this->PubPointCloud();
             //  std::cout<<"run vis3"<<std::endl;
@@ -195,6 +267,11 @@ auto Visualizer::Run()->void{
 
         //     this->PubLoopEdges();
         }
+        static uint32_t board_cnt=0;
+        if(board_cnt%10==0){
+            print_dash_board();
+        }
+        board_cnt++;
         vis_data_.clear();
         // limit frequency, TODO: should be modified later may like this
 
@@ -207,7 +284,7 @@ auto Visualizer::Run()->void{
             //     performRSLoopClosure(); // TODO
             //     visualizeLoopClosure();
             // }
-        usleep(100000);// limit frequency, TODO
+        usleep(200000);// limit frequency, TODO
     }
     this->ResetIfRequested();
     usleep(5000);

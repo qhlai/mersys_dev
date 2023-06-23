@@ -1,5 +1,6 @@
 #pragma once
 #include "typedefs_base.hpp"
+#include "device_info.hpp"
 // #include "../communicator/msgs/msg_pointcloud.hpp"
 // #include "msgs/msg_pointcloud.hpp"
 

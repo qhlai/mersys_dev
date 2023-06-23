@@ -39,7 +39,7 @@
 #include "visualizer_be.hpp"
 
 #include "tools_logger.hpp"
-
+#include "tools_mem_used.h"
 
 
 namespace colive {
@@ -58,6 +58,8 @@ public:
     Client(size_t client_id_);
     Client(size_t client_id, int newfd, MapManagerPtr man, VisPtr vis);
     auto Run()->void;
+
+
 
 protected:
     size_t client_id_;
@@ -92,7 +94,8 @@ class Backend{
     // void feat_points_callback(const sensor_msgs::PointCloud2::ConstPtr &msg_in);
     // void image_callback(const sensor_msgs::ImageConstPtr &msg);
     // void image_comp_callback(const sensor_msgs::CompressedImageConstPtr &msg);
-    
+    // void print_dash_board();
+
     std::condition_variable sig_buffer;
 
 
@@ -116,6 +119,9 @@ protected:
     ThreadPtr                   thread_vis_;
 
    int agent_next_id_              = 0;    
+
+   // g_las
+    double g_last_stamped_mem_mb = 0;
 
     //comm
     fd_set                      master_;

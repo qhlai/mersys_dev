@@ -49,6 +49,7 @@ Dr. Fu Zhang < fuzhang@hku.hk >.
 #define __TOOLS_COLOR_PRINT_HPP__
 #include <stdio.h>
 #include <string.h>
+#include <iostream>
 /*
  * Make screen print colorful :)
  * Author: Jiarong Lin
@@ -64,6 +65,23 @@ const std::string _tools_color_printf_version = "V1.2";
 const std::string _tools_color_printf_info = "[Enh]: Add delete lines, ANSI_SCREEN_FLUSH";
 using std::cout;
 using std::endl;
+
+#define COUTERROR "\033[1;31m!!!!! ERROR !!!!!\033[0m " << __func__ << ":" << __LINE__ << ": "
+#define COUTFATAL "\033[1;31m!!!!! FATAL ERROR !!!!!\033[0m " << __func__ << ":"  << __LINE__ << ": "
+#define COUTWARN "\033[1;33m!!! WARN !!!\033[0m " << __func__ << ":" << __LINE__ << ": "
+#define COUTNOTICE "\033[1;34m!!! NOTICE !!!\033[0m " << __func__ << ":" << __LINE__ << ": "
+#define DEPRECATED_FUNCTION {cout << "\033[1;31m!!!!! FATAL ERROR !!!!!\033[0m " << __func__ << ":"  << __LINE__ << " Use of deprecated function" << std::endl; exit(-1);}
+#define NOT_IMPLEMENTED {std::cout << "\033[1;33m!!! WARN !!!\033[0m " << __func__ << ":" << __LINE__ << ": This functionality is not implemented" << std::endl; }
+
+
+#define REDL "\033[1;31m"
+#define REDR "\033[0m"
+#define COUTRED(...) REDL #__VA_ARGS__ REDR
+#define PURPLEL "\033[1;34m"
+#define PURPLER "\033[0m"
+#define COUTPURPLE(...) PURPLEL #__VA_ARGS__ PURPLER
+
+
 // clang-format off
 #ifdef EMPTY_ANSI_COLORS
     #define ANSI_COLOR_RED ""
@@ -117,6 +135,7 @@ using std::endl;
 
     #define SET_PRINT_COLOR( a ) cout << a ;
 
+
 #endif
 // clang-format on
 
@@ -124,12 +143,12 @@ struct _Scope_color
 {
     _Scope_color( const char * color )
     {
-        cout << color;
+        std::cout << color;
     }
 
     ~_Scope_color()
     {
-        cout << ANSI_COLOR_RESET;
+        std::cout << ANSI_COLOR_RESET;
     }
 };
 

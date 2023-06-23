@@ -22,6 +22,10 @@
 
 #include "pointcloud_ex.hpp"
 #include "map_co.hpp"
+
+#include "tools_mem_used.h"
+#include "tools_timer.hpp"
+#include "tools_color_printf.hpp"
 namespace colive{
 
 
@@ -39,6 +43,7 @@ public:
     using PointCloudEXPtr                   = TypeDefs::PointCloudEXPtr;
     using MapPtr                        = TypeDefs::MapPtr;
     using PointCloudPtr               = TypeDefs::PointCloudPtr;
+    using MapManagerPtr                 = TypeDefs::MapManagerPtr;
     
     using KeyframeMap                   = TypeDefs::KeyframeMap;
     using LandmarkMap                   = TypeDefs::LandmarkMap;
@@ -57,7 +62,7 @@ public:
         KeyframeMap             keyframes;
         KeyframeMap             keyframes_erased;
         LandmarkMap             landmarks;
-        PointCloudEXMap pointCloud;
+        PointCloudEXMap         pointCloud;
         size_t                  id_map;
         std::set<size_t>        associated_clients;
         // LoopVector              loops;
@@ -65,8 +70,8 @@ public:
         std::string             frame;
     };
     public:
-    Visualizer();
     Visualizer(std::string topic_prefix= std::string());
+    Visualizer(std::string topic_prefix, MapManagerPtr mapmanager);
 
     virtual auto Run()                    ->void;
     
@@ -83,7 +88,8 @@ public:
     // Auxiliary Functions
     static auto CreatePoint3D(Eigen::Vector3d &p3D, size_t client_id)                   ->pcl::PointXYZRGB;
     static auto MakeColorMsg(float fR,float fG, float fB)                               ->std_msgs::ColorRGBA;
-
+    
+    void print_dash_board();
     
 protected:
 
@@ -96,6 +102,11 @@ protected:
     ros::Publisher              pub_cloud_;
     std::string                 topic_prefix_                                           = std::string();
 
+    MapManagerPtr mapmanager_;
+    double g_last_stamped_mem_mb = 0;
+    uint32_t g_lidar_frame_num = 0;
+    uint32_t g_camera_frame_num = 0;
+    uint32_t g_pointcloud_pts_num =0;
     // // Data
     std::map<size_t,VisBundle>  vis_data_;
     VisBundle                   curr_bundle_;

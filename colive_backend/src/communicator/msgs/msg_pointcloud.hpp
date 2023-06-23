@@ -28,7 +28,7 @@
 
 
 namespace colive {
-class MsgPointCloud{
+class MsgPointCloud {
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     using precision_t                   = TypeDefs::precision_t;
@@ -69,10 +69,10 @@ public:
     Vector3Type             pos_ref;
     Vector3Type             pos_w;
     
-    double                  downSample;
-    double                  leafsize_xyz[3];
+    // double                  downSample;
+    // double                  leafsize_xyz[3];
 
-    VoxelGrid               vox_cloud;
+    // VoxelGrid               vox_cloud;
     PointCloud              pts_cloud;
     QuaternionType          quan_;
 
