@@ -1,4 +1,5 @@
 #include "place_rec.hpp"
+#include "scancontext/Scancontext.h"
 
 // C++
 #include <iostream>
@@ -7,7 +8,36 @@
 
 
 namespace colive {
+    
 
+auto PlaceRecognition::process_lcd()->void {
+    float loopClosureFrequency = 1.0; // can change 
+    ros::Rate rate(loopClosureFrequency);
+    while (ros::ok())
+    {
+        rate.sleep();
+        performSCLoopClosure();
+        // performRSLoopClosure(); // TODO
+    }
+}
+
+auto PlaceRecognition::performSCLoopClosure()->void {
+    if( int(keyframePoses.size()) < scManager.NUM_EXCLUDE_RECENT) // do not try too early 
+        return;
+
+    auto detectResult = scManager.detectLoopClosureID(); // first: nn index, second: yaw diff 
+    int SCclosestHistoryFrameID = detectResult.first;
+    if( SCclosestHistoryFrameID != -1 ) { 
+        const int prev_node_idx = SCclosestHistoryFrameID;
+        const int curr_node_idx = keyframePoses.size() - 1; // because cpp starts 0 and ends n-1
+        cout << "Loop detected! - between " << prev_node_idx << " and " << curr_node_idx << "" << endl;
+
+        std::unique_lock<std::mutex> lock(mtx_mBuf_);
+        scLoopICPBuf.push(std::pair<int, int>(prev_node_idx, curr_node_idx));
+        // addding actual 6D constraints in the other thread, icp_calculation.
+        mtx_mBuf_.unlock();
+    }
+}
 
 PlaceRecognition::PlaceRecognition(MapManagerPtr man, bool perform_pgo)
     : mapmanager_(man),
@@ -112,28 +142,28 @@ auto PlaceRecognition::CorrectLoop()->bool {
 auto PlaceRecognition::DetectLoop()->bool {
     // {
     //     std::unique_lock<std::mutex> lock(mtx_in_);
-    //     kf_query_ = buffer_kfs_in_.front();
-    //     buffer_kfs_in_.pop_front();
-    //     kf_query_->SetNotErase();
+    //     kf_query_ = buffer_pcs_in_.front();
+    //     buffer_pcs_in_.pop_front();
+    //     pc_query_->SetNotErase();
     // }
 
-    // if(kf_query_->id_.first < covins_params::placerec::start_after_kf) {
-    //     kf_query_->SetErase();
+    // if(pc_query_->id_.first < covins_params::placerec::start_after_kf) {
+    //     pc_query_->SetErase();
     //     return false;
     // }
 
     // if(last_loops_.count(kf_query_->id_.second)) {
-    //     if((kf_query_->id_.first - last_loops_[kf_query_->id_.second]) < covins_params::placerec::consecutive_loop_dist) {
-    //         kf_query_->SetErase();
+    //     if((pc_query_->id_.first - last_loops_[pc_query_->id_.second]) < covins_params::placerec::consecutive_loop_dist) {
+    //         pc_query_->SetErase();
     //         return false;
     //     }
     // }
 
-    // // Compute reference BoW similarity score
-    // // This is the lowest score to a connected keyframe in the covisibility graph
-    // // We will impose loop candidates to have a higher similarity than this
+    // Compute reference BoW similarity score
+    // This is the lowest score to a connected keyframe in the covisibility graph
+    // We will impose loop candidates to have a higher similarity than this
     // const auto vpConnectedKeyFrames =
-    //     kf_query_->GetConnectedNeighborKeyframes();
+    //     pc_query_->GetConnectedNeighborKeyframes();
         
     // const DBoW2::BowVector &CurrentBowVec = kf_query_->bow_vec_;
     // float minScore = 1;
@@ -227,8 +257,8 @@ auto PlaceRecognition::DetectLoop()->bool {
     return false;
 }
 auto PlaceRecognition::InsertKeyframe(PointCloudEXPtr pc)->void {
-    std::unique_lock<std::mutex> lock(mtx_in_);
-    buffer_pcs_in_.push_back(pc);
+    // std::unique_lock<std::mutex> lock(mtx_in_);
+    // buffer_pcs_in_.push_back(pc);
 }
 
 auto PlaceRecognition::Run()->void {
@@ -236,10 +266,10 @@ auto PlaceRecognition::Run()->void {
     int num_runs = 0;
     int num_detected = 0;
 
-    while(1){
-        // if (CheckBuffer()) {
-        //     num_runs++;
-        //     bool detected = DetectLoop();
+    // while(1){
+    //     if (CheckBuffer()) {
+    //         num_runs++;
+    //         bool detected = DetectLoop();
         //     if(detected) {
         //         num_detected++;
         //         bool found_se3 = ComputeSE3();
@@ -247,7 +277,7 @@ auto PlaceRecognition::Run()->void {
         //             this->CorrectLoop();
         //         }
         //     }
-        //     mapmanager_->AddToDatabase(kf_query_);
+            // mapmanager_->AddToDatabase(kf_query_);
         // }
 
         // if(this->ShallFinish()){
@@ -256,10 +286,10 @@ auto PlaceRecognition::Run()->void {
         // }
 
         // usleep(1000);
-    }
+    // }
 
     std::unique_lock<std::mutex> lock(mtx_finish_);
-    is_finished_ = true;
+    // is_finished_ = true;
 }
 
 }

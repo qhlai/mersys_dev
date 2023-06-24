@@ -1,6 +1,7 @@
 #pragma once
 #include "typedefs_base.hpp"
 #include "config_backend.hpp"
+#include "scancontext/Scancontext.h"
 
 namespace colive {
 
@@ -23,6 +24,7 @@ public:
     using TransformType                 = TypeDefs::TransformType;
     using Matrix3Type                   = TypeDefs::Matrix3Type;
     using Vector3Type                   = TypeDefs::Vector3Type;
+    using Vector6Type                   = TypeDefs::Vector6Type;
     using QuaternionType                = TypeDefs::QuaternionType;
 
     using KeyframePtr                   = TypeDefs::KeyframePtr;
@@ -38,7 +40,7 @@ using PoseMap                       = TypeDefs::PoseMap;
     using PointCloudEX  = TypeDefs::PointCloudEX; 
     using PointCloudEXPtr  = TypeDefs::PointCloudEXPtr; 
     using PointCloudEXList  = TypeDefs::PointCloudEXList; 
-    // using PointCloudEXBuffer  = TypeDefs::PointCloudEXBuffer; 
+    // using PointCloudEXBuffer  = TypeDefs::PointCloudEXBuffer;    
 
 public:
     PlaceRecognition(MapManagerPtr man, bool perform_pgo = true);
@@ -52,6 +54,10 @@ public:
     virtual auto ShallFinish()                                                          ->bool      = 0;
     virtual auto IsFinished()                                                           ->bool      = 0;
 
+    // PGO
+    virtual auto process_lcd()                                                          ->void      = 0;
+    virtual auto performSCLoopClosure()                                                 ->void      = 0;
+
 protected:
     virtual auto CheckBuffer()                                                          ->bool;
     virtual auto DetectLoop()                                                           ->bool;
@@ -61,6 +67,8 @@ protected:
 
     // // Infrastructure
     MapManagerPtr                  mapmanager_;
+    SCManager                      scManager;
+    std::queue<std::pair<int, int> >                        scLoopICPBuf;
     bool                           perform_pgo_                                            = true;
     // VocabularyPtr               voc_;
 
@@ -70,10 +78,12 @@ protected:
     // KeyframeBufferType          buffer_kfs_in_;
     PointCloudEXList               buffer_pcs_in_;
 
-    // KeyframePtr                 kf_query_;
-    // KeyframePtr                 kf_match_;
+    PointCloudPtr                   pc_query_;
+    PointCloudPtr                   pc_match_;
     
-    precision_t                 mnCovisibilityConsistencyTh; // 一致性阈值
+    precision_t                     mnCovisibilityConsistencyTh; // 一致性阈值
+
+    Vector6Type                     keyframePoses;
     // vecConsistentGroup          mvConsistentGroups;
     // KeyframeVector              mvpEnoughConsistentCandidates;
     // KeyframeVector              mvpCurrentConnectedKFs;
@@ -87,6 +97,7 @@ protected:
     // Sync
     std::mutex                  mtx_in_;
     std::mutex                  mtx_finish_;
+    std::mutex                  mtx_mBuf_;
 
     bool                        finish_                                                 = false;
     bool is_finished_ = false;

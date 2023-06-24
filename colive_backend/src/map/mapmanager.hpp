@@ -36,6 +36,10 @@ public:
     using KeyframePtr                   = TypeDefs::KeyframePtr;
     using MapPtr                        = TypeDefs::MapPtr;
     using MapInstancePtr                = std::shared_ptr<MapInstance>;
+    using PointCloudPtr                    = TypeDefs::PointCloudPtr;
+    using PointCloudEX  = TypeDefs::PointCloudEX; 
+    using PointCloudEXPtr  = TypeDefs::PointCloudEXPtr; 
+    using PointCloudEXList  = TypeDefs::PointCloudEXList; 
 
     using MapContainer                  = std::map<int,MapInstancePtr>;
     using MergeBuffer                   = std::list<MergeInformation, Eigen::aligned_allocator<MergeInformation>>;

@@ -114,6 +114,7 @@ namespace TypeDefs {
     using Vector2Type                   = Eigen::Matrix<precision_t,2,1>;
     using Vector3Type                   = Eigen::Matrix<precision_t,3,1>;
     using Vector4Type                   = Eigen::Matrix<precision_t,4,1>;
+    using Vector6Type                   = Eigen::Matrix<precision_t,6,1>;
     using DynamicVectorType             = Eigen::Matrix<precision_t,Eigen::Dynamic,1>;
     using QuaternionType                = Eigen::Quaternion<precision_t>;
 

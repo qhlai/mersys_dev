@@ -24,7 +24,7 @@
 
 #include "scancontext/nanoflann.hpp"
 #include "scancontext/KDTreeVectorOfVectorsAdaptor.h"
-#include "livox_mapping/tic_toc.h"
+#include "../SC-PGO/include/livox_mapping/tic_toc.h"
 
 using namespace Eigen;
 using namespace nanoflann;
