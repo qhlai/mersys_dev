@@ -1,10 +1,11 @@
 #pragma once
 #include "typedefs_base.hpp"
 // #include "../communicator/msgs/msg_pointcloud.hpp"
-#include "msgs/msg_pointcloud.hpp"
+
 
 namespace colive {
 
+class MsgPointCloud;
 
 class PointCloud_ex: public std::enable_shared_from_this<PointCloud_ex>
 {

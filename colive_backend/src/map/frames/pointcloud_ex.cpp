@@ -1,10 +1,11 @@
 
 #include "pointcloud_ex.hpp"
+#include "msgs/msg_pointcloud.hpp"
 namespace colive {
 
 
 PointCloud_ex::PointCloud_ex(MsgPointCloud msg, MapPtr map){
-    id_= msg.id;
+    id_= msg.id_;
     pos_w = msg.pos_w;
     quan_ = msg.quan_;
     pts_cloud=msg.pts_cloud;
@@ -22,7 +23,7 @@ auto PointCloud_ex::ConvertToMsg(colive::MsgPointCloud &msg,Vector3Type &pos_w_2
     // std::unique_lock<std::mutex> lock_feat(mMutexFeatures);
     // std::unique_lock<std::mutex> lock_pose(mMutexPose);
     // msg.downSample
-    msg.id = id_;   // mnid clientid  
+    msg.id_ = id_;   // mnid clientid  
     msg.timestamp_ = timestamp_;//std::chrono::system_clock::now();
     
     msg.pos_w = pos_w;

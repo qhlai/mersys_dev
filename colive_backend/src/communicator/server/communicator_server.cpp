@@ -85,7 +85,7 @@ auto Communicator_server::ProcessPointCloudMessages()->void {
         }
         else{
             PointCloudEXPtr pc;
-            pc = map_->GetPointCloudEX(msg.id);// id: id+pointcloud
+            pc = map_->GetPointCloudEX(msg.id_);// id: id+pointcloud
             if(!pc){
                 // pc.reset(new PointCloud_ex(msg,map_));
                 // map_->AddPointCloud(pc);
