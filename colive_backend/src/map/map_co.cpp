@@ -72,8 +72,12 @@ Map::Map(MapPtr map_target, MapPtr map_tofuse, TransformType T_wtarget_wtofuse)
 
     // // Transform poses of map_tofuse
 
+
+
+        
     for(PointCloudEXMap::iterator mit =pointcloudex_tofuse.begin();mit != pointcloudex_tofuse.end();++mit) {
         PointCloudEXPtr pc = mit->second;
+        // int size = pc->pts_cloud.points.size();
         // TransformType T_w_s_befcorrection = pc->GetPoseTws();
         // TransformType T_w_s_corrected = T_wtarget_wtofuse * T_w_s_befcorrection;
         // kf->SetPoseTws(T_w_s_corrected);
@@ -110,6 +114,8 @@ auto Map::AddPointCloud(PointCloudEXPtr pc, bool suppress_output)->void {
         // this->WriteKFsToFileAllAg();
     }
 }
+
+
 // auto Map::GetPointCloudEX()->PointCloudEXMap {
 //     std::unique_lock<std::mutex> lock(mtx_map_);
 //     return pointclouds_;

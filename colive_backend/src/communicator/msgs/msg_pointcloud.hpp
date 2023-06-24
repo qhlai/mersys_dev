@@ -30,7 +30,7 @@
 namespace colive {
 
 
-class MsgPointCloud:public PointCloud_ex {
+class MsgPointCloud {
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     using precision_t                   = TypeDefs::precision_t;
@@ -64,19 +64,14 @@ public:
     bool                    save_to_file                                = false;                        // indicates that this LM will be saved to a file, not send over network
 
     // Identifier
-    // double                  timestamp_;
-    // idpair                  id_;
+    double                  timestamp_;
+    idpair                  id_;
 
     // Position
-    // Vector3Type             pos_ref;
-    // Vector3Type             pos_w;
-    
-    // double                  downSample;
-    // double                  leafsize_xyz[3];
-
-    // VoxelGrid               vox_cloud;
-    // PointCloud              pts_cloud;
-    // QuaternionType          quan_;
+    Vector3Type             pos_ref;
+    Vector3Type             pos_w;
+    PointCloud              pts_cloud;
+    QuaternionType          quan_;
 
 
 protected:

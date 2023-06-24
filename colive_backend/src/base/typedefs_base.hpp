@@ -82,6 +82,7 @@ namespace TypeDefs {
     using ThreadPtr                     = std::unique_ptr<std::thread>;
 
     using PointType                     = pcl::PointXYZINormal;
+    // using PointType                     = pcl::PointXYZI;
     using RGBPointType                  = pcl::PointXYZINormal;
     using VoxelGrid                     = pcl::VoxelGrid<PointType>;
     using PointCloud                    = pcl::PointCloud<PointType>;// pcl::PointCloud<PointXYZINormal>

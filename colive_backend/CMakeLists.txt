@@ -73,7 +73,7 @@ ${PROJECT_SOURCE_DIR}/src/tools
 ${PROJECT_SOURCE_DIR}/src/communicator
 ${PROJECT_SOURCE_DIR}/src/communicator/server
 ${PROJECT_SOURCE_DIR}/src/communicator/client
-${PROJECT_SOURCE_DIR}/src/communicator/msgs
+# ${PROJECT_SOURCE_DIR}/src/communicator/msgs
 # ${PROJECT_SOURCE_DIR}/src/communicator/client/colive_backend
 ${PROJECT_SOURCE_DIR}/src/place_rec
 ${PROJECT_SOURCE_DIR}/src/visualizer
