@@ -25,10 +25,10 @@ Map::Map(size_t id_)
         exit(-1);
     }
     associated_clients_.insert(id_);
-    tf_to_world <<  1,0,0,0,
-                    0,1,0,0,
-                    0,0,1,0,
-                    0,0,0,1;
+    // T_ws <<  1,0,0,0,
+    //                 0,1,0,0,
+    //                 0,0,1,0,
+    //                 0,0,0,1;
 }
 // 把map_tofuse 转换到 map_target位置 并生成一个新的map
 Map::Map(MapPtr map_target, MapPtr map_tofuse, TransformType T_wtarget_wtofuse)
@@ -77,11 +77,10 @@ Map::Map(MapPtr map_target, MapPtr map_tofuse, TransformType T_wtarget_wtofuse)
         
     for(PointCloudEXMap::iterator mit =pointcloudex_tofuse.begin();mit != pointcloudex_tofuse.end();++mit) {
         PointCloudEXPtr pc = mit->second;
-        // int size = pc->pts_cloud.points.size();
-        // TransformType T_w_s_befcorrection = pc->GetPoseTws();
-        // TransformType T_w_s_corrected = T_wtarget_wtofuse * T_w_s_befcorrection;
-        // kf->SetPoseTws(T_w_s_corrected);
-        // kf->velocity_ = T_wtarget_wtofuse.block<3,3>(0,0) * kf->velocity_;
+        TransformType T_lm_s_befcorrection = pc->T_lm_s_;
+        TransformType T_lm_s_corrected = T_wtarget_wtofuse * T_lm_s_befcorrection; // tofuse 里的帧在target下的坐标
+        pc->T_lm_s_=T_lm_s_corrected;
+        pc->pointcloud_transform(T_wtarget_wtofuse);
     }
     // Matrix3Type R_wmatch_wtofuse = T_wtarget_wtofuse.block<3,3>(0,0);
     // Vector3Type t_wmatch_wtofuse = T_wtarget_wtofuse.block<3,1>(0,3);

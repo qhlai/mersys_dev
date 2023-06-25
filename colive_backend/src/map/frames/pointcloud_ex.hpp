@@ -12,6 +12,8 @@ namespace colive {
 
 class MsgPointCloud;
 
+
+
 class PointCloud_ex: public std::enable_shared_from_this<PointCloud_ex>
 {
 public:
@@ -44,7 +46,10 @@ public:
     Vector3Type             pos_w;
     QuaternionType          quan_;
 public:
-    TransformType           T_w_s_ = TransformType::Identity();
+    TransformType           T_lm_s_ = TransformType::Identity(); // 当前帧与本地地图的迁移关系
+
+    bool have_real_pose=false;
+    // TransformType           T_w_s_ = TransformType::Identity(); // 当前帧与全局地图的迁移关系
 
     // Pointclou
     // Identifier
@@ -54,15 +59,21 @@ public:
     PointCloud_ex(MsgPointCloud msg, MapPtr map);
     // virtual ~PointCloud_ex() {};
     // PointCloud_ex(PointCloud msg, MapPtr map);
+    auto SetPointCloud(pcl::PointCloud<pcl::PointXYZI>::Ptr pc)->void;
+    auto SetPointCloud(pcl::PointCloud<pcl::PointXYZINormal>::Ptr pc)->void;
+
     virtual auto GetPoseTws()          ->TransformType;
     virtual auto SetPoseTws()          ->TransformType;
+    virtual auto pointcloud_convert(pcl::PointCloud<pcl::PointXYZINormal>::Ptr pc_in,pcl::PointCloud<pcl::PointXYZI>::Ptr pc_out)->void;
+    virtual auto pointcloud_convert(pcl::PointCloud<pcl::PointXYZI>::Ptr pc_in,pcl::PointCloud<pcl::PointXYZINormal>::Ptr pc_out)->void;
     auto pointcloud_transform(TransformType tf)->void;
     // GetPoseTws
     
     auto ConvertToMsg(MsgPointCloud &msg, Vector3Type &pos_w, bool is_update, size_t cliend_id)->void;
-    
+    auto convert_to_tf()->TransformType;
     protected:
     std::mutex                   mtx_pose_;
+    std::mutex                   mtx_in_;
 
 };
 

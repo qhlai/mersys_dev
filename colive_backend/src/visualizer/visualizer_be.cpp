@@ -143,20 +143,25 @@ auto Visualizer::PubPointCloud()->void {
     // PointCloud cloud_in=pc->pts_cloud;
     // PointCloud::Ptr cloud_in = pc->pts_cloud;
     // PointCloud::Ptr cloud_in=&(pc->pts_cloud);
+    
     PointCloud::Ptr cloud_in(new PointCloud(pc->pts_cloud));
 
     // cloud_in.reset(pc->pts_cloud);
     // pcl::PointCloud<pcl::PointXYZINormal>::Ptr cloud_in (new pcl::PointCloud<pcl::PointXYZINormal>);
     // *cloud_in=pc->pts_cloud;
+// #if PointType == pcl::PointXYZI
+
+// #endif
+# if 0
     pcl::PointCloud<pcl::PointXYZI>::Ptr cloud_out(new pcl::PointCloud<pcl::PointXYZI>);
-
-
     pointcloud_convert(cloud_in,cloud_out);
- 
-
-    // g_pointcloud_pts_num+=cloud_out->size();
     sensor_msgs::PointCloud2 pcl_msg;
-    pcl::toROSMsg(*cloud_out,pcl_msg);
+    pcl::toROSMsg(*cloud_out,pcl_msg);    
+#else
+    sensor_msgs::PointCloud2 pcl_msg;
+    pcl::toROSMsg(*cloud_in,pcl_msg);    
+# endif
+
     pcl_msg.header.frame_id = curr_bundle_.frame;
     // pcl_msg.header.stamp = ros::Time::now();
     pcl_msg.header.stamp = ros::Time().fromSec(pc->timestamp_);

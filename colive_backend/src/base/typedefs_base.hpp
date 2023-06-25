@@ -82,16 +82,17 @@ namespace TypeDefs {
     using idpairVector                        = std::vector<idpair>;
     using ThreadPtr                     = std::unique_ptr<std::thread>;
 
-    using PointType                     = pcl::PointXYZINormal;
+    // #define PointType_                  = pcl::PointXYZINormal;
+    using PointType                     = pcl::PointXYZI;
     // using PointType                     = pcl::PointXYZI;
-    using RGBPointType                  = pcl::PointXYZINormal;
+    using PointTypeRGB                  = pcl::PointXYZRGB;
     using VoxelGrid                     = pcl::VoxelGrid<PointType>;
     using PointCloud                    = pcl::PointCloud<PointType>;// pcl::PointCloud<PointXYZINormal>
-    using PointCloudRBG                 = pcl::PointCloud<pcl::PointXYZRGB>;
+    using PointCloudRBG                 = pcl::PointCloud<PointTypeRGB>;
     using PointCloudEX                  = PointCloud_ex;
 
-    using CommClientPtr                       = std::shared_ptr<Communicator_client>;
-    using CommServerPtr                       = std::shared_ptr<Communicator_server>;
+    using CommClientPtr                 = std::shared_ptr<Communicator_client>;
+    using CommServerPtr                 = std::shared_ptr<Communicator_server>;
     using KeyframePtr                   = std::shared_ptr<Keyframe>;
     using LandmarkPtr                   = std::shared_ptr<Landmark>;
     using PointCloudPtr                 = std::shared_ptr<PointCloud>;
@@ -123,7 +124,7 @@ namespace TypeDefs {
     using Matrix3Type                   = Eigen::Matrix<precision_t,3,3>;
     using Matrix4Type                   = Eigen::Matrix<precision_t,4,4>;
     using Matrix6Type                   = Eigen::Matrix<precision_t,6,6>;
-    using TransformType                 = Matrix4Type;
+    using TransformType                 = Eigen::Isometry3d;//Matrix4Type;
     using DynamicMatrixType             = Eigen::Matrix<precision_t,Eigen::Dynamic,Eigen::Dynamic>;
 
     using Vector2Vector                 = std::vector<Vector2Type,Eigen::aligned_allocator<Vector2Type>>;

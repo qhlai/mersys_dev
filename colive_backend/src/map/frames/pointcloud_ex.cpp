@@ -61,37 +61,83 @@ auto PointCloud_ex::ConvertToMsg(colive::MsgPointCloud &msg,Vector3Type &pos_w_2
         // kf->velocity_ = T_wtarget_wtofuse.block<3,3>(0,0) * kf->velocity_;
 auto PointCloud_ex::GetPoseTws()->TransformType {
     std::unique_lock<std::mutex> lock(mtx_pose_);
-    return T_w_s_;
+    return T_lm_s_;
 }
 
 auto PointCloud_ex::SetPoseTws()->TransformType {
     std::unique_lock<std::mutex> lock(mtx_pose_);
-    return T_w_s_;
+    return T_lm_s_;
+}
+
+auto PointCloud_ex::SetPointCloud(pcl::PointCloud<pcl::PointXYZI>::Ptr pc)->void {
+    std::unique_lock<std::mutex> lock(mtx_in_);
+
+    pts_cloud=*pc;
+
+}
+auto PointCloud_ex::SetPointCloud(pcl::PointCloud<pcl::PointXYZINormal>::Ptr pc)->void {
+    std::unique_lock<std::mutex> lock(mtx_in_);
+    pcl::PointCloud<pcl::PointXYZI>::Ptr pc_out(new pcl::PointCloud<pcl::PointXYZI>);
+    pointcloud_convert(pc,pc_out);    
+    // pointcloud_convert(pcl::PointCloud<pcl::PointXYZINormal>::Ptr pc_in,pcl::PointCloud<pcl::PointXYZI>::Ptr pc_out);
+    pts_cloud=*pc_out;
+}
+
+auto PointCloud_ex::pointcloud_convert(pcl::PointCloud<pcl::PointXYZINormal>::Ptr pc_in,pcl::PointCloud<pcl::PointXYZI>::Ptr pc_out)->void{
+
+    for (size_t i = 0; i < pc_in->size(); ++i)
+    {
+    pcl::PointXYZI point;
+    point.x = pc_in->points[i].x;
+    point.y = pc_in->points[i].y;
+    point.z = pc_in->points[i].z;
+    point.intensity = pc_in->points[i].intensity;
+    pc_out->push_back(point);
+    }
+}
+auto PointCloud_ex::pointcloud_convert(pcl::PointCloud<pcl::PointXYZI>::Ptr pc_in,pcl::PointCloud<pcl::PointXYZINormal>::Ptr pc_out)->void{
+
+    for (size_t i = 0; i < pc_in->size(); ++i)
+    {
+    pcl::PointXYZINormal point;
+    point.x = pc_in->points[i].x;
+    point.y = pc_in->points[i].y;
+    point.z = pc_in->points[i].z;
+    point.intensity = pc_in->points[i].intensity;
+    pc_out->push_back(point);
+    }
 }
 // TODO：
 // 尽量不要把所有的点都改位置，就改pointcloudex 的 一个转移矩阵就行了
-auto PointCloud_ex::pointcloud_transform(TransformType tf)->void{
+auto PointCloud_ex::pointcloud_transform(TransformType T)->void{
     uint32_t size = pts_cloud.points.size();
+    PointCloud pc;
+    pc.resize(size);
     for (int i = 0; i < size; i++){
         // PointType pi=pts_cloud.points[i];
-        Vector3Type p_body(pts_cloud.points[i].x, pts_cloud.points[i].y, pts_cloud.points[i].z);
+        Vector3Type p_old(pts_cloud.points[i].x, pts_cloud.points[i].y, pts_cloud.points[i].z);
 
+        Vector3Type p_new(0,0,0);
+        pc.points[i].x=  T(0, 0) * p_old[0] + T(0, 1) * p_old[0] + T(0, 2) * p_old[0] + T(0, 3);
+        pc.points[i].y = T(1, 0) * p_old[1] + T(1, 1) * p_old[1] + T(1, 2) * p_old[1] + T(1, 3);
+        pc.points[i].z = T(2, 0) * p_old[2] + T(2, 1) * p_old[2] + T(2, 2) * p_old[2] + T(2, 3);
 
-        // Vector3Type p_global(state_point.rot * (state_point.offset_R_L_I*p_body + state_point.offset_T_L_I) + state_point.pos);
-        // TODO: 
-        // Vector3Type p_global(state_point.rot * (state_point.offset_R_L_I*p_body + state_point.offset_T_L_I) + state_point.pos);
+        pc.points[i].intensity =pts_cloud.points[i].intensity;
 
-        
-//         po->x = p_global(0);
-// //     po->y = p_global(1);
-// //     po->z = p_global(2);
-        // pts_cloud.points[i] 
     }
+    pts_cloud=pc;
     // PointCloudXYZI::Ptr laserCloudWorld( \
     //             new PointCloudXYZI(size, 1));
 
 }
-
+auto PointCloud_ex::convert_to_tf()->TransformType{
+    Eigen::Isometry3d T = Eigen::Isometry3d::Identity();
+    T.translate(pos_w);
+    T.rotate(quan_);
+    // T_w_s_.block<3, 3>(0, 0)=T.rotation();
+    // T_w_s_.block<3, 1>(0, 3) = T.translation();
+    return T;
+}
 auto PointCloud_ex::pc_less::operator ()(const PointCloudEXPtr a, const PointCloudEXPtr b) const ->bool
 {
     if(a->id_.second < b->id_.second)

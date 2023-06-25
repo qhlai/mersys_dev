@@ -70,6 +70,7 @@ public:
     // Position
     Vector3Type             pos_ref;
     Vector3Type             pos_w;
+    TransformType           T_w_s_ = TransformType::Identity(); 
     PointCloud              pts_cloud;
     QuaternionType          quan_;
 
@@ -138,6 +139,33 @@ protected:
 //       intensity = p.intensity;
 namespace cereal {
     // Save function for pcl::PointCloud type
+
+
+    template<class Archive>
+    inline
+    void save(Archive& ar, const Eigen::Isometry3d& T) {
+        // Save the size of the point cloud
+        // size_t size = pointCloud.size();
+        // ar(size);
+        Eigen::Matrix4d T_4x4 = Eigen::Matrix4d::Identity();
+        T_4x4.block<3, 3>(0, 0) = T.rotation();
+        T_4x4.block<3, 1>(0, 3) = T.translation();
+        ar(T_4x4);
+
+    }
+     // Load function for pcl::PointCloud type
+    template<class Archive>
+    inline
+    void load(Archive& ar, Eigen::Isometry3d& T) {
+
+        Eigen::Matrix4d T_4x4 = Eigen::Matrix4d::Identity();
+        T=Eigen::Isometry3d::Identity();
+
+        ar(T_4x4);
+        T.rotate(T_4x4.block<3, 3>(0, 0));
+        T.translate(T_4x4.block<3, 1>(0, 3));
+
+    }
 
     template<class Archive>
     inline

@@ -36,17 +36,12 @@ public:
     //     auto operator() (const PointCloudEXPtr a, const PointCloudEXPtr b) const                ->bool;
     // };
 public:
-
-    bool sent_once_ = false;
-    float battery_ =0;  // 0-100
-    double uptime_ = 0;
-    uint8_t net_quality = 0; // 0-255 Mbps
-
-    
-    idpair                      id_;
-    double                      timestamp_;
-
-
+    // Vector3Type             pos_;
+    // QuaternionType          q_;
+    // TransformType           T_w_s_ = TransformType::Identity(); // 当前帧与本地地图的迁移关系
+    // auto convert_to_tf()->TransformType;
+    // virtual auto GetPoseTws()          ->TransformType;
+    // virtual auto SetPoseTws()          ->TransformType;
 
 };
 

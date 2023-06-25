@@ -499,9 +499,10 @@ void publish_frame_world(const ros::Publisher & pubLaserCloudFull,colive::PointC
 
         sensor_msgs::PointCloud2 laserCloudmsg;
         pcl::toROSMsg(*laserCloudWorld, laserCloudmsg);
-        pc->pts_cloud=*laserCloudWorld;
-        laserCloudmsg.header.stamp = ros::Time().fromSec(lidar_end_time);
+        pc->SetPointCloud(laserCloudWorld);
         pc->timestamp_ = lidar_end_time;
+        // pc->pts_cloud=*laserCloudWorld;
+        laserCloudmsg.header.stamp = ros::Time().fromSec(lidar_end_time);
         laserCloudmsg.header.frame_id = "camera_init";
         pubLaserCloudFull.publish(laserCloudmsg);
         publish_count -= PUBFRAME_PERIOD;

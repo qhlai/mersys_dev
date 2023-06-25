@@ -22,7 +22,7 @@ struct MergeInformation {
 
     // KeyframePtr                 kf_query;
     // KeyframePtr                 kf_match;
-    TransformType               T_smatch_squery          = TransformType::Zero();
+    TransformType               T_smatch_squery          = TransformType::Identity();
     TypeDefs::Matrix6Type       cov_mat                  = TypeDefs::Matrix6Type::Identity();
 }; 
 
