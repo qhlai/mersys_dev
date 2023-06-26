@@ -38,6 +38,7 @@ public:
     bool sent_once_ = false;
     // VoxelGrid  vox_cloud;
     PointCloud pts_cloud;
+    PointCloud pts_cloud_d;
     // Position
     Vector3Type             pos_ref;
     Vector3Type             pos_w;

@@ -79,6 +79,7 @@ namespace TypeDefs {
     using precision_t                   = double;   // system-wide precision type
     using keypoint_precision_t          = float;    // for 2D keypoint coordinates - float to reduce network traffic
     using idpair                        = std::pair<size_t,size_t>;
+    using idpairVector                        = std::vector<idpair>;
     using ThreadPtr                     = std::unique_ptr<std::thread>;
 
     using PointType                     = pcl::PointXYZINormal;
@@ -137,6 +138,8 @@ namespace TypeDefs {
 
     using KeyframeVector                = std::vector<KeyframePtr,Eigen::aligned_allocator<KeyframePtr>>;
     using LandmarkVector                = std::vector<LandmarkPtr,Eigen::aligned_allocator<LandmarkPtr>>;
+    using PointCloudVector                = std::vector<PointCloudPtr,Eigen::aligned_allocator<PointCloudPtr>>;
+    using PointCloudEXVector                = std::vector<PointCloudEXPtr,Eigen::aligned_allocator<PointCloudEXPtr>>;
 
     using KeyframeList                  = std::list<KeyframePtr,Eigen::aligned_allocator<KeyframePtr>>;
     using LandmarkList                  = std::list<LandmarkPtr,Eigen::aligned_allocator<LandmarkPtr>>;

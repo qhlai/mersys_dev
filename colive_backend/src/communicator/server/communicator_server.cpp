@@ -112,8 +112,8 @@ auto Communicator_server::ProcessNewPointClouds()->void {
         PointCloudEXPtr pc = pointclouds_new_.front();
         pointclouds_new_.pop_front();
 
-        // if(colive_params::placerec::active)
-        //     placerec_->InsertKeyframe(pc);
+        if(colive_params::placerec::active)
+            placerec_->InsertKeyframe(pc);
         // map_->UpdateCovisibilityConnections(kf->id_);
 
         // Keyframe::LandmarkVector landmarks = kf->GetLandmarks();

@@ -19,6 +19,10 @@ MapManager::MapManager()
     //     std::cout << COUTFATAL << "invalid vocabulary ptr" << std::endl;
     //     exit(-1);
     // }
+
+    pcl_pc.reset(new PointCloud);
+    pcl_pc_d.reset(new PointCloud);
+    
 }
 
 auto MapManager::Run()->void {
@@ -279,6 +283,43 @@ auto MapManager::Display()->void {
 //     this->Display();
 // }
 
+auto MapManager::lcd()->void {
 
+
+}
+
+// TODO:
+void pointcloud_convert1(pcl::PointCloud<pcl::PointXYZINormal>::Ptr pc_in,pcl::PointCloud<pcl::PointXYZI>::Ptr pc_out){
+
+    for (size_t i = 0; i < pc_in->size(); ++i)
+    {
+    pcl::PointXYZI point;
+    point.x = pc_in->points[i].x;
+    point.y = pc_in->points[i].y;
+    point.z = pc_in->points[i].z;
+    point.intensity = pc_in->points[i].intensity;
+    pc_out->push_back(point);
+    }
+}
+auto MapManager::AddToDatabase(PointCloudEXPtr pc)    ->void{
+    *pcl_pc  = pc->pts_cloud;
+    downSizeFilterScancontext.setInputCloud(pcl_pc);
+    downSizeFilterScancontext.filter(*pcl_pc_d);
+
+    // PointCloud::Ptr cloud_in(new PointCloud(pc->pts_cloud));
+
+    pcl::PointCloud<pcl::PointXYZI>::Ptr cloud_out(new pcl::PointCloud<pcl::PointXYZI>);
+    
+    pointcloud_convert1(pcl_pc_d,cloud_out);
+
+    scManager.makeAndSaveScancontextAndKeys(*cloud_out);
+    pc->pts_cloud_d = *pcl_pc_d;
+    cl_pcs.push_back(pc);
+    // cl_pcs_d.push_back(PointCloud::Ptr in(new *pcl_pc_d));
+    // *pts_cloud = pc->pts_cloud;
+    // downSizeFilterScancontext.setInputCloud(pts_cloud);
+    // downSizeFilterScancontext.filter(*sc_pcs_d);
+
+}
 
 }

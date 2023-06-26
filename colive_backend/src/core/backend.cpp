@@ -30,9 +30,9 @@ Client::Client(size_t client_id, int newfd, MapManagerPtr man, VisPtr vis)
     mapmanager_->Display();
     std::cout << "map init done"<< std::endl;
 
-    // placerec_.reset(new PlaceRecognitionG(mapmanager_,covins_params::opt::perform_pgo));
-    // thread_placerec_.reset(new std::thread(&PlacerecBase::Run,placerec_));
-    // thread_placerec_->detach();
+    placerec_.reset(new PlaceRecognition(mapmanager_,true));
+    thread_placerec_.reset(new std::thread(&PlaceRecognition::Run,placerec_));
+    thread_placerec_->detach();
 
     comm_.reset(new Communicator_server(client_id_,newfd,man,placerec_,vis));
     thread_comm_.reset(new std::thread(&Communicator_server::Run,comm_));

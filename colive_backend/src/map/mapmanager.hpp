@@ -7,6 +7,7 @@
 // #include "pointcloud_rgbd.hpp"
 #include "map_co.hpp"
 #include "typedefs_base.hpp"
+#include "scancontext/Scancontext.h"
 
 namespace colive
 {
@@ -36,6 +37,8 @@ public:
     using KeyframePtr                   = TypeDefs::KeyframePtr;
     using MapPtr                        = TypeDefs::MapPtr;
     using MapInstancePtr                = std::shared_ptr<MapInstance>;
+    using PointType                     = TypeDefs::PointType;
+    using PointCloud                    = TypeDefs::PointCloud;
     using PointCloudPtr                    = TypeDefs::PointCloudPtr;
     using PointCloudEX  = TypeDefs::PointCloudEX; 
     using PointCloudEXPtr  = TypeDefs::PointCloudEXPtr; 
@@ -44,6 +47,9 @@ public:
     using MapContainer                  = std::map<int,MapInstancePtr>;
     using MergeBuffer                   = std::list<MergeInformation, Eigen::aligned_allocator<MergeInformation>>;
 
+    using idpairVector           = TypeDefs::idpairVector;
+    using PointCloudEXVector= TypeDefs::PointCloudEXVector;
+    using PointCloudVector   = TypeDefs::PointCloudVector;
     // using DatabasePtr                   = std::shared_ptr<KeyframeDatabaseBase>;
     // using VocabularyPtr                 = CovinsVocabulary::VocabularyPtr;
 public:
@@ -66,6 +72,7 @@ public:
     auto RegisterMerge(MergeInformation merge_data)                                     ->void;
 
     auto Display()->void;
+    auto lcd()->void;
     // auto GetVoc()                                                                       ->VocabularyPtr {   // will never change - no need to be guarded by mutex
     //     return voc_;
     // }
@@ -73,6 +80,16 @@ public:
     // auto AddToDatabase(KeyframePtr kf)                                                  ->void;
     // auto GetDatabase()                                                                  ->DatabasePtr;
     // auto EraseFromDatabase(KeyframePtr kf)                                              ->void;
+
+    auto AddToDatabase(PointCloudEXPtr pc)                                                  ->void;
+    // auto GetDatabase()                                                                  ->DatabasePtr;
+    // auto EraseFromDatabase(KeyframePtr kf)                                              ->void;
+    SCManager scManager;
+    PointCloudEXVector cl_pcs;
+    PointCloudVector cl_pcs_d;
+    PointCloudEXPtr pc;
+    PointCloud::Ptr          pcl_pc_d;
+    PointCloud::Ptr          pcl_pc;
 
 protected:
 
@@ -82,6 +99,31 @@ protected:
     // Data
     MapContainer                maps_;
     MergeBuffer                 buffer_merge_;
+    pcl::VoxelGrid<PointType> downSizeFilterScancontext;
+
+
+    // pcl::VoxelGrid<PointType> downSizeFilterScancontext;
+
+
+
+    // idpairVector sc_ids;
+
+    
+
+    // pcex
+    // pcl:pc a= pcex->pc down
+    // sc(a)
+    // sc_pcs.push(pc)
+    // pcl:pc_v.push(a)   //keyframeLaserClouds
+
+
+    // icp  pcl:pc_v[currid]  pcl:pc_v[oldid]
+
+
+
+
+    // id=pcexv[sc.id].id
+
     // DatabasePtr                 database_;
     // VocabularyPtr               voc_;
 

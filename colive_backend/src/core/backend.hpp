@@ -37,6 +37,7 @@
 #include "mapmanager.hpp"
 #include "typedefs_base.hpp"
 #include "visualizer_be.hpp"
+#include "place_rec.hpp"
 
 #include "tools_logger.hpp"
 #include "tools_mem_used.h"

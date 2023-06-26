@@ -1,8 +1,12 @@
 #pragma once
+#include <iostream>
+#include <optional>
 #include "typedefs_base.hpp"
 #include "config_backend.hpp"
-#include "scancontext/Scancontext.h"
-
+#include "pointcloud_ex.hpp"
+// #include "scancontext/Scancontext.h"
+#include "mapmanager.hpp"
+#include <pcl/registration/icp.h>
 namespace colive {
 
 class Keyframe;
@@ -45,18 +49,23 @@ using PoseMap                       = TypeDefs::PoseMap;
 public:
     PlaceRecognition(MapManagerPtr man, bool perform_pgo = true);
     // virtual ~Placerec(){}
-    virtual auto Run()                                                                  ->void      = 0;
-    virtual auto InsertKeyframe(PointCloudEXPtr pc)                                         ->void      = 0;
-    virtual auto CheckBufferExt()                                                       ->bool      = 0;
-
+    virtual auto Run()                                                                  ->void;
+    virtual auto InsertKeyframe(PointCloudEXPtr pc)                                         ->void;
+    virtual auto CheckBufferExt()                                                       ->bool {
+        return CheckBuffer();}
     // Synchronization
-    virtual auto SetFinish()                                                            ->void      = 0;
-    virtual auto ShallFinish()                                                          ->bool      = 0;
-    virtual auto IsFinished()                                                           ->bool      = 0;
+    auto SetFinish()                                                                    ->void  {
+        std::unique_lock<std::mutex> lock(mtx_finish_); finish_ = true;}
+    auto ShallFinish()                                                                  ->bool  {
+        std::unique_lock<std::mutex> lock(mtx_finish_); return finish_;}
+    virtual auto IsFinished()                                                           ->bool  {
+        std::unique_lock<std::mutex> lock(mtx_finish_); return is_finished_;}
 
     // PGO
-    virtual auto process_lcd()                                                          ->void      = 0;
-    virtual auto performSCLoopClosure()                                                 ->void      = 0;
+    virtual auto process_lcd()                                                          ->void;
+    virtual auto performSCLoopClosure()                                                 ->void;
+    virtual auto process_icp()                                                 ->void;
+    virtual auto doICPVirtualRelative(int _loop_pc_idx, int _curr_pc_idx)                 ->void;
 
 protected:
     virtual auto CheckBuffer()                                                          ->bool;
@@ -67,19 +76,22 @@ protected:
 
     // // Infrastructure
     MapManagerPtr                  mapmanager_;
-    SCManager                      scManager;
+    // SCManager                      scManager;
     std::queue<std::pair<int, int> >                        scLoopICPBuf;
     bool                           perform_pgo_                                            = true;
     // VocabularyPtr               voc_;
 
     // map<size_t,size_t>          last_loops_;
+    pcl::VoxelGrid<PointType> downSizeFilterScancontext;
 
     // // Data
     // KeyframeBufferType          buffer_kfs_in_;
     PointCloudEXList               buffer_pcs_in_;
 
-    PointCloudPtr                   pc_query_;
-    PointCloudPtr                   pc_match_;
+    PointCloudEXPtr                   pc_query_;
+    PointCloudEXPtr                   pc_match_;
+    PointCloud::Ptr                    sc_pcs_d;
+    PointCloud::Ptr                      pts_cloud;
     
     precision_t                     mnCovisibilityConsistencyTh; // 一致性阈值
 
