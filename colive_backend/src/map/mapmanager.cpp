@@ -288,7 +288,7 @@ auto MapManager::lcd()->void {
 
 }
 
-// TODO:
+// TODO: should be deleted
 void pointcloud_convert1(pcl::PointCloud<pcl::PointXYZINormal>::Ptr pc_in,pcl::PointCloud<pcl::PointXYZI>::Ptr pc_out){
 
     for (size_t i = 0; i < pc_in->size(); ++i)
@@ -307,12 +307,14 @@ auto MapManager::AddToDatabase(PointCloudEXPtr pc)    ->void{
     downSizeFilterScancontext.filter(*pcl_pc_d);
 
     // PointCloud::Ptr cloud_in(new PointCloud(pc->pts_cloud));
-
+#if 0
     pcl::PointCloud<pcl::PointXYZI>::Ptr cloud_out(new pcl::PointCloud<pcl::PointXYZI>);
-    
     pointcloud_convert1(pcl_pc_d,cloud_out);
-
     scManager.makeAndSaveScancontextAndKeys(*cloud_out);
+else
+    scManager.makeAndSaveScancontextAndKeys(*pcl_pc_d);
+#endif
+    
     pc->pts_cloud_d = *pcl_pc_d;
     cl_pcs.push_back(pc);
     // cl_pcs_d.push_back(PointCloud::Ptr in(new *pcl_pc_d));
