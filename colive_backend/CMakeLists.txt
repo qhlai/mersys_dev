@@ -60,7 +60,7 @@ find_package(PCL REQUIRED)
 # set(PCL_INCLUDE_DIRS /usr/local/include/pcl-1.10) 
 find_package(OpenCV REQUIRED)
 find_package(ZLIB)
-
+find_package(GTSAM REQUIRED QUIET)
 
 set (INCLUDE_DIRS
 
@@ -189,6 +189,7 @@ target_link_libraries(colive_backend_node
                           # ${OpenMVS_LIBRARIES}
                           ${PCL_LIBRARIES}
                           ZLIB::ZLIB
+                          gtsam
                         #   pcl_common 
                         #   pcl_io
                           ) 
@@ -212,6 +213,7 @@ target_link_libraries(colive_test_node
                         # ${OpenMVS_LIBRARIES}
                         ${PCL_LIBRARIES}
                         ZLIB::ZLIB
+                        gtsam
                         #   pcl_common 
                         #   pcl_io
 ) 
@@ -237,6 +239,7 @@ target_link_libraries(${PROJECT_NAME}
                         ${Boost_SERIALIZATION_LIBRARY} # serialization
                         ${OpenCV_LIBRARIES}
                         ZLIB::ZLIB
+                        gtsam
                         # ${OpenMVS_LIBRARIES}
                         # ${PCL_LIBRARIES}
                         #   pcl_common 

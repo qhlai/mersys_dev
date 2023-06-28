@@ -100,6 +100,8 @@ protected:
     MapContainer                maps_;
     MergeBuffer                 buffer_merge_;
     pcl::VoxelGrid<PointType> downSizeFilterScancontext;
+    pcl::VoxelGrid<PointType> downSizeFilterICP;
+
 
 
     // pcl::VoxelGrid<PointType> downSizeFilterScancontext;

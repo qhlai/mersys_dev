@@ -15,7 +15,12 @@ PlaceRecognition::PlaceRecognition(MapManagerPtr man, bool perform_pgo)
     //   voc_(mapmanager_->GetVoc()),
       mnCovisibilityConsistencyTh(colive_params::placerec::cov_consistency_thres)
 {
-
+    double loopNoiseScore = 0.001; // constant is ok...
+    gtsam::Vector robustNoiseVector6(6); // gtsam::Pose3 factor has 6 elements (6D)
+    robustNoiseVector6 << loopNoiseScore, loopNoiseScore, loopNoiseScore, loopNoiseScore, loopNoiseScore, loopNoiseScore;
+    robustLoopNoise = gtsam::noiseModel::Robust::Create(
+                    gtsam::noiseModel::mEstimator::Cauchy::Create(1), // optional: replacing Cauchy by DCS or GemanMcClure is okay but Cauchy is empirically good.
+                    gtsam::noiseModel::Diagonal::Variances(robustNoiseVector6) );
 }
 auto PlaceRecognition::process_lcd()->void {
     float loopClosureFrequency = 1.0; // can change 
@@ -46,7 +51,7 @@ auto PlaceRecognition::performSCLoopClosure()->void {
     }
 }
 
-auto PlaceRecognition::doICPVirtualRelative( int _loop_pc_idx, int _curr_pc_idx )->void
+auto PlaceRecognition::doICPVirtualRelative(int _loop_pc_idx, int _curr_pc_idx, TransformType &corrected_tf)->int
 {
     // Check that the loopGap is correct
     // Pose6D pose_loop;
@@ -63,8 +68,8 @@ auto PlaceRecognition::doICPVirtualRelative( int _loop_pc_idx, int _curr_pc_idx 
     //   std::cout << "pose_loop = " << pose_loop.x << " " << pose_loop.y << " " << pose_loop.z << std::endl;
     //   return std::nullopt;
     // }
-    auto loop_pc=mapmanager_->cl_pcs[_loop_pc_idx];
-    auto curr_pc=mapmanager_->cl_pcs[_curr_pc_idx];
+    auto loop_pc = mapmanager_->cl_pcs[_loop_pc_idx];
+    auto curr_pc = mapmanager_->cl_pcs[_curr_pc_idx];
     // parse pointclouds
     int historyKeyframeSearchNum = 25; // enough. ex. [-25, 25] covers submap length of 50x1 = 50m if every kf gap is 1m
     pcl::PointCloud<PointType>::Ptr currKeyframeCloud(new pcl::PointCloud<PointType>());
@@ -74,8 +79,11 @@ auto PlaceRecognition::doICPVirtualRelative( int _loop_pc_idx, int _curr_pc_idx 
     // pcl::PointCloud<PointType>::Ptr targetKeyframeCloudViz(new pcl::PointCloud<PointType>());
     // loopFindNearKeyframesCloud(currKeyframeCloud, currKeyframeCloudViz, _curr_kf_idx, 0); // use same root of loop kf idx 
     // loopFindNearKeyframesCloud(targetKeyframeCloud, targetKeyframeCloudViz, _loop_kf_idx, historyKeyframeSearchNum); 
-    *currKeyframeCloud=curr_pc->pts_cloud_d;
-    *targetKeyframeCloud=loop_pc->pts_cloud_d;
+    *currKeyframeCloud = curr_pc->pts_cloud_d;
+    *targetKeyframeCloud = loop_pc->pts_cloud_d;
+    int currKeyframeid = curr_pc->id_.first;
+    int targetKeyframeid = loop_pc->id_.first;
+
     // ICP Settings
     pcl::IterativeClosestPoint<PointType, PointType> icp;
     icp.setMaxCorrespondenceDistance(150); // giseop , use a value can cover 2*historyKeyframeSearchNum range in meter 
@@ -85,10 +93,11 @@ auto PlaceRecognition::doICPVirtualRelative( int _loop_pc_idx, int _curr_pc_idx 
     icp.setRANSACIterations(0);
 
     // // cal the the initial position transform
-    Eigen::Isometry3d T_init = Eigen::Isometry3d::Identity();
-    // tf::Transform T_relative;
-    // tf::Transform T_loop = Pose6DtoTransform(pose_loop);
-    // tf::Transform T_curr = Pose6DtoTransform(pose_curr);
+    TransformType T_init = TransformType::Identity();
+    // TransformType T_relative;
+    TransformType T_loop = loop_pc->T_lm_s_;
+    TransformType T_curr = curr_pc->T_lm_s_;
+    T_init=T_loop.inverse()*T_curr;
     // T_relative = T_loop.inverseTimes(T_curr);
     // tf::transformTFToEigen (T_relative, T_init);
 
@@ -101,7 +110,7 @@ auto PlaceRecognition::doICPVirtualRelative( int _loop_pc_idx, int _curr_pc_idx 
     float loopFitnessScoreThreshold = 0.3; // user parameter but fixed low value is safe. 
     if (icp.hasConverged() == false || icp.getFitnessScore() > loopFitnessScoreThreshold) {
         std::cout << "[SC loop] ICP fitness test failed (" << icp.getFitnessScore() << " > " << loopFitnessScoreThreshold << "). Reject this SC loop." << std::endl;
-        return ;// return std::nullopt;
+        return -1;// return std::nullopt;
     } else {
         std::cout << "[SC loop] ICP fitness test passed (" << icp.getFitnessScore() << " < " << loopFitnessScoreThreshold << "). Add this SC loop." << std::endl;
     }
@@ -119,45 +128,58 @@ auto PlaceRecognition::doICPVirtualRelative( int _loop_pc_idx, int _curr_pc_idx 
 
     // // Get pose transformation
     // float x, y, z, roll, pitch, yaw;
+    // corrected_tf = TransformType::Identity();
+
     Eigen::Affine3f correctionLidarFrame;
     correctionLidarFrame = icp.getFinalTransformation();
+    corrected_tf = correctionLidarFrame.cast<double>().matrix();
     // pcl::getTranslationAndEulerAngles (correctionLidarFrame, x, y, z, roll, pitch, yaw);
+    // corrected_pos[0]=x;
+    // corrected_pos[1]=y;
+    // corrected_pos[2]=z;
+    // corrected_quan.coeffs() <<roll, pitch, yaw;
+    // // corrected_quan[]=(roll, pitch, yaw);
+    // corrected_tf = corrected_pos * corrected_quan;
     // gtsam::Pose3 poseTo = Pose3(Rot3::RzRyRx(roll, pitch, yaw), Point3(x, y, z));
     // gtsam::Pose3 poseFrom = Pose3(Rot3::RzRyRx(0.0, 0.0, 0.0), Point3(0.0, 0.0, 0.0));
-    // return poseFrom.between(poseTo);
+    return 0;
 } // doICPVirtualRelative
 
 auto PlaceRecognition::process_icp()->void
 {
-    // while(1)
-    // {
-	// 	while ( !scLoopICPBuf.empty() )
-    //     {
-    //         if( scLoopICPBuf.size() > 30 ) {
-    //             ROS_WARN("Too many loop clousre candidates to be ICPed is waiting ... Do process_lcd less frequently (adjust loopClosureFrequency)");
-    //         }
+    while(1)
+    {
+		while ( !scLoopICPBuf.empty() )
+        {
+            if( scLoopICPBuf.size() > 30 ) {
+                ROS_WARN("Too many loop clousre candidates to be ICPed is waiting ... Do process_lcd less frequently (adjust loopClosureFrequency)");
+            }
 
-    //         mBuf.lock(); 
-    //         std::pair<int, int> loop_idx_pair = scLoopICPBuf.front();
-    //         scLoopICPBuf.pop();
-    //         mBuf.unlock(); 
+            mtx_mBuf_.lock(); 
+            std::pair<int, int> loop_idx_pair = scLoopICPBuf.front();
+            scLoopICPBuf.pop();
+            mtx_mBuf_.unlock(); 
 
-    //         const int prev_node_idx = loop_idx_pair.first;
-    //         const int curr_node_idx = loop_idx_pair.second;
-    //         auto relative_pose_optional = doICPVirtualRelative(prev_node_idx, curr_node_idx);
-    //         if(relative_pose_optional) {
-    //             gtsam::Pose3 relative_pose = relative_pose_optional.value();
-    //             mtxPosegraph.lock();
-    //             gtSAMgraph.add(gtsam::BetweenFactor<gtsam::Pose3>(prev_node_idx, curr_node_idx, relative_pose, robustLoopNoise));
-    //             // runISAM2opt();
-    //             mtxPosegraph.unlock();
-    //         }
-    //     }
+            const int prev_node_idx = loop_idx_pair.first;
+            const int curr_node_idx = loop_idx_pair.second;
+            TransformType tf;
+            auto relative_pose_optional = doICPVirtualRelative(prev_node_idx, curr_node_idx, tf);
+            if(relative_pose_optional==0) {
+                Eigen::Vector3d position = tf.translation();
+                Eigen::Vector3d euler = tf.rotation().eulerAngles(0, 1, 2);
 
-    //     // wait (must required for running the while loop)
-    //     std::chrono::milliseconds dura(2);
-    //     std::this_thread::sleep_for(dura);
-    // }
+                gtsam::Pose3 relative_pose = gtsam::Pose3(gtsam::Rot3::RzRyRx(euler[0], euler[1], euler[2]), gtsam::Point3(position[0], position[1], position[2]));
+                mtx_Posegraph_.lock();
+                gtSAMgraph.add(gtsam::BetweenFactor<gtsam::Pose3>(prev_node_idx, curr_node_idx, relative_pose, robustLoopNoise));
+                // runISAM2opt();
+                mtx_Posegraph_.unlock();
+            }
+        }
+
+        // wait (must required for running the while loop)
+        std::chrono::milliseconds dura(2);
+        std::this_thread::sleep_for(dura);
+    }
 } // process_icp
 
 auto PlaceRecognition::CheckBuffer()->bool {
