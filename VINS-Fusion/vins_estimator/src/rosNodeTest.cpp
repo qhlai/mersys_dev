@@ -29,13 +29,53 @@ queue<sensor_msgs::ImageConstPtr> img0_buf;
 queue<sensor_msgs::ImageConstPtr> img1_buf;
 std::mutex m_buf;
 
+// int        sub_image_typed = 2; // 0: TBD 1: sub_raw, 2: sub_comp
 
 void img0_callback(const sensor_msgs::ImageConstPtr &img_msg)
 {
+    // if ( sub_image_typed == 2 )
+    // {
+    //     return; // Avoid subscribe the same image twice.
+    // }
+    // sub_image_typed =1;
     m_buf.lock();
     img0_buf.push(img_msg);
     m_buf.unlock();
 }
+
+
+// void img0_comp_callback( const sensor_msgs::CompressedImageConstPtr &msg )
+// {
+    
+//     if ( sub_image_typed == 1 )
+//     {
+//         return; // Avoid subscribe the same image twice.
+//     }
+//     sub_image_typed = 2;
+//     m_buf.lock();
+//     // try
+//     // {
+//     //     cv_bridge::CvImagePtr cv_ptr_compressed = cv_bridge::toCvCopy( msg, sensor_msgs::image_encodings::BGR8 );
+//     //     img_rec_time = msg->header.stamp.toSec();
+//     //     image_get = cv_ptr_compressed->image;
+//     //     cv_ptr_compressed->image.release();// release memory
+//     // }
+//     // catch ( cv_bridge::Exception &e )
+//     // {
+//     //     printf( "Could not convert from '%s' to 'bgr8' !!! ", msg->format.c_str() );
+//     // }
+//     // img0_buf.push(img_msg);
+
+//     m_buf.unlock();
+//     // g_received_compressed_img_msg.push_back( msg );
+
+//     // if ( g_flag_if_first_rec_img )
+//     // {
+//     //     g_flag_if_first_rec_img = 0;
+//     //     m_thread_pool_ptr->commit_task( &R3LIVE::service_process_img_buffer, this );
+//     // }
+//     return;
+// }
 
 void img1_callback(const sensor_msgs::ImageConstPtr &img_msg)
 {
@@ -256,6 +296,8 @@ int main(int argc, char **argv)
     }
     ros::Subscriber sub_feature = n.subscribe("/feature_tracker/feature", 2000, feature_callback);
     ros::Subscriber sub_img0 = n.subscribe(IMAGE0_TOPIC, 100, img0_callback);
+    // IMAGE0_TOPIC_compress=std::string(IMAGE0_TOPIC).append("/compressed");
+    // ros::Subscriber sub_img0_compress = n.subscribe(IMAGE0_TOPIC_compress, 100, img0_comp_callback);
     ros::Subscriber sub_img1;
     if(STEREO)
     {

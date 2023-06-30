@@ -1,0 +1,20 @@
+%YAML:1.0
+---
+model_type: MEI
+camera_name: camera
+image_width: 1280
+image_height: 1024
+mirror_parameters:
+#镜头翻转参数
+   xi: 3.6313355285286337e+00
+distortion_parameters:
+   k1: -0.1080
+   k2: 0.1050
+   p1: -1.2872e-04
+   p2: 5.7923e-05
+projection_parameters:
+#gamma here is not correct 
+   gamma1: 4.1387619122017772e+03
+   gamma2: 4.1315886210259278e+03
+   u0: 640.6808
+   v0: 518.3392
