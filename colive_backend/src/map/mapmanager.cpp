@@ -315,12 +315,16 @@ auto MapManager::AddToDatabase(PointCloudEXPtr pc)    ->void{
     pcl::PointCloud<pcl::PointXYZI>::Ptr cloud_out(new pcl::PointCloud<pcl::PointXYZI>);
     pointcloud_convert1(pcl_pc_d,cloud_out);
     scManager.makeAndSaveScancontextAndKeys(*cloud_out);
-else
+#endif    
+#if 1
     scManager.makeAndSaveScancontextAndKeys(*pcl_pc_d);
-#endif
-    
+    // std::cout<<"add query1"<<std::endl;
+#endif 
+    // std::cout<<"add query2"<<std::endl;
     pc->pts_cloud_d = *pcl_pc_d;
     cl_pcs.push_back(pc);
+
+    // scManager.makeAndSaveScancontextAndKeys(*pcl_pc_d);
     // cl_pcs_d.push_back(PointCloud::Ptr in(new *pcl_pc_d));
     // *pts_cloud = pc->pts_cloud;
     // downSizeFilterScancontext.setInputCloud(pts_cloud);

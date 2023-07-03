@@ -86,7 +86,7 @@ public:
     // auto EraseFromDatabase(KeyframePtr kf)                                              ->void;
     SCManager scManager;
     PointCloudEXVector cl_pcs;
-    PointCloudVector cl_pcs_d;
+    // PointCloudVector cl_pcs_d;
     PointCloudEXPtr pc;
     PointCloud::Ptr          pcl_pc_d;
     PointCloud::Ptr          pcl_pc;

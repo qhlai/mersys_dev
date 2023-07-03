@@ -23,25 +23,27 @@ PlaceRecognition::PlaceRecognition(MapManagerPtr man, bool perform_pgo)
                     gtsam::noiseModel::Diagonal::Variances(robustNoiseVector6) );
 }
 auto PlaceRecognition::process_lcd()->void {
-    float loopClosureFrequency = 1.0; // can change 
-    ros::Rate rate(loopClosureFrequency);
-    while (ros::ok())
-    {
-        rate.sleep();
-        performSCLoopClosure();
-        // performRSLoopClosure(); // TODO
-    }
+    // float loopClosureFrequency = 1.0; // can change 
+    // ros::Rate rate(loopClosureFrequency);
+    // while (ros::ok())
+    // {
+    //     rate.sleep();
+    //     performSCLoopClosure();
+    //     // performRSLoopClosure(); // TODO
+    // }
 }
 
 auto PlaceRecognition::performSCLoopClosure()->void {
-    if( int(keyframePoses.size()) < mapmanager_->scManager.NUM_EXCLUDE_RECENT) // do not try too early 
+    if( int(mapmanager_->cl_pcs.size()) < mapmanager_->scManager.NUM_EXCLUDE_RECENT) // do not try too early 
         return;
 
     auto detectResult = mapmanager_->scManager.detectLoopClosureID(); // first: nn index, second: yaw diff 
     int SCclosestHistoryFrameID = detectResult.first;
-    if( SCclosestHistoryFrameID != -1 ) { 
+    std::cout << "try detectLoopClosure:" << SCclosestHistoryFrameID<<std::endl;
+    if( SCclosestHistoryFrameID != -1 ) {
+        std::cout << "detectLoopClosureID: " << SCclosestHistoryFrameID<<std::endl;
         const int prev_node_idx = SCclosestHistoryFrameID;
-        const int curr_node_idx = keyframePoses.size() - 1; // because cpp starts 0 and ends n-1
+        const int curr_node_idx = mapmanager_->cl_pcs.size() - 1; // because cpp starts 0 and ends n-1
         cout << "Loop detected! - between " << prev_node_idx << " and " << curr_node_idx << "" << endl;
 
         std::unique_lock<std::mutex> lock(mtx_mBuf_);
@@ -276,7 +278,12 @@ auto PlaceRecognition::CorrectLoop()->bool {
 
 auto PlaceRecognition::DetectLoop()->bool {
 
-
+    // if(pc_query_->id_.first < colive_params::placerec::start_after_kf) {
+    //     // pc_query_->SetErase();
+    //     std::cout<<"------------eraly loop ----------------"<<std::endl;
+    //     return false;
+    // }
+    performSCLoopClosure();
     // if(pc_query_->id_.first < covins_params::placerec::start_after_kf) {
     //     pc_query_->SetErase();
     //     return false;
@@ -405,8 +412,11 @@ auto PlaceRecognition::Run()->void {
                 buffer_pcs_in_.pop_front();
                 // pc_query_->SetNotErase();
             }
+
+            // scManager.makeAndSaveScancontextAndKeys(*thisKeyFrameDS);
             mapmanager_->AddToDatabase(pc_query_);
             bool detected = DetectLoop();
+            // std::cout<<"add query"<<std::endl;
             // if(detected) {
             //     num_detected++;
             //     bool found_se3 = ComputeSE3();

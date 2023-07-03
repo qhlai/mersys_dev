@@ -121,6 +121,60 @@ void pointcloud_convert(pcl::PointCloud<pcl::PointXYZINormal>::Ptr pc_in,pcl::Po
     pc_out->push_back(point);
     }
 }
+auto Visualizer::PubTrajectories()->void {
+    // PointCloudEXPtr pc = curr_bundle_.pointCloud.rbegin()->second;
+
+
+    // KeyframeSetById kftraj;
+    // std::set<int> kfcids;
+
+    for(PointCloudEXMap::const_iterator mit=curr_bundle_.pointCloud.begin();mit!=curr_bundle_.pointCloud.end();++mit){
+        // KeyframePtr kf = mit->second;
+        // kftraj.insert(kf);
+        // kfcids.insert(kf->id_.second);
+    }
+
+    // std::map<int,visualization_msgs::Marker> msgs;
+    // for(std::set<int>::iterator sit = kfcids.begin(); sit != kfcids.end(); ++sit){
+    //     int cid = *sit;
+    //     visualization_msgs::Marker traj;
+    //     traj.header.frame_id = curr_bundle_.frame;
+    //     traj.header.stamp = ros::Time::now();
+    //     std::stringstream ss;
+    //     ss << "Traj" << cid << topic_prefix_;
+    //     traj.ns = ss.str();
+    //     traj.id=0;
+    //     traj.type = visualization_msgs::Marker::LINE_STRIP;
+    //     traj.scale.x=covins_params::vis::trajmarkersize;
+    //     traj.action=visualization_msgs::Marker::ADD;
+
+    //     if(cid < 12){
+    //         covins_params::VisColorRGB col = covins_params::colors::col_vec[cid];
+    //         traj.color = MakeColorMsg(col.mfR,col.mfG,col.mfB);
+    //     }
+    //     else
+    //         traj.color = MakeColorMsg(0.5,0.5,0.5);
+
+    //     msgs[cid] = traj;
+    // }
+
+    // precision_t scale = covins_params::vis::scalefactor;
+
+    // for(KeyframeSetById::iterator sit = kftraj.begin(); sit != kftraj.end(); ++sit){
+    //     KeyframePtr kf = *sit;
+    //     Eigen::Matrix4d T = kf->GetPoseTws();
+    //     geometry_msgs::Point p;
+    //     p.x = scale*(T(0,3));
+    //     p.y = scale*(T(1,3));
+    //     p.z = scale*(T(2,3));
+    //     msgs[kf->id_.second].points.push_back(p);
+    // }
+
+    // for(std::map<int,visualization_msgs::Marker>::iterator mit = msgs.begin(); mit != msgs.end(); ++mit){
+    //     visualization_msgs::Marker msg = mit->second;
+    //     pub_marker_.publish(msg);
+    // }
+}
 auto Visualizer::PubPointCloud()->void {
 
 
@@ -195,7 +249,7 @@ void Visualizer::print_dash_board()
     else
     {
         std::cout << "\r\n" << endl;
-        std::cout << ANSI_COLOR_WHITE_BOLD << "======================= R3LIVE Dashboard ======================" << ANSI_COLOR_RESET << std::endl;
+        std::cout << ANSI_COLOR_WHITE_BOLD << "======================= COLIVE Dashboard ======================" << ANSI_COLOR_RESET << std::endl;
         g_last_stamped_mem_mb = mem_used_mb ;
     }
     
@@ -228,7 +282,7 @@ void Visualizer::print_dash_board()
     out_str_line_1.insert( 0, ANSI_COLOR_WHITE_BOLD, 7 );
 
     std::cout << out_str_line_1 << std::endl;
-    std::cout << out_str_line_2 << ANSI_COLOR_RESET << "          "<< std::endl;
+    std::cout << out_str_line_2 << ANSI_COLOR_RESET << "          ";
     ANSI_SCREEN_FLUSH;
     // std::cout     
 }
@@ -257,6 +311,7 @@ auto Visualizer::Run()->void{
             }
             // std::cout<<"run vis2"<<std::endl;
             this->PubPointCloud();
+            this->PubTrajectories();
             //  std::cout<<"run vis3"<<std::endl;
         //     if(colive_params::vis::showkeyframes)
         //         this->PubKeyframesAsFrusta();

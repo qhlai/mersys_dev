@@ -85,6 +85,7 @@ double SCManager::distDirectSC ( MatrixXd &_sc1, MatrixXd &_sc2 )
     }
     
     double sc_sim = sum_sector_similarity / num_eff_cols;
+    std::cout << "SC dist"<<1.0 - sc_sim<<std::endl;
     return 1.0 - sc_sim;
 
 } // distDirectSC

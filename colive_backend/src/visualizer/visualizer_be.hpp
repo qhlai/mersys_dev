@@ -78,6 +78,7 @@ public:
     // Interfaces
     virtual auto DrawMap(MapPtr map)                                                    ->void;
     virtual auto PubPointCloud()                                                        ->void;
+    virtual auto PubTrajectories()        ->void;
     // Draw Loaded Map
     auto DrawMapBitByBit(MapPtr map, std::string frame)                                 ->void;
 

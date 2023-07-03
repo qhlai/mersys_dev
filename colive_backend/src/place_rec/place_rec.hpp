@@ -94,7 +94,7 @@ protected:
     MapManagerPtr                  mapmanager_;
     // SCManager                      scManager;
     std::queue<std::pair<int, int> >                        scLoopICPBuf;
-    bool                           perform_pgo_                                            = true;
+    bool                           perform_pgo_             = true;
     // VocabularyPtr               voc_;
 
     // map<size_t,size_t>          last_loops_;
@@ -106,8 +106,8 @@ protected:
 
     PointCloudEXPtr                   pc_query_;
     PointCloudEXPtr                   pc_match_;
-    PointCloud::Ptr                    sc_pcs_d;
-    PointCloud::Ptr                      pts_cloud;
+    PointCloud::Ptr                   sc_pcs_d;
+    PointCloud::Ptr                   pts_cloud;
     
     precision_t                     mnCovisibilityConsistencyTh; // 一致性阈值
 

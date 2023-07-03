@@ -85,6 +85,7 @@ double SCManager::distDirectSC ( MatrixXd &_sc1, MatrixXd &_sc2 )
     }
     
     double sc_sim = sum_sector_similarity / num_eff_cols;
+        // std::cout << "SC: dist"<<1.0 - sc_sim<<std::endl;
     return 1.0 - sc_sim;
 
 } // distDirectSC
@@ -115,6 +116,7 @@ int SCManager::fastAlignUsingVkey( MatrixXd & _vkey1, MatrixXd & _vkey2)
 
 std::pair<double, int> SCManager::distanceBtnScanContext( MatrixXd &_sc1, MatrixXd &_sc2 )
 {
+    // std::cout << "SC: distBtn"<<std::endl;
     // 1. fast align using variant key (not in original IROS18)
     MatrixXd vkey_sc1 = makeSectorkeyFromScancontext( _sc1 );
     MatrixXd vkey_sc2 = makeSectorkeyFromScancontext( _sc2 );
@@ -175,13 +177,13 @@ MatrixXd SCManager::makeScancontext( pcl::PointCloud<SCPointType> & _scan_down )
         if( azim_range > PC_MAX_RADIUS )
             continue;
 
-        ring_idx = std::max( std::min( PC_NUM_RING, int(ceil( (azim_range / PC_MAX_RADIUS) * PC_NUM_RING )) ), 1 );
-        sctor_idx = std::max( std::min( PC_NUM_SECTOR, int(ceil( (azim_angle / 360.0) * PC_NUM_SECTOR )) ), 1 );
+        ring_idx = std::max( std::min( PC_NUM_RING, int(ceil( (azim_range / PC_MAX_RADIUS) * PC_NUM_RING )) ), 1 );// 有几个级别
+        sctor_idx = std::max( std::min( PC_NUM_SECTOR, int(ceil( (azim_angle / 360.0) * PC_NUM_SECTOR )) ), 1 );// 有几个分区
 
         // taking maximum z 
         if ( desc(ring_idx-1, sctor_idx-1) < pt.z ) // -1 means cpp starts from 0
             desc(ring_idx-1, sctor_idx-1) = pt.z; // update for taking maximum value at that bin
-    }
+    }// 记录某个方向和深度的z值
 
     // reset no points to zero (for cosine dist later)
     for ( int row_idx = 0; row_idx < desc.rows(); row_idx++ )
@@ -335,6 +337,7 @@ std::pair<int, float> SCManager::detectLoopClosureIDBetweenSession (std::vector<
 
 std::pair<int, float> SCManager::detectLoopClosureID ( void )
 {
+    std::cout << "SC: detectLoopClosureID"<<std::endl;
     int loop_id { -1 }; // init with -1, -1 means no loop (== LeGO-LOAM's variable "closestHistoryFrameID")
 
     auto curr_key = polarcontext_invkeys_mat_.back(); // current observation (query)
