@@ -25,7 +25,7 @@ MapManager::MapManager()
     float filter_size = 0.4; 
     downSizeFilterScancontext.setLeafSize(filter_size, filter_size, filter_size);
     downSizeFilterICP.setLeafSize(filter_size, filter_size, filter_size);
-    scManager.setSCdistThres(0.2);   //scDistThres
+    scManager.setSCdistThres(0.1);   //scDistThres
     scManager.setMaximumRadius(80);//scMaximumRadius
 }
 

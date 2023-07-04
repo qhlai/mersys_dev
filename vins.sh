@@ -1,5 +1,5 @@
 #!/bin/bash
-path_dataset='/media/lqh/WDC/dataset/r3live_offical'
+path_dataset='/home/viosus/dataset/r3live_offical'
 path_workspace='~/ros/r3live'
 
 #gnome-terminal -t "catkin_make" -x bash -c "catkin_make;exec bash;"

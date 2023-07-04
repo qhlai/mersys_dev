@@ -71,6 +71,7 @@ public:
     Vector3Type             pos_ref;
     Vector3Type             pos_w;
     TransformType           T_w_s_ = TransformType::Identity(); 
+    TransformType           T_lm_s_ = TransformType::Identity();
     PointCloud              pts_cloud;
     QuaternionType          quan_;
 
@@ -85,6 +86,7 @@ protected:
             archive(id_,
                     pos_w,
                     quan_,
+                    T_lm_s_,
                     pts_cloud,
                     // observations,id_reference
                     is_update_msg);
@@ -92,6 +94,7 @@ protected:
             archive(id_,
                     pos_w,
                     quan_,
+                    T_lm_s_,
                     pts_cloud,
                     // observations,id_reference
                     is_update_msg);
@@ -99,6 +102,7 @@ protected:
             archive(id_,
                     pos_w,
                     quan_,
+                    T_lm_s_,
                     pts_cloud,
                     // observations,id_reference
                     is_update_msg);
@@ -111,6 +115,7 @@ protected:
              archive(id_,
                     pos_w,
                     quan_,
+                    T_lm_s_,
                     pts_cloud,
                     // observations,id_reference
                     is_update_msg);
@@ -118,6 +123,7 @@ protected:
             archive(id_,
                     pos_w,
                     quan_,
+                    T_lm_s_,
                     pts_cloud,
                     // observations,id_reference
                     is_update_msg);
@@ -125,6 +131,7 @@ protected:
             archive(id_,
                     pos_w,
                     quan_,
+                    T_lm_s_,
                     pts_cloud,
                     // observations,id_reference
                     is_update_msg);
@@ -147,10 +154,11 @@ namespace cereal {
         // Save the size of the point cloud
         // size_t size = pointCloud.size();
         // ar(size);
-        Eigen::Matrix4d T_4x4 = Eigen::Matrix4d::Identity();
-        T_4x4.block<3, 3>(0, 0) = T.rotation();
-        T_4x4.block<3, 1>(0, 3) = T.translation();
-        ar(T_4x4);
+        // Eigen::Matrix4d T_4x4 = Eigen::Matrix4d::Identity();
+        // T_4x4.block<3, 3>(0, 0) = T.rotation();
+        // T_4x4.block<3, 1>(0, 3) = T.translation();
+        // ar(T_4x4);
+        ar(T.matrix());
 
     }
      // Load function for pcl::PointCloud type
@@ -159,11 +167,13 @@ namespace cereal {
     void load(Archive& ar, Eigen::Isometry3d& T) {
 
         Eigen::Matrix4d T_4x4 = Eigen::Matrix4d::Identity();
-        T=Eigen::Isometry3d::Identity();
+        // T=Eigen::Isometry3d::Identity();
 
         ar(T_4x4);
-        T.rotate(T_4x4.block<3, 3>(0, 0));
-        T.translate(T_4x4.block<3, 1>(0, 3));
+        Eigen::Isometry3d temp(T_4x4); 
+        T=temp;
+        // T.rotate(T_4x4.block<3, 3>(0, 0));
+        // T.translate(T_4x4.block<3, 1>(0, 3));
 
     }
 

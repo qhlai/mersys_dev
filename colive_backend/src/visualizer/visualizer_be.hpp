@@ -53,6 +53,8 @@ public:
     using KeyframeVector                = TypeDefs::KeyframeVector;
     using LandmarkVector                = TypeDefs::LandmarkVector;
     using KeyframePairVector            = TypeDefs::KeyframePairVector;
+    // using TransformType                 = TypeDefs::TransformType;
+    // using PointCloudSetById               = std::set<PointCloudEXPtr,PointCloudEX::pc_less,Eigen::aligned_allocator<PointCloudEXPtr>>;
     // using LoopVector                    = TypeDefs::LoopVector;
 
     using PointCloudEXSetById               = std::set<PointCloudEXPtr,PointCloudEX::pc_less,Eigen::aligned_allocator<PointCloudEXPtr>>;

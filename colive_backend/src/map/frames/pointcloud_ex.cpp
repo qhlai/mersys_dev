@@ -10,6 +10,7 @@ PointCloud_ex::PointCloud_ex(MsgPointCloud msg, MapPtr map){
     quan_ = msg.quan_;
     pts_cloud=msg.pts_cloud;
     timestamp_=msg.timestamp_;
+    T_lm_s_=msg.T_lm_s_;
     
 }
 // auto PointCloud_ex::GetPoseTws()->TransformType {
@@ -29,7 +30,7 @@ auto PointCloud_ex::ConvertToMsg(colive::MsgPointCloud &msg,Vector3Type &pos_w_2
     msg.pos_w = pos_w;
     msg.quan_ = quan_;
     msg.pts_cloud = pts_cloud;
-    
+    msg.T_lm_s_=T_lm_s_;
     // msg.pts_cloud=
 
 }

@@ -5,6 +5,7 @@ Panels:
     Property Tree Widget:
       Expanded:
         - /Global Options1
+        - /Axes1
         - /mapping1
         - /mapping1/surround1
         - /mapping1/currPoints1
@@ -14,7 +15,9 @@ Panels:
         - /Odometry1/Odometry1/Covariance1
         - /Odometry1/Odometry1/Covariance1/Position1
         - /Odometry1/Odometry1/Covariance1/Orientation1
+        - /MarkerArray1
         - /MarkerArray1/Namespaces1
+        - /Marker1
       Splitter Ratio: 0.6432291865348816
     Tree Height: 779
   - Class: rviz/Selection
@@ -34,7 +37,7 @@ Panels:
   - Class: rviz/Time
     Name: Time
     SyncMode: 0
-    SyncSource: surround
+    SyncSource: currPoints
 Preferences:
   PromptSaveOnExit: true
 Toolbars:
@@ -194,7 +197,7 @@ Visualization Manager:
           Topic: /Odometry
           Unreliable: false
           Value: true
-      Enabled: false
+      Enabled: true
       Name: Odometry
     - Alpha: 1
       Class: rviz/Axes
@@ -288,12 +291,36 @@ Visualization Manager:
       Use rainbow: true
       Value: false
     - Class: rviz/MarkerArray
-      Enabled: false
-      Marker Topic: /MarkerArray
+      Enabled: true
+      Marker Topic: /MarkerArra
       Name: MarkerArray
       Namespaces:
         {}
       Queue Size: 100
+      Value: true
+    - Class: rviz/Marker
+      Enabled: true
+      Marker Topic: /colive_markers_be
+      Name: Marker
+      Namespaces:
+        Traj0_be: true
+      Queue Size: 100
+      Value: true
+    - Alpha: 1
+      Axes Length: 1
+      Axes Radius: 0.10000000149011612
+      Class: rviz/Pose
+      Color: 255; 25; 0
+      Enabled: false
+      Head Length: 0.30000001192092896
+      Head Radius: 0.10000000149011612
+      Name: Pose
+      Queue Size: 10
+      Shaft Length: 1
+      Shaft Radius: 0.05000000074505806
+      Shape: Arrow
+      Topic: ""
+      Unreliable: false
       Value: false
   Enabled: true
   Global Options:
@@ -323,7 +350,7 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 135.49996948242188
+      Distance: 52.25413131713867
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
@@ -331,17 +358,17 @@ Visualization Manager:
         Value: false
       Field of View: 0.7853981852531433
       Focal Point:
-        X: 18.595090866088867
-        Y: 5.773110389709473
-        Z: -17.75609588623047
+        X: 2.8281450271606445
+        Y: 3.3696460723876953
+        Z: -13.67578125
       Focal Shape Fixed Size: true
       Focal Shape Size: 0.05000000074505806
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 0.44479668140411377
+      Pitch: 0.6947966814041138
       Target Frame: global
-      Yaw: 1.707198977470398
+      Yaw: 1.5071992874145508
     Saved: ~
 Window Geometry:
   Displays:
@@ -359,5 +386,5 @@ Window Geometry:
   Views:
     collapsed: true
   Width: 1920
-  X: 0
-  Y: 0
+  X: 1122
+  Y: 599

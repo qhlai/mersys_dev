@@ -125,55 +125,66 @@ auto Visualizer::PubTrajectories()->void {
     // PointCloudEXPtr pc = curr_bundle_.pointCloud.rbegin()->second;
 
 
-    // KeyframeSetById kftraj;
-    // std::set<int> kfcids;
+    PointCloudEXSetById pctraj;
+    std::set<int> pccids;
 
     for(PointCloudEXMap::const_iterator mit=curr_bundle_.pointCloud.begin();mit!=curr_bundle_.pointCloud.end();++mit){
         // KeyframePtr kf = mit->second;
-        // kftraj.insert(kf);
-        // kfcids.insert(kf->id_.second);
+        PointCloudEXPtr pc = mit->second;
+
+        pctraj.insert(pc);
+        pccids.insert(pc->id_.second);
     }
 
-    // std::map<int,visualization_msgs::Marker> msgs;
-    // for(std::set<int>::iterator sit = kfcids.begin(); sit != kfcids.end(); ++sit){
-    //     int cid = *sit;
-    //     visualization_msgs::Marker traj;
-    //     traj.header.frame_id = curr_bundle_.frame;
-    //     traj.header.stamp = ros::Time::now();
-    //     std::stringstream ss;
-    //     ss << "Traj" << cid << topic_prefix_;
-    //     traj.ns = ss.str();
-    //     traj.id=0;
-    //     traj.type = visualization_msgs::Marker::LINE_STRIP;
-    //     traj.scale.x=covins_params::vis::trajmarkersize;
-    //     traj.action=visualization_msgs::Marker::ADD;
+    std::map<int,visualization_msgs::Marker> msgs;
+    for(std::set<int>::iterator sit = pccids.begin(); sit != pccids.end(); ++sit){
+        int cid = *sit;
+        visualization_msgs::Marker traj;
+        traj.header.frame_id = curr_bundle_.frame;
+        traj.header.stamp = ros::Time::now();
+        std::stringstream ss;
+        ss << "Traj" << cid << topic_prefix_;
+        traj.ns = ss.str();
+        traj.id=0;
+        traj.type = visualization_msgs::Marker::LINE_STRIP;
+        traj.scale.x=colive_params::vis::trajmarkersize;
+        traj.action=visualization_msgs::Marker::ADD;
 
-    //     if(cid < 12){
-    //         covins_params::VisColorRGB col = covins_params::colors::col_vec[cid];
-    //         traj.color = MakeColorMsg(col.mfR,col.mfG,col.mfB);
-    //     }
-    //     else
-    //         traj.color = MakeColorMsg(0.5,0.5,0.5);
+        traj.color = MakeColorMsg(0.5,0.5,0.5);
+        // if(cid < 12){
+        //     covins_params::VisColorRGB col = covins_params::colors::col_vec[cid];
+        //     traj.color = MakeColorMsg(col.mfR,col.mfG,col.mfB);
+        // }
+        // else
+        //     traj.color = MakeColorMsg(0.5,0.5,0.5);
 
-    //     msgs[cid] = traj;
-    // }
+        msgs[cid] = traj;
+    }
 
-    // precision_t scale = covins_params::vis::scalefactor;
+    precision_t scale = colive_params::vis::scalefactor;
 
-    // for(KeyframeSetById::iterator sit = kftraj.begin(); sit != kftraj.end(); ++sit){
-    //     KeyframePtr kf = *sit;
-    //     Eigen::Matrix4d T = kf->GetPoseTws();
-    //     geometry_msgs::Point p;
-    //     p.x = scale*(T(0,3));
-    //     p.y = scale*(T(1,3));
-    //     p.z = scale*(T(2,3));
-    //     msgs[kf->id_.second].points.push_back(p);
-    // }
+    for(PointCloudEXSetById::iterator sit = pctraj.begin(); sit != pctraj.end(); ++sit){
+        PointCloudEXPtr  pc = *sit;
+        // Eigen::Matrix3d T = pc->pos_w;
+        // Eigen::Matrix4d T = pc->GetPoseTws();
+        Eigen::Matrix4d T = pc->T_lm_s_.matrix();
+        geometry_msgs::Point p;
 
-    // for(std::map<int,visualization_msgs::Marker>::iterator mit = msgs.begin(); mit != msgs.end(); ++mit){
-    //     visualization_msgs::Marker msg = mit->second;
-    //     pub_marker_.publish(msg);
-    // }
+        p.x = scale*(T(0,3));
+        p.y = scale*(T(1,3));
+        p.z = scale*(T(2,3));
+// std::cout<<"x:"<<pc->pos_w[0]<<" "<<(T(0,3))<<"y:"<<pc->pos_w[1]<<" "<<(T(1,3))<<std::endl;
+        // p.x = scale*pc->pos_w[0];
+        // p.y = scale*pc->pos_w[1];
+        // p.z = scale*pc->pos_w[2];
+        msgs[pc->id_.second].points.push_back(p);
+    }
+
+    for(std::map<int,visualization_msgs::Marker>::iterator mit = msgs.begin(); mit != msgs.end(); ++mit){
+        visualization_msgs::Marker msg = mit->second;
+        msg.pose.orientation.w = 1.0;
+        pub_marker_.publish(msg);
+    }
 }
 auto Visualizer::PubPointCloud()->void {
 

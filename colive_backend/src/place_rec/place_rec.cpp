@@ -39,7 +39,7 @@ auto PlaceRecognition::performSCLoopClosure()->void {
 
     auto detectResult = mapmanager_->scManager.detectLoopClosureID(); // first: nn index, second: yaw diff 
     int SCclosestHistoryFrameID = detectResult.first;
-    std::cout << "try detectLoopClosure:" << SCclosestHistoryFrameID<<std::endl;
+    // std::cout << "try detectLoopClosure:" << SCclosestHistoryFrameID<<std::endl;
     if( SCclosestHistoryFrameID != -1 ) {
         std::cout << "detectLoopClosureID: " << SCclosestHistoryFrameID<<std::endl;
         const int prev_node_idx = SCclosestHistoryFrameID;

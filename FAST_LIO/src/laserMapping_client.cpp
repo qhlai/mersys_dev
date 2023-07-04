@@ -632,6 +632,12 @@ void publish_odometry(const ros::Publisher & pubOdomAftMapped ,colive::PointClou
     q.setZ(odomAftMapped.pose.pose.orientation.z);
     pc->quan_.coeffs() << odomAftMapped.pose.pose.orientation.x, odomAftMapped.pose.pose.orientation.y, odomAftMapped.pose.pose.orientation.z, odomAftMapped.pose.pose.orientation.w;
     transform.setRotation( q );
+
+    Eigen::Isometry3d T = Eigen::Isometry3d::Identity();
+    T.translate(pc->pos_w);
+    T.rotate(pc->quan_);
+    pc->T_lm_s_=T;
+    // std::cout<<"x:"<<pc->pos_w[0]<<" "<<(T(0,3))<<"y:"<<pc->pos_w[1]<<" "<<(T(1,3))<<std::endl;
     br.sendTransform( tf::StampedTransform( transform, odomAftMapped.header.stamp, "camera_init", "body" ) );
 }
 
