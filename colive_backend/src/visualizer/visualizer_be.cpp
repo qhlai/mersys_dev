@@ -210,7 +210,21 @@ auto Visualizer::PubPointCloud()->void {
     // PointCloud::Ptr cloud_in=&(pc->pts_cloud);
     
     PointCloud::Ptr cloud_in(new PointCloud(pc->pts_cloud));
-
+    pcl::transformPointCloud(*cloud_in, *cloud_in, (pc->T_w_lm_*pc->T_lm_s_).matrix());
+    // int size = cloud_in->points.size();
+    // pcl::PointCloudXYZI::Ptr laserCloudIMUWorld(new PointCloudXYZI(size, 1));
+    // for (int i = 0; i < size; i++)
+    // {
+    //     // RGBpointBodyLidarToIMU(&feats_undistort->points[i], \
+    //     //                     &laserCloudIMUBody->points[i]);
+    //         // V3D p_body_lidar(pi->x, pi->y, pi->z);
+    //         // V3D p_body_imu(state_point.offset_R_L_I*p_body_lidar + state_point.offset_T_L_I);
+    //         cloud_in
+    //         laserCloudIMUWorld->points[i].x = p_body_imu(0);
+    //         laserCloudIMUWorld->points[i].y = p_body_imu(1);
+    //         laserCloudIMUWorld->z = p_body_imu(2);
+    //         laserCloudIMUWorld->intensity = pi->intensity;
+    // }
     // cloud_in.reset(pc->pts_cloud);
     // pcl::PointCloud<pcl::PointXYZINormal>::Ptr cloud_in (new pcl::PointCloud<pcl::PointXYZINormal>);
     // *cloud_in=pc->pts_cloud;

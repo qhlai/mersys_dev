@@ -12,6 +12,7 @@ PointCloud_ex::PointCloud_ex(MsgPointCloud msg, MapPtr map){
     timestamp_=msg.timestamp_;
     T_lm_s_=msg.T_lm_s_;
     
+    map_=map;
 }
 // auto PointCloud_ex::GetPoseTws()->TransformType {
 //     std::unique_lock<std::mutex> lock(mtx_pose_);

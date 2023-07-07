@@ -18,10 +18,14 @@ class MapInstance;
 
 struct MergeInformation {
     using TransformType                 = TypeDefs::TransformType;
+    using PointCloudEXPtr                 = TypeDefs::PointCloudEXPtr;
     // using KeyframePtr                   = TypeDefs::KeyframePtr;
 
     // KeyframePtr                 kf_query;
     // KeyframePtr                 kf_match;
+    PointCloudEXPtr             pc_query;
+    PointCloudEXPtr             pc_match;
+
     TransformType               T_smatch_squery          = TransformType::Identity();
     TypeDefs::Matrix6Type       cov_mat                  = TypeDefs::Matrix6Type::Identity();
 }; 

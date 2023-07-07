@@ -6,4 +6,4 @@ path_workspace='~/ros/r3live'
 
 # gnome-terminal -t "roslaunch" -x bash -c "cd ../../;catkin_make;exec bash;"
 cd ../../
-catkin_make
+catkin_make -j11

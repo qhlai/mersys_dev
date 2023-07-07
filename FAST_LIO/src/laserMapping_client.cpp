@@ -499,8 +499,8 @@ void publish_frame_world(const ros::Publisher & pubLaserCloudFull,colive::PointC
 
         sensor_msgs::PointCloud2 laserCloudmsg;
         pcl::toROSMsg(*laserCloudWorld, laserCloudmsg);
-        pc->SetPointCloud(laserCloudWorld);
-        pc->timestamp_ = lidar_end_time;
+        // pc->SetPointCloud(laserCloudWorld);
+        // pc->timestamp_ = lidar_end_time;
         // pc->pts_cloud=*laserCloudWorld;
         laserCloudmsg.header.stamp = ros::Time().fromSec(lidar_end_time);
         laserCloudmsg.header.frame_id = "camera_init";
@@ -540,7 +540,7 @@ void publish_frame_world(const ros::Publisher & pubLaserCloudFull,colive::PointC
     }
 }
 
-void publish_frame_body(const ros::Publisher & pubLaserCloudFull_body)
+void publish_frame_body(const ros::Publisher & pubLaserCloudFull_body,colive::PointCloud_ex* pc)
 {
     int size = feats_undistort->points.size();
     PointCloudXYZI::Ptr laserCloudIMUBody(new PointCloudXYZI(size, 1));
@@ -553,6 +553,10 @@ void publish_frame_body(const ros::Publisher & pubLaserCloudFull_body)
 
     
     sensor_msgs::PointCloud2 laserCloudmsg;
+
+        pc->SetPointCloud(laserCloudIMUBody);
+        pc->timestamp_ = lidar_end_time;
+
     pcl::toROSMsg(*laserCloudIMUBody, laserCloudmsg);
     laserCloudmsg.header.stamp = ros::Time().fromSec(lidar_end_time);
     laserCloudmsg.header.frame_id = "body";
@@ -1025,7 +1029,7 @@ int main(int argc, char** argv)
             /******* Publish points *******/
             if (path_en)                         publish_path(pubPath);
             if (scan_pub_en || pcd_save_en)      publish_frame_world(pubLaserCloudFull,pc);
-            if (scan_pub_en && scan_body_pub_en) publish_frame_body(pubLaserCloudFull_body);
+            if (scan_pub_en && scan_body_pub_en) publish_frame_body(pubLaserCloudFull_body,pc);
             
 /*******  comm *******/
             comm_->TryPassKeyPcToComm(pc);

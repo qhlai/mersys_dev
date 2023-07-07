@@ -91,6 +91,7 @@ auto Communicator_server::ProcessPointCloudMessages()->void {
                 // map_->AddPointCloud(pc);
                 
                 pc.reset(new PointCloudEX(msg,map_));
+                // pc->map_=map_;
                 // std::cout<<"Added point cloud id: "<<pc->id_.first<<" of client:"<<pc->id_.second <<" pc size: "<<pc->pts_cloud.size()<<std::endl;
                 pointclouds_new_.push_back(pc);
                 last_processed_pc_msg_ = pc->id_;

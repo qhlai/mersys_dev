@@ -285,7 +285,7 @@ auto Communicator_client::TryPassKeyPcToComm(PointCloudEX* pc)      ->void{
                 // pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_downsampled(new pcl::PointCloud<pcl::PointXYZ>);
                 voxel_grid.filter(*pc_final);
             }
-            pc->id_.second = GetClientId() ;
+            pc->id_.second =  GetClientId();
             pc->id_.first = send_cnt++ ;
             pc->pts_cloud=*pc_final;
             std::cout << "send new pointcloud "<<pc->id_.first <<", size:"<<pc->pts_cloud.size()<< std::endl;

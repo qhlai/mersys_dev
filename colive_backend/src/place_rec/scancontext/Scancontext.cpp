@@ -337,7 +337,7 @@ std::pair<int, float> SCManager::detectLoopClosureIDBetweenSession (std::vector<
 
 std::pair<int, float> SCManager::detectLoopClosureID ( void )
 {
-    std::cout << "SC: detectLoopClosureID"<<std::endl;
+    // std::cout << "SC: detectLoopClosureID"<<std::endl;
     int loop_id { -1 }; // init with -1, -1 means no loop (== LeGO-LOAM's variable "closestHistoryFrameID")
 
     auto curr_key = polarcontext_invkeys_mat_.back(); // current observation (query)
@@ -417,7 +417,7 @@ std::pair<int, float> SCManager::detectLoopClosureID ( void )
     else
     {
         std::cout.precision(3); 
-        cout << "[Not loop] Nearest distance: " << min_dist << " btn " << polarcontexts_.size()-1 << " and " << nn_idx << "." << endl;
+        // cout << "[Not loop] Nearest distance: " << min_dist << " btn " << polarcontexts_.size()-1 << " and " << nn_idx << "." << endl;
         // cout << "[Not loop] yaw diff: " << nn_align * PC_UNIT_SECTORANGLE << " deg." << endl;
     }
 

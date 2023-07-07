@@ -23,14 +23,14 @@ PlaceRecognition::PlaceRecognition(MapManagerPtr man, bool perform_pgo)
                     gtsam::noiseModel::Diagonal::Variances(robustNoiseVector6) );
 }
 auto PlaceRecognition::process_lcd()->void {
-    // float loopClosureFrequency = 1.0; // can change 
-    // ros::Rate rate(loopClosureFrequency);
-    // while (ros::ok())
-    // {
-    //     rate.sleep();
-    //     performSCLoopClosure();
-    //     // performRSLoopClosure(); // TODO
-    // }
+    float loopClosureFrequency = 1.0; // can change 
+    ros::Rate rate(loopClosureFrequency);
+    while (ros::ok())
+    {
+        rate.sleep();
+        performSCLoopClosure();
+        // performRSLoopClosure(); // TODO
+    }
 }
 
 auto PlaceRecognition::performSCLoopClosure()->void {
@@ -116,21 +116,6 @@ auto PlaceRecognition::doICPVirtualRelative(int _loop_pc_idx, int _curr_pc_idx, 
     } else {
         std::cout << "[SC loop] ICP fitness test passed (" << icp.getFitnessScore() << " < " << loopFitnessScoreThreshold << "). Add this SC loop." << std::endl;
     }
-    // // icp verification 
-    // sensor_msgs::PointCloud2 targetKeyframeCloudMsg;
-    // pcl::toROSMsg(*targetKeyframeCloudViz, targetKeyframeCloudMsg);
-    // targetKeyframeCloudMsg.header.frame_id = "/camera_init";
-    // pubLoopSubmapLocal.publish(targetKeyframeCloudMsg);
-
-    // *icpKeyframeCloudViz += *local2global(unused_result, pose_loop);
-    // sensor_msgs::PointCloud2 icpKeyframeCloudMsg;
-    // pcl::toROSMsg(*icpKeyframeCloudViz, icpKeyframeCloudMsg);
-    // icpKeyframeCloudMsg.header.frame_id = "/camera_init";
-    // pubLoopScanLocal.publish(icpKeyframeCloudMsg);
-
-    // // Get pose transformation
-    // float x, y, z, roll, pitch, yaw;
-    // corrected_tf = TransformType::Identity();
 
     Eigen::Affine3f correctionLidarFrame;
     correctionLidarFrame = icp.getFinalTransformation();
@@ -149,7 +134,7 @@ auto PlaceRecognition::doICPVirtualRelative(int _loop_pc_idx, int _curr_pc_idx, 
 
 auto PlaceRecognition::process_icp()->void
 {
-    while(1)
+    // while(1)
     {
 		while ( !scLoopICPBuf.empty() )
         {
@@ -170,11 +155,14 @@ auto PlaceRecognition::process_icp()->void
                 Eigen::Vector3d position = tf.translation();
                 Eigen::Vector3d euler = tf.rotation().eulerAngles(0, 1, 2);
 
-                gtsam::Pose3 relative_pose = gtsam::Pose3(gtsam::Rot3::RzRyRx(euler[0], euler[1], euler[2]), gtsam::Point3(position[0], position[1], position[2]));
-                mtx_Posegraph_.lock();
-                gtSAMgraph.add(gtsam::BetweenFactor<gtsam::Pose3>(prev_node_idx, curr_node_idx, relative_pose, robustLoopNoise));
+                // gtsam::Pose3 relative_pose = gtsam::Pose3(gtsam::Rot3::RzRyRx(euler[0], euler[1], euler[2]), gtsam::Point3(position[0], position[1], position[2]));
+                // mtx_Posegraph_.lock();
+                // gtSAMgraph.add(gtsam::BetweenFactor<gtsam::Pose3>(prev_node_idx, curr_node_idx, relative_pose, robustLoopNoise));
+                // std::cout << "do icp success" << relative_pose << std::endl;
                 // runISAM2opt();
-                mtx_Posegraph_.unlock();
+                // mtx_Posegraph_.unlock();
+            }else{
+                continue;
             }
         }
 
@@ -211,8 +199,96 @@ auto PlaceRecognition::ConnectLoop(PointCloudEXPtr pc_query, PointCloudEXPtr pc_
     // corrected_poses[kf_query->id_] = T_w_sqcorr;
 }
 auto PlaceRecognition::CorrectLoop()->bool {
-    std::cout << "\033[1;32m+++ PLACE RECOGNITION FOUND +++\033[0m" << std::endl;
 
+
+    while ( !scLoopICPBuf.empty() )
+    {
+        std::cout << "\033[1;32m+++ PLACE RECOGNITION FOUND +++\033[0m" << std::endl;
+        if( scLoopICPBuf.size() > 30 ) {
+            ROS_WARN("Too many loop clousre candidates to be ICPed is waiting ... Do process_lcd less frequently (adjust loopClosureFrequency)");
+        }
+
+        mtx_mBuf_.lock(); 
+        std::pair<int, int> loop_idx_pair = scLoopICPBuf.front();
+        scLoopICPBuf.pop();
+        mtx_mBuf_.unlock(); 
+
+        const int prev_node_idx = loop_idx_pair.first;
+        const int curr_node_idx = loop_idx_pair.second;
+
+        TransformType T_curr_loop;// 当前转到过去回环的  T_curr_loop
+        auto relative_pose_optional = doICPVirtualRelative(prev_node_idx, curr_node_idx, T_curr_loop);
+
+        if(relative_pose_optional==0) {
+            // T_smatch_squery = tf;
+            std::cout << "do icp success0" << std::endl;
+            auto loop_pc = mapmanager_->cl_pcs[prev_node_idx];
+            auto curr_pc = mapmanager_->cl_pcs[curr_node_idx];
+            std::cout << "do icp success0.1:"<<loop_pc->id_.first<<"sdada:"<<curr_pc->id_.first << std::endl;
+            if(loop_pc->id_.second==curr_pc->id_.second){
+                bool perform_pgo_ =true;
+                std::cout << "do icp success0.2" << std::endl;
+                if(perform_pgo_){
+                    Eigen::Vector3d position = T_curr_loop.translation();
+                    Eigen::Vector3d euler = T_curr_loop.rotation().eulerAngles(0, 1, 2);
+
+                    gtsam::Pose3 relative_pose = gtsam::Pose3(gtsam::Rot3::RzRyRx(euler[0], euler[1], euler[2]), gtsam::Point3(position[0], position[1], position[2]));
+                    std::cout << "do icp success1" << relative_pose << std::endl;
+                    std::cout << "do icp success2" << T_curr_loop.matrix() << std::endl;
+                    mtx_Posegraph_.lock();
+                    gtSAMgraph.add(gtsam::BetweenFactor<gtsam::Pose3>(prev_node_idx, curr_node_idx, relative_pose, robustLoopNoise));
+                    mtx_Posegraph_.unlock();
+                } else {
+                    std::cout << COUTNOTICE << "!!! PGO deativated !!!" << std::endl;
+                }
+            }else{
+                    std::cout << COUTNOTICE<< "+++ FUSION FOUND +++" << std::endl;
+                    // std::cout << "\033[1;32m+++ FUSION FOUND +++\033[0m" << std::endl;
+                    MergeInformation merge;
+                    merge.pc_query = curr_pc;
+                    merge.pc_match = loop_pc;
+                    merge.T_smatch_squery = T_curr_loop;
+                    // merge.cov_mat = mcov_mat;
+                    // mapmanager_->RegisterMerge(merge);
+            }
+                // if (map_query->GetKeyframe(kf_match_->id_)) {
+
+                //     LoopConstraint lc(kf_match_, kf_query_, T_smatch_squery,
+                //                       mcov_mat);
+                //     map_query->AddLoopConstraint(lc);
+                
+                //     if(perform_pgo_)
+                //     {
+                //         KeyframeVector current_connections_query = kf_query_->GetConnectedKeyframesByWeight(0);
+                        
+                //         for(auto kfi : current_connections_query) {
+                //             map_query->UpdateCovisibilityConnections(kfi->id_);
+                //         }
+
+                //         Optimization::PoseGraphOptimization(map_query, corrected_poses);
+                //         map_query->WriteKFsToFileAllAg();
+                //     } else {
+                //         std::cout << COUTNOTICE << "!!! PGO deativated !!!" << std::endl;
+                //     }
+                // } else {
+                //     std::cout << "\033[1;32m+++ FUSION FOUND +++\033[0m" << std::endl;
+                //     MergeInformation merge;
+                //     merge.kf_query = kf_query_;
+                //     merge.kf_match = kf_match_;
+                //     merge.T_smatch_squery = T_smatch_squery;
+                //     merge.cov_mat = mcov_mat;
+                //     mapmanager_->RegisterMerge(merge);
+                // }
+        }else{
+            continue;
+        }
+    }
+    // if( gtSAMgraphMade ) {
+    //         mtxPosegraph.lock();
+    //         runISAM2opt();
+    //         cout << "running isam2 optimization ..." << endl;
+    //         mtxPosegraph.unlock();
+    //     }
     // last_loops_[kf_query_->id_.second] = kf_query_->id_.first;
     // TransformType T_smatch_squery = TransformType::Identity();
     
@@ -242,34 +318,7 @@ auto PlaceRecognition::CorrectLoop()->bool {
     // PoseMap corrected_poses;
     // this->ConnectLoop(kf_query_,kf_match_,T_smatch_squery,corrected_poses,map_query);
 
-    // if (map_query->GetKeyframe(kf_match_->id_)) {
 
-    //     LoopConstraint lc(kf_match_, kf_query_, T_smatch_squery,
-    //                       mcov_mat);
-    //     map_query->AddLoopConstraint(lc);
-      
-    //     if(perform_pgo_)
-    //     {
-    //         KeyframeVector current_connections_query = kf_query_->GetConnectedKeyframesByWeight(0);
-            
-    //         for(auto kfi : current_connections_query) {
-    //             map_query->UpdateCovisibilityConnections(kfi->id_);
-    //         }
-
-    //         Optimization::PoseGraphOptimization(map_query, corrected_poses);
-    //         map_query->WriteKFsToFileAllAg();
-    //     } else {
-    //         std::cout << COUTNOTICE << "!!! PGO deativated !!!" << std::endl;
-    //     }
-    // } else {
-    //     std::cout << "\033[1;32m+++ FUSION FOUND +++\033[0m" << std::endl;
-    //     MergeInformation merge;
-    //     merge.kf_query = kf_query_;
-    //     merge.kf_match = kf_match_;
-    //     merge.T_smatch_squery = T_smatch_squery;
-    //     merge.cov_mat = mcov_mat;
-    //     mapmanager_->RegisterMerge(merge);
-    // }
 
     // mapmanager_->ReturnMap(kf_query_->id_.second,check_num_map);
 
@@ -391,7 +440,7 @@ auto PlaceRecognition::DetectLoop()->bool {
     //     return true;
     // }
     // kf_query_->SetErase();
-    return false;
+    return true;
 }
 auto PlaceRecognition::InsertKeyframe(PointCloudEXPtr pc)->void {
     std::unique_lock<std::mutex> lock(mtx_in_);
@@ -417,13 +466,10 @@ auto PlaceRecognition::Run()->void {
             mapmanager_->AddToDatabase(pc_query_);
             bool detected = DetectLoop();
             // std::cout<<"add query"<<std::endl;
-            // if(detected) {
-            //     num_detected++;
-            //     bool found_se3 = ComputeSE3();
-            //     if(found_se3) {
-            //         this->CorrectLoop();
-            //     }
-            // }
+            if(detected) {
+                num_detected++;
+                this->CorrectLoop();    
+            }
             
             
         }

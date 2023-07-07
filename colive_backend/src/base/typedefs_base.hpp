@@ -36,6 +36,7 @@
 #include <pcl/io/pcd_io.h>
 #include <pcl/filters/radius_outlier_removal.h>
 #include <pcl/filters/statistical_outlier_removal.h>
+#include <pcl/common/transforms.h>
 
 #define MAPRANGE std::numeric_limits<uint8_t>::max()
 #define KFRANGE std::numeric_limits<uint16_t>::max()
