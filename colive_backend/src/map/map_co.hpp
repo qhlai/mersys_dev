@@ -112,7 +112,7 @@ public:
     // Identifier
     size_t                      id_map_      = std::numeric_limits<size_t>::max();
     std::set<size_t>            associated_clients_; // set of clients
-    TransformType               T_w_lm_= TransformType::Identity(); // 单机地图与全局地图的估计位姿关系 传感器相对于世界坐标系的位置和方向
+    TransformType               T_lm_w_= TransformType::Identity(); // 单机地图与全局地图的估计位姿关系 传感器相对于世界坐标系的位置和方向
     bool have_real_pos=false;  // 是否与世界坐标系建立了联系
 protected:
 

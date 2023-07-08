@@ -46,8 +46,8 @@ public:
     Vector3Type             pos_w;
     QuaternionType          quan_;
 public:
-    TransformType           T_lm_s_ = TransformType::Identity(); // 当前帧与本地地图的迁移关系
-    TransformType           T_w_lm_ = TransformType::Identity(); // 
+    TransformType           T_s_lm_ = TransformType::Identity(); // 当前帧与本地地图的迁移关系
+    TransformType           T_lm_w_ = TransformType::Identity(); // 
     bool have_real_pose=false;
     MapPtr                   map_;
     // TransformType           T_w_s_ = TransformType::Identity(); // 当前帧与全局地图的迁移关系

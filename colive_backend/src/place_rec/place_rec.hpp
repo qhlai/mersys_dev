@@ -88,7 +88,7 @@ protected:
     virtual auto DetectLoop()                                                           ->bool;
     virtual auto ComputeSE3()                                                           ->bool;
     virtual auto CorrectLoop()                                                          ->bool;
-    virtual auto ConnectLoop(PointCloudEXPtr pc_query, PointCloudEXPtr pc_match, TransformType T_smatch_squery, PoseMap &corrected_poses, MapPtr map)                              ->void;
+    virtual auto ConnectLoop(PointCloudEXPtr pc_query, PointCloudEXPtr pc_match, TransformType T_squery_smatch, PoseMap &corrected_poses, MapPtr map)                              ->void;
 
     // // Infrastructure
     MapManagerPtr                  mapmanager_;

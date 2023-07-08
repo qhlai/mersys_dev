@@ -26,7 +26,7 @@ struct MergeInformation {
     PointCloudEXPtr             pc_query;
     PointCloudEXPtr             pc_match;
 
-    TransformType               T_smatch_squery          = TransformType::Identity();
+    TransformType               T_squery_smatch          = TransformType::Identity();
     TypeDefs::Matrix6Type       cov_mat                  = TypeDefs::Matrix6Type::Identity();
 }; 
 

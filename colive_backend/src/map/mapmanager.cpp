@@ -220,50 +220,60 @@ auto MapManager::PerformMerge()->void {
 
     std::cout << "+++ Perform Merge +++" << std::endl;
 
+    PointCloudEXPtr pc_query;
+    PointCloudEXPtr pc_match;
     // KeyframePtr kf_query;
     // KeyframePtr kf_match;
-    // TransformType T_smatch_squery;
+    TransformType T_squery_smatch;
     // TypeDefs::Matrix6Type cov_mat;
 
     std::cout << "--> Fetch merge data" << std::endl;
     {
-        // std::unique_lock<std::mutex> lock(mtx_access_);
-        // MergeInformation merge = buffer_merge_.front();
-        // buffer_merge_.pop_front();
-        // kf_query = merge.kf_query;
-        // kf_match = merge.kf_match;
-        // T_smatch_squery = merge.T_smatch_squery;
+        std::unique_lock<std::mutex> lock(mtx_access_);
+        MergeInformation merge = buffer_merge_.front();
+        buffer_merge_.pop_front();
+        pc_query = merge.pc_query;
+        pc_match = merge.pc_match;
+        T_squery_smatch = merge.T_squery_smatch;
         // cov_mat = merge.cov_mat;
     }
     std::cout << "--> Process merge data" << std::endl;
 
-    // int check_query, check_match;
+    int check_query, check_match;
 
     // this->CheckoutMapExclusiveOrWait(kf_query->id_.second,check_query);
-    // MapInstancePtr map_query = maps_[kf_query->id_.second];
-
+    // MapInstancePtr map_query = MapInstancePtr
+    MapInstancePtr map_query = maps_[pc_query->id_.second];
+    MapInstancePtr map_match = maps_[pc_match->id_.second];
     // this->CheckoutMapExclusiveOrWait(kf_match->id_.second,check_match);
     // MapInstancePtr map_match = maps_[kf_match->id_.second];
 
 
     std::cout << "----> Merge maps" << std::endl;
 
-//     TransformType T_w_squery = kf_query->GetPoseTws();
-//     TransformType T_w_smatch = kf_match->GetPoseTws();
-//     TransformType T_wmatch_wquery = T_w_smatch * T_smatch_squery * T_w_squery.inverse();
+    // T_qw_qs=T_qw_qlm*T_qlm_qs
+    // T_qw_qs=T_mw_mlm*T_mlm_ms
+    // // T_qw_ms=T_qw_qs*T_qs_ms
+    // T_mw_qs=T_mw_ms*T_ms_qs
+    // T_qw_qlm=T_mw_qs*T_qs_qlm   ==qTG
 
-//     MapInstancePtr map_merged(new MapInstance(map_match,map_query,T_wmatch_wquery));
+    // T_squery_smatch = pc_query.T_body_s_*pc_match.T_body_s_.inverse();  
+    // TransformType T_s_wquery = pc_query.T_lm_w_*pc_query.T_s_lm_;  // TG
+    // TransformType T_s_wmatch = pc_match.T_lm_w_*pc_match.T_s_lm_;
+    // TransformType T_wmatch_wquery = T_w_smatch * T_squery_smatch * T_w_squery.inverse();
+    pc_query->T_lm_w_ = pc_query->T_s_lm_.inverse() * T_squery_smatch * pc_match->T_s_lm_ * pc_match->T_lm_w_ ;
+    MapInstancePtr map_merged(new MapInstance(map_match,map_query,pc_query->T_lm_w_));
 
-//     LoopConstraint lc(kf_match,kf_query,T_smatch_squery, cov_mat);
+//     LoopConstraint lc(kf_match,kf_query,T_squery_smatch, cov_mat);
 //     map_merged->map->AddLoopConstraint(lc);
 
-// //    std::cout << "Map Match: Agents|KFs|LMs :" << map_match->map->associated_clients_.size() << "|" << map_match->map->GetKeyframes().size() << "|" << map_match->map->GetLandmarks().size() << std::endl;
-// //    std::cout << "Map Query: Agents|KFs|LMs :" << map_query->map->associated_clients_.size() << "|" << map_query->map->GetKeyframes().size() << "|" << map_query->map->GetLandmarks().size() << std::endl;
-//     std::cout << "Merged Map: Agents|KFs|LMs: " << map_merged->map->associated_clients_.size() << "|" << map_merged->map->GetKeyframes().size() << "|" << map_merged->map->GetLandmarks().size() << std::endl;
+//    std::cout << "Map Match: Agents|KFs|LMs :" << map_match->map->associated_clients_.size() << "|" << map_match->map->GetKeyframes().size() << "|" << map_match->map->GetLandmarks().size() << std::endl;
+//    std::cout << "Map Query: Agents|KFs|LMs :" << map_query->map->associated_clients_.size() << "|" << map_query->map->GetKeyframes().size() << "|" << map_query->map->GetLandmarks().size() << std::endl;
+    std::cout << "Merged Map: Agents|KFs|LMs: " << map_merged->map->associated_clients_.size() << "|" << map_merged->map->GetPointCloudEXs().size() << "|" << std::endl;
 
-//     for(std::set<size_t>::iterator sit = map_merged->map->associated_clients_.begin();sit != map_merged->map->associated_clients_.end();++sit) {
-//         maps_[*sit] = map_merged;
-//     }
+    for(std::set<size_t>::iterator sit = map_merged->map->associated_clients_.begin();sit != map_merged->map->associated_clients_.end();++sit) {
+        maps_[*sit] = map_merged;
+    }
 
 //     map_merged->usage_cnt = 0;
 

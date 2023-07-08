@@ -97,8 +97,8 @@ auto PlaceRecognition::doICPVirtualRelative(int _loop_pc_idx, int _curr_pc_idx, 
     // // cal the the initial position transform
     TransformType T_init = TransformType::Identity();
     // TransformType T_relative;
-    TransformType T_loop = loop_pc->T_lm_s_;
-    TransformType T_curr = curr_pc->T_lm_s_;
+    TransformType T_loop = loop_pc->T_s_lm_;
+    TransformType T_curr = curr_pc->T_s_lm_;
     T_init=T_loop.inverse()*T_curr;
     // T_relative = T_loop.inverseTimes(T_curr);
     // tf::transformTFToEigen (T_relative, T_init);
@@ -182,11 +182,11 @@ auto PlaceRecognition::ComputeSE3() -> bool {
 
     return true;
 }
-auto PlaceRecognition::ConnectLoop(PointCloudEXPtr pc_query, PointCloudEXPtr pc_match, TransformType T_smatch_squery, PoseMap &corrected_poses, MapPtr map)->void {
+auto PlaceRecognition::ConnectLoop(PointCloudEXPtr pc_query, PointCloudEXPtr pc_match, TransformType T_squery_smatch, PoseMap &corrected_poses, MapPtr map)->void {
 
     // TransformType T_w_squery = kf_query->GetPoseTws();
     // TransformType T_w_smatch = kf_match->GetPoseTws();
-    // TransformType T_w_sqcorr = T_w_smatch*T_smatch_squery;
+    // TransformType T_w_sqcorr = T_w_smatch*T_squery_smatch;
 
     // for(auto kfi : mvpCurrentConnectedKFs) {
     //     if(kfi == kf_query) continue;
@@ -220,7 +220,7 @@ auto PlaceRecognition::CorrectLoop()->bool {
         auto relative_pose_optional = doICPVirtualRelative(prev_node_idx, curr_node_idx, T_curr_loop);
 
         if(relative_pose_optional==0) {
-            // T_smatch_squery = tf;
+            // T_squery_smatch = tf;
             std::cout << "do icp success0" << std::endl;
             auto loop_pc = mapmanager_->cl_pcs[prev_node_idx];
             auto curr_pc = mapmanager_->cl_pcs[curr_node_idx];
@@ -247,13 +247,13 @@ auto PlaceRecognition::CorrectLoop()->bool {
                     MergeInformation merge;
                     merge.pc_query = curr_pc;
                     merge.pc_match = loop_pc;
-                    merge.T_smatch_squery = T_curr_loop;
+                    merge.T_squery_smatch = T_curr_loop;
                     // merge.cov_mat = mcov_mat;
-                    // mapmanager_->RegisterMerge(merge);
+                    mapmanager_->RegisterMerge(merge);
             }
                 // if (map_query->GetKeyframe(kf_match_->id_)) {
 
-                //     LoopConstraint lc(kf_match_, kf_query_, T_smatch_squery,
+                //     LoopConstraint lc(kf_match_, kf_query_, T_squery_smatch,
                 //                       mcov_mat);
                 //     map_query->AddLoopConstraint(lc);
                 
@@ -275,7 +275,7 @@ auto PlaceRecognition::CorrectLoop()->bool {
                 //     MergeInformation merge;
                 //     merge.kf_query = kf_query_;
                 //     merge.kf_match = kf_match_;
-                //     merge.T_smatch_squery = T_smatch_squery;
+                //     merge.T_squery_smatch = T_squery_smatch;
                 //     merge.cov_mat = mcov_mat;
                 //     mapmanager_->RegisterMerge(merge);
                 // }
@@ -290,9 +290,9 @@ auto PlaceRecognition::CorrectLoop()->bool {
     //         mtxPosegraph.unlock();
     //     }
     // last_loops_[kf_query_->id_.second] = kf_query_->id_.first;
-    // TransformType T_smatch_squery = TransformType::Identity();
+    // TransformType T_squery_smatch = TransformType::Identity();
     
-    // T_smatch_squery = kf_match_->GetPoseTsw() * mTsw.inverse();
+    // T_squery_smatch = kf_match_->GetPoseTsw() * mTsw.inverse();
     
     // int check_num_map;
     // MapPtr map_query = mapmanager_->CheckoutMapExclusiveOrWait(kf_query_->id_.second,check_num_map);
@@ -316,7 +316,7 @@ auto PlaceRecognition::CorrectLoop()->bool {
     // mvpCurrentConnectedKFs.push_back(kf_query_);
 
     // PoseMap corrected_poses;
-    // this->ConnectLoop(kf_query_,kf_match_,T_smatch_squery,corrected_poses,map_query);
+    // this->ConnectLoop(kf_query_,kf_match_,T_squery_smatch,corrected_poses,map_query);
 
 
 

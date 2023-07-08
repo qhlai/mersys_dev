@@ -640,7 +640,7 @@ void publish_odometry(const ros::Publisher & pubOdomAftMapped ,colive::PointClou
     Eigen::Isometry3d T = Eigen::Isometry3d::Identity();
     T.translate(pc->pos_w);
     T.rotate(pc->quan_);
-    pc->T_lm_s_=T;
+    pc->T_s_lm_=T;
     // std::cout<<"x:"<<pc->pos_w[0]<<" "<<(T(0,3))<<"y:"<<pc->pos_w[1]<<" "<<(T(1,3))<<std::endl;
     br.sendTransform( tf::StampedTransform( transform, odomAftMapped.header.stamp, "camera_init", "body" ) );
 }
