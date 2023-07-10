@@ -10,21 +10,29 @@ Visualizer::Visualizer(std::string topic_prefix)
 {
     std::string marker_topic = "colive_markers";
     std::string cloud_topic = "colive_cloud";
+    std::string odom_topic = "colive_odom";
     marker_topic += topic_prefix;
     cloud_topic += topic_prefix;
+    odom_topic += topic_prefix;
     pub_marker_ = nh_.advertise<visualization_msgs::Marker>(marker_topic,10);
     pub_cloud_ = nh_.advertise<sensor_msgs::PointCloud2>(cloud_topic,10);
+    pub_odom_ = nh_.advertise<nav_msgs::Odometry>(odom_topic, 10);
+    pub_odom_vec_.reserve(MAX_CLIENT_NUM);//for publish odoms
     std::cout<<"init vis"<<std::endl;
 }
+// 废弃的
 Visualizer::Visualizer(std::string topic_prefix, MapManagerPtr mapmanager)
     : topic_prefix_(topic_prefix)
 {
     std::string marker_topic = "colive_markers";
     std::string cloud_topic = "colive_cloud";
+    std::string odom_topic = "colive_odom";
     marker_topic += topic_prefix;
     cloud_topic += topic_prefix;
+    odom_topic += topic_prefix;
     pub_marker_ = nh_.advertise<visualization_msgs::Marker>(marker_topic,10);
     pub_cloud_ = nh_.advertise<sensor_msgs::PointCloud2>(cloud_topic,10);
+    pub_odom_ = nh_.advertise<nav_msgs::Odometry>(odom_topic, 10);
     std::cout<<"init vis"<<std::endl;
     mapmanager_=mapmanager;
 }
@@ -101,8 +109,8 @@ auto Visualizer::DrawMap(MapPtr map)->void {
     // vb.keyframes_erased = map->GetKeyframesErased();
     // vb.landmarks = map->GetLandmarks();
     vb.id_map = map->id_map_;
-    // vb.associated_clients = map->associated_clients_;
-    // vb.loops = map->GetLoopConstraints();
+    vb.associated_clients = map->associated_clients_;
+    vb.loops = map->GetLoopConstraints();
     vb.frame = "camera_init";
 
     // if(vb.keyframes.size() < 3) return;
@@ -122,7 +130,6 @@ void pointcloud_convert(pcl::PointCloud<pcl::PointXYZINormal>::Ptr pc_in,pcl::Po
     }
 }
 auto Visualizer::PubTrajectories()->void {
-    // PointCloudEXPtr pc = curr_bundle_.pointCloud.rbegin()->second;
 
 
     PointCloudEXSetById pctraj;
@@ -185,7 +192,115 @@ auto Visualizer::PubTrajectories()->void {
         msg.pose.orientation.w = 1.0;
         pub_marker_.publish(msg);
     }
+
 }
+// void R3LIVE::service_pub_rgb_maps()
+auto Visualizer::PubOdometries()->void {
+    // TODO: multi client odom pub
+    PointCloudEXPtr pc = curr_bundle_.pointCloud.rbegin()->second;
+    TransformType T = pc->GetPoseTsw();
+    Eigen::Vector3d position = T.translation();
+    // Eigen::Matrix3d euler = T.rotation();
+    Eigen::Quaterniond q(T.rotation());
+
+    nav_msgs::Odometry odom;
+    odom.header.frame_id = "camera_init";
+    odom.child_frame_id = "/aft_mapped";
+    
+    odom.header.stamp = ros::Time::now(); // ros::Time().fromSec(last_timestamp_lidar);
+    odom.pose.pose.orientation.x = q.x();
+    odom.pose.pose.orientation.y = q.y();
+    odom.pose.pose.orientation.z = q.z();
+    odom.pose.pose.orientation.w = q.w();
+    odom.pose.pose.position.x = position[0];
+    odom.pose.pose.position.y = position[1];
+    odom.pose.pose.position.z = position[2];
+    pub_odom_.publish( odom );
+
+}
+auto Visualizer::PubLoopEdges()->void {
+    if(curr_bundle_.pointCloud.empty() && curr_bundle_.keyframes.empty()){
+        std::cout << COUTWARN << "no KFs on VisBundle" << std::endl;
+        return;
+    }
+
+    LoopVector loops = curr_bundle_.loops;
+
+    if(loops.empty())
+        return;
+
+    visualization_msgs::Marker msg_intra; // loops between KFs from the same agent
+    visualization_msgs::Marker msg_inter; // loops between KFs from different agents
+
+    msg_intra.header.frame_id = curr_bundle_.frame;
+    msg_intra.header.stamp = ros::Time::now();
+    std::stringstream ss;
+    ss << "LoopEdges_intra_" << curr_bundle_.id_map << topic_prefix_ << std::endl;
+    msg_intra.ns = ss.str();
+    msg_intra.type = visualization_msgs::Marker::LINE_LIST;
+    msg_intra.color = MakeColorMsg(1.0,0.0,0.0);
+    msg_intra.action = visualization_msgs::Marker::ADD;
+    msg_intra.scale.x = colive_params::vis::loopmarkersize;
+    msg_intra.id = 0;
+
+    msg_inter.header.frame_id = curr_bundle_.frame;
+    msg_inter.header.stamp = ros::Time::now();
+    ss = std::stringstream();
+    ss << "LoopEdges_inter_" << curr_bundle_.id_map << topic_prefix_ << std::endl;
+    msg_inter.ns = ss.str();
+    msg_inter.type = visualization_msgs::Marker::LINE_LIST;
+    msg_inter.color = MakeColorMsg(1.0,0.0,0.0);
+    msg_inter.action = visualization_msgs::Marker::ADD;
+    msg_inter.scale.x = colive_params::vis::loopmarkersize;
+    msg_inter.id = 1;
+
+    precision_t scale = colive_params::vis::scalefactor;
+
+
+    for(size_t idx = 0; idx<loops.size(); ++idx) {
+        TransformType T1, T2;
+
+        bool b_intra = false;
+        if(loops[idx].type == 0){
+            PointCloudEXPtr pc1 = loops[idx].pc1;
+            PointCloudEXPtr pc2 = loops[idx].pc2;
+            b_intra = (pc1->GetClientID() == pc2->GetClientID());
+            T1 = pc1->GetPoseTsw();
+            T2 = pc2->GetPoseTsw();
+            std::cout <<COUTDEBUG << pc1->GetFrameID()<<"<->" << pc2->GetFrameID() << std::endl;
+        }
+        else{
+            //TODO::
+        }
+
+
+        geometry_msgs::Point p1;
+        geometry_msgs::Point p2;
+
+        Eigen::Vector3d pos1, pos2;
+        pos1= T1.translation();
+        pos2= T2.translation();
+        p1.x = scale*((double)(pos1[0]));
+        p1.y = scale*((double)(pos1[1]));
+        p1.z = scale*((double)(pos1[2]));
+
+        p2.x = scale*((double)(pos2[0]));
+        p2.y = scale*((double)(pos2[1]));
+        p2.z = scale*((double)(pos2[2]));
+
+        if(b_intra){
+            msg_intra.points.push_back(p1);
+            msg_intra.points.push_back(p2);
+        } else {
+            msg_inter.points.push_back(p1);
+            msg_inter.points.push_back(p2);
+        }
+    }
+
+    pub_marker_.publish(msg_intra);
+    pub_marker_.publish(msg_inter);
+}
+// void R3LIVE::service_pub_rgb_maps()
 auto Visualizer::PubPointCloud()->void {
 
 
@@ -259,6 +374,73 @@ std::string append_space_to_bits( std::string & in_str, int bits )
     }
     return in_str;
 }
+
+auto Visualizer::Run()->void{
+    // std::cout<<"run vis"<<std::endl;
+
+    while(1) {
+
+        if(this->CheckVisData()) {
+        std::unique_lock<std::mutex> lock(mtx_draw_);
+        //  std::cout<<"run vis 1"<<std::endl;
+       
+        g_camera_frame_num=0;
+        g_lidar_frame_num=0;
+        g_pointcloud_pts_num =0;
+         // 每个agent
+        for(std::map<size_t,VisBundle>::iterator mit = vis_data_.begin();mit!=vis_data_.end();++mit){
+            curr_bundle_ = mit->second;
+            g_camera_frame_num+=curr_bundle_.keyframes.size();
+            g_lidar_frame_num+=curr_bundle_.pointCloud.size();
+
+            for(PointCloudEXMap::const_iterator mit=curr_bundle_.pointCloud.begin();mit!=curr_bundle_.pointCloud.end();++mit) {
+                PointCloudEXPtr pc_i = mit->second;
+                g_pointcloud_pts_num += pc_i->pts_cloud.size();
+            }
+            // std::cout<<"run vis2"<<std::endl;
+            this->PubPointCloud();
+            this->PubTrajectories();
+            this->PubOdometries();
+            //  std::cout<<"run vis3"<<std::endl;
+        //     if(colive_params::vis::showkeyframes)
+        //         this->PubKeyframesAsFrusta();
+
+        //     if(covins_params::vis::showtraj)
+        //         this->PubTrajectories();
+
+        //     if(covins_params::vis::showlandmarks)
+        //         this->PubLandmarksAsCloud();
+
+        //     if(covins_params::vis::showcovgraph)
+        //         this->PubCovGraph();
+
+            this->PubLoopEdges();
+        }
+        static uint32_t board_cnt=0;
+        if(board_cnt%10==0){
+            print_dash_board();
+        }
+        board_cnt++;
+        vis_data_.clear();
+        // limit frequency, TODO: should be modified later may like this
+
+            // // float loopClosureFrequency = 3.0; // can change 
+            // ros::Rate rate(loopClosureFrequency);
+            // while (ros::ok())
+            // {
+            //     rate.sleep();
+            //     // performSCLoopClosure();
+            //     performRSLoopClosure(); // TODO
+            //     visualizeLoopClosure();
+            // }
+        usleep(200000);// limit frequency, TODO
+    }
+    this->ResetIfRequested();
+    usleep(5000);
+    }
+    
+}
+
 void Visualizer::print_dash_board()
 {
 #if DEBUG_PHOTOMETRIC
@@ -313,73 +495,118 @@ void Visualizer::print_dash_board()
     // std::cout     
 }
 
-auto Visualizer::Run()->void{
-    // std::cout<<"run vis"<<std::endl;
+// void R3LIVE::service_pub_rgb_maps()
+// {
+//     int last_publish_map_idx = -3e8;
+//     int sleep_time_aft_pub = 10;
+//     int number_of_pts_per_topic = 1000;
+//     if ( number_of_pts_per_topic < 0 )
+//     {
+//         return;
+//     }
+//     while ( 1 )
+//     {
+//         ros::spinOnce();
+//         std::this_thread::sleep_for( std::chrono::milliseconds( 10 ) );
+//         pcl::PointCloud< pcl::PointXYZRGB > pc_rgb;
+//         sensor_msgs::PointCloud2            ros_pc_msg;
+//         int pts_size = m_map_rgb_pts.m_rgb_pts_vec.size();
+//         pc_rgb.resize( number_of_pts_per_topic );
+//         // for (int i = pts_size - 1; i > 0; i--)
+//         int pub_idx_size = 0;
+//         int cur_topic_idx = 0;
+//         if ( last_publish_map_idx == m_map_rgb_pts.m_last_updated_frame_idx )
+//         {
+//             continue;
+//         }
+//         last_publish_map_idx = m_map_rgb_pts.m_last_updated_frame_idx;
+//         for ( int i = 0; i < pts_size; i++ )
+//         {
+//             if ( m_map_rgb_pts.m_rgb_pts_vec[ i ]->m_N_rgb < 1 )// if is empty
+//             {
+//                 continue;
+//             }
+//             pc_rgb.points[ pub_idx_size ].x = m_map_rgb_pts.m_rgb_pts_vec[ i ]->m_pos[ 0 ];
+//             pc_rgb.points[ pub_idx_size ].y = m_map_rgb_pts.m_rgb_pts_vec[ i ]->m_pos[ 1 ];
+//             pc_rgb.points[ pub_idx_size ].z = m_map_rgb_pts.m_rgb_pts_vec[ i ]->m_pos[ 2 ];
+//             pc_rgb.points[ pub_idx_size ].r = m_map_rgb_pts.m_rgb_pts_vec[ i ]->m_rgb[ 2 ];
+//             pc_rgb.points[ pub_idx_size ].g = m_map_rgb_pts.m_rgb_pts_vec[ i ]->m_rgb[ 1 ];
+//             pc_rgb.points[ pub_idx_size ].b = m_map_rgb_pts.m_rgb_pts_vec[ i ]->m_rgb[ 0 ];
+//             // pc_rgb.points[i].intensity = m_map_rgb_pts.m_rgb_pts_vec[i]->m_obs_dis;
+//             pub_idx_size++;
+//             if ( pub_idx_size == number_of_pts_per_topic )
+//             {
+//                 pub_idx_size = 0;
+//                 pcl::toROSMsg( pc_rgb, ros_pc_msg );
+//                 ros_pc_msg.header.frame_id = "world";       
+//                 ros_pc_msg.header.stamp = ros::Time::now(); 
+//                 if ( m_pub_rgb_render_pointcloud_ptr_vec[ cur_topic_idx ] == nullptr )//create a new point cloud publisher
+//                 {
+//                     m_pub_rgb_render_pointcloud_ptr_vec[ cur_topic_idx ] =
+//                         std::make_shared< ros::Publisher >( m_ros_node_handle.advertise< sensor_msgs::PointCloud2 >(
+//                             std::string( "/RGB_map_" ).append( std::to_string( cur_topic_idx ) ), 100 ) );
+//                 }
+//                 m_pub_rgb_render_pointcloud_ptr_vec[ cur_topic_idx ]->publish( ros_pc_msg );
+//                 std::this_thread::sleep_for( std::chrono::microseconds( sleep_time_aft_pub ) );
+//                 ros::spinOnce();
+//                 cur_topic_idx++;
+//             }
+//         }
+//         // pub remaining pts or pts_size < number_of_pts_per_topic
+//         pc_rgb.resize( pub_idx_size );
+//         pcl::toROSMsg( pc_rgb, ros_pc_msg );
+//         ros_pc_msg.header.frame_id = "world";       
+//         ros_pc_msg.header.stamp = ros::Time::now(); 
+//         if ( m_pub_rgb_render_pointcloud_ptr_vec[ cur_topic_idx ] == nullptr )
+//         {
+//             m_pub_rgb_render_pointcloud_ptr_vec[ cur_topic_idx ] =
+//                 std::make_shared< ros::Publisher >( m_ros_node_handle.advertise< sensor_msgs::PointCloud2 >(
+//                     std::string( "/RGB_map_" ).append( std::to_string( cur_topic_idx ) ), 100 ) );
+//         }
+//         std::this_thread::sleep_for( std::chrono::microseconds( sleep_time_aft_pub ) );
+//         ros::spinOnce();
+//         m_pub_rgb_render_pointcloud_ptr_vec[ cur_topic_idx ]->publish( ros_pc_msg );
+//         cur_topic_idx++;
+//         if ( cur_topic_idx >= 45 ) // Maximum pointcloud topics = 45.
+//         {
+//             number_of_pts_per_topic *= 1.5;//next should larger
+//             sleep_time_aft_pub *= 1.5;
+//         }
+//     }
+// }
 
-    while(1) {
+// void R3LIVE::publish_render_pts( ros::Publisher &pts_pub, Global_map &m_map_rgb_pts )
+// {
+//     pcl::PointCloud< pcl::PointXYZRGB > pc_rgb;
+//     sensor_msgs::PointCloud2            ros_pc_msg;
+//     pc_rgb.reserve( 1e7 );
+//     m_map_rgb_pts.m_mutex_m_box_recent_hitted->lock();
+//     std::unordered_set< std::shared_ptr< RGB_Voxel > > boxes_recent_hitted = m_map_rgb_pts.m_voxels_recent_visited;
+//     m_map_rgb_pts.m_mutex_m_box_recent_hitted->unlock();
 
-        if(this->CheckVisData()) {
-        std::unique_lock<std::mutex> lock(mtx_draw_);
-        //  std::cout<<"run vis 1"<<std::endl;
-       
-        g_camera_frame_num=0;
-        g_lidar_frame_num=0;
-        g_pointcloud_pts_num =0;
-         // 每个agent
-        for(std::map<size_t,VisBundle>::iterator mit = vis_data_.begin();mit!=vis_data_.end();++mit){
-            curr_bundle_ = mit->second;
-            g_camera_frame_num+=curr_bundle_.keyframes.size();
-            g_lidar_frame_num+=curr_bundle_.pointCloud.size();
-
-            for(PointCloudEXMap::const_iterator mit=curr_bundle_.pointCloud.begin();mit!=curr_bundle_.pointCloud.end();++mit) {
-                PointCloudEXPtr pc_i = mit->second;
-                g_pointcloud_pts_num += pc_i->pts_cloud.size();
-            }
-            // std::cout<<"run vis2"<<std::endl;
-            this->PubPointCloud();
-            this->PubTrajectories();
-            //  std::cout<<"run vis3"<<std::endl;
-        //     if(colive_params::vis::showkeyframes)
-        //         this->PubKeyframesAsFrusta();
-
-        //     if(covins_params::vis::showtraj)
-        //         this->PubTrajectories();
-
-        //     if(covins_params::vis::showlandmarks)
-        //         this->PubLandmarksAsCloud();
-
-        //     if(covins_params::vis::showcovgraph)
-        //         this->PubCovGraph();
-
-        //     this->PubLoopEdges();
-        }
-        static uint32_t board_cnt=0;
-        if(board_cnt%10==0){
-            print_dash_board();
-        }
-        board_cnt++;
-        vis_data_.clear();
-        // limit frequency, TODO: should be modified later may like this
-
-            // // float loopClosureFrequency = 3.0; // can change 
-            // ros::Rate rate(loopClosureFrequency);
-            // while (ros::ok())
-            // {
-            //     rate.sleep();
-            //     // performSCLoopClosure();
-            //     performRSLoopClosure(); // TODO
-            //     visualizeLoopClosure();
-            // }
-        usleep(200000);// limit frequency, TODO
-    }
-    this->ResetIfRequested();
-    usleep(5000);
-    }
-    
-}
-
-
-
+//     for ( Voxel_set_iterator it = boxes_recent_hitted.begin(); it != boxes_recent_hitted.end(); it++ )
+//     {
+//         for ( int pt_idx = 0; pt_idx < ( *it )->m_pts_in_grid.size(); pt_idx++ )
+//         {
+//             pcl::PointXYZRGB           pt;
+//             std::shared_ptr< RGB_pts > rgb_pt = ( *it )->m_pts_in_grid[ pt_idx ];
+//             pt.x = rgb_pt->m_pos[ 0 ];
+//             pt.y = rgb_pt->m_pos[ 1 ];
+//             pt.z = rgb_pt->m_pos[ 2 ];
+//             pt.r = rgb_pt->m_rgb[ 2 ];
+//             pt.g = rgb_pt->m_rgb[ 1 ];
+//             pt.b = rgb_pt->m_rgb[ 0 ];
+//             if ( rgb_pt->m_N_rgb > m_pub_pt_minimum_views )
+//             {
+//                 pc_rgb.points.push_back( pt );
+//             }
+//         }
+//     }
+//     pcl::toROSMsg( pc_rgb, ros_pc_msg );
+//     ros_pc_msg.header.frame_id = "world";       // world; camera_init
+//     ros_pc_msg.header.stamp = ros::Time::now(); //.fromSec(last_timestamp_lidar);
+//     pts_pub.publish( ros_pc_msg );
+// }
 
 
 

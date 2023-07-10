@@ -36,8 +36,7 @@ public:
         auto operator() (const PointCloudEXPtr a, const PointCloudEXPtr b) const                ->bool;
     };
 public:
-    idpair                      id_;
-    double                      timestamp_;
+
     bool sent_once_ = false;
     // VoxelGrid  vox_cloud;
     PointCloud pts_cloud;

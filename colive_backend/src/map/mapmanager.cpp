@@ -266,8 +266,10 @@ auto MapManager::PerformMerge()->void {
     // TransformType T_s_wquery = pc_query.T_lm_w_*pc_query.T_s_lm_;  // TG
     // TransformType T_s_wmatch = pc_match.T_lm_w_*pc_match.T_s_lm_;
     // TransformType T_wmatch_wquery = T_w_smatch * T_squery_smatch * T_w_squery.inverse();
+#if 1
     auto pc_query_w_g = pc_query->GetPoseTws() * T_squery_smatch * pc_match->GetPoseTsg();
     pc_query->SetPoseTwg(pc_query_w_g);
+#endif
     MapInstancePtr map_merged(new MapInstance(map_match,map_query,pc_query->GetPoseTwg()));
 
 //     LoopConstraint lc(kf_match,kf_query,T_squery_smatch, cov_mat);

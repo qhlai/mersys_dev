@@ -35,7 +35,15 @@ public:
     // struct pc_less{
     //     auto operator() (const PointCloudEXPtr a, const PointCloudEXPtr b) const                ->bool;
     // };
+
 public:
+    idpair                      id_;
+    double                      timestamp_;
+    bool   is_loop_                = false;
+public:
+    virtual auto GetClientID()            ->size_t;
+    virtual auto GetFrameID()            ->size_t;
+
     virtual auto SetErase()            ->void;
     virtual auto SetNotErase()         ->void;
 
@@ -60,11 +68,14 @@ protected:
     // virtual auto SetInvalid()   ->bool;     // This function should only be called by the map
     // bool      pose_optimized_          = false;    // Indicates that this LM was part of an optimization process (important for landmark culling)
     // bool      vel_bias_optimized_                                     = false;
+
+
+
     bool  not_erase_            =false;
 
     // Infrastructure
     bool   invalid_               = false;
-    bool   is_loop_            = false;
+
 protected:
     // SE3 Pose, Bias, Velocity
     TransformType   T_s_c_   = TransformType::Identity();    // Tranformation IMU-Cam

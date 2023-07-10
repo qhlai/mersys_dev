@@ -108,6 +108,9 @@ protected:
     PointCloudEXPtr                   pc_match_;
     PointCloud::Ptr                   sc_pcs_d;
     PointCloud::Ptr                   pts_cloud;
+    // std::vector< size_t >             last_loop_frame_id;
+    map<size_t,size_t>                last_loops_;
+    // std::vector< std::shared_ptr <ros::Publisher> >
     
     precision_t                     mnCovisibilityConsistencyTh; // 一致性阈值
 

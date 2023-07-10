@@ -115,6 +115,7 @@ auto Map::AddPointCloud(PointCloudEXPtr pc, bool suppress_output)->void {
 }
 auto Map::AddLoopConstraint(LoopConstraint lc)->void {
     std::unique_lock<std::mutex> lock(mtx_map_);
+    // std::cout << COUTDEBUG << "frame: " << lc.pc1->GetClientID() << lc.pc2->GetClientID()<<std::endl;
     loop_constraints_.push_back(lc);
     lc.pc1->is_loop_ = true;
     lc.pc2->is_loop_ = true;

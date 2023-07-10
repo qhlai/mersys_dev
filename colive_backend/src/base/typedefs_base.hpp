@@ -49,7 +49,7 @@
 #define FRAME_GRID_ROWS 48
 #define FRAME_GRID_COLS 64
 
-
+#define MAX_CLIENT_NUM   20
 
 namespace colive {
 struct IMU_Measurement;
@@ -257,7 +257,7 @@ struct LoopConstraint {
     // LoopConstraint(PointCloudEXPtr k1, PointCloudEXPtr k2, TransformType T_12,
     //                Matrix6Type covm = Matrix6Type::Identity())
     //     : pc1(k1), pc2(k2), T_s1_s2(T_12), cov_mat(covm) {}
-
+    uint8_t type = 0;    // 0: pc+pc, 1: pc+camera, 2: camera+pc, 3: camera+camera 
     PointCloudEXPtr         pc1;
     PointCloudEXPtr         pc2;
 

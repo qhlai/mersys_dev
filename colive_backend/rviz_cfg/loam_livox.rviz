@@ -10,6 +10,7 @@ Panels:
         - /mapping1/surround1
         - /mapping1/currPoints1
         - /mapping1/currPoints1/Autocompute Value Bounds1
+        - /Odometry1
         - /Odometry1/Odometry1
         - /Odometry1/Odometry1/Shape1
         - /Odometry1/Odometry1/Covariance1
@@ -194,7 +195,7 @@ Visualization Manager:
             Shaft Length: 0.05000000074505806
             Shaft Radius: 0.05000000074505806
             Value: Axes
-          Topic: /Odometry
+          Topic: /colive_odom_be
           Unreliable: false
           Value: true
       Enabled: true
@@ -350,7 +351,7 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 52.25413131713867
+      Distance: 73.41329193115234
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
@@ -386,5 +387,5 @@ Window Geometry:
   Views:
     collapsed: true
   Width: 1920
-  X: 1122
-  Y: 599
+  X: 991
+  Y: 510

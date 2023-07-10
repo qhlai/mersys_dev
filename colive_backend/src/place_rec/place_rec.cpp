@@ -21,6 +21,8 @@ PlaceRecognition::PlaceRecognition(MapManagerPtr man, bool perform_pgo)
     robustLoopNoise = gtsam::noiseModel::Robust::Create(
                     gtsam::noiseModel::mEstimator::Cauchy::Create(1), // optional: replacing Cauchy by DCS or GemanMcClure is okay but Cauchy is empirically good.
                     gtsam::noiseModel::Diagonal::Variances(robustNoiseVector6) );
+
+    // last_loop_frame_id.reserve(MAX_CLIENT_NUM);
 }
 auto PlaceRecognition::process_lcd()->void {
     float loopClosureFrequency = 1.0; // can change 
@@ -41,9 +43,33 @@ auto PlaceRecognition::performSCLoopClosure()->void {
     int SCclosestHistoryFrameID = detectResult.first;
     // std::cout << "try detectLoopClosure:" << SCclosestHistoryFrameID<<std::endl;
     if( SCclosestHistoryFrameID != -1 ) {
+        
         std::cout << "detectLoopClosureID: " << SCclosestHistoryFrameID<<std::endl;
         const int prev_node_idx = SCclosestHistoryFrameID;
         const int curr_node_idx = mapmanager_->cl_pcs.size() - 1; // because cpp starts 0 and ends n-1
+
+        auto pc_query_ = mapmanager_->cl_pcs[prev_node_idx];
+        // auto pc_match_ = mapmanager_->cl_pcs[curr_node_idx];
+        // // size_t curr_client_id=pc_query_->GetClientID();
+        // // size_t prev_client_id=pc_match_->GetClientID();
+
+        // uint8_t ignore_frame = 10;
+        // if(pc_query_->GetFrameID() > ignore_frame + last_loop_frame_id[pc_query_->GetClientID()]){
+        //     last_loop_frame_id[pc_query_->GetClientID()]=pc_query_->GetFrameID();
+        // }
+        // else{
+        //     std::cout << COUTNOTICE << "loop too short" << std::endl;
+        //     return;
+        // }
+
+        if(last_loops_.count(pc_query_->GetClientID())) {
+            if((pc_query_->GetFrameID() - last_loops_[pc_query_->GetClientID()]) < colive_params::placerec::consecutive_loop_dist) {
+                pc_query_->SetErase();
+                // return false;
+                return;
+            }
+        }
+
         cout << "Loop detected! - between " << prev_node_idx << " and " << curr_node_idx << "" << endl;
 
         std::unique_lock<std::mutex> lock(mtx_mBuf_);
@@ -200,6 +226,7 @@ auto PlaceRecognition::ConnectLoop(PointCloudEXPtr pc_query, PointCloudEXPtr pc_
 }
 auto PlaceRecognition::CorrectLoop()->bool {
 
+    bool if_detect = false;
 
     while ( !scLoopICPBuf.empty() )
     {
@@ -215,26 +242,32 @@ auto PlaceRecognition::CorrectLoop()->bool {
 
         const int prev_node_idx = loop_idx_pair.first;
         const int curr_node_idx = loop_idx_pair.second;
+
+        pc_query_ = mapmanager_->cl_pcs[prev_node_idx];
+        pc_match_ = mapmanager_->cl_pcs[curr_node_idx];
+
+        int check_num_map;
+        MapPtr map_query = mapmanager_->CheckoutMapExclusiveOrWait(pc_query_->id_.second,check_num_map);
         
-        // for(auto lc : map_query->GetLoopConstraints()) {
-        //     bool existing_match = false;
-        //     if(lc.kf1 == kf_match_ && lc.kf2 == kf_query_) existing_match = true;
-        //     if(lc.kf2 == kf_match_ && lc.kf1 == kf_query_) existing_match = true;
-        //     if(!existing_match) continue;
-        //     std::cout << "!!! Loop Constraint already exisiting -- skip !!!" << std::endl;
-        //     kf_query_->SetErase();
-        //     kf_match_->SetErase();
-        //     mapmanager_->ReturnMap(kf_query_->id_.second,check_num_map);
-        //     return false;
-        // }
+        for(auto lc : map_query->GetLoopConstraints()) {
+            bool existing_match = false;
+            if(lc.pc1 == pc_match_ && lc.pc2 == pc_query_) existing_match = true;
+            if(lc.pc2 == pc_match_ && lc.pc1 == pc_query_) existing_match = true;
+            if(!existing_match) continue;
+            std::cout << "!!! Loop Constraint already exisiting -- skip !!!" << std::endl;
+            pc_query_->SetErase();
+            pc_match_->SetErase();
+            mapmanager_->ReturnMap(pc_query_->id_.second,check_num_map);
+            return false;
+        }
+        // LoopConstraint lc(kf_match,kf_query,T_smatch_squery);
+        // loop_constraints_.push_back(lc);
         TransformType T_curr_loop;// 当前转到过去回环的  T_curr_loop
         auto relative_pose_optional = doICPVirtualRelative(prev_node_idx, curr_node_idx, T_curr_loop);
-
         if(relative_pose_optional==0) {
-            int check_num_map;
-            MapPtr map_query = mapmanager_->CheckoutMapExclusiveOrWait(pc_query_->id_.second,check_num_map);
 
-        // std::cout << COUTDEBUG << "CheckoutMapExclusiveOrWait OK " << std::endl;
+            if_detect = true;
+            // std::cout << COUTDEBUG << "CheckoutMapExclusiveOrWait OK " << std::endl;
             // T_squery_smatch = tf;
             // std::cout << "do icp success0" << std::endl;
             auto loop_pc = mapmanager_->cl_pcs[prev_node_idx];
@@ -244,6 +277,8 @@ auto PlaceRecognition::CorrectLoop()->bool {
             // curr_pc->map_.GetPointCloudEX(loop_pc->id_)
             if(map_query->GetPointCloudEX(loop_pc->id_)){
                 bool perform_pgo_ =true;
+                LoopConstraint lc(pc_query_,pc_match_, T_curr_loop);
+                map_query->AddLoopConstraint(lc); // have fix crash here
                 // std::cout << "do icp success0.2" << std::endl;
                 if(perform_pgo_){
                     Eigen::Vector3d position = T_curr_loop.translation();
@@ -268,11 +303,12 @@ auto PlaceRecognition::CorrectLoop()->bool {
                     // merge.cov_mat = mcov_mat;
                     mapmanager_->RegisterMerge(merge);
             }
-            mapmanager_->ReturnMap(pc_query_->id_.second,check_num_map);
+
         }else{
+            mapmanager_->ReturnMap(pc_query_->id_.second,check_num_map);
             continue;
         }
-        
+        mapmanager_->ReturnMap(pc_query_->id_.second,check_num_map);
     }
     // if( gtSAMgraphMade ) {
     //         mtxPosegraph.lock();
@@ -313,17 +349,20 @@ auto PlaceRecognition::CorrectLoop()->bool {
 
     // mapmanager_->ReturnMap(kf_query_->id_.second,check_num_map);
 
-    return true;
+    return if_detect;
 }
 
 auto PlaceRecognition::DetectLoop()->bool {
 
+    performSCLoopClosure();
+
+    
     // if(pc_query_->id_.first < colive_params::placerec::start_after_kf) {
     //     // pc_query_->SetErase();
     //     std::cout<<"------------eraly loop ----------------"<<std::endl;
     //     return false;
     // }
-    performSCLoopClosure();
+
     // if(pc_query_->id_.first < covins_params::placerec::start_after_kf) {
     //     pc_query_->SetErase();
     //     return false;

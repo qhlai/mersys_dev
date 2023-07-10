@@ -257,7 +257,7 @@ auto Communicator_client::TryPassKeyPcToComm(PointCloudEX* pc)      ->void{
             std::cout<<"pos diff:"<<pos_dis<<", rot_diff:"<<rot_diff<<", time_diff:"<<time_diff<<", pc size:"<<pc_final->size()<< std::endl;
             //  pcl 滤波
             // https://blog.csdn.net/qq_34429849/article/details/128115900
-            if(true){
+            if(false){
                 // 球半径滤波器
                 pcl::RadiusOutlierRemoval<PointType> outrem;  //创建滤波器
                 outrem.setInputCloud(pc_final);    //设置输入点云
@@ -265,7 +265,7 @@ auto Communicator_client::TryPassKeyPcToComm(PointCloudEX* pc)      ->void{
                 outrem.setMinNeighborsInRadius (4);//设置查询点的邻域点集数小于2的删除
                 outrem.filter (*pc_final);
             }
-            if(true){
+            if(false){
                 // 统计滤波器用于去除明显离群点（离群点往往由测量噪声引入）。
                 pcl::StatisticalOutlierRemoval<PointType> sor;//创建滤波器对象
                 sor.setInputCloud (pc_final); //设置待滤波的点云
@@ -273,7 +273,7 @@ auto Communicator_client::TryPassKeyPcToComm(PointCloudEX* pc)      ->void{
                 sor.setStddevMulThresh (1.0); //设置判断是否为离群点的阀值
                 sor.filter (*pc_final);   
             }
-            if(true){// 降采样
+            if(false){// 降采样
 
                 // 设置降采样的体素大小
                 float voxel_size = 0.05f;

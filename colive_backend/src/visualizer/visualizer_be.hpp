@@ -53,6 +53,7 @@ public:
     using KeyframeVector                = TypeDefs::KeyframeVector;
     using LandmarkVector                = TypeDefs::LandmarkVector;
     using KeyframePairVector            = TypeDefs::KeyframePairVector;
+    using LoopVector= TypeDefs::LoopVector;
     // using TransformType                 = TypeDefs::TransformType;
     // using PointCloudSetById               = std::set<PointCloudEXPtr,PointCloudEX::pc_less,Eigen::aligned_allocator<PointCloudEXPtr>>;
     // using LoopVector                    = TypeDefs::LoopVector;
@@ -67,7 +68,7 @@ public:
         PointCloudEXMap         pointCloud;
         size_t                  id_map;
         std::set<size_t>        associated_clients;
-        // LoopVector              loops;
+        LoopVector              loops;
         std::set<idpair>        most_recent_kfs;
         std::string             frame;
     };
@@ -79,8 +80,10 @@ public:
     
     // Interfaces
     virtual auto DrawMap(MapPtr map)                                                    ->void;
-    virtual auto PubPointCloud()                                                        ->void;
-    virtual auto PubTrajectories()        ->void;
+    virtual auto PubPointCloud()                                                       ->void;
+    virtual auto PubTrajectories()        ->void; 
+    virtual auto PubOdometries()        ->void;
+    virtual auto PubLoopEdges()         ->void;
     // Draw Loaded Map
     auto DrawMapBitByBit(MapPtr map, std::string frame)                                 ->void;
 
@@ -103,6 +106,10 @@ protected:
     ros::NodeHandle             nh_                   = ros::NodeHandle();
     ros::Publisher              pub_marker_;
     ros::Publisher              pub_cloud_;
+    ros::Publisher              pub_odom_;
+    std::vector< std::shared_ptr <ros::Publisher> > pub_odom_vec_;
+    
+
     std::string                 topic_prefix_                                           = std::string();
 
     MapManagerPtr mapmanager_;

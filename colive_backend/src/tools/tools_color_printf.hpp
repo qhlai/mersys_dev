@@ -72,7 +72,7 @@ using std::endl;
 #define COUTNOTICE "\033[1;34m!!! NOTICE !!!\033[0m " << __func__ << ":" << __LINE__ << ": "
 #define DEPRECATED_FUNCTION {cout << "\033[1;31m!!!!! FATAL ERROR !!!!!\033[0m " << __func__ << ":"  << __LINE__ << " Use of deprecated function" << std::endl; exit(-1);}
 #define NOT_IMPLEMENTED {std::cout << "\033[1;33m!!! WARN !!!\033[0m " << __func__ << ":" << __LINE__ << ": This functionality is not implemented" << std::endl; }
-#define COUTDEBUG "\033[1;34m!!! DEBUG !!!\033[0m " << __FILE__ <<"."<< __func__ << ":" << __LINE__ << ": "
+#define COUTDEBUG "\033[1;34m!!! DEBUG !!!\033[0m " << __func__ << ":" << __LINE__ << ": "
 
 #define REDL "\033[1;31m"
 #define REDR "\033[0m"

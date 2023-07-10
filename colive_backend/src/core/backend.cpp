@@ -71,7 +71,7 @@ Backend::Backend(){
         // auto sb =new colive::Visualizer();
         // std::string a;
         // a="_be";
-        vis_.reset(new Visualizer("_be", mapmanager_));
+        vis_.reset(new Visualizer("_be"));
         thread_vis_.reset(new std::thread(&Visualizer::Run,vis_));
         thread_vis_->detach(); // Thread will be cleaned up when exiting main()
     }

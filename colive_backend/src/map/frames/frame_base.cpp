@@ -1,6 +1,14 @@
 
 #include "frame_base.hpp"
 namespace colive {
+    auto FrameBase::GetClientID()->size_t {
+        // std::unique_lock<std::mutex> lock_conn(mtx_connections_);
+        return id_.second;
+    }
+    auto FrameBase::GetFrameID()->size_t {
+        // std::unique_lock<std::mutex> lock_conn(mtx_connections_);
+        return id_.first;
+    }
 
     auto FrameBase::SetErase()->void {
         std::unique_lock<std::mutex> lock_conn(mtx_connections_);
