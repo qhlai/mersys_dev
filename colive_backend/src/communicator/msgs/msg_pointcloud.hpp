@@ -71,7 +71,7 @@ public:
     Vector3Type             pos_ref;
     Vector3Type             pos_w;
     TransformType           T_w_s_ = TransformType::Identity(); 
-    TransformType           T_s_lm_ = TransformType::Identity();
+    TransformType           T_s_w_ = TransformType::Identity();
     PointCloud              pts_cloud;
     QuaternionType          quan_;
 
@@ -86,7 +86,7 @@ protected:
             archive(id_,
                     pos_w,
                     quan_,
-                    T_s_lm_,
+                    T_s_w_,
                     pts_cloud,
                     // observations,id_reference
                     is_update_msg);
@@ -94,7 +94,7 @@ protected:
             archive(id_,
                     pos_w,
                     quan_,
-                    T_s_lm_,
+                    T_s_w_,
                     pts_cloud,
                     // observations,id_reference
                     is_update_msg);
@@ -102,7 +102,7 @@ protected:
             archive(id_,
                     pos_w,
                     quan_,
-                    T_s_lm_,
+                    T_s_w_,
                     pts_cloud,
                     // observations,id_reference
                     is_update_msg);
@@ -115,7 +115,7 @@ protected:
              archive(id_,
                     pos_w,
                     quan_,
-                    T_s_lm_,
+                    T_s_w_,
                     pts_cloud,
                     // observations,id_reference
                     is_update_msg);
@@ -123,7 +123,7 @@ protected:
             archive(id_,
                     pos_w,
                     quan_,
-                    T_s_lm_,
+                    T_s_w_,
                     pts_cloud,
                     // observations,id_reference
                     is_update_msg);
@@ -131,7 +131,7 @@ protected:
             archive(id_,
                     pos_w,
                     quan_,
-                    T_s_lm_,
+                    T_s_w_,
                     pts_cloud,
                     // observations,id_reference
                     is_update_msg);

@@ -1,5 +1,6 @@
 #pragma once
 #include "typedefs_base.hpp"
+#include "frame_base.hpp"
 // #include "../communicator/msgs/msg_pointcloud.hpp"
 #include <memory>
 #include <mutex>
@@ -14,7 +15,7 @@ class MsgPointCloud;
 
 
 
-class PointCloud_ex: public std::enable_shared_from_this<PointCloud_ex>
+class PointCloud_ex : public FrameBase,  public std::enable_shared_from_this<PointCloud_ex>
 {
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
@@ -46,9 +47,9 @@ public:
     Vector3Type             pos_w;
     QuaternionType          quan_;
 public:
-    TransformType           T_s_lm_ = TransformType::Identity(); // 当前帧与本地地图的迁移关系
-    TransformType           T_lm_w_ = TransformType::Identity(); // 
-    bool have_real_pose=false;
+    // TransformType           T_s_lm_ = TransformType::Identity(); // 当前帧与本地地图的迁移关系
+    // TransformType           T_lm_w_ = TransformType::Identity(); // 
+    // bool have_real_pose=false;
     MapPtr                   map_;
     // TransformType           T_w_s_ = TransformType::Identity(); // 当前帧与全局地图的迁移关系
 
@@ -63,8 +64,6 @@ public:
     auto SetPointCloud(pcl::PointCloud<pcl::PointXYZI>::Ptr pc)->void;
     auto SetPointCloud(pcl::PointCloud<pcl::PointXYZINormal>::Ptr pc)->void;
 
-    virtual auto GetPoseTws()          ->TransformType;
-    virtual auto SetPoseTws()          ->TransformType;
     virtual auto pointcloud_convert(pcl::PointCloud<pcl::PointXYZINormal>::Ptr pc_in,pcl::PointCloud<pcl::PointXYZI>::Ptr pc_out)->void;
     virtual auto pointcloud_convert(pcl::PointCloud<pcl::PointXYZI>::Ptr pc_in,pcl::PointCloud<pcl::PointXYZINormal>::Ptr pc_out)->void;
     auto pointcloud_transform(TransformType tf)->void;

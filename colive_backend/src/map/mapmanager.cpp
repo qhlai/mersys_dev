@@ -38,7 +38,7 @@ auto MapManager::Run()->void {
         usleep(5000);
     }
 }
-
+// 获取共享map
 auto MapManager::CheckoutMap(int map_id, int &check_num)->MapPtr {
     std::unique_lock<std::mutex> lock(mtx_access_);
 
@@ -53,10 +53,12 @@ auto MapManager::CheckoutMap(int map_id, int &check_num)->MapPtr {
     if(map->usage_cnt == -1){
         return nullptr;
     } else if(map->block_checkout) {
+        // std::cout << COUTDEBUG << "CheckoutMap usage_cnt"<<map->usage_cnt<<std::endl;
         return nullptr;
     } else {
         int check = rand();
         map->usage_cnt++;
+        // std::cout << COUTDEBUG << "map->usage_cnt++:"<<map->usage_cnt<<std::endl;
         map->check_nums.insert(check);
         check_num = check;
 
@@ -64,7 +66,7 @@ auto MapManager::CheckoutMap(int map_id, int &check_num)->MapPtr {
     }
     return nullptr;
 }
-
+// 获取专享map
 auto MapManager::CheckoutMapExclusive(int map_id, int &check_num)->MapPtr {
     std::unique_lock<std::mutex> lock(mtx_access_);
 
@@ -76,7 +78,8 @@ auto MapManager::CheckoutMapExclusive(int map_id, int &check_num)->MapPtr {
 
     MapInstancePtr map = mit->second;
 
-    if(map->usage_cnt != 0){
+    if(map->usage_cnt != 0 && map->usage_cnt > 0){
+        // std::cout << COUTDEBUG << "map->usage_cnt"<<map->usage_cnt<<std::endl;
         return nullptr;
     } else {
         int check = rand();
@@ -107,6 +110,7 @@ auto MapManager::CheckoutMapExclusiveOrWait(int map_id, int &check_num)->MapPtr 
 
     while(!map){
         map = this->CheckoutMapExclusive(map_id,check_num);
+        // std::cout << COUTFATAL << "blocked " << map_id << std::endl;
         usleep(100);
     }
 
@@ -182,7 +186,8 @@ auto MapManager::ReturnMap(int map_id, int &check_num)->void {
         map->usage_cnt = 0;
     else
         map->usage_cnt--;
-
+                // std::cout << COUTDEBUG << "map->usage_cnt--:"<<map->usage_cnt<<std::endl;
+    // std::cout << COUTFATAL <<"return"<<map->usage_cnt<<std::endl;
     map->check_nums.erase(check_num);
 }
 
@@ -261,8 +266,9 @@ auto MapManager::PerformMerge()->void {
     // TransformType T_s_wquery = pc_query.T_lm_w_*pc_query.T_s_lm_;  // TG
     // TransformType T_s_wmatch = pc_match.T_lm_w_*pc_match.T_s_lm_;
     // TransformType T_wmatch_wquery = T_w_smatch * T_squery_smatch * T_w_squery.inverse();
-    pc_query->T_lm_w_ = pc_query->T_s_lm_.inverse() * T_squery_smatch * pc_match->T_s_lm_ * pc_match->T_lm_w_ ;
-    MapInstancePtr map_merged(new MapInstance(map_match,map_query,pc_query->T_lm_w_));
+    auto pc_query_w_g = pc_query->GetPoseTws() * T_squery_smatch * pc_match->GetPoseTsg();
+    pc_query->SetPoseTwg(pc_query_w_g);
+    MapInstancePtr map_merged(new MapInstance(map_match,map_query,pc_query->GetPoseTwg()));
 
 //     LoopConstraint lc(kf_match,kf_query,T_squery_smatch, cov_mat);
 //     map_merged->map->AddLoopConstraint(lc);

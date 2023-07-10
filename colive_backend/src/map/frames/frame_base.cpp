@@ -1,45 +1,76 @@
 
-#include "device_info.hpp"
+#include "frame_base.hpp"
 namespace colive {
 
+    auto FrameBase::SetErase()->void {
+        std::unique_lock<std::mutex> lock_conn(mtx_connections_);
+        not_erase_ = false;
+    }
+    auto FrameBase::SetNotErase()->void {
+        std::unique_lock<std::mutex> lock_conn(mtx_connections_);
+        not_erase_ = true;
+    }
 
-// PointCloud_ex::PointCloud_ex(MsgPointCloud msg, MapPtr map){
-//     id_= msg.id;
-//     pos_w = msg.pos_w;
-//     quan_ = msg.quan_;
-//     pts_cloud=msg.pts_cloud;
-//     timestamp_=msg.timestamp_;
-    
-// }
+    auto FrameBase::GetPoseTcw()->TransformType {
+        std::unique_lock<std::mutex> lock(mtx_pose_);
+        return T_c_w_;
+    }
 
-// auto PointCloud_ex::ConvertToMsg(colive::MsgPointCloud &msg,Vector3Type &pos_w_2, bool is_update, size_t cliend_id)->void{
+    auto FrameBase::GetPoseTsw()->TransformType {
+        std::unique_lock<std::mutex> lock(mtx_pose_);
+        return T_s_w_;
+    }
 
+    // auto FrameBase::GetPoseTsw_vio()->TransformType {
+    //     std::unique_lock<std::mutex> lock(mtx_pose_);
+    //     return T_s_w_vio_;
+    // }
 
-//     // std::unique_lock<std::mutex> lock_conn(mMutexConnections);
-//     // std::unique_lock<std::mutex> lock_feat(mMutexFeatures);
-//     // std::unique_lock<std::mutex> lock_pose(mMutexPose);
-//     // msg.downSample
-//     msg.id = id_;   // mnid clientid  
-//     msg.timestamp_ = timestamp_;//std::chrono::system_clock::now();
-    
-//     msg.pos_w = pos_w;
-//     msg.quan_ = quan_;
-//     msg.pts_cloud = pts_cloud;
-    
-//     // msg.pts_cloud=
+    auto FrameBase::GetPoseTwc()->TransformType {
+        std::unique_lock<std::mutex> lock(mtx_pose_);
+        return T_w_c_;
+    }
 
-// }
-// auto PointCloud_ex::pc_less::operator ()(const PointCloudEXPtr a, const PointCloudEXPtr b) const ->bool
-// {
-//     if(a->id_.second < b->id_.second)
-//         return true;
-//     else if(a->id_.second > b->id_.second)
-//         return false;
-//     else {
-//         return a->id_.first < b->id_.first;
-//     }
-// }
-
-
-
+    auto FrameBase::GetPoseTws()->TransformType {
+        std::unique_lock<std::mutex> lock(mtx_pose_);
+        return T_w_s_;
+    }
+    auto FrameBase::GetPoseTsg()->TransformType {
+        std::unique_lock<std::mutex> lock(mtx_pose_);
+        return T_s_w_*T_w_g_;
+    }
+    auto FrameBase::GetPoseTgs()->TransformType {
+        std::unique_lock<std::mutex> lock(mtx_pose_);
+        return T_g_w_*T_w_s_;
+    }
+    auto FrameBase::GetPoseTwg()->TransformType {
+        std::unique_lock<std::mutex> lock(mtx_pose_);
+        return T_w_g_;
+    }
+    auto FrameBase::GetPoseTgw()->TransformType {
+        std::unique_lock<std::mutex> lock(mtx_pose_);
+        return T_g_w_;
+    }
+    auto FrameBase::SetPoseTsw(TransformType Tsw, bool lock_mtx)->void {
+        if(lock_mtx) mtx_pose_.lock();
+        T_s_w_ = Tsw;
+        T_w_s_ = T_s_w_.inverse();
+        T_w_c_ = T_w_s_*T_s_c_;
+        T_c_w_ = T_w_c_.inverse();
+        if(lock_mtx) mtx_pose_.unlock();
+    }
+    auto FrameBase::SetPoseTws(TransformType Tws, bool lock_mtx)->void {
+        if(lock_mtx) mtx_pose_.lock();
+        T_w_s_ = Tws;
+        T_s_w_ = T_w_s_.inverse();
+        T_w_c_ = T_w_s_*T_s_c_;
+        T_c_w_ = T_w_c_.inverse();
+        if(lock_mtx) mtx_pose_.unlock();
+    }
+    auto FrameBase::SetPoseTwg(TransformType Twg, bool lock_mtx)->void {
+        if(lock_mtx) mtx_pose_.lock();
+        T_w_g_ = Twg;
+        T_g_w_ = T_w_g_.inverse();
+        if(lock_mtx) mtx_pose_.unlock();
+    }
 }

@@ -97,8 +97,8 @@ auto PlaceRecognition::doICPVirtualRelative(int _loop_pc_idx, int _curr_pc_idx, 
     // // cal the the initial position transform
     TransformType T_init = TransformType::Identity();
     // TransformType T_relative;
-    TransformType T_loop = loop_pc->T_s_lm_;
-    TransformType T_curr = curr_pc->T_s_lm_;
+    TransformType T_loop = loop_pc->GetPoseTsw();
+    TransformType T_curr = curr_pc->GetPoseTsw();
     T_init=T_loop.inverse()*T_curr;
     // T_relative = T_loop.inverseTimes(T_curr);
     // tf::transformTFToEigen (T_relative, T_init);
@@ -215,26 +215,43 @@ auto PlaceRecognition::CorrectLoop()->bool {
 
         const int prev_node_idx = loop_idx_pair.first;
         const int curr_node_idx = loop_idx_pair.second;
-
+        
+        // for(auto lc : map_query->GetLoopConstraints()) {
+        //     bool existing_match = false;
+        //     if(lc.kf1 == kf_match_ && lc.kf2 == kf_query_) existing_match = true;
+        //     if(lc.kf2 == kf_match_ && lc.kf1 == kf_query_) existing_match = true;
+        //     if(!existing_match) continue;
+        //     std::cout << "!!! Loop Constraint already exisiting -- skip !!!" << std::endl;
+        //     kf_query_->SetErase();
+        //     kf_match_->SetErase();
+        //     mapmanager_->ReturnMap(kf_query_->id_.second,check_num_map);
+        //     return false;
+        // }
         TransformType T_curr_loop;// 当前转到过去回环的  T_curr_loop
         auto relative_pose_optional = doICPVirtualRelative(prev_node_idx, curr_node_idx, T_curr_loop);
 
         if(relative_pose_optional==0) {
+            int check_num_map;
+            MapPtr map_query = mapmanager_->CheckoutMapExclusiveOrWait(pc_query_->id_.second,check_num_map);
+
+        // std::cout << COUTDEBUG << "CheckoutMapExclusiveOrWait OK " << std::endl;
             // T_squery_smatch = tf;
-            std::cout << "do icp success0" << std::endl;
+            // std::cout << "do icp success0" << std::endl;
             auto loop_pc = mapmanager_->cl_pcs[prev_node_idx];
             auto curr_pc = mapmanager_->cl_pcs[curr_node_idx];
-            std::cout << "do icp success0.1:"<<loop_pc->id_.first<<"sdada:"<<curr_pc->id_.first << std::endl;
-            if(loop_pc->id_.second==curr_pc->id_.second){
+
+            // std::cout << "do icp success0.1:"<<loop_pc->id_.first<<"sdada:"<<curr_pc->id_.first << std::endl;
+            // curr_pc->map_.GetPointCloudEX(loop_pc->id_)
+            if(map_query->GetPointCloudEX(loop_pc->id_)){
                 bool perform_pgo_ =true;
-                std::cout << "do icp success0.2" << std::endl;
+                // std::cout << "do icp success0.2" << std::endl;
                 if(perform_pgo_){
                     Eigen::Vector3d position = T_curr_loop.translation();
                     Eigen::Vector3d euler = T_curr_loop.rotation().eulerAngles(0, 1, 2);
 
                     gtsam::Pose3 relative_pose = gtsam::Pose3(gtsam::Rot3::RzRyRx(euler[0], euler[1], euler[2]), gtsam::Point3(position[0], position[1], position[2]));
-                    std::cout << "do icp success1" << relative_pose << std::endl;
-                    std::cout << "do icp success2" << T_curr_loop.matrix() << std::endl;
+                    // std::cout << "do icp success1" << relative_pose << std::endl;
+                    // std::cout << "do icp success2" << T_curr_loop.matrix() << std::endl;
                     mtx_Posegraph_.lock();
                     gtSAMgraph.add(gtsam::BetweenFactor<gtsam::Pose3>(prev_node_idx, curr_node_idx, relative_pose, robustLoopNoise));
                     mtx_Posegraph_.unlock();
@@ -251,37 +268,11 @@ auto PlaceRecognition::CorrectLoop()->bool {
                     // merge.cov_mat = mcov_mat;
                     mapmanager_->RegisterMerge(merge);
             }
-                // if (map_query->GetKeyframe(kf_match_->id_)) {
-
-                //     LoopConstraint lc(kf_match_, kf_query_, T_squery_smatch,
-                //                       mcov_mat);
-                //     map_query->AddLoopConstraint(lc);
-                
-                //     if(perform_pgo_)
-                //     {
-                //         KeyframeVector current_connections_query = kf_query_->GetConnectedKeyframesByWeight(0);
-                        
-                //         for(auto kfi : current_connections_query) {
-                //             map_query->UpdateCovisibilityConnections(kfi->id_);
-                //         }
-
-                //         Optimization::PoseGraphOptimization(map_query, corrected_poses);
-                //         map_query->WriteKFsToFileAllAg();
-                //     } else {
-                //         std::cout << COUTNOTICE << "!!! PGO deativated !!!" << std::endl;
-                //     }
-                // } else {
-                //     std::cout << "\033[1;32m+++ FUSION FOUND +++\033[0m" << std::endl;
-                //     MergeInformation merge;
-                //     merge.kf_query = kf_query_;
-                //     merge.kf_match = kf_match_;
-                //     merge.T_squery_smatch = T_squery_smatch;
-                //     merge.cov_mat = mcov_mat;
-                //     mapmanager_->RegisterMerge(merge);
-                // }
+            mapmanager_->ReturnMap(pc_query_->id_.second,check_num_map);
         }else{
             continue;
         }
+        
     }
     // if( gtSAMgraphMade ) {
     //         mtxPosegraph.lock();

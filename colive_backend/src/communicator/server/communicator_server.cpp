@@ -172,7 +172,7 @@ auto Communicator_server::Run()->void {
             this->UnLock();
         }
         vis_->DrawMap(map_);
-
+        // std::cout<< COUTDEBUG <<"return map"<<std::endl;
         mapmanager_->ReturnMap(client_id_,check_num_map);
         map_ = nullptr; //make sure the MapManager is used correctly - this will cause SEGFAULT if accessed
 

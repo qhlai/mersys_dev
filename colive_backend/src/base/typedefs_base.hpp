@@ -71,7 +71,7 @@ struct MsgKeyframe;
 struct MsgLandmark;
 struct MsgPointCloud;
 struct MsgOdometry;
-
+struct LoopConstraint;
 
 // typedef pcl::PointXYZINormal PointType;
 
@@ -158,7 +158,7 @@ namespace TypeDefs {
     
     using KeyframePairVector            = std::vector<std::pair<KeyframePtr,KeyframePtr>, Eigen::aligned_allocator<std::pair<KeyframePtr,KeyframePtr>>>;
     using KeyframeIntMap                = std::map<KeyframePtr,int,std::less<KeyframePtr>,Eigen::aligned_allocator<std::pair<const KeyframePtr,int>>>;
-    // using LoopVector                    = std::vector<LoopConstraint, Eigen::aligned_allocator<LoopConstraint>>;
+    using LoopVector                    = std::vector<LoopConstraint, Eigen::aligned_allocator<LoopConstraint>>;
     using LoopConnectionType            = std::map<KeyframePtr,KeyframeSet,std::less<KeyframePtr>,Eigen::aligned_allocator<std::pair<const KeyframePtr,KeyframeSet>>>;
     using IntKfPair                     = std::pair<int,KeyframePtr>;
     using VectorIntKfPair               = std::vector<IntKfPair,Eigen::aligned_allocator<IntKfPair>>;
@@ -242,18 +242,28 @@ enum eCamModel
 };
 
 class Keyframe;
+class PointCloud_ex;
 
 struct LoopConstraint {
     using TransformType             = TypeDefs::TransformType;
     using KeyframePtr               = std::shared_ptr<Keyframe>;
+    using PointCloudEXPtr               = std::shared_ptr<PointCloud_ex>;
     using Matrix6Type               = TypeDefs::Matrix6Type;
 
-    LoopConstraint(KeyframePtr k1, KeyframePtr k2, TransformType T_12,
+    LoopConstraint(PointCloudEXPtr k1, PointCloudEXPtr k2, TransformType T_12,
                    Matrix6Type covm = Matrix6Type::Identity())
-        : kf1(k1), kf2(k2), T_s1_s2(T_12), cov_mat(covm) {}
-    
-    KeyframePtr         kf1;
-    KeyframePtr         kf2;
+        : pc1(k1), pc2(k2), T_s1_s2(T_12), cov_mat(covm) {}
+
+    // LoopConstraint(PointCloudEXPtr k1, PointCloudEXPtr k2, TransformType T_12,
+    //                Matrix6Type covm = Matrix6Type::Identity())
+    //     : pc1(k1), pc2(k2), T_s1_s2(T_12), cov_mat(covm) {}
+
+    PointCloudEXPtr         pc1;
+    PointCloudEXPtr         pc2;
+
+    // PointCloudEXPtr         pc1;
+    // PointCloudEXPtr         pc2;
+
     TransformType       T_s1_s2;
     Matrix6Type         cov_mat;
 };

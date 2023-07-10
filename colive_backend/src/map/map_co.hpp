@@ -70,6 +70,8 @@ public:
     using LandmarkMap                   = TypeDefs::LandmarkMap;
     using PointCloudMap                 = TypeDefs::PointCloudMap;
     using PointCloudEXMap               = TypeDefs::PointCloudEXMap;
+
+    using LoopVector                    = TypeDefs::LoopVector;
     // using KeyframeVector                = TypeDefs::KeyframeVector;
     // using LandmarkVector                = TypeDefs::LandmarkVector;
     // using LandmarkSet                   = TypeDefs::LandmarkSet;
@@ -102,6 +104,12 @@ public:
 
     virtual auto AddPointCloud(PointCloudEXPtr pc)->void;
     virtual auto AddPointCloud(PointCloudEXPtr pc, bool suppress_output)->void;
+
+
+
+    virtual auto AddLoopConstraint(LoopConstraint lc)                                   ->void;
+    virtual auto GetLoopConstraints()                                                   ->LoopVector;
+
     // void feat_points_callback(const sensor_msgs::PointCloud2::ConstPtr &msg_in);
     // void image_callback(const sensor_msgs::ImageConstPtr &msg);
     // void image_comp_callback(const sensor_msgs::CompressedImageConstPtr &msg);
@@ -123,6 +131,10 @@ protected:
     PointCloudEXMap             pointclouds_;// 收集到的所用lidar frame
 
     KeyframeMap                 keyframes_erased_;
+
+
+    // Loop Correction
+    LoopVector                  loop_constraints_;
 
     size_t                      max_id_kf_                                              = 0;
     size_t                      max_id_lm_                                              = 0;

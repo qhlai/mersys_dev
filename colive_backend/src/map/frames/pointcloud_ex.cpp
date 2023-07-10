@@ -10,7 +10,8 @@ PointCloud_ex::PointCloud_ex(MsgPointCloud msg, MapPtr map){
     quan_ = msg.quan_;
     pts_cloud=msg.pts_cloud;
     timestamp_=msg.timestamp_;
-    T_s_lm_=msg.T_s_lm_;
+    // T_s_w_=msg.T_s_w_;
+    SetPoseTsw(msg.T_s_w_);
     
     map_=map;
 }
@@ -31,7 +32,7 @@ auto PointCloud_ex::ConvertToMsg(colive::MsgPointCloud &msg,Vector3Type &pos_w_2
     msg.pos_w = pos_w;
     msg.quan_ = quan_;
     msg.pts_cloud = pts_cloud;
-    msg.T_s_lm_=T_s_lm_;
+    msg.T_s_w_=GetPoseTsw();
     // msg.pts_cloud=
 
 }
@@ -61,15 +62,6 @@ auto PointCloud_ex::ConvertToMsg(colive::MsgPointCloud &msg,Vector3Type &pos_w_2
         // TransformType T_w_s_corrected = T_wtarget_wtofuse * T_w_s_befcorrection;
         // kf->SetPoseTws(T_w_s_corrected);
         // kf->velocity_ = T_wtarget_wtofuse.block<3,3>(0,0) * kf->velocity_;
-auto PointCloud_ex::GetPoseTws()->TransformType {
-    std::unique_lock<std::mutex> lock(mtx_pose_);
-    return T_s_lm_;
-}
-
-auto PointCloud_ex::SetPoseTws()->TransformType {
-    std::unique_lock<std::mutex> lock(mtx_pose_);
-    return T_s_lm_;
-}
 
 auto PointCloud_ex::SetPointCloud(pcl::PointCloud<pcl::PointXYZI>::Ptr pc)->void {
     std::unique_lock<std::mutex> lock(mtx_in_);

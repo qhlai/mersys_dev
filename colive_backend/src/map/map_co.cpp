@@ -75,13 +75,13 @@ Map::Map(MapPtr map_target, MapPtr map_tofuse, TransformType T_wtarget_wtofuse)
 
 
         
-    for(PointCloudEXMap::iterator mit =pointcloudex_tofuse.begin();mit != pointcloudex_tofuse.end();++mit) {
-        PointCloudEXPtr pc = mit->second;
-        TransformType T_lm_s_befcorrection = pc->T_lm_s_;
-        TransformType T_lm_s_corrected = T_wtarget_wtofuse * T_lm_s_befcorrection; // tofuse 里的帧在target下的坐标
-        pc->T_lm_s_=T_lm_s_corrected;
-        pc->pointcloud_transform(T_wtarget_wtofuse);
-    }
+    // for(PointCloudEXMap::iterator mit =pointcloudex_tofuse.begin();mit != pointcloudex_tofuse.end();++mit) {
+    //     PointCloudEXPtr pc = mit->second;
+    //     TransformType T_lm_s_befcorrection = pc->T_lm_s_;
+    //     TransformType T_lm_s_corrected = T_wtarget_wtofuse * T_lm_s_befcorrection; // tofuse 里的帧在target下的坐标
+    //     pc->T_lm_s_=T_lm_s_corrected;
+    //     pc->pointcloud_transform(T_wtarget_wtofuse);
+    // }
     // Matrix3Type R_wmatch_wtofuse = T_wtarget_wtofuse.block<3,3>(0,0);
     // Vector3Type t_wmatch_wtofuse = T_wtarget_wtofuse.block<3,1>(0,3);
     // for(KeyframeMap::iterator mit = keyframes_tofuse.begin();mit != keyframes_tofuse.end();++mit) {
@@ -113,8 +113,16 @@ auto Map::AddPointCloud(PointCloudEXPtr pc, bool suppress_output)->void {
         // this->WriteKFsToFileAllAg();
     }
 }
-
-
+auto Map::AddLoopConstraint(LoopConstraint lc)->void {
+    std::unique_lock<std::mutex> lock(mtx_map_);
+    loop_constraints_.push_back(lc);
+    lc.pc1->is_loop_ = true;
+    lc.pc2->is_loop_ = true;
+}
+auto Map::GetLoopConstraints()->LoopVector {
+    std::unique_lock<std::mutex> lock(mtx_map_);
+    return loop_constraints_;
+}
 // auto Map::GetPointCloudEX()->PointCloudEXMap {
 //     std::unique_lock<std::mutex> lock(mtx_map_);
 //     return pointclouds_;

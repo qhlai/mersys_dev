@@ -167,7 +167,7 @@ auto Visualizer::PubTrajectories()->void {
         PointCloudEXPtr  pc = *sit;
         // Eigen::Matrix3d T = pc->pos_w;
         // Eigen::Matrix4d T = pc->GetPoseTws();
-        Eigen::Matrix4d T = pc->T_s_lm_.matrix();
+        Eigen::Matrix4d T = pc->GetPoseTsw().matrix();
         geometry_msgs::Point p;
 
         p.x = scale*(T(0,3));
@@ -210,7 +210,8 @@ auto Visualizer::PubPointCloud()->void {
     // PointCloud::Ptr cloud_in=&(pc->pts_cloud);
     
     PointCloud::Ptr cloud_in(new PointCloud(pc->pts_cloud));
-    pcl::transformPointCloud(*cloud_in, *cloud_in, (pc->T_s_lm_*pc->T_lm_w_).matrix());
+    // pcl::transformPointCloud(*cloud_in, *cloud_in, (pc->T_s_lm_*pc->T_lm_w_).matrix());
+    pcl::transformPointCloud(*cloud_in, *cloud_in, pc->GetPoseTsg().matrix());
     // int size = cloud_in->points.size();
     // pcl::PointCloudXYZI::Ptr laserCloudIMUWorld(new PointCloudXYZI(size, 1));
     // for (int i = 0; i < size; i++)
