@@ -28,6 +28,7 @@
 #include <nav_msgs/Path.h>
 #include <geometry_msgs/PoseStamped.h>
 
+#include "map_rgb.hpp"
 
 // #include <eigen3/Eigen/Core>
 
@@ -79,7 +80,7 @@ public:
 
     pcl::PointCloud<pcl::PointXYZ>::Ptr map_raw_pts;
     pcl::PointCloud<pcl::PointXYZRGB>::Ptr map_rbg_pts; // or as landmark
-    
+    Global_map rgb_map; 
     //
     // std::pair<int,int> map_;
     std::queue<nav_msgs::Odometry::ConstPtr> odometryBuf;

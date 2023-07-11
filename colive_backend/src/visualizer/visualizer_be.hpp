@@ -81,6 +81,8 @@ public:
     // Interfaces
     virtual auto DrawMap(MapPtr map)                                                    ->void;
     virtual auto PubPointCloud()                                                       ->void;
+    virtual auto PubPointCloud_service()                                                       ->void;
+    virtual auto PubPointCloud_service_bak()                                                       ->void;
     virtual auto PubTrajectories()        ->void; 
     virtual auto PubOdometries()        ->void;
     virtual auto PubLoopEdges()         ->void;
@@ -108,7 +110,7 @@ protected:
     ros::Publisher              pub_cloud_;
     ros::Publisher              pub_odom_;
     std::vector< std::shared_ptr <ros::Publisher> > pub_odom_vec_;
-    
+    std::vector< std::shared_ptr <ros::Publisher> > m_pub_rgb_render_pointcloud_ptr_vec;
 
     std::string                 topic_prefix_                                           = std::string();
 
@@ -119,6 +121,12 @@ protected:
     uint32_t g_pointcloud_pts_num =0;
     uint32_t g_loop_self_num = 0;
     uint32_t g_loop_co_num = 0;
+
+    // for pub pointcloud service
+    int last_publish_map_idx = -3e8;
+    int sleep_time_aft_pub = 10;  
+    int number_of_pts_per_topic = 5000;
+
     // // Data
     std::map<size_t,VisBundle>  vis_data_;
     VisBundle                   curr_bundle_;

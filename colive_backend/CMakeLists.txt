@@ -121,6 +121,7 @@ ${PROJECT_SOURCE_DIR}/src/map/*.hpp
 )
 file(GLOB_RECURSE MAP_SRC_FILES     
 ${PROJECT_SOURCE_DIR}/src/map/map_co.cpp
+${PROJECT_SOURCE_DIR}/src/map/map_rgb.cpp
 ${PROJECT_SOURCE_DIR}/src/map/mapmanager.cpp
 ${PROJECT_SOURCE_DIR}/src/map/frames/*.cpp
 )

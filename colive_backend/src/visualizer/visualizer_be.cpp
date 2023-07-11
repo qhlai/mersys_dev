@@ -18,6 +18,7 @@ Visualizer::Visualizer(std::string topic_prefix)
     pub_cloud_ = nh_.advertise<sensor_msgs::PointCloud2>(cloud_topic,10);
     pub_odom_ = nh_.advertise<nav_msgs::Odometry>(odom_topic, 10);
     pub_odom_vec_.reserve(MAX_CLIENT_NUM);//for publish odoms
+    m_pub_rgb_render_pointcloud_ptr_vec.resize(1e3);
     std::cout<<"init vis"<<std::endl;
 }
 // 废弃的
@@ -205,7 +206,7 @@ auto Visualizer::PubOdometries()->void {
 
     nav_msgs::Odometry odom;
     odom.header.frame_id = "camera_init";
-    odom.child_frame_id = "/aft_mapped";
+    odom.child_frame_id = "body";
     
     odom.header.stamp = ros::Time::now(); // ros::Time().fromSec(last_timestamp_lidar);
     odom.pose.pose.orientation.x = q.x();
@@ -301,6 +302,144 @@ auto Visualizer::PubLoopEdges()->void {
     pub_marker_.publish(msg_inter);
 }
 // void R3LIVE::service_pub_rgb_maps()
+auto Visualizer::PubPointCloud_service()->void {
+    pcl::PointCloud< pcl::PointXYZI> pc_sum;
+    pcl::PointCloud< pcl::PointXYZRGB > pc_rgb;
+    pcl::PointCloud< pcl::PointXYZI> pc;
+    pcl::PointCloud< pcl::PointXYZI>::Ptr pc_tmp;
+    sensor_msgs::PointCloud2            ros_pc_msg;
+
+    // pc.resize( number_of_pts_per_topic);
+    uint64_t pub_idx_size = 0;
+    int cur_topic_idx = 0;
+
+    for(PointCloudEXMap::const_iterator mit=curr_bundle_.pointCloud.begin();mit!=curr_bundle_.pointCloud.end();++mit) {
+        PointCloudEXPtr pc_ex = mit->second;
+        PointCloud::Ptr pc_tmp(new PointCloud(pc_ex->pts_cloud));
+        pcl::transformPointCloud(*pc_tmp, *pc_tmp, pc_ex->GetPoseTsg().matrix());
+        pc_sum+=*pc_tmp;
+    }
+    std::cout << COUTNOTICE <<"rviz:pointcloud points sum:"<< pc_sum.points.size() << std::endl;
+    for(uint64_t i=0;i<pc_sum.points.size();i++) {
+        // PointCloudEXPtr pc_ex = mit->second;
+
+        // PointCloud::Ptr pc_tmp(new PointCloud(pc_ex->pts_cloud));
+
+        // std::cout<<"pc pos_w:"<<pc_i->pos_w<<std::endl;
+        // std::cout<<"pc size:"<<pc_i->pts_cloud.size()<<std::endl;
+
+        // pcl::transformPointCloud(*pc_tmp, *pc_tmp, pc_ex->GetPoseTsg().matrix());
+        pc.points.push_back(pc_sum.points[i]);
+        // pc.points[i].x=pc_sum.points[i].x;
+        // pc.points[i].y=pc_sum.points[i].y;
+        // pc.points[i].z=pc_sum.points[i].z;
+        pub_idx_size++;
+        if(pub_idx_size == number_of_pts_per_topic){
+            pub_idx_size = 0;
+            pcl::toROSMsg( pc, ros_pc_msg );
+            ros_pc_msg.header.frame_id = "camera_init";       
+            ros_pc_msg.header.stamp = ros::Time::now(); 
+            if ( m_pub_rgb_render_pointcloud_ptr_vec[ cur_topic_idx ] == nullptr )
+            {
+                m_pub_rgb_render_pointcloud_ptr_vec[ cur_topic_idx ] =
+                        std::make_shared< ros::Publisher >( nh_.advertise< sensor_msgs::PointCloud2 >(
+                            std::string( "/RGB_map_" ).append( std::to_string( cur_topic_idx ) ), 100 ) );
+            }
+            m_pub_rgb_render_pointcloud_ptr_vec[ cur_topic_idx ]->publish( ros_pc_msg );
+            pc.clear();
+            std::this_thread::sleep_for( std::chrono::microseconds( sleep_time_aft_pub ) );
+            // ros::spinOnce();
+            // ros::spinOnce();
+            cur_topic_idx++;
+
+        }
+    }
+    pc.resize( pub_idx_size );
+    pcl::toROSMsg( pc, ros_pc_msg );
+    ros_pc_msg.header.frame_id = "world";       
+    ros_pc_msg.header.stamp = ros::Time::now(); 
+    if ( m_pub_rgb_render_pointcloud_ptr_vec[ cur_topic_idx ] == nullptr )
+    {
+        m_pub_rgb_render_pointcloud_ptr_vec[ cur_topic_idx ] =
+            std::make_shared< ros::Publisher >( nh_.advertise< sensor_msgs::PointCloud2 >(
+                std::string( "/RGB_map_" ).append( std::to_string( cur_topic_idx ) ), 100 ) );
+    }
+    std::this_thread::sleep_for( std::chrono::microseconds( sleep_time_aft_pub ) );
+    // ros::spinOnce();
+    m_pub_rgb_render_pointcloud_ptr_vec[ cur_topic_idx ]->publish( ros_pc_msg );
+    pc.clear();
+    cur_topic_idx++;
+
+    if ( cur_topic_idx >= 40 ) // Maximum pointcloud topics = 45.
+    {
+        number_of_pts_per_topic *= 1.5;
+        sleep_time_aft_pub *= 1.5;
+    }
+
+}
+
+auto Visualizer::PubPointCloud_service_bak()->void {
+    pcl::PointCloud< pcl::PointXYZRGB > pc_rgb;
+    pcl::PointCloud< pcl::PointXYZI> pc;
+    pcl::PointCloud< pcl::PointXYZI>::Ptr pc_tmp;
+    sensor_msgs::PointCloud2            ros_pc_msg;
+
+    pc.resize( number_of_pts_per_topic);
+    int pub_idx_size = 0;
+    int cur_topic_idx = 0;
+
+    for(PointCloudEXMap::const_iterator mit=curr_bundle_.pointCloud.begin();mit!=curr_bundle_.pointCloud.end();++mit) {
+        PointCloudEXPtr pc_ex = mit->second;
+
+        PointCloud::Ptr pc_tmp(new PointCloud(pc_ex->pts_cloud));
+
+        // std::cout<<"pc pos_w:"<<pc_i->pos_w<<std::endl;
+        // std::cout<<"pc size:"<<pc_i->pts_cloud.size()<<std::endl;
+
+        pcl::transformPointCloud(*pc_tmp, *pc_tmp, pc_ex->GetPoseTsg().matrix());
+        pc+=*pc_tmp;
+        if(pc.points.size() >= number_of_pts_per_topic){
+            pcl::toROSMsg( pc, ros_pc_msg );
+            ros_pc_msg.header.frame_id = "camera_init";       
+            ros_pc_msg.header.stamp = ros::Time::now(); 
+            if ( m_pub_rgb_render_pointcloud_ptr_vec[ cur_topic_idx ] == nullptr )
+            {
+                m_pub_rgb_render_pointcloud_ptr_vec[ cur_topic_idx ] =
+                        std::make_shared< ros::Publisher >( nh_.advertise< sensor_msgs::PointCloud2 >(
+                            std::string( "/RGB_map_" ).append( std::to_string( cur_topic_idx ) ), 100 ) );
+            }
+            m_pub_rgb_render_pointcloud_ptr_vec[ cur_topic_idx ]->publish( ros_pc_msg );
+            pc.clear();
+            std::this_thread::sleep_for( std::chrono::microseconds( sleep_time_aft_pub ) );
+            // ros::spinOnce();
+            // ros::spinOnce();
+            cur_topic_idx++;
+
+        }
+    }
+
+    pcl::toROSMsg( pc, ros_pc_msg );
+    ros_pc_msg.header.frame_id = "world";       
+    ros_pc_msg.header.stamp = ros::Time::now(); 
+    if ( m_pub_rgb_render_pointcloud_ptr_vec[ cur_topic_idx ] == nullptr )
+    {
+        m_pub_rgb_render_pointcloud_ptr_vec[ cur_topic_idx ] =
+            std::make_shared< ros::Publisher >( nh_.advertise< sensor_msgs::PointCloud2 >(
+                std::string( "/RGB_map_" ).append( std::to_string( cur_topic_idx ) ), 100 ) );
+    }
+    std::this_thread::sleep_for( std::chrono::microseconds( sleep_time_aft_pub ) );
+    // ros::spinOnce();
+    m_pub_rgb_render_pointcloud_ptr_vec[ cur_topic_idx ]->publish( ros_pc_msg );
+    pc.clear();
+    cur_topic_idx++;
+
+    if ( cur_topic_idx >= 40 ) // Maximum pointcloud topics = 45.
+    {
+        number_of_pts_per_topic *= 1.5;
+        sleep_time_aft_pub *= 1.5;
+    }
+
+}
 auto Visualizer::PubPointCloud()->void {
 
 
@@ -398,7 +537,8 @@ auto Visualizer::Run()->void{
                 g_pointcloud_pts_num += pc_i->pts_cloud.size();
             }
             // std::cout<<"run vis2"<<std::endl;
-            this->PubPointCloud();
+            // this->PubPointCloud();
+            this->PubPointCloud_service();
             this->PubTrajectories();
             this->PubOdometries();
             //  std::cout<<"run vis3"<<std::endl;
