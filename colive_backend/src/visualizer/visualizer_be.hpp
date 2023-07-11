@@ -117,6 +117,8 @@ protected:
     uint32_t g_lidar_frame_num = 0;
     uint32_t g_camera_frame_num = 0;
     uint32_t g_pointcloud_pts_num =0;
+    uint32_t g_loop_self_num = 0;
+    uint32_t g_loop_co_num = 0;
     // // Data
     std::map<size_t,VisBundle>  vis_data_;
     VisBundle                   curr_bundle_;

@@ -550,10 +550,11 @@ void publish_frame_body(const ros::Publisher & pubLaserCloudFull_body,colive::Po
         RGBpointBodyLidarToIMU(&feats_undistort->points[i], \
                             &laserCloudIMUBody->points[i]);
     }
-
+    // V3D p_body_lidar(pi->x, pi->y, pi->z);
+    // V3D p_body_imu(state_point.offset_R_L_I*p_body_lidar + state_point.offset_T_L_I);
     
     sensor_msgs::PointCloud2 laserCloudmsg;
-
+        // pc->SetPoseTsc()
         pc->SetPointCloud(laserCloudIMUBody);
         pc->timestamp_ = lidar_end_time;
 

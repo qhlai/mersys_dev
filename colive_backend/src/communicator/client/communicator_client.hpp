@@ -126,6 +126,10 @@ protected:
 
     Vector3Type             last_pos_ =Vector3Type::Zero();
     QuaternionType          last_quan_=QuaternionType::Identity(); //https://quaternions.online/
+    TransformType           last_transform_ = TransformType::Identity(); 
+    // 多帧拼接的基础帧的迁移矩阵
+    TransformType           base_frame_transform_ = TransformType::Identity(); 
+    bool                    base_frame_update_ = true;
     precision_t             last_timestamp_=0;
 
     std::list<KeyFrame*>   kf_out_buffer_;

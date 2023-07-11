@@ -36,47 +36,48 @@ auto PlaceRecognition::process_lcd()->void {
 }
 
 auto PlaceRecognition::performSCLoopClosure()->void {
-    if( int(mapmanager_->cl_pcs.size()) < mapmanager_->scManager.NUM_EXCLUDE_RECENT) // do not try too early 
-        return;
+    // if( int(mapmanager_->cl_pcs.size()) < mapmanager_->scManager.NUM_EXCLUDE_RECENT) // do not try too early 
+    //     return;
 
-    auto detectResult = mapmanager_->scManager.detectLoopClosureID(); // first: nn index, second: yaw diff 
-    int SCclosestHistoryFrameID = detectResult.first;
-    // std::cout << "try detectLoopClosure:" << SCclosestHistoryFrameID<<std::endl;
-    if( SCclosestHistoryFrameID != -1 ) {
+    // auto detectResult = mapmanager_->scManager.detectLoopClosureID(); // first: nn index, second: yaw diff 
+    // int SCclosestHistoryFrameID = detectResult.first;
+    // // std::cout << "try detectLoopClosure:" << SCclosestHistoryFrameID<<std::endl;
+    // if( SCclosestHistoryFrameID != -1 ) {
         
-        std::cout << "detectLoopClosureID: " << SCclosestHistoryFrameID<<std::endl;
-        const int prev_node_idx = SCclosestHistoryFrameID;
-        const int curr_node_idx = mapmanager_->cl_pcs.size() - 1; // because cpp starts 0 and ends n-1
+    //     std::cout << "detectLoopClosureID: " << SCclosestHistoryFrameID<<std::endl;
+    //     const int prev_node_idx = SCclosestHistoryFrameID;
+    //     const int curr_node_idx = mapmanager_->cl_pcs.size() - 1; // because cpp starts 0 and ends n-1
 
-        auto pc_query_ = mapmanager_->cl_pcs[prev_node_idx];
-        // auto pc_match_ = mapmanager_->cl_pcs[curr_node_idx];
-        // // size_t curr_client_id=pc_query_->GetClientID();
-        // // size_t prev_client_id=pc_match_->GetClientID();
+    //     auto pc_query_ = mapmanager_->cl_pcs[prev_node_idx];
+    //     // auto pc_match_ = mapmanager_->cl_pcs[curr_node_idx];
+    //     // // size_t curr_client_id=pc_query_->GetClientID();
+    //     // // size_t prev_client_id=pc_match_->GetClientID();
 
-        // uint8_t ignore_frame = 10;
-        // if(pc_query_->GetFrameID() > ignore_frame + last_loop_frame_id[pc_query_->GetClientID()]){
-        //     last_loop_frame_id[pc_query_->GetClientID()]=pc_query_->GetFrameID();
-        // }
-        // else{
-        //     std::cout << COUTNOTICE << "loop too short" << std::endl;
-        //     return;
-        // }
+    //     // uint8_t ignore_frame = 10;
+    //     // if(pc_query_->GetFrameID() > ignore_frame + last_loop_frame_id[pc_query_->GetClientID()]){
+    //     //     last_loop_frame_id[pc_query_->GetClientID()]=pc_query_->GetFrameID();
+    //     // }
+    //     // else{
+    //     //     std::cout << COUTNOTICE << "loop too short" << std::endl;
+    //     //     return;
+    //     // }
 
-        if(last_loops_.count(pc_query_->GetClientID())) {
-            if((pc_query_->GetFrameID() - last_loops_[pc_query_->GetClientID()]) < colive_params::placerec::consecutive_loop_dist) {
-                pc_query_->SetErase();
-                // return false;
-                return;
-            }
-        }
+    //     if(last_loops_.count(pc_query_->GetClientID())) {
+    //         if((pc_query_->GetFrameID() - last_loops_[pc_query_->GetClientID()]) < colive_params::placerec::consecutive_loop_dist) {
+    //             std::cout << COUTNOTICE << "loop too short" << std::endl;
+    //             pc_query_->SetErase();
+    //             // return false;
+    //             return;
+    //         }
+    //     }
 
-        cout << "Loop detected! - between " << prev_node_idx << " and " << curr_node_idx << "" << endl;
+    //     cout << "SC Loop detected! - between " << prev_node_idx << " and " << curr_node_idx << "" << endl;
 
-        std::unique_lock<std::mutex> lock(mtx_mBuf_);
-        scLoopICPBuf.push(std::pair<int, int>(prev_node_idx, curr_node_idx));
-        // addding actual 6D constraints in the other thread, icp_calculation.
-        mtx_mBuf_.unlock();
-    }
+    //     std::unique_lock<std::mutex> lock(mtx_mBuf_);
+    //     scLoopICPBuf.push(std::pair<int, int>(prev_node_idx, curr_node_idx));
+    //     // addding actual 6D constraints in the other thread, icp_calculation.
+    //     mtx_mBuf_.unlock();
+    // }
 }
 
 auto PlaceRecognition::doICPVirtualRelative(int _loop_pc_idx, int _curr_pc_idx, TransformType &corrected_tf)->int
@@ -231,6 +232,7 @@ auto PlaceRecognition::CorrectLoop()->bool {
     while ( !scLoopICPBuf.empty() )
     {
         std::cout << "\033[1;32m+++ PLACE RECOGNITION FOUND +++\033[0m" << std::endl;
+
         if( scLoopICPBuf.size() > 30 ) {
             ROS_WARN("Too many loop clousre candidates to be ICPed is waiting ... Do process_lcd less frequently (adjust loopClosureFrequency)");
         }
@@ -243,21 +245,26 @@ auto PlaceRecognition::CorrectLoop()->bool {
         const int prev_node_idx = loop_idx_pair.first;
         const int curr_node_idx = loop_idx_pair.second;
 
-        pc_query_ = mapmanager_->cl_pcs[prev_node_idx];
-        pc_match_ = mapmanager_->cl_pcs[curr_node_idx];
+        auto loop_pc = mapmanager_->cl_pcs[prev_node_idx];
+        auto curr_pc = mapmanager_->cl_pcs[curr_node_idx];
+
 
         int check_num_map;
-        MapPtr map_query = mapmanager_->CheckoutMapExclusiveOrWait(pc_query_->id_.second,check_num_map);
+        MapPtr map_query = mapmanager_->CheckoutMapExclusiveOrWait(curr_pc->GetClientID(),check_num_map);
         
+        // 检查是否已经有回环关系
         for(auto lc : map_query->GetLoopConstraints()) {
             bool existing_match = false;
-            if(lc.pc1 == pc_match_ && lc.pc2 == pc_query_) existing_match = true;
-            if(lc.pc2 == pc_match_ && lc.pc1 == pc_query_) existing_match = true;
+            if(lc.type==0){
+                if(lc.pc1 == loop_pc && lc.pc2 == curr_pc) existing_match = true;
+                if(lc.pc2 == loop_pc && lc.pc1 == curr_pc) existing_match = true;
+            }
+
             if(!existing_match) continue;
             std::cout << "!!! Loop Constraint already exisiting -- skip !!!" << std::endl;
-            pc_query_->SetErase();
+            curr_pc->SetErase();
             pc_match_->SetErase();
-            mapmanager_->ReturnMap(pc_query_->id_.second,check_num_map);
+            mapmanager_->ReturnMap(curr_pc->GetClientID(),check_num_map);
             return false;
         }
         // LoopConstraint lc(kf_match,kf_query,T_smatch_squery);
@@ -265,19 +272,21 @@ auto PlaceRecognition::CorrectLoop()->bool {
         TransformType T_curr_loop;// 当前转到过去回环的  T_curr_loop
         auto relative_pose_optional = doICPVirtualRelative(prev_node_idx, curr_node_idx, T_curr_loop);
         if(relative_pose_optional==0) {
+            // 记录历史回环帧
+            last_loops_[curr_pc->GetClientID()] = curr_pc->GetFrameID();
 
             if_detect = true;
             // std::cout << COUTDEBUG << "CheckoutMapExclusiveOrWait OK " << std::endl;
             // T_squery_smatch = tf;
             // std::cout << "do icp success0" << std::endl;
-            auto loop_pc = mapmanager_->cl_pcs[prev_node_idx];
-            auto curr_pc = mapmanager_->cl_pcs[curr_node_idx];
+            // auto loop_pc = mapmanager_->cl_pcs[prev_node_idx];
+            // auto curr_pc = mapmanager_->cl_pcs[curr_node_idx];
 
             // std::cout << "do icp success0.1:"<<loop_pc->id_.first<<"sdada:"<<curr_pc->id_.first << std::endl;
             // curr_pc->map_.GetPointCloudEX(loop_pc->id_)
             if(map_query->GetPointCloudEX(loop_pc->id_)){
                 bool perform_pgo_ =true;
-                LoopConstraint lc(pc_query_,pc_match_, T_curr_loop);
+                LoopConstraint lc(curr_pc,loop_pc, T_curr_loop);
                 map_query->AddLoopConstraint(lc); // have fix crash here
                 // std::cout << "do icp success0.2" << std::endl;
                 if(perform_pgo_){
@@ -305,10 +314,10 @@ auto PlaceRecognition::CorrectLoop()->bool {
             }
 
         }else{
-            mapmanager_->ReturnMap(pc_query_->id_.second,check_num_map);
+            mapmanager_->ReturnMap(curr_pc->id_.second,check_num_map);
             continue;
         }
-        mapmanager_->ReturnMap(pc_query_->id_.second,check_num_map);
+        mapmanager_->ReturnMap(curr_pc->id_.second,check_num_map);
     }
     // if( gtSAMgraphMade ) {
     //         mtxPosegraph.lock();
@@ -354,8 +363,64 @@ auto PlaceRecognition::CorrectLoop()->bool {
 
 auto PlaceRecognition::DetectLoop()->bool {
 
-    performSCLoopClosure();
+    // performSCLoopClosure();
+    {
+        std::unique_lock<std::mutex> lock(mtx_in_);
+        pc_query_ = buffer_pcs_in_.front();
+        buffer_pcs_in_.pop_front();
+        // pc_query_->SetNotErase();
+    }
+    mapmanager_->AddToDatabase(pc_query_);
 
+    // if( int(mapmanager_->cl_pcs.size()) < mapmanager_->scManager.NUM_EXCLUDE_RECENT) // do not try too early 
+    //     return false;
+    if(pc_query_->GetFrameID() < colive_params::placerec::start_after_kf || int(mapmanager_->cl_pcs.size()) < mapmanager_->scManager.NUM_EXCLUDE_RECENT) {
+        pc_query_->SetErase();
+        std::cout<< COUTNOTICE <<"eraly loop"<<std::endl;
+        return false;
+    }
+    auto detectResult = mapmanager_->scManager.detectLoopClosureID(); // first: nn index, second: yaw diff 
+    int SCclosestHistoryFrameID = detectResult.first;
+    // std::cout << "try detectLoopClosure:" << SCclosestHistoryFrameID<<std::endl;
+    if( SCclosestHistoryFrameID != -1 ) {
+        
+        std::cout << "detectLoopClosureID: " << SCclosestHistoryFrameID<<std::endl;
+        const int prev_node_idx = SCclosestHistoryFrameID;
+        const int curr_node_idx = mapmanager_->cl_pcs.size() - 1; // because cpp starts 0 and ends n-1
+
+        // auto pc_query_ = mapmanager_->cl_pcs[curr_node_idx];
+        // auto pc_match_ = mapmanager_->cl_pcs[curr_node_idx];
+        // // size_t curr_client_id=pc_query_->GetClientID();
+        // // size_t prev_client_id=pc_match_->GetClientID();
+
+        // uint8_t ignore_frame = 10;
+        // if(pc_query_->GetFrameID() > ignore_frame + last_loop_frame_id[pc_query_->GetClientID()]){
+        //     last_loop_frame_id[pc_query_->GetClientID()]=pc_query_->GetFrameID();
+        // }
+        // else{
+        //     std::cout << COUTNOTICE << "loop too short" << std::endl;
+        //     return;
+        // }
+        std::cout << COUTDEBUG << "debug loop:"<<pc_query_->GetFrameID()<< ", " << last_loops_[pc_query_->GetClientID()]<< std::endl;
+
+        if(last_loops_.count(pc_query_->GetClientID())) {
+            
+            if((pc_query_->GetFrameID() - last_loops_[pc_query_->GetClientID()]) < colive_params::placerec::consecutive_loop_dist) {
+                std::cout << COUTNOTICE << "loop too offten" << std::endl;
+                pc_query_->SetErase();
+                return false;
+                // return;
+            }
+        }
+
+        std::cout << COUTNOTICE << "SC Loop detected! - between " << prev_node_idx << " and " << curr_node_idx << "" << endl;
+
+        std::unique_lock<std::mutex> lock(mtx_mBuf_);
+        scLoopICPBuf.push(std::pair<int, int>(prev_node_idx, curr_node_idx));
+        // addding actual 6D constraints in the other thread, icp_calculation.
+        mtx_mBuf_.unlock();
+        return true;
+    }
     
     // if(pc_query_->id_.first < colive_params::placerec::start_after_kf) {
     //     // pc_query_->SetErase();
@@ -470,7 +535,7 @@ auto PlaceRecognition::DetectLoop()->bool {
     //     return true;
     // }
     // kf_query_->SetErase();
-    return true;
+    return false;
 }
 auto PlaceRecognition::InsertKeyframe(PointCloudEXPtr pc)->void {
     std::unique_lock<std::mutex> lock(mtx_in_);
@@ -485,15 +550,7 @@ auto PlaceRecognition::Run()->void {
     while(1){
         if (CheckBuffer()) {
             num_runs++;
-            {
-                std::unique_lock<std::mutex> lock(mtx_in_);
-                pc_query_ = buffer_pcs_in_.front();
-                buffer_pcs_in_.pop_front();
-                // pc_query_->SetNotErase();
-            }
 
-            // scManager.makeAndSaveScancontextAndKeys(*thisKeyFrameDS);
-            mapmanager_->AddToDatabase(pc_query_);
             bool detected = DetectLoop();
             // std::cout<<"add query"<<std::endl;
             if(detected) {
