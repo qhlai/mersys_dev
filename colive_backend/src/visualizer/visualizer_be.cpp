@@ -320,7 +320,7 @@ auto Visualizer::PubPointCloud_service()->void {
         pc_sum+=*pc_tmp;
     }
     std::cout << COUTNOTICE <<"rviz:pointcloud points sum:"<< pc_sum.points.size() << std::endl;
-    for(uint64_t i=0;i<pc_sum.points.size();i++) {
+    for(uint64_t i=0;i<pc_sum.points.size();i+=5) {
         // PointCloudEXPtr pc_ex = mit->second;
 
         // PointCloud::Ptr pc_tmp(new PointCloud(pc_ex->pts_cloud));
@@ -356,7 +356,7 @@ auto Visualizer::PubPointCloud_service()->void {
     }
     pc.resize( pub_idx_size );
     pcl::toROSMsg( pc, ros_pc_msg );
-    ros_pc_msg.header.frame_id = "world";       
+    ros_pc_msg.header.frame_id = "camera_init";       
     ros_pc_msg.header.stamp = ros::Time::now(); 
     if ( m_pub_rgb_render_pointcloud_ptr_vec[ cur_topic_idx ] == nullptr )
     {

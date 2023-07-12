@@ -210,17 +210,17 @@ auto CommunicatorBase::ProcessBufferOut()->void {
                 pointcloud_out_container.msg_info.push_back(0);
             SendMsgContainer(pointcloud_out_container);
         }
-        // for(int i=0;db.keyframes.size();++i){
-        //     message_container kf_out_container;
-        //     MsgKeyframe msg = db.keyframes.front();
-        //     db.keyframes.pop_front();
-        //     Serialize(msg);
-        //     kf_out_container.ser_msg << send_ser_.str();
-        //     kf_out_container.msg_info.insert(kf_out_container.msg_info.end(), msg.msg_type.begin(), msg.msg_type.end());
-        //     while(kf_out_container.msg_info.size() != ContainerSize*5)
-        //         kf_out_container.msg_info.push_back(0);
-        //     SendMsgContainer(kf_out_container);
-        // }
+        for(int i=0;db.images.size();++i){
+            // message_container kf_out_container;
+            // MsgKeyframe msg = db.keyframes.front();
+            // db.keyframes.pop_front();
+            // Serialize(msg);
+            // kf_out_container.ser_msg << send_ser_.str();
+            // kf_out_container.msg_info.insert(kf_out_container.msg_info.end(), msg.msg_type.begin(), msg.msg_type.end());
+            // while(kf_out_container.msg_info.size() != ContainerSize*5)
+            //     kf_out_container.msg_info.push_back(0);
+            // SendMsgContainer(kf_out_container);
+        }
 
         // while(!db.landmarks.empty()){
         //     message_container mp_out_container;

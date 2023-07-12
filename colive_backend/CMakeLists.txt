@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(colive_backend)
 
+
 set(CMAKE_BUILD_TYPE "Release")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")
 
@@ -104,7 +105,7 @@ file(GLOB_RECURSE BACKEND_SRC_FILES
 ${PROJECT_SOURCE_DIR}/src/core/*.cpp
 )
 file(GLOB_RECURSE FRAME_INC_FILES     
-${PROJECT_SOURCE_DIR}/src/map/frames/*.cpp
+${PROJECT_SOURCE_DIR}/src/map/frames/*.hpp
 )
 file(GLOB_RECURSE FRAME_SRC_FILES     
 ${PROJECT_SOURCE_DIR}/src/map/frames/*.cpp

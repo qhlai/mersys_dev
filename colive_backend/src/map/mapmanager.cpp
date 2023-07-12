@@ -246,11 +246,18 @@ auto MapManager::PerformMerge()->void {
 
     int check_query, check_match;
 
-    // this->CheckoutMapExclusiveOrWait(kf_query->id_.second,check_query);
-    // MapInstancePtr map_query = MapInstancePtr
-    MapInstancePtr map_query = maps_[pc_query->id_.second];
-    MapInstancePtr map_match = maps_[pc_match->id_.second];
-    // this->CheckoutMapExclusiveOrWait(kf_match->id_.second,check_match);
+    // MapInstancePtr map_query = MapInstancePtr this->CheckoutMapExclusiveOrWait(pc_query->GetClientID(),check_query);
+    //
+
+    this->CheckoutMapExclusiveOrWait(pc_query->GetClientID(),check_query);
+    MapInstancePtr map_query = maps_[pc_query->GetClientID()];
+
+    this->CheckoutMapExclusiveOrWait(pc_match->GetClientID(),check_match);
+    MapInstancePtr map_match = maps_[pc_match->GetClientID()];
+
+    // MapInstancePtr map_query = maps_[pc_query->id_.second];
+    // MapInstancePtr map_match = maps_[pc_match->id_.second];
+    // this->CheckoutMapExclusiveOrWait(kf_match->GetClientID(),check_match);
     // MapInstancePtr map_match = maps_[kf_match->id_.second];
 
 
@@ -267,10 +274,13 @@ auto MapManager::PerformMerge()->void {
     // TransformType T_s_wmatch = pc_match.T_lm_w_*pc_match.T_s_lm_;
     // TransformType T_wmatch_wquery = T_w_smatch * T_squery_smatch * T_w_squery.inverse();
 #if 1
-    auto pc_query_w_g = pc_query->GetPoseTws() * T_squery_smatch * pc_match->GetPoseTsg();
-    pc_query->SetPoseTwg(pc_query_w_g);
+    // auto pc_query_w_g = pc_query->GetPoseTws() * T_squery_smatch * pc_match->GetPoseTsg();
+    // pc_query->SetPoseTwg(pc_query_w_g);
+    // TransformType T_wtofuse_wmatch = T_squery_smatch;
+    TransformType T_wtofuse_wmatch = pc_query->GetPoseTgs() *  T_squery_smatch * pc_match->GetPoseTsg();
+
 #endif
-    MapInstancePtr map_merged(new MapInstance(map_match,map_query,pc_query->GetPoseTwg()));
+    MapInstancePtr map_merged(new MapInstance(map_match,map_query,T_wtofuse_wmatch));
 
 //     LoopConstraint lc(kf_match,kf_query,T_squery_smatch, cov_mat);
 //     map_merged->map->AddLoopConstraint(lc);

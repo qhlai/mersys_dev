@@ -111,6 +111,7 @@ protected:
 
     virtual auto ProcessKfBuffer()                                                      ->void;
     virtual auto ProcessPointCloudBuffer()                                              ->void;
+    virtual auto ProcessImageBuffer()                                              ->void;
 //     // Infrastructure
 //     Atlas*                  map_                                                                = nullptr;  // the map is not necessary to send data to the server. However, we keep a ptr to it to facilitate implementing potetnial interaction
 

@@ -134,12 +134,12 @@ auto PointCloud_ex::convert_to_tf()->TransformType{
 }
 auto PointCloud_ex::pc_less::operator ()(const PointCloudEXPtr a, const PointCloudEXPtr b) const ->bool
 {
-    if(a->id_.second < b->id_.second)
+    if(a->GetClientID() < b->GetClientID())
         return true;
-    else if(a->id_.second > b->id_.second)
+    else if(a->GetClientID() > b->GetClientID())
         return false;
     else {
-        return a->id_.first < b->id_.first;
+        return a->GetFrameID() < b->GetFrameID();
     }
 }
 

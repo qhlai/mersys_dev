@@ -6,10 +6,10 @@ namespace colive {
 MapInstance::MapInstance(int id) {
     map.reset(new Map(id));
 }
-MapInstance::MapInstance(MapInstancePtr map_target, MapInstancePtr map_tofuse, TransformType T_wmatch_wtofuse)
+MapInstance::MapInstance(MapInstancePtr map_target, MapInstancePtr map_tofuse, TransformType T_wtofuse_wmatch)
     : usage_cnt(-1)
 {
-    map.reset(new Map(map_target->map,map_tofuse->map,T_wmatch_wtofuse));
+    map.reset(new Map(map_target->map,map_tofuse->map,T_wtofuse_wmatch));
 }
 
 MapInstance::MapInstance(MapPtr external_map) {
@@ -31,7 +31,7 @@ Map::Map(size_t id_)
     //                 0,0,0,1;
 }
 // 把map_tofuse 转换到 map_target位置 并生成一个新的map
-Map::Map(MapPtr map_target, MapPtr map_tofuse, TransformType T_wtarget_wtofuse)
+Map::Map(MapPtr map_target, MapPtr map_tofuse, TransformType T_wtofuse_wtarget)
     // : Map_V(map_target->id_map_)
 {
     
@@ -43,7 +43,7 @@ Map::Map(MapPtr map_target, MapPtr map_tofuse, TransformType T_wtarget_wtofuse)
     // LandmarkMap landmarks_target = map_target->GetLandmarks();
     // size_t tmax_id_kf_target = map_target->GetMaxKfId();
     // size_t max_id_lm_target = map_target->GetMaxLmId();
-    // LoopVector loops_target = map_target->GetLoopConstraints();
+    LoopVector loops_target = map_target->GetLoopConstraints();
 
     // // data map_tofuse
     std::set<size_t> associated_clients_tofuse = map_tofuse->associated_clients_;
@@ -53,7 +53,7 @@ Map::Map(MapPtr map_target, MapPtr map_tofuse, TransformType T_wtarget_wtofuse)
     // LandmarkMap landmarks_tofuse = map_tofuse->GetLandmarks();
     // size_t tmax_id_kf_tofuse = map_tofuse->GetMaxKfId();
     // size_t max_id_lm_tofuse = map_tofuse->GetMaxLmId();
-    // LoopVector loops_tofuse = map_tofuse->GetLoopConstraints();
+    LoopVector loops_tofuse = map_tofuse->GetLoopConstraints();
 
     // //fill new map
     associated_clients_.insert(associated_clients_target.begin(),associated_clients_target.end());
@@ -67,21 +67,22 @@ Map::Map(MapPtr map_target, MapPtr map_tofuse, TransformType T_wtarget_wtofuse)
     // landmarks_.insert(landmarks_tofuse.begin(),landmarks_tofuse.end());
     // max_id_kf_ = std::max(tmax_id_kf_target,tmax_id_kf_tofuse);
     // max_id_lm_ = std::max(max_id_lm_target,max_id_lm_tofuse);
-    // loop_constraints_.insert(loop_constraints_.end(),loops_target.begin(),loops_target.end());
-    // loop_constraints_.insert(loop_constraints_.end(),loops_tofuse.begin(),loops_tofuse.end());
+    loop_constraints_.insert(loop_constraints_.end(),loops_target.begin(),loops_target.end());
+    loop_constraints_.insert(loop_constraints_.end(),loops_tofuse.begin(),loops_tofuse.end());
 
     // // Transform poses of map_tofuse
 
-
+    // PointCloudEXPtr target = pointcloudex_target.begin()->second;
+    // TransformType T_lm_s_befcorrection = pc->GetPoseTwg();
 
         
-    // for(PointCloudEXMap::iterator mit =pointcloudex_tofuse.begin();mit != pointcloudex_tofuse.end();++mit) {
-    //     PointCloudEXPtr pc = mit->second;
-    //     TransformType T_lm_s_befcorrection = pc->T_lm_s_;
-    //     TransformType T_lm_s_corrected = T_wtarget_wtofuse * T_lm_s_befcorrection; // tofuse 里的帧在target下的坐标
-    //     pc->T_lm_s_=T_lm_s_corrected;
-    //     pc->pointcloud_transform(T_wtarget_wtofuse);
-    // }
+    for(PointCloudEXMap::iterator mit =pointcloudex_tofuse.begin();mit != pointcloudex_tofuse.end();++mit) {
+        PointCloudEXPtr pc = mit->second;
+        TransformType T_lm_s_befcorrection = pc->GetPoseTwg();
+        TransformType T_lm_s_corrected = T_lm_s_befcorrection*T_wtofuse_wtarget; // tofuse 里的帧在target下的坐标
+        pc->SetPoseTwg(T_lm_s_corrected);
+        // pc->pointcloud_transform(T_wtarget_wtofuse);
+    }
     // Matrix3Type R_wmatch_wtofuse = T_wtarget_wtofuse.block<3,3>(0,0);
     // Vector3Type t_wmatch_wtofuse = T_wtarget_wtofuse.block<3,1>(0,3);
     // for(KeyframeMap::iterator mit = keyframes_tofuse.begin();mit != keyframes_tofuse.end();++mit) {
@@ -128,6 +129,17 @@ auto Map::GetLoopConstraints()->LoopVector {
 //     std::unique_lock<std::mutex> lock(mtx_map_);
 //     return pointclouds_;
 // }
+auto Map::GetFamily(size_t client_id)->TransformType  {
+    std::unique_lock<std::mutex> lock(mtx_map_);
+    idpair idp;
+    idp.first=0;
+    idp.second=client_id;
+    PointCloudEXMap::iterator mit =  pointclouds_.find(idp);
+    if(mit != pointclouds_.end()) return mit->second->GetPoseTwg();
+    else {
+        return  TransformType::Identity() ;
+    }
+}
 auto Map::GetPointCloudEX(idpair idp)->PointCloudEXPtr {
     std::unique_lock<std::mutex> lock(mtx_map_);
     PointCloudEXMap::iterator mit =  pointclouds_.find(idp);

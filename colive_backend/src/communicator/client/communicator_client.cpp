@@ -124,6 +124,34 @@ auto Communicator_client::ProcessPointCloudBuffer()->void {
 
 
 }
+auto Communicator_client::ProcessImageBuffer()->void {
+    // std::unique_lock<std::mutex>(mtx_pointcloud_queue_);
+    // u16 cnt =0;
+
+    // while(!pointcloud_out_buffer_.empty()) {
+    //     // std::cout<< "comm: processing point cloud"<<std::endl;
+    //     auto ptcloud = pointcloud_out_buffer_.front();
+    //     pointcloud_out_buffer_.pop_front();
+
+    //     // if(kfi->sent_once_ && !Map_V_params::comm::send_updates) continue;
+    //     // if(kfi->sent_once_ && kfi->mnId == 0) continue;
+    //     colive::data_bundle map_chunk;
+    //     colive::MsgPointCloud msg_ptcloud;
+    //     Vector3Type m(1.0,2.0,3.0);
+    //     ptcloud->ConvertToMsg(msg_ptcloud,m ,ptcloud->sent_once_,client_id_);
+    //     ptcloud->sent_once_ = true;
+    //     map_chunk.pointclouds.push_back(msg_ptcloud);
+
+    //     this->PassDataBundle(map_chunk);// 最后加到封包发送缓存中
+
+    //     if(cnt >= colive_params::comm::max_sent_kfs_per_iteration) break;
+
+
+    // }
+    // // while(!kf_out_buffer_.empty())
+
+
+}
 auto Communicator_client::ProcessKfBuffer()->void {
     std::unique_lock<std::mutex>(mtx_kf_queue_);
     // int cnt = 0;
@@ -352,6 +380,7 @@ auto Communicator_client::Run()->void {
     while(true)
     {
         this->ProcessPointCloudBuffer();
+        this->ProcessImageBuffer();
         // this->ProcessKfBuffer();
         this->ProcessBufferOut();
         this->ProcessBufferIn();

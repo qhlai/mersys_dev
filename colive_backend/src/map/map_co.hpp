@@ -35,7 +35,7 @@
 // #include "tools/tools_eigen.hpp"
 #include "typedefs_base.hpp"
 #include "pointcloud_ex.hpp"
-
+#include "image_ex.hpp"
 namespace colive {
 
 struct MapInstance {
@@ -45,7 +45,7 @@ struct MapInstance {
 
     MapInstance()                                                                       = delete;
     MapInstance(int id);
-    MapInstance(MapInstancePtr map_target, MapInstancePtr map_tofuse, TransformType T_wmatch_wtofuse);
+    MapInstance(MapInstancePtr map_target, MapInstancePtr map_tofuse, TransformType T_wtofuse_wmatch);
     MapInstance(MapPtr external_map);
 
     MapPtr                      map;
@@ -97,8 +97,8 @@ public:
 
     Map()=delete;
     Map(size_t id);
-    Map(MapPtr map_target, MapPtr map_tofuse, TransformType T_wtarget_wtofuse);
-
+    Map(MapPtr map_target, MapPtr map_tofuse, TransformType T_wtofuse_wmatch);
+    virtual auto GetFamily(size_t client_id)->TransformType;
     virtual auto GetPointCloudEX(idpair idp)        ->PointCloudEXPtr;
     virtual auto GetPointCloudEXs()            ->PointCloudEXMap;
     virtual auto Display()->void;

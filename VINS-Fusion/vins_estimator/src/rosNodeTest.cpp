@@ -33,11 +33,6 @@ std::mutex m_buf;
 
 void img0_callback(const sensor_msgs::ImageConstPtr &img_msg)
 {
-    // if ( sub_image_typed == 2 )
-    // {
-    //     return; // Avoid subscribe the same image twice.
-    // }
-    // sub_image_typed =1;
     m_buf.lock();
     img0_buf.push(img_msg);
     m_buf.unlock();

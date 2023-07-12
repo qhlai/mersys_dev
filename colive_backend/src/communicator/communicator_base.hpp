@@ -60,6 +60,7 @@ public:
     TypeDefs::KeyframeMsgList   keyframes;
     TypeDefs::LandmarkMsgList   landmarks;
     TypeDefs::PointCloudMsgList pointclouds;
+    TypeDefs::PointCloudMsgList images;
     TypeDefs::OdometryMsgList   odometrys;
 
 };

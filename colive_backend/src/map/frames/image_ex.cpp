@@ -1,41 +1,45 @@
 
-#include "pointcloud_ex.hpp"
-#include "msgs/msg_pointcloud.hpp"
+#include "image_ex.hpp"
+#include "msgs/msg_image.hpp"
 namespace colive {
 
-
-// PointCloud_ex::PointCloud_ex(MsgPointCloud msg, MapPtr map){
-//     id_= msg.id_;
-//     pos_w = msg.pos_w;
-//     quan_ = msg.quan_;
-//     pts_cloud=msg.pts_cloud;
-//     timestamp_=msg.timestamp_;
-//     // T_s_w_=msg.T_s_w_;
-//     SetPoseTsw(msg.T_s_w_);
-    
-//     map_=map;
-// }
+auto Image_ex::img_less::operator ()(const ImageEXPtr a, const ImageEXPtr b) const ->bool
+{
+    if(a->GetClientID() < b->GetClientID())
+        return true;
+    else if(a->GetClientID() > b->GetClientID())
+        return false;
+    else {
+        return a->GetFrameID() < b->GetFrameID();
+    }
+}
+Image_ex::Image_ex(MsgImage msg){
+    id_= msg.id_;
+    // pts_cloud=msg.pts_cloud;
+    timestamp_=msg.timestamp_;
+    // T_s_w_=msg.T_s_w_;
+    SetPoseTsw(msg.T_s_w_);
+    m_img=msg.img_;
+    // map_=map;
+}
 // // auto PointCloud_ex::GetPoseTws()->TransformType {
 // //     std::unique_lock<std::mutex> lock(mtx_pose_);
 // //     return T_w_s_;
 // // }
-// auto PointCloud_ex::ConvertToMsg(colive::MsgPointCloud &msg,Vector3Type &pos_w_2, bool is_update, size_t cliend_id)->void{
+auto Image_ex::ConvertToMsg(MsgImage &msg, bool is_update, size_t cliend_id)->void{
 
 
 //     // std::unique_lock<std::mutex> lock_conn(mMutexConnections);
 //     // std::unique_lock<std::mutex> lock_feat(mMutexFeatures);
 //     // std::unique_lock<std::mutex> lock_pose(mMutexPose);
-//     // msg.downSample
-//     msg.id_ = id_;   // mnid clientid  
-//     msg.timestamp_ = timestamp_;//std::chrono::system_clock::now();
-    
-//     msg.pos_w = pos_w;
-//     msg.quan_ = quan_;
-//     msg.pts_cloud = pts_cloud;
-//     msg.T_s_w_=GetPoseTsw();
-//     // msg.pts_cloud=
+    // msg.downSample
+    msg.id_ = id_;   // mnid clientid  
+    msg.timestamp_ = timestamp_;//std::chrono::system_clock::now();
+    msg.T_s_w_=GetPoseTsw();
+    msg.img_ = m_img;
+    // msg.pts_cloud=
 
-// }
+}
 
 // // void RGBpointBodyToWorld(PointType const * const pi, PointType * const po)
 // // {
@@ -63,12 +67,12 @@ namespace colive {
 //         // kf->SetPoseTws(T_w_s_corrected);
 //         // kf->velocity_ = T_wtarget_wtofuse.block<3,3>(0,0) * kf->velocity_;
 
-// auto PointCloud_ex::SetPointCloud(pcl::PointCloud<pcl::PointXYZI>::Ptr pc)->void {
-//     std::unique_lock<std::mutex> lock(mtx_in_);
+auto Image_ex::SetImage(ImagePtr img)->void {
+    std::unique_lock<std::mutex> lock(mtx_in_);
 
-//     pts_cloud=*pc;
+    m_img=*img;
 
-// }
+}
 // auto PointCloud_ex::SetPointCloud(pcl::PointCloud<pcl::PointXYZINormal>::Ptr pc)->void {
 //     std::unique_lock<std::mutex> lock(mtx_in_);
 //     pcl::PointCloud<pcl::PointXYZI>::Ptr pc_out(new pcl::PointCloud<pcl::PointXYZI>);

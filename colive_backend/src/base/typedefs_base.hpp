@@ -38,6 +38,8 @@
 #include <pcl/filters/statistical_outlier_removal.h>
 #include <pcl/common/transforms.h>
 
+#include "opencv2/opencv.hpp"
+
 #define MAPRANGE std::numeric_limits<uint8_t>::max()
 #define KFRANGE std::numeric_limits<uint16_t>::max()
 #define MPRANGE std::numeric_limits<uint32_t>::max()
@@ -66,6 +68,7 @@ class PlaceRecognition;
 class Visualizer;
 class Client;
 class PointCloud_ex;
+class Image_ex;
 
 struct MsgKeyframe;
 struct MsgLandmark;
@@ -91,13 +94,17 @@ namespace TypeDefs {
     using PointCloud                    = pcl::PointCloud<PointType>;// pcl::PointCloud<PointXYZINormal>
     using PointCloudRBG                 = pcl::PointCloud<PointTypeRGB>;
     using PointCloudEX                  = PointCloud_ex;
+    using ImageEX                       = Image_ex;
 
     using CommClientPtr                 = std::shared_ptr<Communicator_client>;
     using CommServerPtr                 = std::shared_ptr<Communicator_server>;
     using KeyframePtr                   = std::shared_ptr<Keyframe>;
     using LandmarkPtr                   = std::shared_ptr<Landmark>;
     using PointCloudPtr                 = std::shared_ptr<PointCloud>;
-    using PointCloudEXPtr                 = std::shared_ptr<PointCloudEX>;
+    using PointCloudEXPtr               = std::shared_ptr<PointCloudEX>;
+    using Image                         = cv::Mat;
+    using ImagePtr                      = std::shared_ptr<Image>;
+    using ImageEXPtr                    = std::shared_ptr<ImageEX>;
 
     using ClientPtr                        = std::shared_ptr<Client>;
     using ClientVector                     = std::vector<ClientPtr>;
