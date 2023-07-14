@@ -23,6 +23,34 @@ namespace colive {
         std::unique_lock<std::mutex> lock(mtx_pose_);
         return T_c_w_;
     }
+    // nav_msgs::Odometry
+    auto FrameBase::convert2T( nav_msgs::Odometry &odometry)->TransformType {
+        return convert2T(
+        odometry.pose.pose.position.x, 
+        odometry.pose.pose.position.y,
+        odometry.pose.pose.position.z,
+        odometry.pose.pose.orientation.x,
+        odometry.pose.pose.orientation.y,
+        odometry.pose.pose.orientation.z,
+        odometry.pose.pose.orientation.w
+        );
+    }
+
+    auto FrameBase::convert2T(double x, double y,double z,double qx,double qy,double qz,double qw)->TransformType {
+        QuaternionType q;
+        Vector3Type pos_w;
+        pos_w[0] = x;
+        pos_w[1] = y;
+        pos_w[2] = z;
+
+        q.coeffs() << qx, qy, qz, qw;
+        // transform.setRotation( q );
+
+        TransformType T = TransformType::Identity();
+        T.translate(pos_w);
+        T.rotate(q);
+        return T;
+    }
 
     auto FrameBase::GetPoseTsw()->TransformType {
         std::unique_lock<std::mutex> lock(mtx_pose_);

@@ -20,6 +20,7 @@
 #include "estimator/estimator.h"
 #include "estimator/parameters.h"
 #include "utility/visualization.h"
+#include <communicator/client/enable_client.hpp>
 
 Estimator estimator;
 
@@ -141,7 +142,7 @@ void sync_process()
             }
             m_buf.unlock();
             if(!image0.empty())
-                estimator.inputImage(time, image0, image1);
+                estimator.inputImage(time, image0, image1, img);
         }
         else
         {
@@ -262,6 +263,21 @@ int main(int argc, char **argv)
     ros::NodeHandle n("~");
     ros::console::set_logger_level(ROSCONSOLE_DEFAULT_NAME, ros::console::levels::Info);
 
+    /*** communication ***/
+    // use namespace colive
+    
+    std::cout << ">>> COLIVE: Initialize communicator" << std::endl;
+    std::shared_ptr<colive::Communicator_client> comm_;
+
+    comm_.reset(new colive::Communicator_client(colive_params::sys::server_ip,colive_params::sys::port));
+    std::unique_ptr<std::thread> thread_comm_;
+    std::cout << ">>> COLIVE: Start comm thread" << std::endl;
+    thread_comm_.reset(new std::thread(&colive::Communicator_client::Run,comm_));
+
+    colive::Image_ex img1;
+    colive::Image_ex* img;
+    img = &img1;
+
     if(argc != 2)
     {
         printf("please intput: rosrun vins vins_node [config file] \n"
@@ -293,6 +309,7 @@ int main(int argc, char **argv)
     ros::Subscriber sub_img0 = n.subscribe(IMAGE0_TOPIC, 100, img0_callback);
     // IMAGE0_TOPIC_compress=std::string(IMAGE0_TOPIC).append("/compressed");
     // ros::Subscriber sub_img0_compress = n.subscribe(IMAGE0_TOPIC_compress, 100, img0_comp_callback);
+  
     ros::Subscriber sub_img1;
     if(STEREO)
     {

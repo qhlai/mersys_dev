@@ -628,23 +628,19 @@ void publish_odometry(const ros::Publisher & pubOdomAftMapped ,colive::PointClou
     transform.setOrigin(tf::Vector3(odomAftMapped.pose.pose.position.x, \
                                     odomAftMapped.pose.pose.position.y, \
                                     odomAftMapped.pose.pose.position.z));
-    pc->pos_w[0] = odomAftMapped.pose.pose.position.x;
-    pc->pos_w[1] = odomAftMapped.pose.pose.position.y;
-    pc->pos_w[2] = odomAftMapped.pose.pose.position.z;
+
     q.setW(odomAftMapped.pose.pose.orientation.w);
     q.setX(odomAftMapped.pose.pose.orientation.x);
     q.setY(odomAftMapped.pose.pose.orientation.y);
     q.setZ(odomAftMapped.pose.pose.orientation.z);
-    pc->quan_.coeffs() << odomAftMapped.pose.pose.orientation.x, odomAftMapped.pose.pose.orientation.y, odomAftMapped.pose.pose.orientation.z, odomAftMapped.pose.pose.orientation.w;
+    
     transform.setRotation( q );
 
     Eigen::Isometry3d T = Eigen::Isometry3d::Identity();
-    T.translate(pc->pos_w);
-    T.rotate(pc->quan_);
 
+    T = pc->convert2T(odomAftMapped);
     pc->SetPoseTsw(T);
-    // pc->T_s_lm_=T;
-    // std::cout<<"x:"<<pc->pos_w[0]<<" "<<(T(0,3))<<"y:"<<pc->pos_w[1]<<" "<<(T(1,3))<<std::endl;
+   
     br.sendTransform( tf::StampedTransform( transform, odomAftMapped.header.stamp, "camera_init", "body" ) );
 }
 

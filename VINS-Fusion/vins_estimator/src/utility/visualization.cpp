@@ -143,6 +143,25 @@ void pubOdometry(const Estimator &estimator, const std_msgs::Header &header)
         odometry.twist.twist.linear.z = estimator.Vs[WINDOW_SIZE].z();
         pub_odometry.publish(odometry);
 
+
+    // pc->pos_w[0] = odomAftMapped.pose.pose.position.x;
+    // pc->pos_w[1] = odomAftMapped.pose.pose.position.y;
+    // pc->pos_w[2] = odomAftMapped.pose.pose.position.z;
+    // q.setW(odomAftMapped.pose.pose.orientation.w);
+    // q.setX(odomAftMapped.pose.pose.orientation.x);
+    // q.setY(odomAftMapped.pose.pose.orientation.y);
+    // q.setZ(odomAftMapped.pose.pose.orientation.z);
+    // pc->quan_.coeffs() << odomAftMapped.pose.pose.orientation.x, odomAftMapped.pose.pose.orientation.y, odomAftMapped.pose.pose.orientation.z, odomAftMapped.pose.pose.orientation.w;
+    // transform.setRotation( q );
+
+    // Eigen::Isometry3d T = Eigen::Isometry3d::Identity();
+    // T.translate(pc->pos_w);
+    // T.rotate(pc->quan_);
+
+    // img->SetPoseTsw(T);
+
+
+
         geometry_msgs::PoseStamped pose_stamped;
         pose_stamped.header = header;
         pose_stamped.header.frame_id = "world";

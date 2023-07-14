@@ -35,6 +35,7 @@
 #include "../factor/projectionTwoFrameTwoCamFactor.h"
 #include "../factor/projectionOneFrameTwoCamFactor.h"
 #include "../featureTracker/feature_tracker.h"
+#include <communicator/client/enable_client.hpp>
 
 
 class Estimator
@@ -79,6 +80,11 @@ class Estimator
     void fastPredictIMU(double t, Eigen::Vector3d linear_acceleration, Eigen::Vector3d angular_velocity);
     bool IMUAvailable(double t);
     void initFirstIMUPose(vector<pair<double, Eigen::Vector3d>> &accVector);
+
+    std::shared_ptr<colive::Communicator_client> comm_;
+    std::unique_ptr<std::thread> thread_comm_;
+    colive::Image_ex img1;
+    colive::Image_ex* img;
 
     enum SolverFlag
     {

@@ -13,8 +13,17 @@
 Estimator::Estimator(): f_manager{Rs}
 {
     ROS_INFO("init begins");
-    initThreadFlag = false;
+    initThreadFlag = false; 
     clearState();
+
+    /*** communication ***/
+    // use namespace colive
+    
+    std::cout << ">>> COLIVE: Initialize communicator" << std::endl;
+    comm_.reset(new colive::Communicator_client(colive_params::sys::server_ip,colive_params::sys::port));
+    std::cout << ">>> COLIVE: Start comm thread" << std::endl;
+    thread_comm_.reset(new std::thread(&colive::Communicator_client::Run,comm_));
+    img = &img1;
 }
 
 Estimator::~Estimator()
@@ -157,7 +166,7 @@ void Estimator::changeSensorType(int use_imu, int use_stereo)
     }
 }
 
-void Estimator::inputImage(double t, const cv::Mat &_img, const cv::Mat &_img1)
+void Estimator::inputImage(double t, const cv::Mat &_img, const cv::Mat &_img1 )
 {
     inputImageCnt++;
     map<int, vector<pair<int, Eigen::Matrix<double, 7, 1>>>> featureFrame;
@@ -172,6 +181,10 @@ void Estimator::inputImage(double t, const cv::Mat &_img, const cv::Mat &_img1)
     if (SHOW_TRACK)
     {
         cv::Mat imgTrack = featureTracker.getTrackImage();
+        // img1.Set
+        img1.SetImage(imgTrack);
+        // img1.img_ = imgTrack;
+        img1.timestamp_ = t;
         pubTrackImage(imgTrack, t);
     }
     
@@ -189,6 +202,7 @@ void Estimator::inputImage(double t, const cv::Mat &_img, const cv::Mat &_img1)
         mBuf.lock();
         featureBuf.push(make_pair(t, featureFrame));
         mBuf.unlock();
+        
         TicToc processTime;
         processMeasurements();
         printf("process time: %f\n", processTime.toc());
@@ -323,7 +337,10 @@ void Estimator::processMeasurements()
             std_msgs::Header header;
             header.frame_id = "world";
             header.stamp = ros::Time(feature.first);
-
+            // img1.Set
+//  img1.SetImage(imgTrack);
+//         // img1.img_ = imgTrack;
+//         img1.timestamp_ = t;
             pubOdometry(*this, header);
             pubKeyPoses(*this, header);
             pubCameraPose(*this, header);

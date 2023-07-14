@@ -25,6 +25,7 @@ public:
     using MapPtr                        = TypeDefs::MapPtr;
     using PointType                     = TypeDefs::PointType;
     using VoxelGrid                     = TypeDefs::VoxelGrid;
+     using Image                    = TypeDefs::Image;
     using ImageEX                    = TypeDefs::ImageEX;
     using ImageEXPtr                    = TypeDefs::ImageEXPtr;
     using ImagePtr                    = TypeDefs::ImagePtr;
@@ -39,7 +40,7 @@ public:
     };
 public:
 
-    cv::Mat m_img;
+    cv::Mat img_;
     cv::Mat m_raw_img;
     cv::Mat m_img_gray;
     bool sent_once_ = false;
@@ -51,6 +52,7 @@ public:
 //     // virtual ~PointCloud_ex() {};
 //     // PointCloud_ex(PointCloud msg, MapPtr map);
     auto SetImage(ImagePtr img)->void;
+    auto SetImage(Image &img)->void;
 //     virtual auto pointcloud_convert(pcl::PointCloud<pcl::PointXYZINormal>::Ptr pc_in,pcl::PointCloud<pcl::PointXYZI>::Ptr pc_out)->void;
 //     virtual auto pointcloud_convert(pcl::PointCloud<pcl::PointXYZI>::Ptr pc_in,pcl::PointCloud<pcl::PointXYZINormal>::Ptr pc_out)->void;
 //     auto pointcloud_transform(TransformType tf)->void;

@@ -112,6 +112,40 @@ auto Communicator_server::ProcessPointCloudMessages()->void {
 
 auto Communicator_server::ProcessNewPointClouds()->void {
     std::unique_lock<std::mutex> lock(mtx_in_);
+
+    while(!buffer_pointclouds_in_.empty()) {
+        MsgPointCloud msg = buffer_pointclouds_in_.front();
+        // if(msg.id_reference.first > last_processed_kf_msg_.first) break;
+        buffer_pointclouds_in_.pop_front();
+        if(msg.is_update_msg){
+            if(!colive_params::comm::send_updates) continue;
+            else{
+                // TODO: update
+                // auto pc =map_->GetPointCloud();
+            }
+        }
+        else{
+            PointCloudEXPtr pc;
+            TransformType Twg;
+            pc = map_->GetPointCloudEX(msg.id_);// id: id+pointcloud
+            Twg = map_->GetFamily(msg.id_.second);
+            if(!pc){
+                // pc.reset(new PointCloud_ex(msg,map_));
+                // map_->AddPointCloud(pc);
+                
+                pc.reset(new PointCloudEX(msg,map_));
+                pc->SetPoseTwg(Twg);
+                // pc->map_=map_;
+                // std::cout<<"Added point cloud id: "<<pc->id_.first<<" of client:"<<pc->id_.second <<" pc size: "<<pc->pts_cloud.size()<<std::endl;
+                pointclouds_new_.push_back(pc);
+                last_processed_pc_msg_ = pc->id_;
+            }else{
+                // TODO: 
+            }
+
+        }
+    }
+
     while(!pointclouds_new_.empty()) {
         PointCloudEXPtr pc = pointclouds_new_.front();
         pointclouds_new_.pop_front();
@@ -163,8 +197,12 @@ auto Communicator_server::Run()->void {
 
         this->ProcessBufferIn();
         if(this->TryLock()){
-            this->ProcessPointCloudMessages();
+            // this->ProcessPointCloudMessages();
             this->ProcessNewPointClouds();
+
+
+            // this->ProcessPointCloudMessages();
+            // this->ProcessNewPointClouds();
 
             // this->ProcessKeyframeMessages();
             // this->ProcessLandmarkMessages();

@@ -150,6 +150,7 @@ namespace TypeDefs {
     using PointCloudVector                = std::vector<PointCloudPtr,Eigen::aligned_allocator<PointCloudPtr>>;
     using PointCloudEXVector                = std::vector<PointCloudEXPtr,Eigen::aligned_allocator<PointCloudEXPtr>>;
 
+    using ImageEXList                    = std::list<ImageEXPtr,Eigen::aligned_allocator<ImageEXPtr>>;
     using KeyframeList                  = std::list<KeyframePtr,Eigen::aligned_allocator<KeyframePtr>>;
     using LandmarkList                  = std::list<LandmarkPtr,Eigen::aligned_allocator<LandmarkPtr>>;
     using PointCloudEXList              = std::list<PointCloudEXPtr,Eigen::aligned_allocator<PointCloudEXPtr>>;

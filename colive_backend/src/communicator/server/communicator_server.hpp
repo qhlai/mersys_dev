@@ -66,6 +66,7 @@ public:
     using KeyframeList                  = TypeDefs::KeyframeList;
     using LandmarkList                  = TypeDefs::LandmarkList;
     using PointCloudEXList  = TypeDefs::PointCloudEXList;  
+    using ImageEXList  = TypeDefs::ImageEXList;  
     // using MsgPointCloud  = TypeDefs::MsgPointCloud;  
 
 public:
@@ -110,6 +111,7 @@ protected:
     idpair                      most_recent_pc_id_                                      = defpair;
 
     PointCloudEXList                pointclouds_new_;
+    ImageEXList                     image_new_;
     // LandmarkList                landmarks_new_;
 
     //data

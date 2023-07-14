@@ -7,6 +7,7 @@
 #include <mutex>
 #include <eigen3/Eigen/Core>
 #include <opencv2/opencv.hpp>
+#include <nav_msgs/Odometry.h>
 
 #include "typedefs_base.hpp"
 // #include "../communicator/msgs/msg_pointcloud.hpp"
@@ -61,6 +62,8 @@ public:
     virtual auto SetPoseTsw(TransformType Tsw, bool lock_mtx=true)    ->void;
     virtual auto SetPoseTws(TransformType Tsw, bool lock_mtx=true)    ->void;
     virtual auto SetPoseTwg(TransformType Twg, bool lock_mtx=true)    ->void;
+    virtual auto convert2T( nav_msgs::Odometry &odometry)->TransformType ;
+    virtual auto convert2T(double x, double y,double z,double qx,double qy,double qz,double qw)->TransformType;
     // virtual auto SetPoseTw_gw(TransformType Tws, bool lock_mtx=true)    ->void;
 
 protected:

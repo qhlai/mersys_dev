@@ -19,7 +19,7 @@ Image_ex::Image_ex(MsgImage msg){
     timestamp_=msg.timestamp_;
     // T_s_w_=msg.T_s_w_;
     SetPoseTsw(msg.T_s_w_);
-    m_img=msg.img_;
+   img_=msg.img_;
     // map_=map;
 }
 // // auto PointCloud_ex::GetPoseTws()->TransformType {
@@ -36,7 +36,7 @@ auto Image_ex::ConvertToMsg(MsgImage &msg, bool is_update, size_t cliend_id)->vo
     msg.id_ = id_;   // mnid clientid  
     msg.timestamp_ = timestamp_;//std::chrono::system_clock::now();
     msg.T_s_w_=GetPoseTsw();
-    msg.img_ = m_img;
+    msg.img_ = img_;
     // msg.pts_cloud=
 
 }
@@ -70,9 +70,16 @@ auto Image_ex::ConvertToMsg(MsgImage &msg, bool is_update, size_t cliend_id)->vo
 auto Image_ex::SetImage(ImagePtr img)->void {
     std::unique_lock<std::mutex> lock(mtx_in_);
 
-    m_img=*img;
+    img_=*img;
 
 }
+auto Image_ex::SetImage(Image &img)->void {
+    std::unique_lock<std::mutex> lock(mtx_in_);
+
+    img_=img;
+
+}
+
 // auto PointCloud_ex::SetPointCloud(pcl::PointCloud<pcl::PointXYZINormal>::Ptr pc)->void {
 //     std::unique_lock<std::mutex> lock(mtx_in_);
 //     pcl::PointCloud<pcl::PointXYZI>::Ptr pc_out(new pcl::PointCloud<pcl::PointXYZI>);
