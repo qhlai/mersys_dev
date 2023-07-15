@@ -31,6 +31,17 @@
 #include <arpa/inet.h>
 #include <netdb.h>
 
+#include "mapmanager.hpp"
+#include "pointcloud_ex.hpp"
+#include "visualizer_be.hpp"
+
+#include "msgs/msg_landmark.hpp"
+#include "msgs/msg_keyframe.hpp"
+
+#include "msgs/msg_pointcloud.hpp"
+#include "msgs/msg_odometry.hpp"
+#include "place_rec.hpp"
+
 namespace colive {
 
 Communicator_server::Communicator_server(int client_id, int newfd, MapManagerPtr man, PlacerecPtr placerec, VisPtr vis)

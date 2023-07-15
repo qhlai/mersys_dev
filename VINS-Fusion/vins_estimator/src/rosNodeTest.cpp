@@ -142,7 +142,7 @@ void sync_process()
             }
             m_buf.unlock();
             if(!image0.empty())
-                estimator.inputImage(time, image0, image1, img);
+                estimator.inputImage(time, image0, image1);
         }
         else
         {

@@ -31,6 +31,19 @@
 #include <arpa/inet.h>
 #include <netdb.h>
 
+
+
+#include "pointcloud_ex.hpp"
+// COVINS
+
+#include "map_co.hpp"
+
+#include "msgs/msg_landmark.hpp"
+#include "msgs/msg_keyframe.hpp"
+
+#include "msgs/msg_pointcloud.hpp"
+#include "msgs/msg_odometry.hpp"
+
 namespace colive {
 
 

@@ -28,17 +28,17 @@
 #include <cereal/access.hpp>
 
 
-#include <pcl_conversions/pcl_conversions.h>
-#include <pcl/point_cloud.h>
-#include <pcl/point_types.h>
-#include <pcl/filters/voxel_grid.h>
-#include <pcl/kdtree/kdtree_flann.h>
-#include <pcl/io/pcd_io.h>
-#include <pcl/filters/radius_outlier_removal.h>
-#include <pcl/filters/statistical_outlier_removal.h>
-#include <pcl/common/transforms.h>
+// #include <pcl_conversions/pcl_conversions.h>
+// #include <pcl/point_cloud.h>
+// #include <pcl/point_types.h>
+// #include <pcl/filters/voxel_grid.h>
+// #include <pcl/kdtree/kdtree_flann.h>
+// #include <pcl/io/pcd_io.h>
+// #include <pcl/filters/radius_outlier_removal.h>
+// #include <pcl/filters/statistical_outlier_removal.h>
+// #include <pcl/common/transforms.h>
 
-#include "opencv2/opencv.hpp"
+// #include "opencv2/opencv.hpp"
 
 #define MAPRANGE std::numeric_limits<uint8_t>::max()
 #define KFRANGE std::numeric_limits<uint16_t>::max()
@@ -52,16 +52,31 @@
 #define FRAME_GRID_COLS 64
 
 #define MAX_CLIENT_NUM   20
+namespace pcl{
+// public:
+    class PointXYZI;
+    class PointXYZINormal;   
+    class PointXYZRGB;
+
+    template<typename T> class PointCloud; 
+    template<typename T> class VoxelGrid;
+};
+
+namespace cv{
+// public:
+    class Mat;
+};
 
 namespace colive {
 struct IMU_Measurement;
-
+struct Global_map;
 // Forward Decs
 class Communicator_server;
 class Communicator_client;
 class Keyframe;
 class Landmark;
 class Map;
+
 class MapInstance;  
 class MapManager;
 class PlaceRecognition;
@@ -70,12 +85,18 @@ class Client;
 class PointCloud_ex;
 class Image_ex;
 
+// class pcl::PointXYZI;
+// class pcl::PointXYZRGB;
+// class pcl::PointCloud;
+
+
+
 struct MsgKeyframe;
 struct MsgLandmark;
 struct MsgPointCloud;
 struct MsgOdometry;
 struct LoopConstraint;
-
+// Class 
 // typedef pcl::PointXYZINormal PointType;
 
 namespace TypeDefs {

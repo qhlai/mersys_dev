@@ -47,6 +47,7 @@ public:
     using PointCloudEX  = TypeDefs::PointCloudEX; 
     using PointCloudEXPtr  = TypeDefs::PointCloudEXPtr; 
     using PointCloudEXList  = TypeDefs::PointCloudEXList; 
+    using VoxelGrid  = TypeDefs::VoxelGrid; 
 
     using MapContainer                  = std::map<int,MapInstancePtr>;
     using MergeBuffer                   = std::list<MergeInformation, Eigen::aligned_allocator<MergeInformation>>;
@@ -103,8 +104,8 @@ protected:
     // Data
     MapContainer                maps_;
     MergeBuffer                 buffer_merge_;
-    pcl::VoxelGrid<PointType> downSizeFilterScancontext;
-    pcl::VoxelGrid<PointType> downSizeFilterICP;
+    VoxelGrid downSizeFilterScancontext;
+    VoxelGrid downSizeFilterICP;
 
 
 

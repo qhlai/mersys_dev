@@ -15,7 +15,7 @@ find_package(catkin REQUIRED COMPONENTS
     cv_bridge
     camera_models
     image_transport
-    livox_ros_driver
+    # livox_ros_driver
     pcl_ros
     colive_backend)
 

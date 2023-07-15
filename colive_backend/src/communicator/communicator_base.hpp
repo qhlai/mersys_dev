@@ -35,13 +35,12 @@
 #include "typedefs_base.hpp"
 #include "config_comm.hpp"
 
+
 #include "msgs/msg_landmark.hpp"
 #include "msgs/msg_keyframe.hpp"
 
 #include "msgs/msg_pointcloud.hpp"
 #include "msgs/msg_odometry.hpp"
-
-#include <zlib.h>
 // #include "msgs/msg_landmark.hpp"
 #define ContainerSize 10
 

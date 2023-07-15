@@ -34,19 +34,9 @@
 // #include <eigen3/Eigen/Geometry>
 
 #include "communicator_base.hpp"
-#include "pointcloud_ex.hpp"
-// COVINS
+
 #include "typedefs_base.hpp"
 #include "config_comm.hpp"
-#include "map_co.hpp"
-
-#include "msgs/msg_landmark.hpp"
-#include "msgs/msg_keyframe.hpp"
-
-#include "msgs/msg_pointcloud.hpp"
-#include "msgs/msg_odometry.hpp"
-
-
 
 // #include "msgs/msg_landmark.hpp"
 #define ContainerSize 10

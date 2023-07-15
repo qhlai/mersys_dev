@@ -1,5 +1,20 @@
 #include "map_co.hpp"
 
+
+
+
+#include "pointcloud_ex.hpp"
+#include "image_ex.hpp"
+
+// #include "map_rgb.hpp"
+
+#include <pcl_conversions/pcl_conversions.h>
+#include <pcl/point_cloud.h>
+#include <pcl/point_types.h>
+#include <pcl/filters/voxel_grid.h>
+#include <pcl/kdtree/kdtree_flann.h>
+#include <pcl/io/pcd_io.h>
+
 namespace colive {
 
 

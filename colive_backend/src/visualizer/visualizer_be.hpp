@@ -20,12 +20,9 @@
 #include "config_comm.hpp"
 #include "config_backend.hpp"
 
-#include "pointcloud_ex.hpp"
 #include "map_co.hpp"
 
-#include "tools_mem_used.h"
-#include "tools_timer.hpp"
-#include "tools_color_printf.hpp"
+
 namespace colive{
 
 

@@ -13,30 +13,31 @@
 #include <boost/serialization/export.hpp>
 
 
-#include <pcl_conversions/pcl_conversions.h>
-#include <pcl/point_cloud.h>
-#include <pcl/point_types.h>
-#include <pcl/filters/voxel_grid.h>
-#include <pcl/kdtree/kdtree_flann.h>
-#include <pcl/io/pcd_io.h>
+// #include <pcl_conversions/pcl_conversions.h>
+// #include <pcl/point_cloud.h>
+// #include <pcl/point_types.h>
+// #include <pcl/filters/voxel_grid.h>
+// #include <pcl/kdtree/kdtree_flann.h>
+// #include <pcl/io/pcd_io.h>
 
 #include <ros/ros.h>
-#include <sensor_msgs/Imu.h>
-#include <sensor_msgs/PointCloud2.h>
-#include <sensor_msgs/NavSatFix.h>
-#include <tf/transform_datatypes.h>
-#include <tf/transform_broadcaster.h>
-#include <nav_msgs/Odometry.h>
-#include <nav_msgs/Path.h>
-#include <geometry_msgs/PoseStamped.h>
-#include <atomic>
-#include <unordered_set>
+// #include <sensor_msgs/Imu.h>
+// #include <sensor_msgs/PointCloud2.h>
+// #include <sensor_msgs/NavSatFix.h>
+// #include <tf/transform_datatypes.h>
+// #include <tf/transform_broadcaster.h>
+// #include <nav_msgs/Odometry.h>
+// #include <nav_msgs/Path.h>
+// #include <geometry_msgs/PoseStamped.h>
+// #include <atomic>
+// #include <unordered_set>
 
 // #include <eigen3/Eigen/Core>
 
 // #include "tools/tools_eigen.hpp"
 #include "typedefs_base.hpp"
 #include "pointcloud_ex.hpp"
+#include "image_ex.hpp"
 #include "tools_kd_hash.hpp"
 // #include "tools_serialization.hpp"
 

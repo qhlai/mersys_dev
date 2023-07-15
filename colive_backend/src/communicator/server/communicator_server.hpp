@@ -36,16 +36,8 @@
 // COVINS
 #include "typedefs_base.hpp"
 #include "config_comm.hpp"
-#include "mapmanager.hpp"
-#include "pointcloud_ex.hpp"
-#include "visualizer_be.hpp"
 
-#include "msgs/msg_landmark.hpp"
-#include "msgs/msg_keyframe.hpp"
 
-#include "msgs/msg_pointcloud.hpp"
-#include "msgs/msg_odometry.hpp"
-#include "place_rec.hpp"
 // #include "msgs/msg_landmark.hpp"
 #define ContainerSize 10
 

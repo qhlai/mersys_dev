@@ -1,10 +1,10 @@
 #pragma once
 #include <iostream>
 #include <optional>
-#include <pcl/point_types.h>
+// #include <pcl/point_types.h>
 #include "typedefs_base.hpp"
 #include "config_backend.hpp"
-#include "pointcloud_ex.hpp"
+
 
 #include <gtsam/inference/Symbol.h>
 #include <gtsam/nonlinear/Values.h>
@@ -22,7 +22,7 @@
 // #include <ad_localization_msgs/NavStateInfo.h>
 // #include "scancontext/Scancontext.h"
 #include "mapmanager.hpp"
-#include <pcl/registration/icp.h>
+
 
 
 // https://github.com/hku-mars/livox_camera_calib

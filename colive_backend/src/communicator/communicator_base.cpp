@@ -31,6 +31,13 @@
 #include <arpa/inet.h>
 #include <netdb.h>
 
+
+
+
+
+
+#include <zlib.h>
+
 namespace colive {
 
 CommunicatorBase::CommunicatorBase() {

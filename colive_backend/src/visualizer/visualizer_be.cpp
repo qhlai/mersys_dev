@@ -1,5 +1,12 @@
 #include "visualizer_be.hpp"
 
+#include "pointcloud_ex.hpp"
+#include "image_ex.hpp"
+
+#include "tools_mem_used.h"
+#include "tools_timer.hpp"
+#include "tools_color_printf.hpp"
+
 namespace colive{
 
 

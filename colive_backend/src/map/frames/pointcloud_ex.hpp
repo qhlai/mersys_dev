@@ -9,6 +9,17 @@
 #include <iostream>   // std::cout  
 #include <string>     // std::string, std::to_string
 
+
+#include <pcl_conversions/pcl_conversions.h>
+#include <pcl/point_cloud.h>
+#include <pcl/point_types.h>
+#include <pcl/filters/voxel_grid.h>
+#include <pcl/kdtree/kdtree_flann.h>
+#include <pcl/io/pcd_io.h>
+#include <pcl/filters/radius_outlier_removal.h>
+#include <pcl/filters/statistical_outlier_removal.h>
+#include <pcl/common/transforms.h>
+
 namespace colive {
 
 class MsgPointCloud;

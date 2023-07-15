@@ -7,16 +7,16 @@
 #include <eigen3/Eigen/Core>
 #include <opencv2/opencv.hpp>
 
-#include <boost/serialization/vector.hpp>
-#include <boost/serialization/export.hpp>
+// #include <boost/serialization/vector.hpp>
+// #include <boost/serialization/export.hpp>
 
 
-#include <pcl_conversions/pcl_conversions.h>
-#include <pcl/point_cloud.h>
-#include <pcl/point_types.h>
-#include <pcl/filters/voxel_grid.h>
-#include <pcl/kdtree/kdtree_flann.h>
-#include <pcl/io/pcd_io.h>
+// #include <pcl_conversions/pcl_conversions.h>
+// #include <pcl/point_cloud.h>
+// #include <pcl/point_types.h>
+// #include <pcl/filters/voxel_grid.h>
+// #include <pcl/kdtree/kdtree_flann.h>
+// #include <pcl/io/pcd_io.h>
 
 #include <ros/ros.h>
 #include <sensor_msgs/Imu.h>
@@ -28,15 +28,18 @@
 #include <nav_msgs/Path.h>
 #include <geometry_msgs/PoseStamped.h>
 
-#include "map_rgb.hpp"
+
 
 // #include <eigen3/Eigen/Core>
 
 // #include "tools/tools_eigen.hpp"
 #include "typedefs_base.hpp"
-#include "pointcloud_ex.hpp"
-#include "image_ex.hpp"
+#include "map_rgb.hpp"
+
 namespace colive {
+
+// struct Global_map;
+
 
 struct MapInstance {
     using TransformType                 = TypeDefs::TransformType;
@@ -78,10 +81,11 @@ public:
     // using LandmarkSet                   = TypeDefs::LandmarkSet;
 
 
-    pcl::PointCloud<pcl::PointXYZ>::Ptr map_raw_pts;
-    pcl::PointCloud<pcl::PointXYZRGB>::Ptr map_rbg_pts; // or as landmark
+    // pcl::PointCloud<pcl::PointXYZ>::Ptr map_raw_pts;
+    // pcl::PointCloud<pcl::PointXYZRGB>::Ptr map_rbg_pts; // or as landmark
     Global_map rgb_map; 
     //
+    
     // std::pair<int,int> map_;
     std::queue<nav_msgs::Odometry::ConstPtr> odometryBuf;
     std::queue<sensor_msgs::PointCloud2ConstPtr> fullResBuf;//适用于需要实现先进先出（FIFO）的队列操作，不需要直接访问队列的其他位置。
