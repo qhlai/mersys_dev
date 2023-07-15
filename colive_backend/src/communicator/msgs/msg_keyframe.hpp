@@ -206,82 +206,82 @@ protected:
 
 namespace cereal {
 
-//save and load function for Eigen::Matrix type
+// //save and load function for Eigen::Matrix type
 
-    template <class Archive, class _Scalar, int _Rows, int _Cols, int _Options, int _MaxRows, int _MaxCols>
-    inline
-    typename std::enable_if<traits::is_output_serializable<BinaryData<_Scalar>, Archive>::value, void>::type
-    save(Archive& ar, const Eigen::Matrix<_Scalar, _Rows, _Cols, _Options, _MaxRows, _MaxCols>& matrix) {
-        const std::int32_t rows = static_cast<std::int32_t>(matrix.rows());
-        const std::int32_t cols = static_cast<std::int32_t>(matrix.cols());
-        ar(rows);
-        ar(cols);
-        ar(binary_data(matrix.data(), rows * cols * sizeof(_Scalar)));
-    }
+//     template <class Archive, class _Scalar, int _Rows, int _Cols, int _Options, int _MaxRows, int _MaxCols>
+//     inline
+//     typename std::enable_if<traits::is_output_serializable<BinaryData<_Scalar>, Archive>::value, void>::type
+//     save(Archive& ar, const Eigen::Matrix<_Scalar, _Rows, _Cols, _Options, _MaxRows, _MaxCols>& matrix) {
+//         const std::int32_t rows = static_cast<std::int32_t>(matrix.rows());
+//         const std::int32_t cols = static_cast<std::int32_t>(matrix.cols());
+//         ar(rows);
+//         ar(cols);
+//         ar(binary_data(matrix.data(), rows * cols * sizeof(_Scalar)));
+//     }
 
-    template <class Archive, class _Scalar, int _Rows, int _Cols, int _Options, int _MaxRows, int _MaxCols>
-    inline
-    typename std::enable_if<traits::is_input_serializable<BinaryData<_Scalar>, Archive>::value, void>::type
-    load(Archive& ar, Eigen::Matrix<_Scalar, _Rows, _Cols, _Options, _MaxRows, _MaxCols>& matrix) {
-        std::int32_t rows;
-        std::int32_t cols;
-        ar(rows);
-        ar(cols);
+//     template <class Archive, class _Scalar, int _Rows, int _Cols, int _Options, int _MaxRows, int _MaxCols>
+//     inline
+//     typename std::enable_if<traits::is_input_serializable<BinaryData<_Scalar>, Archive>::value, void>::type
+//     load(Archive& ar, Eigen::Matrix<_Scalar, _Rows, _Cols, _Options, _MaxRows, _MaxCols>& matrix) {
+//         std::int32_t rows;
+//         std::int32_t cols;
+//         ar(rows);
+//         ar(cols);
 
-        matrix.resize(rows, cols);
+//         matrix.resize(rows, cols);
 
-        ar(binary_data(matrix.data(), static_cast<std::size_t>(rows * cols * sizeof(_Scalar))));
-    }
+//         ar(binary_data(matrix.data(), static_cast<std::size_t>(rows * cols * sizeof(_Scalar))));
+//     }
 
 //save and load function for cv::Mat type
-    template<class Archive>
-    inline
-    void save(Archive& ar, const cv::Mat& mat) {
-        int rows, cols, type;
-        bool continuous;
+    // template<class Archive>
+    // inline
+    // void save(Archive& ar, const cv::Mat& mat) {
+    //     int rows, cols, type;
+    //     bool continuous;
 
-        rows = mat.rows;
-        cols = mat.cols;
-        type = mat.type();
-        continuous = mat.isContinuous();
+    //     rows = mat.rows;
+    //     cols = mat.cols;
+    //     type = mat.type();
+    //     continuous = mat.isContinuous();
 
-        ar & rows & cols & type & continuous;
+    //     ar & rows & cols & type & continuous;
 
-        if (continuous) {
-            const int data_size = rows * cols * static_cast<int>(mat.elemSize());
-            auto mat_data = cereal::binary_data(mat.ptr(), data_size);
-            ar & mat_data;
-        }
-        else {
-            const int row_size = cols * static_cast<int>(mat.elemSize());
-            for (int i = 0; i < rows; i++) {
-                auto row_data = cereal::binary_data(mat.ptr(i), row_size);
-                ar & row_data;
-            }
-        }
-    }
+    //     if (continuous) {
+    //         const int data_size = rows * cols * static_cast<int>(mat.elemSize());
+    //         auto mat_data = cereal::binary_data(mat.ptr(), data_size);
+    //         ar & mat_data;
+    //     }
+    //     else {
+    //         const int row_size = cols * static_cast<int>(mat.elemSize());
+    //         for (int i = 0; i < rows; i++) {
+    //             auto row_data = cereal::binary_data(mat.ptr(i), row_size);
+    //             ar & row_data;
+    //         }
+    //     }
+    // }
 
-    template<class Archive>
-    void load(Archive& ar, cv::Mat& mat) {
-        int rows, cols, type;
-        bool continuous;
+    // template<class Archive>
+    // void load(Archive& ar, cv::Mat& mat) {
+    //     int rows, cols, type;
+    //     bool continuous;
 
-        ar & rows & cols & type & continuous;
+    //     ar & rows & cols & type & continuous;
 
-        if (continuous) {
-            mat.create(rows, cols, type);
-            const int data_size = rows * cols * static_cast<int>(mat.elemSize());
-            auto mat_data = cereal::binary_data(mat.ptr(), data_size);
-            ar & mat_data;
-        }
-        else {
-            mat.create(rows, cols, type);
-            const int row_size = cols * static_cast<int>(mat.elemSize());
-            for (int i = 0; i < rows; i++) {
-                auto row_data = cereal::binary_data(mat.ptr(i), row_size);
-                ar & row_data;
-            }
-        }
-    }
+    //     if (continuous) {
+    //         mat.create(rows, cols, type);
+    //         const int data_size = rows * cols * static_cast<int>(mat.elemSize());
+    //         auto mat_data = cereal::binary_data(mat.ptr(), data_size);
+    //         ar & mat_data;
+    //     }
+    //     else {
+    //         mat.create(rows, cols, type);
+    //         const int row_size = cols * static_cast<int>(mat.elemSize());
+    //         for (int i = 0; i < rows; i++) {
+    //             auto row_data = cereal::binary_data(mat.ptr(i), row_size);
+    //             ar & row_data;
+    //         }
+    //     }
+    // }
 
 } /* namespace cereal */

@@ -62,6 +62,7 @@ public:
     using PointCloudPtr                    = TypeDefs::PointCloudPtr;
     using PointCloudEX  = TypeDefs::PointCloudEX; 
     using PointCloudEXList  = TypeDefs::PointCloudEXList;  
+    using ImageEX  = TypeDefs::ImageEX;
     // struct cmp_by_id{
     //     bool operator() (const std::pair<size_t,KeyFrame*> a, const std::pair<size_t,KeyFrame*> b){
     //         if(a.first < b.first) return true;
@@ -83,9 +84,14 @@ public:
     //     kf_out_buffer_.push_back(kf);
     // }
     virtual auto TryPassKeyPcToComm(PointCloudEX* pc)                                        ->void;
+    virtual auto TryPassKeyImgToComm(ImageEX* img)                                        ->void;
     virtual auto PassPcToComm(PointCloudEX* pc)                                             ->void {
         std::unique_lock<std::mutex>(mtx_pc_queue_);
         pointcloud_out_buffer_.push_back(pc);
+    }
+    virtual auto PassImgToComm(ImageEX* img)                                             ->void {
+        std::unique_lock<std::mutex>(mtx_img_queue_);
+        image_out_buffer_.push_back(img);
     }
 protected:
 
@@ -101,7 +107,7 @@ protected:
 
     virtual auto ProcessKfBuffer()                                                      ->void;
     virtual auto ProcessPointCloudBuffer()                                              ->void;
-    virtual auto ProcessImageBuffer()                                              ->void;
+    virtual auto ProcessImageBuffer()                                                   ->void;
 //     // Infrastructure
 //     Atlas*                  map_                                                                = nullptr;  // the map is not necessary to send data to the server. However, we keep a ptr to it to facilitate implementing potetnial interaction
 
@@ -125,10 +131,13 @@ protected:
 
     std::list<KeyFrame*>   kf_out_buffer_;
     std::list<PointCloudEX*>   pointcloud_out_buffer_;
+    std::list<ImageEX*>        image_out_buffer_;
     std::mutex              mtx_pc_queue_;
+    std::mutex              mtx_img_queue_;
     std::mutex              mtx_kf_queue_;
 
     std::mutex              mtx_pointcloud_queue_;
+    std::mutex              mtx_image_queue_;
 
 };
 

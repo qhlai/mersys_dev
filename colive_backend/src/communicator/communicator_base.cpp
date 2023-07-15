@@ -33,7 +33,12 @@
 
 
 
+// #include "msgs/msg_landmark.hpp"
+// #include "msgs/msg_keyframe.hpp"
 
+#include "msgs/msg_pointcloud.hpp"
+#include "msgs/msg_image.hpp"
+// #include "msgs/msg_odometry.hpp"
 
 
 #include <zlib.h>
@@ -157,9 +162,9 @@ auto CommunicatorBase::ProcessBufferIn()->void {
 
         if(msg_type_deserialize_[1] == 0) { // new data msg
             if(msg_type_deserialize_[4] == 0) {         // Keyframe
-                MsgKeyframe msg(msg_type_deserialize_);
+                MsgImage msg(msg_type_deserialize_);
                 iarchive(msg);
-                buffer_keyframes_in_.push_back(msg);
+                buffer_images_in_.push_back(msg);
             } else if(msg_type_deserialize_[4] == 1) { // Landmark
                 MsgLandmark msg(msg_type_deserialize_);
                 iarchive(msg);
@@ -179,9 +184,9 @@ auto CommunicatorBase::ProcessBufferIn()->void {
             send_buf_.clear();
         } else if(msg_type_deserialize_[1] == 1) { // update msg
                 if(msg_type_deserialize_[4] == 0) { // Keyframe
-                    MsgKeyframe msg(msg_type_deserialize_);
+                    MsgImage msg(msg_type_deserialize_);
                     iarchive(msg);
-                    buffer_keyframes_in_.push_back(msg);
+                    buffer_images_in_.push_back(msg);
                 } else if(msg_type_deserialize_[4] == 1) { // Landmark
                     MsgLandmark msg(msg_type_deserialize_);
                     iarchive(msg);
@@ -218,15 +223,15 @@ auto CommunicatorBase::ProcessBufferOut()->void {
             SendMsgContainer(pointcloud_out_container);
         }
         for(int i=0;db.images.size();++i){
-            // message_container kf_out_container;
-            // MsgKeyframe msg = db.keyframes.front();
-            // db.keyframes.pop_front();
-            // Serialize(msg);
-            // kf_out_container.ser_msg << send_ser_.str();
-            // kf_out_container.msg_info.insert(kf_out_container.msg_info.end(), msg.msg_type.begin(), msg.msg_type.end());
-            // while(kf_out_container.msg_info.size() != ContainerSize*5)
-            //     kf_out_container.msg_info.push_back(0);
-            // SendMsgContainer(kf_out_container);
+            message_container image_out_container;
+            MsgImage msg = db.images.front();
+            db.images.pop_front();
+            Serialize(msg);
+            image_out_container.ser_msg << send_ser_.str();
+            image_out_container.msg_info.insert(image_out_container.msg_info.end(), msg.msg_type.begin(), msg.msg_type.end());
+            while(image_out_container.msg_info.size() != ContainerSize*5)
+                image_out_container.msg_info.push_back(0);
+            SendMsgContainer(image_out_container);
         }
 
         // while(!db.landmarks.empty()){
@@ -431,6 +436,16 @@ auto CommunicatorBase::Serialize(MsgPointCloud &msg)->void {
     }
   
 
+    package_size_send_ = (int)send_ser_.str().length();
+    msg.SetMsgType(package_size_send_);
+}
+auto CommunicatorBase::Serialize(MsgImage &msg)->void {
+    //clear stringstream
+    send_ser_.str("");
+    send_ser_.clear();
+
+    cereal::BinaryOutputArchive oarchive(send_ser_);
+    oarchive(msg);
     package_size_send_ = (int)send_ser_.str().length();
     msg.SetMsgType(package_size_send_);
 }

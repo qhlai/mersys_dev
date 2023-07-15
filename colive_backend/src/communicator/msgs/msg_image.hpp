@@ -21,6 +21,8 @@
 
 #include "image_ex.hpp"
 
+#include "tools_serialization_cereal.hpp"
+
 namespace colive {
 
 
@@ -126,78 +128,79 @@ namespace cereal {
     // Save function for Eigen::Isometry3ds type
 
 
-    template<class Archive>
-    inline
-    void save(Archive& ar, const Eigen::Isometry3d& T) {
-        ar(T.matrix());
+    // template<class Archive>
+    // inline
+    // void save(Archive& ar, const Eigen::Isometry3d& T) {
+    //     ar(T.matrix());
 
-    }
-     // Load function for Eigen::Isometry3d type
-    template<class Archive>
-    inline
-    void load(Archive& ar, Eigen::Isometry3d& T) {
+    // }
+    //  // Load function for Eigen::Isometry3d type
+    // template<class Archive>
+    // inline
+    // void load(Archive& ar, Eigen::Isometry3d& T) {
 
-        Eigen::Matrix4d T_4x4 = Eigen::Matrix4d::Identity();
-        // T=Eigen::Isometry3d::Identity();
+    //     Eigen::Matrix4d T_4x4 = Eigen::Matrix4d::Identity();
+    //     // T=Eigen::Isometry3d::Identity();
 
-        ar(T_4x4);
-        Eigen::Isometry3d temp(T_4x4); 
-        T=temp;
-        // T.rotate(T_4x4.block<3, 3>(0, 0));
-        // T.translate(T_4x4.block<3, 1>(0, 3));
+    //     ar(T_4x4);
+    //     Eigen::Isometry3d temp(T_4x4); 
+    //     T=temp;
+    //     // T.rotate(T_4x4.block<3, 3>(0, 0));
+    //     // T.translate(T_4x4.block<3, 1>(0, 3));
 
-    }
+    // }
 
     //save and load function for cv::Mat type
-    template<class Archive>
-    inline
-    void save(Archive& ar, const cv::Mat& mat) {
-        int rows, cols, type;
-        bool continuous;
+    // template<class Archive>
+    // inline
+    // void save(Archive& ar, const cv::Mat& mat) {
+    //     int rows, cols, type;
+    //     bool continuous;
 
-        rows = mat.rows;
-        cols = mat.cols;
-        type = mat.type();
-        continuous = mat.isContinuous();
+    //     rows = mat.rows;
+    //     cols = mat.cols;
+    //     type = mat.type();
+    //     continuous = mat.isContinuous();
 
-        ar & rows & cols & type & continuous;
+    //     ar & rows & cols & type & continuous;
 
-        if (continuous) {
-            const int data_size = rows * cols * static_cast<int>(mat.elemSize());
-            auto mat_data = cereal::binary_data(mat.ptr(), data_size);
-            ar & mat_data;
-        }
-        else {
-            const int row_size = cols * static_cast<int>(mat.elemSize());
-            for (int i = 0; i < rows; i++) {
-                auto row_data = cereal::binary_data(mat.ptr(i), row_size);
-                ar & row_data;
-            }
-        }
-    }
+    //     if (continuous) {
+    //         const int data_size = rows * cols * static_cast<int>(mat.elemSize());
+    //         auto mat_data = cereal::binary_data(mat.ptr(), data_size);
+    //         ar & mat_data;
+    //     }
+    //     else {
+    //         const int row_size = cols * static_cast<int>(mat.elemSize());
+    //         for (int i = 0; i < rows; i++) {
+    //             auto row_data = cereal::binary_data(mat.ptr(i), row_size);
+    //             ar & row_data;
+    //         }
+    //     }
+    // }
 
-    template<class Archive>
-    void load(Archive& ar, cv::Mat& mat) {
-        int rows, cols, type;
-        bool continuous;
+    // template<class Archive>
+    // void load(Archive& ar, cv::Mat& mat) {
+    //     int rows, cols, type;
+    //     bool continuous;
 
-        ar & rows & cols & type & continuous;
+    //     ar & rows & cols & type & continuous;
 
-        if (continuous) {
-            mat.create(rows, cols, type);
-            const int data_size = rows * cols * static_cast<int>(mat.elemSize());
-            auto mat_data = cereal::binary_data(mat.ptr(), data_size);
-            ar & mat_data;
-        }
-        else {
-            mat.create(rows, cols, type);
-            const int row_size = cols * static_cast<int>(mat.elemSize());
-            for (int i = 0; i < rows; i++) {
-                auto row_data = cereal::binary_data(mat.ptr(i), row_size);
-                ar & row_data;
-            }
-        }
-    }
+    //     if (continuous) {
+    //         mat.create(rows, cols, type);
+    //         const int data_size = rows * cols * static_cast<int>(mat.elemSize());
+    //         auto mat_data = cereal::binary_data(mat.ptr(), data_size);
+    //         ar & mat_data;
+    //     }
+    //     else {
+    //         mat.create(rows, cols, type);
+    //         const int row_size = cols * static_cast<int>(mat.elemSize());
+    //         for (int i = 0; i < rows; i++) {
+    //             auto row_data = cereal::binary_data(mat.ptr(i), row_size);
+    //             ar & row_data;
+    //         }
+    //     }
+    // }
+    
 } 
 
 

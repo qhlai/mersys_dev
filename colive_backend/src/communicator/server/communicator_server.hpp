@@ -1,25 +1,4 @@
-/**
-* This file is part of COVINS.
-*
-* Copyright (C) 2018-2021 Patrik Schmuck / Vision for Robotics Lab
-* (ETH Zurich) <collaborative (dot) slam (at) gmail (dot) com>
-* For more information see <https://github.com/VIS4ROB-lab/covins>
-*
-* COVINS is free software: you can redistribute it and/or modify
-* it under the terms of the GNU General Public License as published by
-* the Free Software Foundation, either version 3 of the license, or
-* (at your option) any later version.
-*
-* COVINS is distributed to support research and development of
-* multi-agent system, but WITHOUT ANY WARRANTY; without even the
-* implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-* PURPOSE. In no event will the authors be held liable for any damages
-* arising from the use of this software. See the GNU General Public
-* License for more details.
-*
-* You should have received a copy of the GNU General Public License
-* along with COVINS. If not, see <http://www.gnu.org/licenses/>.
-*/
+
 
 #pragma once
 
@@ -54,7 +33,9 @@ public:
     using VisPtr                        = TypeDefs::VisPtr;
 
     using PointCloudEX          = TypeDefs::PointCloudEX;
+    using ImageEX          = TypeDefs::ImageEX;
     using PointCloudEXPtr          = TypeDefs::PointCloudEXPtr;
+    using ImageEXPtr          = TypeDefs::ImageEXPtr;
     using KeyframeList                  = TypeDefs::KeyframeList;
     using LandmarkList                  = TypeDefs::LandmarkList;
     using PointCloudEXList  = TypeDefs::PointCloudEXList;  
@@ -88,6 +69,7 @@ protected:
     // virtual auto ProcessNewKeyframes()                                                  ->void;
     // virtual auto ProcessNewLandmarks()                                                  ->void;
     virtual auto ProcessNewPointClouds()->void;
+    virtual auto ProcessNewImages()->void;
     // LM Culling
     // auto LandmarkCulling(size_t min_obs, size_t max_gap)                                ->int;
     // auto KeyframeCulling(double th_red, int recent_window_size)                         ->void;

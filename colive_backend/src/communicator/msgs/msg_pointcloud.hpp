@@ -6,17 +6,19 @@
 #include "typedefs_base.hpp"
 
 //SERIALIZATION
-#include <cereal/cereal.hpp>
-#include <cereal/types/memory.hpp>
-#include <cereal/types/utility.hpp>
-#include <cereal/types/vector.hpp>
-#include <cereal/types/polymorphic.hpp>
-#include <cereal/types/concepts/pair_associative_container.hpp>
-#include <cereal/types/base_class.hpp>
-#include <cereal/archives/binary.hpp>
-#include <cereal/archives/binary.hpp>
-#include <cereal/access.hpp>
+// #include <cereal/cereal.hpp>
+// #include <cereal/types/memory.hpp>
+// #include <cereal/types/utility.hpp>
+// #include <cereal/types/vector.hpp>
+// #include <cereal/types/polymorphic.hpp>
+// #include <cereal/types/concepts/pair_associative_container.hpp>
+// #include <cereal/types/base_class.hpp>
+// #include <cereal/archives/binary.hpp>
+// #include <cereal/archives/binary.hpp>
+// #include <cereal/access.hpp>
 #include <cstdint>
+
+#include "tools_serialization_cereal.hpp"
 
 #include <pcl_conversions/pcl_conversions.h>
 #include <pcl/point_cloud.h>
@@ -144,163 +146,163 @@ protected:
 //       normal_x = p.normal_x; normal_y = p.normal_y; normal_z = p.normal_z; data_n[3] = 0.0f;
 //       curvature = p.curvature;
 //       intensity = p.intensity;
-namespace cereal {
-    // Save function for pcl::PointCloud type
+// namespace cereal {
+//     // Save function for pcl::PointCloud type
 
 
-    template<class Archive>
-    inline
-    void save(Archive& ar, const Eigen::Isometry3d& T) {
-        // Save the size of the point cloud
-        // size_t size = pointCloud.size();
-        // ar(size);
-        // Eigen::Matrix4d T_4x4 = Eigen::Matrix4d::Identity();
-        // T_4x4.block<3, 3>(0, 0) = T.rotation();
-        // T_4x4.block<3, 1>(0, 3) = T.translation();
-        // ar(T_4x4);
-        ar(T.matrix());
+//     template<class Archive>
+//     inline
+//     void save(Archive& ar, const Eigen::Isometry3d& T) {
+//         // Save the size of the point cloud
+//         // size_t size = pointCloud.size();
+//         // ar(size);
+//         // Eigen::Matrix4d T_4x4 = Eigen::Matrix4d::Identity();
+//         // T_4x4.block<3, 3>(0, 0) = T.rotation();
+//         // T_4x4.block<3, 1>(0, 3) = T.translation();
+//         // ar(T_4x4);
+//         ar(T.matrix());
 
-    }
-     // Load function for pcl::PointCloud type
-    template<class Archive>
-    inline
-    void load(Archive& ar, Eigen::Isometry3d& T) {
+//     }
+//      // Load function for pcl::PointCloud type
+//     template<class Archive>
+//     inline
+//     void load(Archive& ar, Eigen::Isometry3d& T) {
 
-        Eigen::Matrix4d T_4x4 = Eigen::Matrix4d::Identity();
-        // T=Eigen::Isometry3d::Identity();
+//         Eigen::Matrix4d T_4x4 = Eigen::Matrix4d::Identity();
+//         // T=Eigen::Isometry3d::Identity();
 
-        ar(T_4x4);
-        Eigen::Isometry3d temp(T_4x4); 
-        T=temp;
-        // T.rotate(T_4x4.block<3, 3>(0, 0));
-        // T.translate(T_4x4.block<3, 1>(0, 3));
+//         ar(T_4x4);
+//         Eigen::Isometry3d temp(T_4x4); 
+//         T=temp;
+//         // T.rotate(T_4x4.block<3, 3>(0, 0));
+//         // T.translate(T_4x4.block<3, 1>(0, 3));
 
-    }
+//     }
 
-    template<class Archive>
-    inline
-    void save(Archive& ar, const pcl::PointCloud<pcl::PointXYZI>& pointCloud) {
-        // Save the size of the point cloud
-        size_t size = pointCloud.size();
-        ar(size);
+//     template<class Archive>
+//     inline
+//     void save(Archive& ar, const pcl::PointCloud<pcl::PointXYZI>& pointCloud) {
+//         // Save the size of the point cloud
+//         size_t size = pointCloud.size();
+//         ar(size);
 
-        // Save each point in the point cloud
-        for (const auto& point : pointCloud) {
-            ar(point.x);
-            ar(point.y);
-            ar(point.z);
-            for (size_t i = 0; i <3;i++) {
-                ar(point.data[i]);
-            }
+//         // Save each point in the point cloud
+//         for (const auto& point : pointCloud) {
+//             ar(point.x);
+//             ar(point.y);
+//             ar(point.z);
+//             for (size_t i = 0; i <3;i++) {
+//                 ar(point.data[i]);
+//             }
 
-            ar(point.intensity);
+//             ar(point.intensity);
 
-        }
-    }
-     // Load function for pcl::PointCloud type
-    template<class Archive>
-    inline
-    void load(Archive& ar, pcl::PointCloud<pcl::PointXYZI>& pointCloud) {
-        // Load the size of the point cloud
-        size_t size;
-        ar(size);
+//         }
+//     }
+//      // Load function for pcl::PointCloud type
+//     template<class Archive>
+//     inline
+//     void load(Archive& ar, pcl::PointCloud<pcl::PointXYZI>& pointCloud) {
+//         // Load the size of the point cloud
+//         size_t size;
+//         ar(size);
 
-        // Resize the point cloud to the loaded size
-        pointCloud.resize(size);
+//         // Resize the point cloud to the loaded size
+//         pointCloud.resize(size);
 
-        // Load each point in the point cloud
-        for (auto& point : pointCloud) {
-            ar(point.x);
-            ar(point.y);
-            ar(point.z);
-            for (size_t i = 0; i <3;i++) {
-                ar(point.data[i]);
-            }
+//         // Load each point in the point cloud
+//         for (auto& point : pointCloud) {
+//             ar(point.x);
+//             ar(point.y);
+//             ar(point.z);
+//             for (size_t i = 0; i <3;i++) {
+//                 ar(point.data[i]);
+//             }
             
-            ar(point.intensity);
-        }
-    }
-    template<class Archive>
-    inline
-    void save(Archive& ar, const pcl::PointCloud<pcl::PointXYZINormal>& pointCloud) {
-        // Save the size of the point cloud
-        size_t size = pointCloud.size();
-        ar(size);
+//             ar(point.intensity);
+//         }
+//     }
+//     template<class Archive>
+//     inline
+//     void save(Archive& ar, const pcl::PointCloud<pcl::PointXYZINormal>& pointCloud) {
+//         // Save the size of the point cloud
+//         size_t size = pointCloud.size();
+//         ar(size);
 
-        // Save each point in the point cloud
-        for (const auto& point : pointCloud) {
-            ar(point.x);
-            ar(point.y);
-            ar(point.z);
-            for (size_t i = 0; i <3;i++) {
-                ar(point.data[i]);
-            }
+//         // Save each point in the point cloud
+//         for (const auto& point : pointCloud) {
+//             ar(point.x);
+//             ar(point.y);
+//             ar(point.z);
+//             for (size_t i = 0; i <3;i++) {
+//                 ar(point.data[i]);
+//             }
             
-            ar(point.normal_x);
-            ar(point.normal_y);
-            ar(point.normal_z);
-            for (size_t i = 0; i <3;i++) {
-                ar(point.data_n[i]);
-            }
+//             ar(point.normal_x);
+//             ar(point.normal_y);
+//             ar(point.normal_z);
+//             for (size_t i = 0; i <3;i++) {
+//                 ar(point.data_n[i]);
+//             }
             
-            ar(point.curvature);
-            ar(point.intensity);
+//             ar(point.curvature);
+//             ar(point.intensity);
 
-        }
-    }
-     // Load function for pcl::PointCloud type
-    template<class Archive>
-    inline
-    void load(Archive& ar, pcl::PointCloud<pcl::PointXYZINormal>& pointCloud) {
-        // Load the size of the point cloud
-        size_t size;
-        ar(size);
+//         }
+//     }
+//      // Load function for pcl::PointCloud type
+//     template<class Archive>
+//     inline
+//     void load(Archive& ar, pcl::PointCloud<pcl::PointXYZINormal>& pointCloud) {
+//         // Load the size of the point cloud
+//         size_t size;
+//         ar(size);
 
-        // Resize the point cloud to the loaded size
-        pointCloud.resize(size);
+//         // Resize the point cloud to the loaded size
+//         pointCloud.resize(size);
 
-        // Load each point in the point cloud
-        for (auto& point : pointCloud) {
-            ar(point.x);
-            ar(point.y);
-            ar(point.z);
-            for (size_t i = 0; i <3;i++) {
-                ar(point.data[i]);
-            }
+//         // Load each point in the point cloud
+//         for (auto& point : pointCloud) {
+//             ar(point.x);
+//             ar(point.y);
+//             ar(point.z);
+//             for (size_t i = 0; i <3;i++) {
+//                 ar(point.data[i]);
+//             }
             
-            ar(point.normal_x);
-            ar(point.normal_y);
-            ar(point.normal_z);
-            for (size_t i = 0; i <3;i++) {
-                ar(point.data_n[i]);
-            }
+//             ar(point.normal_x);
+//             ar(point.normal_y);
+//             ar(point.normal_z);
+//             for (size_t i = 0; i <3;i++) {
+//                 ar(point.data_n[i]);
+//             }
             
-            ar(point.curvature);
-            ar(point.intensity);
-        }
-    }
+//             ar(point.curvature);
+//             ar(point.intensity);
+//         }
+//     }
 
-    template<class Archive>
-    inline
-    void save(Archive& ar, const colive::TypeDefs::QuaternionType& q) {
-        ar(q.x());
-        ar(q.y());
-        ar(q.z());
-        ar(q.w());
+//     template<class Archive>
+//     inline
+//     void save(Archive& ar, const colive::TypeDefs::QuaternionType& q) {
+//         ar(q.x());
+//         ar(q.y());
+//         ar(q.z());
+//         ar(q.w());
        
-    }
-     // Load function for pcl::PointCloud type
-    template<class Archive>
-    inline
-    void load(Archive& ar, colive::TypeDefs::QuaternionType& q) {
-       colive::TypeDefs::precision_t  x, y, z, w;
-        ar(x);
-        ar(y);
-        ar(z);
-        ar(w);
-        q = colive::TypeDefs::QuaternionType(w, x, y, z);
-    }
-} 
+//     }
+//      // Load function for pcl::PointCloud type
+//     template<class Archive>
+//     inline
+//     void load(Archive& ar, colive::TypeDefs::QuaternionType& q) {
+//        colive::TypeDefs::precision_t  x, y, z, w;
+//         ar(x);
+//         ar(y);
+//         ar(z);
+//         ar(w);
+//         q = colive::TypeDefs::QuaternionType(w, x, y, z);
+//     }
+// } 
 
 
 

@@ -35,12 +35,13 @@
 #include "typedefs_base.hpp"
 #include "config_comm.hpp"
 
-
 #include "msgs/msg_landmark.hpp"
 #include "msgs/msg_keyframe.hpp"
 
 #include "msgs/msg_pointcloud.hpp"
 #include "msgs/msg_odometry.hpp"
+#include "msgs/msg_image.hpp"
+
 // #include "msgs/msg_landmark.hpp"
 #define ContainerSize 10
 
@@ -59,7 +60,7 @@ public:
     TypeDefs::KeyframeMsgList   keyframes;
     TypeDefs::LandmarkMsgList   landmarks;
     TypeDefs::PointCloudMsgList pointclouds;
-    TypeDefs::PointCloudMsgList images;
+    TypeDefs::ImageMsgList      images;
     TypeDefs::OdometryMsgList   odometrys;
 
 };
@@ -87,6 +88,7 @@ public:
     using KeyframeBufferType            = TypeDefs::KeyframeMsgList;
     using LandmarkBufferType            = TypeDefs::LandmarkMsgList;
     using PointCloudBufferType          = TypeDefs::PointCloudMsgList;
+    using ImageBufferType               = TypeDefs::ImageMsgList;
     using OdometryBufferType            = TypeDefs::OdometryMsgList;
 
 public:
@@ -106,8 +108,9 @@ public:
     // Message handling
     virtual auto Serialize(MsgKeyframe &msg)                                            ->void;
     virtual auto Serialize(MsgLandmark &msg)                                            ->void;
-    virtual auto Serialize(MsgPointCloud &msg)                                            ->void;
+    virtual auto Serialize(MsgPointCloud &msg)                                          ->void;
     virtual auto Serialize(MsgOdometry &msg)                                            ->void;
+    virtual auto Serialize(MsgImage &msg)                                               ->void;
 
     // Message passing
     static auto GetInAddr(struct sockaddr *sa)                                          ->void*;    // get sockaddr, IPv4 or IPv6:
@@ -142,7 +145,7 @@ protected:
     // virtual auto ProcessKeyframeMessages()                                              ->void      = 0;
     // virtual auto ProcessLandmarkMessages()                                              ->void      = 0;
     virtual auto ProcessPointCloudMessages()                                              ->void      = 0;
-
+    // virtual auto ProcessImageMessages()                                              ->void      = 0;
     // Infrastructure
     int                         client_id_                                              = -1;
 
@@ -152,15 +155,15 @@ protected:
 
     DataBundleBufferType        buffer_data_out_;
 
-    KeyframeBufferType          buffer_keyframes_out_;
+    ImageBufferType             buffer_images_out_;
     LandmarkBufferType          buffer_landmarks_out_;
     PointCloudBufferType        buffer_pointclouds_out_;
-    OdometryBufferType          buffer_odometrys_out_;
+    // OdometryBufferType          buffer_odometrys_out_;
 
-    KeyframeBufferType          buffer_keyframes_in_;
+    ImageBufferType             buffer_images_in_;
     LandmarkBufferType          buffer_landmarks_in_;
     PointCloudBufferType        buffer_pointclouds_in_;
-    OdometryBufferType          buffer_odometrys_in_;
+    // OdometryBufferType          buffer_odometrys_in_;
 
     // Sync
     std::mutex                  mtx_comm_;

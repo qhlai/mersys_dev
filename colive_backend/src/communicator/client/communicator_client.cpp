@@ -34,6 +34,7 @@
 
 
 #include "pointcloud_ex.hpp"
+#include "image_ex.hpp"
 // COVINS
 
 #include "map_co.hpp"
@@ -42,6 +43,7 @@
 #include "msgs/msg_keyframe.hpp"
 
 #include "msgs/msg_pointcloud.hpp"
+#include "msgs/msg_image.hpp"
 #include "msgs/msg_odometry.hpp"
 
 namespace colive {
@@ -138,30 +140,29 @@ auto Communicator_client::ProcessPointCloudBuffer()->void {
 
 }
 auto Communicator_client::ProcessImageBuffer()->void {
-    // std::unique_lock<std::mutex>(mtx_pointcloud_queue_);
-    // u16 cnt =0;
+    std::unique_lock<std::mutex>(mtx_image_queue_);
+    u16 cnt =0;
 
-    // while(!pointcloud_out_buffer_.empty()) {
-    //     // std::cout<< "comm: processing point cloud"<<std::endl;
-    //     auto ptcloud = pointcloud_out_buffer_.front();
-    //     pointcloud_out_buffer_.pop_front();
+    while(!image_out_buffer_.empty()) {
+        // std::cout<< "comm: processing point cloud"<<std::endl;
+        auto img = image_out_buffer_.front();
+        image_out_buffer_.pop_front();
 
-    //     // if(kfi->sent_once_ && !Map_V_params::comm::send_updates) continue;
-    //     // if(kfi->sent_once_ && kfi->mnId == 0) continue;
-    //     colive::data_bundle map_chunk;
-    //     colive::MsgPointCloud msg_ptcloud;
-    //     Vector3Type m(1.0,2.0,3.0);
-    //     ptcloud->ConvertToMsg(msg_ptcloud,m ,ptcloud->sent_once_,client_id_);
-    //     ptcloud->sent_once_ = true;
-    //     map_chunk.pointclouds.push_back(msg_ptcloud);
+        // if(kfi->sent_once_ && !Map_V_params::comm::send_updates) continue;
+        // if(kfi->sent_once_ && kfi->mnId == 0) continue;
+        colive::data_bundle map_chunk;
+        colive::MsgImage msg_img;
+        img->ConvertToMsg(msg_img,img->sent_once_,client_id_);
+        img->sent_once_ = true;
+        map_chunk.images.push_back(msg_img);
 
-    //     this->PassDataBundle(map_chunk);// 最后加到封包发送缓存中
+        this->PassDataBundle(map_chunk);// 最后加到封包发送缓存中
 
-    //     if(cnt >= colive_params::comm::max_sent_kfs_per_iteration) break;
+        if(cnt >= colive_params::comm::max_sent_kfs_per_iteration) break;
 
 
-    // }
-    // // while(!kf_out_buffer_.empty())
+    }
+    // while(!kf_out_buffer_.empty())
 
 
 }
@@ -372,6 +373,102 @@ auto Communicator_client::TryPassKeyPcToComm(PointCloudEX* pc)      ->void{
             // *pc_final+=pc->pts_cloud;
         }
         // pc->pts_cloud.clear(); // shoud not clear it, because comm use 
+        
+
+}
+auto Communicator_client::TryPassKeyImgToComm(ImageEX* img)      ->void{
+
+        // vio 一开始可能没初始化好,忽略一开始的5帧
+        static uint8_t  ingore_cnt=0;
+        if(ingore_cnt< 5){
+            ingore_cnt++;
+            return;
+        }
+        auto T= img->GetPoseTsw();
+
+        Vector3Type pos_diff = T.translation() - last_transform_.translation();
+
+        // TODO: modify keyframe's max pos diff
+        precision_t pos_dis = sqrt(pos_diff[0]*pos_diff[0]+pos_diff[1]*pos_diff[1]+pos_diff[2]*pos_diff[2]);
+
+
+        // // QuaternionType quan_diff =pc->quan_*last_quan_.conjugate();
+        // // Eigen::Matrix3d R = quan_diff.toRotationMatrix();
+
+        // // Eigen::Vector3d position = T_curr_loop.translation();
+        // // Eigen::Vector3d euler = T_curr_loop.rotation().eulerAngles(0, 1, 2);
+
+        Vector3Type rot_euler=T.rotation().eulerAngles(2,1,0); // zyx, euler is [0,pi]
+        Vector3Type last_rot_euler=last_transform_.rotation().eulerAngles(2, 1, 0); // zyx, euler is [0,pi]
+
+        // // std::cout << "roll_2 pitch_2 yaw_2 = " << rot_euler[2]
+        // //                                 << " " << rot_euler[1]
+	    // //                                 << " " << rot_euler[0] << std::endl << std::endl;
+        // // std::cout << "diff roll_2 pitch_2 yaw_2 = " << rot_euler[2]-last_rot_euler[2]
+        // //                                 << " " << rot_euler[1]-last_rot_euler[1]
+	    // //                                 << " " << rot_euler[0]-last_rot_euler[0] << std::endl << std::endl;
+
+        precision_t rot_diff = (fabs(rot_euler[2]-last_rot_euler[2]) + fabs(rot_euler[1]-last_rot_euler[1]) + fabs(rot_euler[0]-last_rot_euler[0]))*(180.0 / M_PI);// TODO:  shoud fix, why max is 532?
+        if (rot_diff > 350){
+            rot_diff = fabs(rot_diff-360);
+        }
+        precision_t time_diff = img->timestamp_- last_timestamp_;
+        if (time_diff<0){
+                std::cout<<"Error time_diff<0"<< std::endl;
+                return;
+        }
+        // // 把多个frame一起打包压缩，减少传输次数的同时可以合并一些重复点
+        // // std::cout<<"pc->pts_cloud->size():"<<pc->pts_cloud.size()<< std::endl;  6000 per frame
+        // // if
+        // // static int tmp=0;
+        
+        // if(base_frame_update_){
+        //     base_frame_transform_=pc->GetPoseTsw();
+        //     base_frame_update_=false;
+
+        //     *pc_final+=pc->pts_cloud;
+        // }else{
+        //     PointCloud::Ptr cloud_acc(new PointCloud(pc->pts_cloud));
+        //     pcl::transformPointCloud(*cloud_acc, *cloud_acc, (pc->GetPoseTsw()*base_frame_transform_.inverse()).matrix());
+        //     *pc_final+=*cloud_acc;
+        // }
+        
+        // // 要基于body坐标系修复
+        // // pcl::transformPointCloud(*cloud_in, *cloud_in, pc->GetPoseTsg().matrix());
+        // // if (tmp%2==0){
+            
+        //     // tmp++;
+        // // }
+
+  
+        
+        if ( (pos_dis > 0.5 || rot_diff > 10 || time_diff > 1 || pc_final->size() >= 50000) ){
+        //     if (pc_final->size() == 0){
+        //         std::cout<<"Error pc_final->size() == 0"<< std::endl;
+        //         // *pc_final+=pc->pts_cloud;
+        //         return;
+        //     }
+            
+       
+            
+            img->id_.second =  GetClientId();
+            img->id_.first = send_cnt++ ;
+            // pc->pts_cloud=*pc_final;
+            // pc->SetPoseTsw(base_frame_transform_);
+            std::cout << "send new pointcloud "<<img->id_.first << std::endl;
+            PassImgToComm(img);
+
+        //     // last_pos_=pc->pos_w;
+        //     // last_quan_=pc->quan_; 
+            last_transform_=img->GetPoseTsw();
+            last_timestamp_=img->timestamp_;          
+        //     // pc->pts_cloud.clear();
+        // }else{
+        //     // pc
+        //     // 把多个frame一起打包压缩，减少传输次数的同时可以合并一些重复点
+        //     // *pc_final+=pc->pts_cloud;
+        }
+        // // pc->pts_cloud.clear(); // shoud not clear it, because comm use 
         
 
 }

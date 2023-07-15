@@ -69,11 +69,14 @@ public:
     using LandmarkPtr                   = TypeDefs::LandmarkPtr;
     using PointCloudPtr                 = TypeDefs::PointCloudPtr;
     using PointCloudEXPtr               = TypeDefs::PointCloudEXPtr;
-
+    using ImageEXPtr          = TypeDefs::ImageEXPtr;
+    using ImagePtr          = TypeDefs::ImagePtr;
     using KeyframeMap                   = TypeDefs::KeyframeMap;
     using LandmarkMap                   = TypeDefs::LandmarkMap;
     using PointCloudMap                 = TypeDefs::PointCloudMap;
     using PointCloudEXMap               = TypeDefs::PointCloudEXMap;
+    using ImageMap                 = TypeDefs::ImageMap;
+    using ImageEXMap               = TypeDefs::ImageEXMap;
 
     using LoopVector                    = TypeDefs::LoopVector;
     // using KeyframeVector                = TypeDefs::KeyframeVector;
@@ -105,6 +108,8 @@ public:
     virtual auto GetFamily(size_t client_id)->TransformType;
     virtual auto GetPointCloudEX(idpair idp)        ->PointCloudEXPtr;
     virtual auto GetPointCloudEXs()            ->PointCloudEXMap;
+    virtual auto GetImageEX(idpair idp)        ->ImageEXPtr;
+    virtual auto GetImageEXs()            ->ImageEXMap;
     virtual auto Display()->void;
 
     virtual auto AddPointCloud(PointCloudEXPtr pc)->void;
@@ -134,6 +139,7 @@ protected:
     KeyframeMap                 keyframes_;
     LandmarkMap                 landmarks_;
     PointCloudEXMap             pointclouds_;// 收集到的所用lidar frame
+    ImageEXMap                  images_;
 
     KeyframeMap                 keyframes_erased_;
 

@@ -121,7 +121,7 @@ void printStatistics(const Estimator &estimator, double t)
         ROS_INFO("td %f", estimator.td);
 }
 
-void pubOdometry(const Estimator &estimator, const std_msgs::Header &header)
+void pubOdometry(const Estimator &estimator, const std_msgs::Header &header, colive::Image_ex* img)
 {
     if (estimator.solver_flag == Estimator::SolverFlag::NON_LINEAR)
     {
@@ -143,6 +143,9 @@ void pubOdometry(const Estimator &estimator, const std_msgs::Header &header)
         odometry.twist.twist.linear.z = estimator.Vs[WINDOW_SIZE].z();
         pub_odometry.publish(odometry);
 
+        Eigen::Isometry3d T = Eigen::Isometry3d::Identity();
+        T = img->convert2T(odometry);
+        img->SetPoseTsw(T);
 
     // pc->pos_w[0] = odomAftMapped.pose.pose.position.x;
     // pc->pos_w[1] = odomAftMapped.pose.pose.position.y;

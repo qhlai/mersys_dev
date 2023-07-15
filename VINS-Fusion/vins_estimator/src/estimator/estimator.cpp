@@ -337,11 +337,7 @@ void Estimator::processMeasurements()
             std_msgs::Header header;
             header.frame_id = "world";
             header.stamp = ros::Time(feature.first);
-            // img1.Set
-//  img1.SetImage(imgTrack);
-//         // img1.img_ = imgTrack;
-//         img1.timestamp_ = t;
-            pubOdometry(*this, header);
+            pubOdometry(*this, header, img);
             pubKeyPoses(*this, header);
             pubCameraPose(*this, header);
             pubPointCloud(*this, header);
@@ -356,7 +352,9 @@ void Estimator::processMeasurements()
         std::chrono::milliseconds dura(2);
         std::this_thread::sleep_for(dura);
     }
+    // comm_->TryPassKeyPcToComm(img1);
 }
+
 
 
 void Estimator::initFirstIMUPose(vector<pair<double, Eigen::Vector3d>> &accVector)

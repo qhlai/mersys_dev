@@ -16,16 +16,16 @@
 
 #define COLIVE_MOD
 
-#include <cereal/cereal.hpp>
-#include <cereal/types/memory.hpp>
-#include <cereal/types/utility.hpp>
-#include <cereal/types/vector.hpp>
-#include <cereal/types/polymorphic.hpp>
-#include <cereal/types/concepts/pair_associative_container.hpp>
-#include <cereal/types/base_class.hpp>
-#include <cereal/archives/binary.hpp>
-#include <cereal/archives/binary.hpp>
-#include <cereal/access.hpp>
+// #include <cereal/cereal.hpp>
+// #include <cereal/types/memory.hpp>
+// #include <cereal/types/utility.hpp>
+// #include <cereal/types/vector.hpp>
+// #include <cereal/types/polymorphic.hpp>
+// #include <cereal/types/concepts/pair_associative_container.hpp>
+// #include <cereal/types/base_class.hpp>
+// #include <cereal/archives/binary.hpp>
+// #include <cereal/archives/binary.hpp>
+// #include <cereal/access.hpp>
 
 
 // #include <pcl_conversions/pcl_conversions.h>
@@ -94,6 +94,7 @@ class Image_ex;
 struct MsgKeyframe;
 struct MsgLandmark;
 struct MsgPointCloud;
+struct MsgImage;
 struct MsgOdometry;
 struct LoopConstraint;
 // Class 
@@ -182,9 +183,11 @@ namespace TypeDefs {
 
     using KeyframeMap                   = std::map<idpair,KeyframePtr,std::less<idpair>,Eigen::aligned_allocator<std::pair<const idpair,KeyframePtr>>>; // map allocator: first element of pair must be declared const
     using LandmarkMap                   = std::map<idpair,LandmarkPtr,std::less<idpair>,Eigen::aligned_allocator<std::pair<const idpair,LandmarkPtr>>>; // map allocator: first element of pair must be declared const
-    using PointCloudMap                 = std::map<idpair,PointCloudEXPtr,std::less<idpair>,Eigen::aligned_allocator<std::pair<const idpair,PointCloudEXPtr>>>; // map allocator: first element of pair must be declared const
-    using PointCloudEXMap                 = std::map<idpair,PointCloudEXPtr,std::less<idpair>,Eigen::aligned_allocator<std::pair<const idpair,PointCloudEXPtr>>>; // map allocator: first element of pair must be declared const
-    
+    using PointCloudMap                 = std::map<idpair,PointCloudPtr,std::less<idpair>,Eigen::aligned_allocator<std::pair<const idpair,PointCloudPtr>>>; // map allocator: first element of pair must be declared const
+    using PointCloudEXMap               = std::map<idpair,PointCloudEXPtr,std::less<idpair>,Eigen::aligned_allocator<std::pair<const idpair,PointCloudEXPtr>>>; // map allocator: first element of pair must be declared const
+    using ImageMap                      = std::map<idpair,ImagePtr,std::less<idpair>,Eigen::aligned_allocator<std::pair<const idpair,ImagePtr>>>; // map allocator: first element of pair must be declared const
+    using ImageEXMap                    = std::map<idpair,ImageEXPtr,std::less<idpair>,Eigen::aligned_allocator<std::pair<const idpair,ImageEXPtr>>>; // map allocator: first element of pair must be declared const
+
     using KeyframePairVector            = std::vector<std::pair<KeyframePtr,KeyframePtr>, Eigen::aligned_allocator<std::pair<KeyframePtr,KeyframePtr>>>;
     using KeyframeIntMap                = std::map<KeyframePtr,int,std::less<KeyframePtr>,Eigen::aligned_allocator<std::pair<const KeyframePtr,int>>>;
     using LoopVector                    = std::vector<LoopConstraint, Eigen::aligned_allocator<LoopConstraint>>;
@@ -201,6 +204,7 @@ namespace TypeDefs {
     using KeyframeMsgList               = std::list<MsgKeyframe,Eigen::aligned_allocator<MsgKeyframe>>;
     using LandmarkMsgList               = std::list<MsgLandmark,Eigen::aligned_allocator<MsgLandmark>>;
     using PointCloudMsgList             = std::list<MsgPointCloud,Eigen::aligned_allocator<MsgPointCloud>>;
+    using ImageMsgList                  = std::list<MsgImage,Eigen::aligned_allocator<MsgImage>>;
     using OdometryMsgList               = std::list<MsgOdometry,Eigen::aligned_allocator<MsgOdometry>>;
 }
 
