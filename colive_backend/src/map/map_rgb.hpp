@@ -38,6 +38,8 @@
 #include "typedefs_base.hpp"
 #include "pointcloud_ex.hpp"
 #include "image_ex.hpp"
+// #include "image_ex.hpp"
+
 #include "tools_kd_hash.hpp"
 // #include "tools_serialization.hpp"
 
@@ -152,7 +154,7 @@ struct Global_map
     std::shared_ptr< std::mutex >                                m_mutex_rgb_pts_in_recent_hitted_boxes;
     std::shared_ptr< std::mutex >                                m_mutex_m_box_recent_hitted;
     std::shared_ptr< std::mutex >                                m_mutex_pts_last_visited;
-    // Image_frame                                              m_img_for_projection;
+    TypeDefs::ImageEXPtr                                         m_img_for_projection;
     double                                                       m_recent_visited_voxel_activated_time = 0.0;
     bool                                                         m_in_appending_pts = 0;
     int                                                          m_updated_frame_index = 0;
@@ -167,25 +169,28 @@ struct Global_map
     double                                   m_voxel_resolution = 0.1;
     double                                   m_maximum_depth_for_projection = 200;
     double                                   m_minimum_depth_for_projection = 3;
-    int                                      m_last_updated_frame_idx = -1;
+    TypeDefs::idpair                                   m_last_updated_frame_idx;
     void                                     clear();
     void set_minmum_dis( double minimum_dis );
 
     Global_map( int if_start_service = 1 );
-    // ~Global_map();
+    ~Global_map();
 
-    // void service_refresh_pts_for_projection();
-    // void render_points_for_projection( std::shared_ptr< Image_frame > &img_ptr );
-    // void update_pose_for_projection( std::shared_ptr< Image_frame > &img, double fov_margin = 0.0001 );
-    // bool is_busy();
-    // template < typename T >
-    // int append_points_to_global_map( pcl::PointCloud< T > &pc_in, double  added_time,  std::vector< RGB_pt_ptr > *pts_added_vec = nullptr, int step = 1 );
+    void service_refresh_pts_for_projection();
+    void render_points_for_projection( TypeDefs::ImageEXPtr img_ptr );
+    void update_pose_for_projection( TypeDefs::ImageEXPtr img, double fov_margin = 0.0001 );
+    bool is_busy();
+    void set_busy();
+    void unset_busy();
+    template < typename T >
+    int append_points_to_global_map( pcl::PointCloud< T > &pc_in, double  added_time,  std::vector< RGB_pt_ptr > *pts_added_vec = nullptr, int step = 1 );
     // void render_with_a_image( std::shared_ptr< Image_frame > &img_ptr, int if_select = 1 );
     // void selection_points_for_projection( std::shared_ptr< Image_frame > &image_pose, std::vector< std::shared_ptr< RGB_pts > > *pc_out_vec = nullptr,
     //                                       std::vector< cv::Point2f > *pc_2d_out_vec = nullptr, double minimum_dis = 5, int skip_step = 1,int use_all_pts = 0 );
     // void save_to_pcd( std::string dir_name, std::string file_name = std::string( "/rgb_pt" ) , int save_pts_with_views = 3);
     // void save_and_display_pointcloud( std::string dir_name = std::string( "/home/ziv/temp/" ), std::string file_name = std::string( "/rgb_pt" ) ,  int save_pts_with_views = 3);
-    // void render_pts_in_voxels( std::shared_ptr< Image_frame > &img_ptr, std::vector< std::shared_ptr< RGB_pts > > &voxels_for_render, double obs_time = 0 );
+    // void render_pts_in_voxels( TypeDefs::ImageEXPtr img_ptr, std::vector< std::shared_ptr< RGB_pts > > &voxels_for_render, double obs_time = 0 );
+
 
   private:
     // friend class boost::serialization::access;

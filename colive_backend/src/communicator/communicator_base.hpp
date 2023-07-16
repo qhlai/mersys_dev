@@ -35,11 +35,11 @@
 #include "typedefs_base.hpp"
 #include "config_comm.hpp"
 
-#include "msgs/msg_landmark.hpp"
-#include "msgs/msg_keyframe.hpp"
+// #include "msgs/msg_landmark.hpp"
+// #include "msgs/msg_keyframe.hpp"
 
 #include "msgs/msg_pointcloud.hpp"
-#include "msgs/msg_odometry.hpp"
+// #include "msgs/msg_odometry.hpp"
 #include "msgs/msg_image.hpp"
 
 // #include "msgs/msg_landmark.hpp"
@@ -47,21 +47,21 @@
 
 namespace colive {
 
-struct MsgKeyframe;
-struct MsgLandmark;
+// struct MsgKeyframe;
+// struct MsgLandmark;
 struct MsgPointCloud;
-struct MsgOdometry;
+// struct MsgOdometry;
 
 struct data_bundle {
 public:
 
     struct compare_less{bool operator() (const data_bundle &a, const data_bundle &b) const;};
 
-    TypeDefs::KeyframeMsgList   keyframes;
-    TypeDefs::LandmarkMsgList   landmarks;
+    // TypeDefs::KeyframeMsgList   keyframes;
+    // TypeDefs::LandmarkMsgList   landmarks;
     TypeDefs::PointCloudMsgList pointclouds;
     TypeDefs::ImageMsgList      images;
-    TypeDefs::OdometryMsgList   odometrys;
+    // TypeDefs::OdometryMsgList   odometrys;
 
 };
 
@@ -81,15 +81,15 @@ public:
     using MsgInfoType                   = TypeDefs::MsgTypeVector;
     using TransformType                 = TypeDefs::TransformType;
 
-    using KeyframePtr                   = TypeDefs::KeyframePtr;
-    using LandmarkPtr                   = TypeDefs::LandmarkPtr;
+    // using KeyframePtr                   = TypeDefs::KeyframePtr;
+    // using LandmarkPtr                   = TypeDefs::LandmarkPtr;
 
     using DataBundleBufferType          = std::list<data_bundle>;
-    using KeyframeBufferType            = TypeDefs::KeyframeMsgList;
-    using LandmarkBufferType            = TypeDefs::LandmarkMsgList;
+    // using KeyframeBufferType            = TypeDefs::KeyframeMsgList;
+    // using LandmarkBufferType            = TypeDefs::LandmarkMsgList;
     using PointCloudBufferType          = TypeDefs::PointCloudMsgList;
     using ImageBufferType               = TypeDefs::ImageMsgList;
-    using OdometryBufferType            = TypeDefs::OdometryMsgList;
+    // using OdometryBufferType            = TypeDefs::OdometryMsgList;
 
 public:
     CommunicatorBase();
@@ -106,10 +106,10 @@ public:
     virtual auto GetClientId()                                                          ->int;
 
     // Message handling
-    virtual auto Serialize(MsgKeyframe &msg)                                            ->void;
-    virtual auto Serialize(MsgLandmark &msg)                                            ->void;
+    // virtual auto Serialize(MsgKeyframe &msg)                                            ->void;
+    // virtual auto Serialize(MsgLandmark &msg)                                            ->void;
     virtual auto Serialize(MsgPointCloud &msg)                                          ->void;
-    virtual auto Serialize(MsgOdometry &msg)                                            ->void;
+    // virtual auto Serialize(MsgOdometry &msg)                                            ->void;
     virtual auto Serialize(MsgImage &msg)                                               ->void;
 
     // Message passing
@@ -156,12 +156,12 @@ protected:
     DataBundleBufferType        buffer_data_out_;
 
     ImageBufferType             buffer_images_out_;
-    LandmarkBufferType          buffer_landmarks_out_;
+    // LandmarkBufferType          buffer_landmarks_out_;
     PointCloudBufferType        buffer_pointclouds_out_;
     // OdometryBufferType          buffer_odometrys_out_;
 
     ImageBufferType             buffer_images_in_;
-    LandmarkBufferType          buffer_landmarks_in_;
+    // LandmarkBufferType          buffer_landmarks_in_;
     PointCloudBufferType        buffer_pointclouds_in_;
     // OdometryBufferType          buffer_odometrys_in_;
 

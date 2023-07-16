@@ -20,6 +20,10 @@
 #include <pcl/filters/statistical_outlier_removal.h>
 #include <pcl/common/transforms.h>
 
+
+#include <pcl/point_cloud.h>
+#include <pcl/point_types.h>
+
 namespace colive {
 
 class MsgPointCloud;
@@ -79,7 +83,7 @@ public:
     auto pointcloud_transform(TransformType tf)->void;
     // GetPoseTws
     
-    auto ConvertToMsg(MsgPointCloud &msg, Vector3Type &pos_w, bool is_update, size_t cliend_id)->void;
+    auto ConvertToMsg(MsgPointCloud &msg,  bool is_update, size_t cliend_id)->void;
     auto convert_to_tf()->TransformType;
     protected:
     std::mutex                   mtx_pose_;

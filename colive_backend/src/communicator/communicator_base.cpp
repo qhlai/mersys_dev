@@ -166,9 +166,9 @@ auto CommunicatorBase::ProcessBufferIn()->void {
                 iarchive(msg);
                 buffer_images_in_.push_back(msg);
             } else if(msg_type_deserialize_[4] == 1) { // Landmark
-                MsgLandmark msg(msg_type_deserialize_);
-                iarchive(msg);
-                buffer_landmarks_in_.push_back(msg);
+                // MsgLandmark msg(msg_type_deserialize_);
+                // iarchive(msg);
+                // buffer_landmarks_in_.push_back(msg);
             }else if(msg_type_deserialize_[4] == 2) { // pointcloud
                 MsgPointCloud msg(msg_type_deserialize_);
                 iarchive(msg);
@@ -188,9 +188,9 @@ auto CommunicatorBase::ProcessBufferIn()->void {
                     iarchive(msg);
                     buffer_images_in_.push_back(msg);
                 } else if(msg_type_deserialize_[4] == 1) { // Landmark
-                    MsgLandmark msg(msg_type_deserialize_);
-                    iarchive(msg);
-                    buffer_landmarks_in_.push_back(msg);
+                    // MsgLandmark msg(msg_type_deserialize_);
+                    // iarchive(msg);
+                    // buffer_landmarks_in_.push_back(msg);
                 } else {
                     std::cout << COUTERROR << "msg_type_deserialize[4]: " << msg_type_deserialize_[4] << std::endl;
                     exit(-1);
@@ -389,30 +389,30 @@ auto CommunicatorBase::SendMsgContainer(message_container &msg)->void {
     const size_t bytes_sent_info = SendAll(msg.msg_info);
     const size_t bytes_sent_msg = SendAll(msg.ser_msg);
 }
-//将 MsgKeyframe 对象序列化为二进制数据，并将序列化后的数据长度存储在消息对象中。
-auto CommunicatorBase::Serialize(MsgKeyframe &msg)->void {
-    //clear stringstream
-    send_ser_.str("");
-    send_ser_.clear();
+// //将 MsgKeyframe 对象序列化为二进制数据，并将序列化后的数据长度存储在消息对象中。
+// auto CommunicatorBase::Serialize(MsgKeyframe &msg)->void {
+//     //clear stringstream
+//     send_ser_.str("");
+//     send_ser_.clear();
 
-    cereal::BinaryOutputArchive oarchive(send_ser_);//将 send_ser_ 作为输出流传递给它。
-    oarchive(msg);//将 MsgKeyframe 对象 msg 序列化为二进制数据，并存储到 send_ser_ 流中。
+//     cereal::BinaryOutputArchive oarchive(send_ser_);//将 send_ser_ 作为输出流传递给它。
+//     oarchive(msg);//将 MsgKeyframe 对象 msg 序列化为二进制数据，并存储到 send_ser_ 流中。
 
-    package_size_send_ = (int)send_ser_.str().length();
-    msg.SetMsgType(package_size_send_);
-}
+//     package_size_send_ = (int)send_ser_.str().length();
+//     msg.SetMsgType(package_size_send_);
+// }
 
-auto CommunicatorBase::Serialize(MsgLandmark &msg)->void {
-    //clear stringstream
-    send_ser_.str("");
-    send_ser_.clear();
+// auto CommunicatorBase::Serialize(MsgLandmark &msg)->void {
+//     //clear stringstream
+//     send_ser_.str("");
+//     send_ser_.clear();
 
-    cereal::BinaryOutputArchive oarchive(send_ser_);
-    oarchive(msg);
+//     cereal::BinaryOutputArchive oarchive(send_ser_);
+//     oarchive(msg);
 
-    package_size_send_ = (int)send_ser_.str().length();
-    msg.SetMsgType(package_size_send_);
-}
+//     package_size_send_ = (int)send_ser_.str().length();
+//     msg.SetMsgType(package_size_send_);
+// }
 auto CommunicatorBase::Serialize(MsgPointCloud &msg)->void {
     //clear stringstream
     send_ser_.str("");
@@ -450,18 +450,18 @@ auto CommunicatorBase::Serialize(MsgImage &msg)->void {
     msg.SetMsgType(package_size_send_);
 }
 
-auto CommunicatorBase::Serialize(MsgOdometry &msg)->void {
-    //clear stringstream
-    // send_ser_.str("");
-    // send_ser_.clear();
+// auto CommunicatorBase::Serialize(MsgOdometry &msg)->void {
+//     //clear stringstream
+//     // send_ser_.str("");
+//     // send_ser_.clear();
 
-    // cereal::BinaryOutputArchive oarchive(send_ser_);
-    // oarchive(msg);
+//     // cereal::BinaryOutputArchive oarchive(send_ser_);
+//     // oarchive(msg);
 
-    // package_size_send_ = (int)send_ser_.str().length();
-    // msg.SetMsgType(package_size_send_);
+//     // package_size_send_ = (int)send_ser_.str().length();
+//     // msg.SetMsgType(package_size_send_);
 
-}
+// }
 
 auto CommunicatorBase::TryLock()->bool {
     return mtx_comm_.try_lock();

@@ -1,8 +1,9 @@
 #include "backend.hpp"
 // #include "image_ex.hpp"
-// #include "sb.hpp"
 
 
+#include "tools_logger.hpp"
+#include "tools_color_printf.hpp"
 // #include <ros/ros.h>
 
 // AgentPackage::AgentPackage(size_t client_id, int newfd, VisPtr vis, ManagerPtr man) {
@@ -66,6 +67,7 @@ Backend::Backend(){
     thread_mapmanager_->detach(); // Thread will be cleaned up when exiting main()
 
 
+
         //+++++ Create Viewer +++++
     if(colive_params::vis::active){
         // auto sb =new colive::Visualizer();
@@ -74,6 +76,22 @@ Backend::Backend(){
         vis_.reset(new Visualizer("_be"));
         thread_vis_.reset(new std::thread(&Visualizer::Run,vis_));
         thread_vis_->detach(); // Thread will be cleaned up when exiting main()
+    }
+
+    if ( Common_tools::get_total_phy_RAM_size_in_GB() < 18 )
+    {
+        scope_color( ANSI_COLOR_RED_BOLD );
+        std::this_thread::sleep_for( std::chrono::seconds( 1 ) );
+        cout << "+++++++++++++++++++++++++++++++++++++++++++++++++++" << endl;
+        cout << "I have detected your physical memory smaller than 18GB (currently: " << Common_tools::get_total_phy_RAM_size_in_GB()
+             << "GB). I recommend you to add more physical memory for improving the overall performance of Colive." << endl;
+        cout << "+++++++++++++++++++++++++++++++++++++++++++++++++++" << endl;
+        std::this_thread::sleep_for( std::chrono::seconds( 5 ) );
+        // m_rgb_pts_vec.reserve( 1e8 );
+    }
+    else
+    {
+        // m_rgb_pts_vec.reserve( 1e9 );
     }
 }
 

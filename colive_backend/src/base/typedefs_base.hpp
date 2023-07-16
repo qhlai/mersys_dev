@@ -95,7 +95,7 @@ struct MsgKeyframe;
 struct MsgLandmark;
 struct MsgPointCloud;
 struct MsgImage;
-struct MsgOdometry;
+// struct MsgOdometry;
 struct LoopConstraint;
 // Class 
 // typedef pcl::PointXYZINormal PointType;
@@ -205,7 +205,7 @@ namespace TypeDefs {
     using LandmarkMsgList               = std::list<MsgLandmark,Eigen::aligned_allocator<MsgLandmark>>;
     using PointCloudMsgList             = std::list<MsgPointCloud,Eigen::aligned_allocator<MsgPointCloud>>;
     using ImageMsgList                  = std::list<MsgImage,Eigen::aligned_allocator<MsgImage>>;
-    using OdometryMsgList               = std::list<MsgOdometry,Eigen::aligned_allocator<MsgOdometry>>;
+    // using OdometryMsgList               = std::list<MsgOdometry,Eigen::aligned_allocator<MsgOdometry>>;
 }
 
 

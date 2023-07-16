@@ -19,7 +19,7 @@ PointCloud_ex::PointCloud_ex(MsgPointCloud msg, MapPtr map){
 //     std::unique_lock<std::mutex> lock(mtx_pose_);
 //     return T_w_s_;
 // }
-auto PointCloud_ex::ConvertToMsg(colive::MsgPointCloud &msg,Vector3Type &pos_w_2, bool is_update, size_t cliend_id)->void{
+auto PointCloud_ex::ConvertToMsg(colive::MsgPointCloud &msg, bool is_update, size_t cliend_id)->void{
 
 
     // std::unique_lock<std::mutex> lock_conn(mMutexConnections);

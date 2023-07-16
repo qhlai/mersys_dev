@@ -23,7 +23,7 @@
 namespace colive {
 
 
-class KeyFrame;
+// class KeyFrame;
 class Communicator_server : public CommunicatorBase, public std::enable_shared_from_this<Communicator_server> {
 public:
 
@@ -36,8 +36,8 @@ public:
     using ImageEX          = TypeDefs::ImageEX;
     using PointCloudEXPtr          = TypeDefs::PointCloudEXPtr;
     using ImageEXPtr          = TypeDefs::ImageEXPtr;
-    using KeyframeList                  = TypeDefs::KeyframeList;
-    using LandmarkList                  = TypeDefs::LandmarkList;
+    // using KeyframeList                  = TypeDefs::KeyframeList;
+    // using LandmarkList                  = TypeDefs::LandmarkList;
     using PointCloudEXList  = TypeDefs::PointCloudEXList;  
     using ImageEXList  = TypeDefs::ImageEXList;  
     // using MsgPointCloud  = TypeDefs::MsgPointCloud;  
@@ -97,8 +97,8 @@ protected:
     idpair                      last_processed_kf_msg_                                  = defpair;
     idpair                      last_processed_pc_msg_                                  = defpair;
     // LM Culling
-    LandmarkList                recent_landmarks_;
-    KeyframeList                recent_keyframes_;
+    // LandmarkList                recent_landmarks_;
+    // KeyframeList                recent_keyframes_;
 };
 
 } //end ns

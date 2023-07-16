@@ -44,12 +44,12 @@
 namespace colive {
 
 
-class KeyFrame;
+// class KeyFrame;
 class PointCloud;
-class a{
-    public:
-    int b;
-};
+// class a{
+//     public:
+//     int b;
+// };
 class Communicator_client : public CommunicatorBase, public std::enable_shared_from_this<Communicator_client> {
 public:
     using precision_t                   = TypeDefs::precision_t;
@@ -98,10 +98,10 @@ protected:
 //     // data handling
     virtual auto ProcessAdditional()                                                    ->void;
     virtual auto ProcessPointCloudMessages()->void;
-    virtual auto ProcessKeyframeMessages()                                              ->void;
-    virtual auto ProcessLandmarkMessages()                                              ->void;
-    virtual auto ProcessNewKeyframes()                                                  ->void;
-    virtual auto ProcessNewLandmarks()                                                  ->void;
+    // virtual auto ProcessKeyframeMessages()                                              ->void;
+    // virtual auto ProcessLandmarkMessages()                                              ->void;
+    // virtual auto ProcessNewKeyframes()                                                  ->void;
+    // virtual auto ProcessNewLandmarks()                                                  ->void;
 
     // virtual auto ProcessPointCloudMessages()                                            ->void;
 
@@ -129,7 +129,7 @@ protected:
     bool                    base_frame_update_ = true;
     precision_t             last_timestamp_=0;
 
-    std::list<KeyFrame*>   kf_out_buffer_;
+    // std::list<KeyFrame*>   kf_out_buffer_;
     std::list<PointCloudEX*>   pointcloud_out_buffer_;
     std::list<ImageEX*>        image_out_buffer_;
     std::mutex              mtx_pc_queue_;

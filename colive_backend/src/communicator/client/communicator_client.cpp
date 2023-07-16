@@ -39,12 +39,12 @@
 
 #include "map_co.hpp"
 
-#include "msgs/msg_landmark.hpp"
-#include "msgs/msg_keyframe.hpp"
+// #include "msgs/msg_landmark.hpp"
+// #include "msgs/msg_keyframe.hpp"
 
 #include "msgs/msg_pointcloud.hpp"
 #include "msgs/msg_image.hpp"
-#include "msgs/msg_odometry.hpp"
+// #include "msgs/msg_odometry.hpp"
 
 namespace colive {
 
@@ -124,8 +124,8 @@ auto Communicator_client::ProcessPointCloudBuffer()->void {
         // if(kfi->sent_once_ && kfi->mnId == 0) continue;
         colive::data_bundle map_chunk;
         colive::MsgPointCloud msg_ptcloud;
-        Vector3Type m(1.0,2.0,3.0);
-        ptcloud->ConvertToMsg(msg_ptcloud,m ,ptcloud->sent_once_,client_id_);
+        // Vector3Type m(1.0,2.0,3.0);
+        ptcloud->ConvertToMsg(msg_ptcloud ,ptcloud->sent_once_,client_id_);
         ptcloud->sent_once_ = true;
         map_chunk.pointclouds.push_back(msg_ptcloud);
 
@@ -195,15 +195,15 @@ auto Communicator_client::ProcessKfBuffer()->void {
     // }
 }
 
-auto Communicator_client::ProcessKeyframeMessages()->void {
-    std::unique_lock<std::mutex> lock(mtx_in_);
-    // while(!buffer_keyframes_in_.empty()) {
-    //     Map_V::MsgKeyframe msg = buffer_keyframes_in_.front();
-    //     buffer_keyframes_in_.pop_front();
-    //     std::cout << COUTRED("Received KF from server -- define usage") << std::endl;
-    //     // Define here what should be done with the received KF
-    // }
-}
+// auto Communicator_client::ProcessKeyframeMessages()->void {
+//     std::unique_lock<std::mutex> lock(mtx_in_);
+//     // while(!buffer_keyframes_in_.empty()) {
+//     //     Map_V::MsgKeyframe msg = buffer_keyframes_in_.front();
+//     //     buffer_keyframes_in_.pop_front();
+//     //     std::cout << COUTRED("Received KF from server -- define usage") << std::endl;
+//     //     // Define here what should be done with the received KF
+//     // }
+// }
 auto Communicator_client::ProcessPointCloudMessages()->void {
     std::unique_lock<std::mutex>(mtx_in_);
     u16 cnt =0;
@@ -472,17 +472,17 @@ auto Communicator_client::TryPassKeyImgToComm(ImageEX* img)      ->void{
         
 
 }
-auto Communicator_client::ProcessLandmarkMessages()->void {
+// auto Communicator_client::ProcessLandmarkMessages()->void {
 
-}
+// }
 
-auto Communicator_client::ProcessNewKeyframes()->void {
+// auto Communicator_client::ProcessNewKeyframes()->void {
 
-}
+// }
 
-auto Communicator_client::ProcessNewLandmarks()->void {
+// auto Communicator_client::ProcessNewLandmarks()->void {
 
-}
+// }
 auto Communicator_client::Run()->void {
     std::thread thread_recv(&Communicator_client::RecvMsg, this);
     thread_recv.detach();

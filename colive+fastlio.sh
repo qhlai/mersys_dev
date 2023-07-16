@@ -5,8 +5,11 @@ path_dataset='/media/lqh/WDC/dataset/r3live_offical'
 path_workspace='~/ros/r3live'
 
 #gnome-terminal -t "catkin_make" -x bash -c "catkin_make;exec bash;"
+gnome-terminal -t "build" -x bash -c "./build.sh;exec bash;"
 
-gnome-terminal -t "roslaunch" -x bash -c "cd ../../;catkin_make;source ./devel/setup.bash;roslaunch colive_backend colive_backend.launch;exec bash;"
+gnome-terminal -t "roslaunch" -x bash -c "cd ../../;source ./devel/setup.bash;roslaunch colive_backend colive_backend.launch;exec bash;"
+
+# gnome-terminal -t "roslaunch" -x bash -c "cd ../../;catkin_make;source ./devel/setup.bash;roslaunch colive_backend colive_backend.launch;exec bash;"
 
 sleep 3
 

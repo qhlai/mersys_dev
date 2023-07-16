@@ -4,7 +4,9 @@ path_workspace='~/ros/r3live'
 
 #gnome-terminal -t "catkin_make" -x bash -c "catkin_make;exec bash;"
 
-gnome-terminal -t "roslaunch vis" -x bash -c "cd ../../;catkin_make;source ./devel/setup.bash;roslaunch vins vins_rviz.launch;exec bash;"
+gnome-terminal -t "build" -x bash -c "./build.sh;exec bash;"
+
+gnome-terminal -t "roslaunch vis" -x bash -c "cd ../../;source ./devel/setup.bash;roslaunch vins vins_rviz.launch;exec bash;"
 
 
 # rosrun image_transport republish raw in:=/d400/color/image_raw compressed out:=/d400/color/image_raw
