@@ -70,12 +70,12 @@ public:
     idpair                  id_;
 
     // Position
-    Vector3Type             pos_ref;
-    Vector3Type             pos_w;
+    // Vector3Type             pos_ref;
+    // Vector3Type             pos_w;
     TransformType           T_w_s_ = TransformType::Identity(); 
     TransformType           T_s_w_ = TransformType::Identity();
     PointCloud              pts_cloud;
-    QuaternionType          quan_;
+    // QuaternionType          quan_;
 
 
 protected:
@@ -86,24 +86,24 @@ protected:
     auto save(Archive &archive) const ->void {
         if(save_to_file) {
             archive(id_,
-                    pos_w,
-                    quan_,
+                    // pos_w,
+                    // quan_,
                     T_s_w_,
                     pts_cloud,
                     // observations,id_reference
                     is_update_msg);
         } else if(is_update_msg){
             archive(id_,
-                    pos_w,
-                    quan_,
+                    // pos_w,
+                    // quan_,
                     T_s_w_,
                     pts_cloud,
                     // observations,id_reference
                     is_update_msg);
         } else {
             archive(id_,
-                    pos_w,
-                    quan_,
+                    // pos_w,
+                    // quan_,
                     T_s_w_,
                     pts_cloud,
                     // observations,id_reference
@@ -115,24 +115,24 @@ protected:
     auto load(Archive &archive)->void {
         if(save_to_file) {
              archive(id_,
-                    pos_w,
-                    quan_,
+                    // pos_w,
+                    // quan_,
                     T_s_w_,
                     pts_cloud,
                     // observations,id_reference
                     is_update_msg);
         } else if(msg_type[1] == true){
             archive(id_,
-                    pos_w,
-                    quan_,
+                    // pos_w,
+                    // quan_,
                     T_s_w_,
                     pts_cloud,
                     // observations,id_reference
                     is_update_msg);
         } else {
             archive(id_,
-                    pos_w,
-                    quan_,
+                    // pos_w,
+                    // quan_,
                     T_s_w_,
                     pts_cloud,
                     // observations,id_reference

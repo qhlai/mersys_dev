@@ -122,13 +122,33 @@ auto Map::AddPointCloud(PointCloudEXPtr pc)->void {
 auto Map::AddPointCloud(PointCloudEXPtr pc, bool suppress_output)->void {
     std::unique_lock<std::mutex> lock(mtx_map_);
     pointclouds_[pc->id_] = pc;
-    max_id_pc_ = std::max(max_id_pc_,pc->id_.first);
+    max_id_pc_ = std::max(max_id_pc_,pc->GetFrameID());
+
+    int m_append_global_map_point_step = 1;
+    bool m_if_record_mvs =true;//if record_offline_map
+    if ( m_if_record_mvs )
+    {
+        std::vector< std::shared_ptr< RGB_pts > > pts_last_hitted;
+        pts_last_hitted.reserve( 1e6 );
+
+        m_number_of_new_visited_voxel = m_map_rgb_pts.append_points_to_global_map( pc, pc->GetTimeStamp(),  &pts_last_hitted,m_append_global_map_point_step);
+
+        m_map_rgb_pts.m_mutex_pts_last_visited->lock();
+        m_map_rgb_pts.m_pts_last_hitted = pts_last_hitted;
+        m_map_rgb_pts.m_mutex_pts_last_visited->unlock();
+
+    }else{
+        m_number_of_new_visited_voxel = m_map_rgb_pts.append_points_to_global_map( pc, pc->GetTimeStamp(), nullptr,m_append_global_map_point_step);
+    }
+
+
     if(!suppress_output && !(pointclouds_.size() % 50)) {
         // std::cout << "Map " << this->id_map_  << " : " << keyframes_.size() << " KFs | " << landmarks_.size() << " LMs" << std::endl;
         // this->WriteKFsToFile();
         // this->WriteKFsToFileAllAg();
     }
 }
+
 auto Map::AddLoopConstraint(LoopConstraint lc)->void {
     std::unique_lock<std::mutex> lock(mtx_map_);
     // std::cout << COUTDEBUG << "frame: " << lc.pc1->GetClientID() << lc.pc2->GetClientID()<<std::endl;

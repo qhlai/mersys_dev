@@ -43,9 +43,11 @@
 #include "tools_kd_hash.hpp"
 // #include "tools_serialization.hpp"
 
-extern cv::RNG g_rng;
+
 
 namespace colive {
+
+extern cv::RNG g_rng;
 
 // extern std::atomic< long > g_pts_index;
 class RGB_pts
@@ -131,7 +133,7 @@ class RGB_Voxel
 {
   public:
     std::vector< RGB_pt_ptr > m_pts_in_grid;
-    double                    m_last_visited_time = 0;
+    double                   m_last_visited_time =0;
     RGB_Voxel() = default;
     ~RGB_Voxel() = default;
     void add_pt( RGB_pt_ptr &rgb_pts ) { m_pts_in_grid.push_back( rgb_pts ); }
@@ -163,7 +165,7 @@ struct Global_map
 
     Hash_map_3d< long, RGB_pt_ptr >   m_hashmap_3d_pts;
     Hash_map_3d< long, std::shared_ptr< RGB_Voxel > > m_hashmap_voxels;
-    std::unordered_set< std::shared_ptr< RGB_Voxel > > m_voxels_recent_visited;
+    std::vector<std::unordered_set< std::shared_ptr< RGB_Voxel > >> m_voxels_recent_visited;
     std::vector< std::shared_ptr< RGB_pts > >          m_pts_last_hitted;
     double                                   m_minimum_pts_size = 0.05; // 5cm minimum distance.
     double                                   m_voxel_resolution = 0.1;
@@ -182,8 +184,8 @@ struct Global_map
     bool is_busy();
     void set_busy();
     void unset_busy();
-    template < typename T >
-    int append_points_to_global_map( pcl::PointCloud< T > &pc_in, double  added_time,  std::vector< RGB_pt_ptr > *pts_added_vec = nullptr, int step = 1 );
+    // template < typename T >
+    int append_points_to_global_map( TypeDefs::PointCloudEXPtr pc_in, double  added_time,  std::vector< RGB_pt_ptr > *pts_added_vec = nullptr, int step = 1 );
     // void render_with_a_image( std::shared_ptr< Image_frame > &img_ptr, int if_select = 1 );
     // void selection_points_for_projection( std::shared_ptr< Image_frame > &image_pose, std::vector< std::shared_ptr< RGB_pts > > *pc_out_vec = nullptr,
     //                                       std::vector< cv::Point2f > *pc_2d_out_vec = nullptr, double minimum_dis = 5, int skip_step = 1,int use_all_pts = 0 );

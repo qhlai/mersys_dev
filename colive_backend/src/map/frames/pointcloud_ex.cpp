@@ -6,8 +6,8 @@ namespace colive {
 
 PointCloud_ex::PointCloud_ex(MsgPointCloud msg, MapPtr map){
     id_= msg.id_;
-    pos_w = msg.pos_w;
-    quan_ = msg.quan_;
+    // pos_w = msg.pos_w;
+    // quan_ = msg.quan_;
     pts_cloud=msg.pts_cloud;
     timestamp_=msg.timestamp_;
     // T_s_w_=msg.T_s_w_;
@@ -29,8 +29,8 @@ auto PointCloud_ex::ConvertToMsg(colive::MsgPointCloud &msg, bool is_update, siz
     msg.id_ = id_;   // mnid clientid  
     msg.timestamp_ = timestamp_;//std::chrono::system_clock::now();
     
-    msg.pos_w = pos_w;
-    msg.quan_ = quan_;
+    // msg.pos_w = pos_w;
+    // msg.quan_ = quan_;
     msg.pts_cloud = pts_cloud;
     msg.T_s_w_=GetPoseTsw();
     // msg.pts_cloud=
@@ -124,7 +124,7 @@ auto PointCloud_ex::pointcloud_transform(TransformType T)->void{
     //             new PointCloudXYZI(size, 1));
 
 }
-auto PointCloud_ex::convert_to_tf()->TransformType{
+auto PointCloud_ex::convert_to_tf(Vector3Type pos_w, QuaternionType quan_)->TransformType{
     Eigen::Isometry3d T = Eigen::Isometry3d::Identity();
     T.translate(pos_w);
     T.rotate(quan_);
@@ -132,6 +132,12 @@ auto PointCloud_ex::convert_to_tf()->TransformType{
     // T_w_s_.block<3, 1>(0, 3) = T.translation();
     return T;
 }
+auto PointCloud_ex::get_transformed_pc()->PointCloud{
+    PointCloud pt_cloud_tf;
+    pcl::transformPointCloud(pts_cloud,pt_cloud_tf, GetPoseTsg().matrix());
+    return pt_cloud_tf;
+}
+
 auto PointCloud_ex::pc_less::operator ()(const PointCloudEXPtr a, const PointCloudEXPtr b) const ->bool
 {
     if(a->GetClientID() < b->GetClientID())

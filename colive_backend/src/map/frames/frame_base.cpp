@@ -9,7 +9,10 @@ namespace colive {
         // std::unique_lock<std::mutex> lock_conn(mtx_connections_);
         return id_.first;
     }
-
+    auto FrameBase::GetTimeStamp()->double {
+        // std::unique_lock<std::mutex> lock_conn(mtx_connections_);
+        return timestamp_;
+    }
     auto FrameBase::SetErase()->void {
         std::unique_lock<std::mutex> lock_conn(mtx_connections_);
         not_erase_ = false;

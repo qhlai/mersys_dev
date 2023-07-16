@@ -122,6 +122,10 @@ Global_map::Global_map( int if_start_service )
     m_mutex_m_box_recent_hitted = std::make_shared< std::mutex >();
     m_mutex_pts_last_visited = std::make_shared< std::mutex >();
 
+
+    m_voxels_recent_visited.reserve(MAX_CLIENT_NUM);
+    // m_last_visited_time.reserve(MAX_CLIENT_NUM);
+
     // // Allocate memory for pointclouds
     if ( Common_tools::get_total_phy_RAM_size_in_GB() < 16 )
     {
@@ -228,10 +232,11 @@ void Global_map::unset_busy()
     m_in_appending_pts = false;
 }
 // 这里是单机，要改成多机
-template <typename T>
-int Global_map::append_points_to_global_map(pcl::PointCloud<T> &pc_in, double  added_time,  std::vector<std::shared_ptr<RGB_pts>> *pts_added_vec, int step)
+// template <typename T>
+int Global_map::append_points_to_global_map(TypeDefs::PointCloudEXPtr pc_in, double  added_time,  std::vector<std::shared_ptr<RGB_pts>> *pts_added_vec, int step)
 {
     set_busy();
+    uint32_t client_id=pc_in->GetClientID();
     // Common_tools::Timer tim;
     // tim.tic();
     int acc = 0;
@@ -247,12 +252,13 @@ int Global_map::append_points_to_global_map(pcl::PointCloud<T> &pc_in, double  a
     }
     else
     {
+        // 从 m_voxels_recent_visited 中移除最近未访问的体素。
         m_mutex_m_box_recent_hitted->lock();
-        voxels_recent_visited = m_voxels_recent_visited;
+        voxels_recent_visited = m_voxels_recent_visited[client_id];
         m_mutex_m_box_recent_hitted->unlock();
         for( Voxel_set_iterator it = voxels_recent_visited.begin(); it != voxels_recent_visited.end();  )
         {
-            if ( added_time - ( *it )->m_last_visited_time > m_recent_visited_voxel_activated_time )
+            if ( added_time - ( *it )->m_last_visited_time > m_recent_visited_voxel_activated_time ) // 将该体素从集合中移除
             {
                 it = voxels_recent_visited.erase( it );
                 continue;
@@ -261,18 +267,22 @@ int Global_map::append_points_to_global_map(pcl::PointCloud<T> &pc_in, double  a
         }
         cout << "Restored voxel number = " << voxels_recent_visited.size() << endl;
     }
+    // pc_in->pts_cloud
+    // 要转移到真实位置
+    TypeDefs::PointCloud pc = pc_in->get_transformed_pc();
+
     int number_of_voxels_before_add = voxels_recent_visited.size();
-    int pt_size = pc_in.points.size();
+    int pt_size = pc.points.size();
     // // step = 4;
     for (int pt_idx = 0; pt_idx < pt_size; pt_idx += step)
     {
         int add = 1;
-        int grid_x = std::round(pc_in.points[pt_idx].x / m_minimum_pts_size);
-        int grid_y = std::round(pc_in.points[pt_idx].y / m_minimum_pts_size);
-        int grid_z = std::round(pc_in.points[pt_idx].z / m_minimum_pts_size);
-        int box_x =  std::round(pc_in.points[pt_idx].x / m_voxel_resolution);
-        int box_y =  std::round(pc_in.points[pt_idx].y / m_voxel_resolution);
-        int box_z =  std::round(pc_in.points[pt_idx].z / m_voxel_resolution);
+        int grid_x = std::round(pc.points[pt_idx].x / m_minimum_pts_size);
+        int grid_y = std::round(pc.points[pt_idx].y / m_minimum_pts_size);
+        int grid_z = std::round(pc.points[pt_idx].z / m_minimum_pts_size);
+        int box_x =  std::round(pc.points[pt_idx].x / m_voxel_resolution);
+        int box_y =  std::round(pc.points[pt_idx].y / m_voxel_resolution);
+        int box_z =  std::round(pc.points[pt_idx].z / m_voxel_resolution);
         if (m_hashmap_3d_pts.if_exist(grid_x, grid_y, grid_z))// 这里写错了吗？
         {
             add = 0;
@@ -301,7 +311,12 @@ int Global_map::append_points_to_global_map(pcl::PointCloud<T> &pc_in, double  a
         }
         acc++;
         std::shared_ptr<RGB_pts> pt_rgb = std::make_shared<RGB_pts>();
-        pt_rgb->set_pos(vec_3(pc_in.points[pt_idx].x, pc_in.points[pt_idx].y, pc_in.points[pt_idx].z));
+
+        pt_rgb->set_pos(TypeDefs::Vector3Type(
+            pc.points[pt_idx].x, 
+            pc.points[pt_idx].y, 
+            pc.points[pt_idx].z));
+
         pt_rgb->m_pt_index = m_rgb_pts_vec.size();
         m_rgb_pts_vec.push_back(pt_rgb);
         m_hashmap_3d_pts.insert(grid_x, grid_y, grid_z, pt_rgb);
@@ -313,9 +328,10 @@ int Global_map::append_points_to_global_map(pcl::PointCloud<T> &pc_in, double  a
     }
     unset_busy();
     m_mutex_m_box_recent_hitted->lock();
-    m_voxels_recent_visited = voxels_recent_visited ;
+    m_voxels_recent_visited[pc_in->GetClientID()] = voxels_recent_visited ;
     m_mutex_m_box_recent_hitted->unlock();
-    return (m_voxels_recent_visited.size() -  number_of_voxels_before_add);
+    std::cout << COUTDEBUG <<"m_rgb_pts_vec size:"<<m_rgb_pts_vec.size()<<", pts_added_vec size:"<< pts_added_vec->size()<<std::endl;
+    return (m_voxels_recent_visited[client_id].size() -  number_of_voxels_before_add);
     // return 0;
 }
 

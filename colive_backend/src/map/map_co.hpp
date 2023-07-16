@@ -86,7 +86,7 @@ public:
 
     // pcl::PointCloud<pcl::PointXYZ>::Ptr map_raw_pts;
     // pcl::PointCloud<pcl::PointXYZRGB>::Ptr map_rbg_pts; // or as landmark
-    Global_map rgb_map; 
+    Global_map m_map_rgb_pts; 
     //
     
     // std::pair<int,int> map_;
@@ -132,6 +132,8 @@ public:
     std::set<size_t>            associated_clients_; // set of clients
     TransformType               T_lm_w_= TransformType::Identity(); // 单机地图与全局地图的估计位姿关系 传感器相对于世界坐标系的位置和方向
     bool have_real_pos=false;  // 是否与世界坐标系建立了联系
+
+    int m_number_of_new_visited_voxel = 0;
 protected:
 
     // Data

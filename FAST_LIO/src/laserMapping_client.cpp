@@ -897,8 +897,8 @@ int main(int argc, char** argv)
     thread_comm_.reset(new std::thread(&colive::Communicator_client::Run,comm_));
 
     colive::PointCloud_ex pc1;
-    Eigen::Matrix<double,3,1> m(1.0,2.0,3.0);
-    pc1.pos_w =  m;
+    // Eigen::Matrix<double,3,1> m(1.0,2.0,3.0);
+    // pc1.pos_w =  m;
     colive::PointCloud_ex* pc;
     pc = &pc1;
     int cnt=0;   

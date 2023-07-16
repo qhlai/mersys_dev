@@ -322,9 +322,9 @@ auto Visualizer::PubPointCloud_service()->void {
 
     for(PointCloudEXMap::const_iterator mit=curr_bundle_.pointCloud.begin();mit!=curr_bundle_.pointCloud.end();++mit) {
         PointCloudEXPtr pc_ex = mit->second;
-        PointCloud::Ptr pc_tmp(new PointCloud(pc_ex->pts_cloud));
-        pcl::transformPointCloud(*pc_tmp, *pc_tmp, pc_ex->GetPoseTsg().matrix());
-        pc_sum+=*pc_tmp;
+        // PointCloud::Ptr pc_tmp(new PointCloud(pc_ex->pts_cloud));
+        // pcl::transformPointCloud(*pc_tmp, *pc_tmp, pc_ex->GetPoseTsg().matrix());
+        pc_sum+=pc_ex->get_transformed_pc();
     }
     std::cout << COUTNOTICE <<"rviz:pointcloud points sum:"<< pc_sum.points.size() << std::endl;
     for(uint64_t i=0;i<pc_sum.points.size();i+=5) {

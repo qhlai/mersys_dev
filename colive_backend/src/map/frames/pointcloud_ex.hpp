@@ -55,11 +55,11 @@ public:
     bool sent_once_ = false;
     // VoxelGrid  vox_cloud;
     PointCloud pts_cloud;
-    PointCloud pts_cloud_d;
+    PointCloud pts_cloud_d;  // 降采样后的点云
     // Position
-    Vector3Type             pos_ref;
-    Vector3Type             pos_w;
-    QuaternionType          quan_;
+    // Vector3Type             pos_ref;
+    // Vector3Type             pos_w;
+    // QuaternionType          quan_;
 public:
     // TransformType           T_s_lm_ = TransformType::Identity(); // 当前帧与本地地图的迁移关系
     // TransformType           T_lm_w_ = TransformType::Identity(); // 
@@ -84,7 +84,8 @@ public:
     // GetPoseTws
     
     auto ConvertToMsg(MsgPointCloud &msg,  bool is_update, size_t cliend_id)->void;
-    auto convert_to_tf()->TransformType;
+    auto convert_to_tf(Vector3Type pos_w, QuaternionType quan_)->TransformType;
+    auto get_transformed_pc()->PointCloud;
     protected:
     std::mutex                   mtx_pose_;
     std::mutex                   mtx_in_;
