@@ -233,10 +233,11 @@ void Global_map::unset_busy()
 }
 // 这里是单机，要改成多机
 // template <typename T>
-int Global_map::append_points_to_global_map(TypeDefs::PointCloudEXPtr pc_in, double  added_time,  std::vector<std::shared_ptr<RGB_pts>> *pts_added_vec, int step)
+int Global_map::append_points_to_global_map(TypeDefs::PointCloudEXPtr pc_in,  std::vector<std::shared_ptr<RGB_pts>> *pts_added_vec, int step)
 {
     set_busy();
     uint32_t client_id=pc_in->GetClientID();
+    double added_time=pc_in->GetTimeStamp();
     // Common_tools::Timer tim;
     // tim.tic();
     int acc = 0;

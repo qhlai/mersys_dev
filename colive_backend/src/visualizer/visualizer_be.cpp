@@ -363,7 +363,7 @@ auto Visualizer::PubPointCloud_service()->void {
         // pc.points[i].y=pc_sum.points[i].y;
         // pc.points[i].z=pc_sum.points[i].z;
         pub_idx_size++;
-        std::cout << COUTDEBUG <<"pub_idx_size:"<<pub_idx_size <<std::endl;
+        // std::cout << COUTDEBUG <<"pub_idx_size:"<<pub_idx_size <<std::endl;
         if(pub_idx_size == number_of_pts_per_topic){
             pub_idx_size = 0;
             pcl::toROSMsg( pc_rgb, ros_pc_msg );

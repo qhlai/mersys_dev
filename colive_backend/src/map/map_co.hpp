@@ -114,7 +114,7 @@ public:
 
     virtual auto AddPointCloud(PointCloudEXPtr pc)->void;
     virtual auto AddPointCloud(PointCloudEXPtr pc, bool suppress_output)->void;
-
+    virtual auto Add2RGBMap(PointCloudEXPtr pc)->void;
 
 
     virtual auto AddLoopConstraint(LoopConstraint lc)                                   ->void;
