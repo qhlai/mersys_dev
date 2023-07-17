@@ -2,7 +2,7 @@
 
 #include "tools_logger.hpp"
 #include "tools_color_printf.hpp"
-
+#include <opencv2/opencv.hpp>
 // #include "common_tools.h"
 namespace colive {
 
@@ -102,6 +102,20 @@ int RGB_pts::update_rgb(const TypeDefs::Vector3Type &rgb, const double obs_dis, 
     return 1;
 }
 
+void RGB_pts::Intensity2Rgb( int colormap_type){
+    // Define the color map
+    cv::Mat colormap;
+    cv::applyColorMap(cv::Mat(1, 1, CV_8U, intensity), colormap, colormap_type);
+
+    // Split the RGB channels
+    // Vector3Type  rgb_value;
+    cv::Vec3b* ptr = colormap.ptr<cv::Vec3b>();
+    bgr_intensity[0] = ptr[0][0];  // blue channel
+    bgr_intensity[1] = ptr[0][1];  // green channel
+    bgr_intensity[2] = ptr[0][2];  // red channel
+
+    // return rgb_value;
+}
 
 void Global_map::clear()
 {
@@ -319,6 +333,22 @@ int Global_map::append_points_to_global_map(TypeDefs::PointCloudEXPtr pc_in,  st
             pc.points[pt_idx].z));
 
         pt_rgb->m_pt_index = m_rgb_pts_vec.size();
+// for intensity
+#if POINTCLOUD_HAVE_INTENSITY
+        pt_rgb->intensity=pc.points[pt_idx].intensity;
+        // float intensity = static_cast<float>(map_rgb_pts.m_rgb_pts_vec[ i ]->intensity);
+        // TypeDefs::Vector3Type bgr = getRgbFromIntensity(pt_rgb->intensity, cv::COLORMAP_RAINBOW);
+#if DISPLAY_POINTCLOUD_INTENSITY
+        pt_rgb->Intensity2Rgb();
+        // colored_point.r = static_cast<uint8_t>(r * 255);
+        // colored_point.g = static_cast<uint8_t>(g * 255);
+        // colored_point.b = static_cast<uint8_t>(b * 255);
+#endif
+        // pc_rgb.points[ pub_idx_size ].r = bgr[2];
+        // pc_rgb.points[ pub_idx_size ].g = bgr[1];
+        // pc_rgb.points[ pub_idx_size ].b = bgr[0];
+        // std::cout << COUTDEBUG << "intensity:"<<intensity<< std::endl;
+#endif
         m_rgb_pts_vec.push_back(pt_rgb);
         m_hashmap_3d_pts.insert(grid_x, grid_y, grid_z, pt_rgb);
         box_ptr->add_pt(pt_rgb);
@@ -335,5 +365,8 @@ int Global_map::append_points_to_global_map(TypeDefs::PointCloudEXPtr pc_in,  st
     return (m_voxels_recent_visited[client_id].size() -  number_of_voxels_before_add);
     // return 0;
 }
+
+
+
 
 }

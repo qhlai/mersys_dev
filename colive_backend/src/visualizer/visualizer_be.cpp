@@ -8,6 +8,12 @@
 #include "tools_color_printf.hpp"
 
 #include "map_rgb.hpp"
+
+#include <opencv2/opencv.hpp>
+
+#include <pcl/visualization/cloud_viewer.h>
+#include <pcl/visualization/pcl_visualizer.h>
+
 namespace colive{
 
 
@@ -28,6 +34,9 @@ Visualizer::Visualizer(std::string topic_prefix)
     pub_odom_vec_.reserve(MAX_CLIENT_NUM);//for publish odoms
     m_pub_rgb_render_pointcloud_ptr_vec.resize(1e3);
     std::cout<<"init vis"<<std::endl;
+
+
+
 }
 // 废弃的
 Visualizer::Visualizer(std::string topic_prefix, MapManagerPtr mapmanager)
@@ -44,6 +53,11 @@ Visualizer::Visualizer(std::string topic_prefix, MapManagerPtr mapmanager)
     pub_odom_ = nh_.advertise<nav_msgs::Odometry>(odom_topic, 10);
     std::cout<<"init vis"<<std::endl;
     mapmanager_=mapmanager;
+
+    // pcl_visualizer.reset(new pcl::visualization::PCLVisualizer);
+    // pcl_visualizer->addColormapScalarBar("Intensity", min_intensity, max_intensity);
+
+    // pcl::visualization::lookupRGB(intensity, colored_point.r, colored_point.g, colored_point.b);
 }
 auto Visualizer::CheckVisData()->bool
 {
@@ -309,6 +323,23 @@ auto Visualizer::PubLoopEdges()->void {
     pub_marker_.publish(msg_intra);
     pub_marker_.publish(msg_inter);
 }
+
+auto  Visualizer::getRgbFromGray(double gray_value, int colormap_type)->Vector3Type{
+    // Define the color map
+    cv::Mat colormap;
+    cv::applyColorMap(cv::Mat(1, 1, CV_8U, gray_value), colormap, colormap_type);
+
+    // Split the RGB channels
+    Vector3Type  rgb_value;
+    cv::Vec3b* ptr = colormap.ptr<cv::Vec3b>();
+    rgb_value[0] = ptr[0][0];  // blue channel
+    rgb_value[1] = ptr[0][1];  // green channel
+    rgb_value[2] = ptr[0][2];  // red channel
+
+    return rgb_value;
+}
+
+
 // void R3LIVE::service_pub_rgb_maps()
 auto Visualizer::PubPointCloud_service()->void {
     pcl::PointCloud< pcl::PointXYZI> pc_sum;
@@ -321,31 +352,14 @@ auto Visualizer::PubPointCloud_service()->void {
     // pc.resize( number_of_pts_per_topic);
     uint64_t pub_idx_size = 0;
     int cur_topic_idx = 0;
-
-    // for(PointCloudEXMap::const_iterator mit=curr_bundle_.pointCloud.begin();mit!=curr_bundle_.pointCloud.end();++mit) {
-    //     PointCloudEXPtr pc_ex = mit->second;
-    //     // PointCloud::Ptr pc_tmp(new PointCloud(pc_ex->pts_cloud));
-    //     // pcl::transformPointCloud(*pc_tmp, *pc_tmp, pc_ex->GetPoseTsg().matrix());
-    //     pc_sum+=pc_ex->get_transformed_pc();
-    // }
+    
     auto map_rgb_pts=curr_bundle_.map_rgb_pts;
     int pts_size = map_rgb_pts.m_rgb_pts_vec.size();
-    //     for(PointCloudEXMap::const_iterator mit=curr_bundle_.pointCloud.begin();mit!=curr_bundle_.pointCloud.end();++mit){
-    //     // KeyframePtr kf = mit->second;
-    //     PointCloudEXPtr pc = mit->second;
 
-    //     pctraj.insert(pc);
-    //     pccids.insert(pc->id_.second);
-    // }
     std::cout << COUTNOTICE <<"rviz:pointcloud points sum:"<< pts_size << std::endl;
     for(uint64_t i=0;i<pts_size;i+=1) {
         // PointCloudEXPtr pc_ex = mit->second;
 
-        // PointCloud::Ptr pc_tmp(new PointCloud(pc_ex->pts_cloud));
-
-        // std::cout<<"pc pos_w:"<<pc_i->pos_w<<std::endl;
-        // std::cout<<"pc size:"<<pc_i->pts_cloud.size()<<std::endl;
-        // int    m_N_rgb = 0;
         // if ( map_rgb_pts.m_rgb_pts_vec[ i ]->m_N_rgb < 1 )
         // {
         //     std::cout << COUTDEBUG <<"map_rgb_pts.m_rgb_pts_vec[ i ]->m_N_rgb < 1 "<<std::endl;
@@ -354,9 +368,33 @@ auto Visualizer::PubPointCloud_service()->void {
         pc_rgb.points[ pub_idx_size ].x = map_rgb_pts.m_rgb_pts_vec[ i ]->m_pos[ 0 ];
         pc_rgb.points[ pub_idx_size ].y = map_rgb_pts.m_rgb_pts_vec[ i ]->m_pos[ 1 ];
         pc_rgb.points[ pub_idx_size ].z = map_rgb_pts.m_rgb_pts_vec[ i ]->m_pos[ 2 ];
-        pc_rgb.points[ pub_idx_size ].r = map_rgb_pts.m_rgb_pts_vec[ i ]->m_rgb[ 2 ];
-        pc_rgb.points[ pub_idx_size ].g = map_rgb_pts.m_rgb_pts_vec[ i ]->m_rgb[ 1 ];
-        pc_rgb.points[ pub_idx_size ].b = map_rgb_pts.m_rgb_pts_vec[ i ]->m_rgb[ 0 ];
+        // rgb 三通道至少一个不为空
+        if(map_rgb_pts.m_rgb_pts_vec[ i ]->m_rgb[ 2 ] || map_rgb_pts.m_rgb_pts_vec[ i ]->m_rgb[ 1 ] || map_rgb_pts.m_rgb_pts_vec[ i ]->m_rgb[ 0 ]){
+            
+            pc_rgb.points[ pub_idx_size ].r = map_rgb_pts.m_rgb_pts_vec[ i ]->m_rgb[ 2 ];
+            pc_rgb.points[ pub_idx_size ].g = map_rgb_pts.m_rgb_pts_vec[ i ]->m_rgb[ 1 ];
+            pc_rgb.points[ pub_idx_size ].b = map_rgb_pts.m_rgb_pts_vec[ i ]->m_rgb[ 0 ];
+            std::cout << COUTDEBUG << "color"<< std::endl;
+        }else if( DISPLAY_POINTCLOUD_INTENSITY){
+            // std::cout << COUTDEBUG << "intensity"<< std::endl;
+            // float intensity = static_cast<float>(map_rgb_pts.m_rgb_pts_vec[ i ]->intensity);
+            // Vector3Type bgr = getRgbFromGray(intensity, cv::COLORMAP_RAINBOW);;
+
+            // colored_point.r = static_cast<uint8_t>(r * 255);
+            // colored_point.g = static_cast<uint8_t>(g * 255);
+            // colored_point.b = static_cast<uint8_t>(b * 255);
+
+            pc_rgb.points[ pub_idx_size ].r = map_rgb_pts.m_rgb_pts_vec[ i ]->bgr_intensity[2];
+            pc_rgb.points[ pub_idx_size ].g = map_rgb_pts.m_rgb_pts_vec[ i ]->bgr_intensity[1];
+            pc_rgb.points[ pub_idx_size ].b = map_rgb_pts.m_rgb_pts_vec[ i ]->bgr_intensity[0];
+            // std::cout << COUTDEBUG << "intensity:"<<intensity<< std::endl;
+        }else{
+            // std::cout << COUTDEBUG << "zero"<< std::endl;
+            pc_rgb.points[ pub_idx_size ].r = 0;
+            pc_rgb.points[ pub_idx_size ].g = 0;
+            pc_rgb.points[ pub_idx_size ].b = 0;
+        }
+
         // pcl::transformPointCloud(*pc_tmp, *pc_tmp, pc_ex->GetPoseTsg().matrix());
         // pc.points.push_back(pc_sum.points[i]);
         // pc.points[i].x=pc_sum.points[i].x;

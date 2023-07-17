@@ -64,8 +64,9 @@ class RGB_pts
     std::atomic<int> m_N_rgb;
 #else
     double m_pos[ 3 ] = { 0 };
-    double m_rgb[ 3 ] = { 0 };
-    double intensity = 0;
+    float m_rgb[ 3 ] = { 0 };
+    float intensity = 0;
+    uint8_t bgr_intensity[3] = {0};
     double m_cov_rgb[ 3 ] = { 0 };
     double m_gray = 0;
     double m_cov_gray = 0;
@@ -112,7 +113,7 @@ class RGB_pts
     pcl::PointXYZI get_pt();
     void update_gray( const double gray, double obs_dis = 1.0 );
     int update_rgb( const TypeDefs::Vector3Type &rgb, const double obs_dis, const TypeDefs::Vector3Type obs_sigma, const double obs_time );
-
+    void Intensity2Rgb( int colormap_type=cv::COLORMAP_RAINBOW);
   private:
     friend class boost::serialization::access;
     template < typename Archive >
@@ -187,6 +188,8 @@ struct Global_map
     void unset_busy();
     // template < typename T >
     int append_points_to_global_map( TypeDefs::PointCloudEXPtr pc_in,  std::vector< RGB_pt_ptr > *pts_added_vec = nullptr, int step = 1 );
+
+    // TypeDefs::Vector3Type getRgbFromIntensity(double gray_value, int colormap_type);
     // void render_with_a_image( std::shared_ptr< Image_frame > &img_ptr, int if_select = 1 );
     // void selection_points_for_projection( std::shared_ptr< Image_frame > &image_pose, std::vector< std::shared_ptr< RGB_pts > > *pc_out_vec = nullptr,
     //                                       std::vector< cv::Point2f > *pc_2d_out_vec = nullptr, double minimum_dis = 5, int skip_step = 1,int use_all_pts = 0 );

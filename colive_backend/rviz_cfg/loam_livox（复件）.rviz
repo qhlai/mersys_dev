@@ -16,49 +16,10 @@ Panels:
         - /Odometry1/Odometry1/Covariance1/Position1
         - /Odometry1/Odometry1/Covariance1/Orientation1
         - /MarkerArray1/Namespaces1
+        - /mapping_all1
+        - /mapping_all1/PointCloud21
         - /mapping_all1/PointCloud22
         - /mapping_all1/PointCloud23
-        - /mapping_all1/PointCloud24
-        - /mapping_all1/PointCloud25
-        - /mapping_all1/PointCloud26
-        - /mapping_all1/PointCloud27
-        - /mapping_all1/PointCloud28
-        - /mapping_all1/PointCloud29
-        - /mapping_all1/PointCloud210
-        - /mapping_all1/PointCloud211
-        - /mapping_all1/PointCloud212
-        - /mapping_all1/PointCloud213
-        - /mapping_all1/PointCloud214
-        - /mapping_all1/PointCloud215
-        - /mapping_all1/PointCloud216
-        - /mapping_all1/PointCloud217
-        - /mapping_all1/PointCloud218
-        - /mapping_all1/PointCloud219
-        - /mapping_all1/PointCloud220
-        - /mapping_all1/PointCloud221
-        - /mapping_all1/PointCloud222
-        - /mapping_all1/PointCloud223
-        - /mapping_all1/PointCloud224
-        - /mapping_all1/PointCloud225
-        - /mapping_all1/PointCloud226
-        - /mapping_all1/PointCloud227
-        - /mapping_all1/PointCloud228
-        - /mapping_all1/PointCloud229
-        - /mapping_all1/PointCloud230
-        - /mapping_all1/PointCloud231
-        - /mapping_all1/PointCloud232
-        - /mapping_all1/PointCloud233
-        - /mapping_all1/PointCloud234
-        - /mapping_all1/PointCloud235
-        - /mapping_all1/PointCloud236
-        - /mapping_all1/PointCloud237
-        - /mapping_all1/PointCloud238
-        - /mapping_all1/PointCloud239
-        - /mapping_all1/PointCloud240
-        - /mapping_all1/PointCloud241
-        - /mapping_all1/PointCloud242
-        - /mapping_all1/PointCloud243
-        - /mapping_all1/PointCloud244
       Splitter Ratio: 0.4022257626056671
     Tree Height: 779
   - Class: rviz/Selection
@@ -342,6 +303,7 @@ Visualization Manager:
       Marker Topic: /colive_markers_be
       Name: Marker
       Namespaces:
+        "LoopEdges_intra_0_be\n": true
         Traj0_be: true
       Queue Size: 100
       Value: true
@@ -401,7 +363,7 @@ Visualization Manager:
           Channel Name: intensity
           Class: rviz/PointCloud2
           Color: 255; 0; 0
-          Color Transformer: RGB8
+          Color Transformer: Intensity
           Decay Time: 0
           Enabled: true
           Invert Rainbow: true
@@ -429,7 +391,7 @@ Visualization Manager:
           Channel Name: intensity
           Class: rviz/PointCloud2
           Color: 255; 0; 0
-          Color Transformer: RGB8
+          Color Transformer: Intensity
           Decay Time: 0
           Enabled: true
           Invert Rainbow: true
@@ -457,7 +419,7 @@ Visualization Manager:
           Channel Name: intensity
           Class: rviz/PointCloud2
           Color: 255; 0; 0
-          Color Transformer: RGB8
+          Color Transformer: Intensity
           Decay Time: 0
           Enabled: true
           Invert Rainbow: true
@@ -485,7 +447,7 @@ Visualization Manager:
           Channel Name: intensity
           Class: rviz/PointCloud2
           Color: 255; 0; 0
-          Color Transformer: RGB8
+          Color Transformer: Intensity
           Decay Time: 0
           Enabled: true
           Invert Rainbow: true
@@ -513,7 +475,7 @@ Visualization Manager:
           Channel Name: intensity
           Class: rviz/PointCloud2
           Color: 255; 0; 0
-          Color Transformer: RGB8
+          Color Transformer: Intensity
           Decay Time: 0
           Enabled: true
           Invert Rainbow: true
@@ -541,7 +503,7 @@ Visualization Manager:
           Channel Name: intensity
           Class: rviz/PointCloud2
           Color: 255; 0; 0
-          Color Transformer: RGB8
+          Color Transformer: Intensity
           Decay Time: 0
           Enabled: true
           Invert Rainbow: true
@@ -569,7 +531,7 @@ Visualization Manager:
           Channel Name: intensity
           Class: rviz/PointCloud2
           Color: 255; 0; 0
-          Color Transformer: RGB8
+          Color Transformer: Intensity
           Decay Time: 0
           Enabled: true
           Invert Rainbow: false
@@ -597,7 +559,7 @@ Visualization Manager:
           Channel Name: intensity
           Class: rviz/PointCloud2
           Color: 255; 0; 0
-          Color Transformer: RGB8
+          Color Transformer: Intensity
           Decay Time: 0
           Enabled: true
           Invert Rainbow: true
@@ -625,7 +587,7 @@ Visualization Manager:
           Channel Name: intensity
           Class: rviz/PointCloud2
           Color: 255; 0; 0
-          Color Transformer: RGB8
+          Color Transformer: Intensity
           Decay Time: 0
           Enabled: true
           Invert Rainbow: true
@@ -653,7 +615,7 @@ Visualization Manager:
           Channel Name: intensity
           Class: rviz/PointCloud2
           Color: 255; 0; 0
-          Color Transformer: RGB8
+          Color Transformer: Intensity
           Decay Time: 0
           Enabled: true
           Invert Rainbow: true
@@ -681,7 +643,7 @@ Visualization Manager:
           Channel Name: intensity
           Class: rviz/PointCloud2
           Color: 255; 0; 0
-          Color Transformer: RGB8
+          Color Transformer: Intensity
           Decay Time: 0
           Enabled: true
           Invert Rainbow: true
@@ -709,7 +671,7 @@ Visualization Manager:
           Channel Name: intensity
           Class: rviz/PointCloud2
           Color: 255; 0; 0
-          Color Transformer: RGB8
+          Color Transformer: Intensity
           Decay Time: 0
           Enabled: true
           Invert Rainbow: true
@@ -737,7 +699,7 @@ Visualization Manager:
           Channel Name: intensity
           Class: rviz/PointCloud2
           Color: 255; 0; 0
-          Color Transformer: MONO8
+          Color Transformer: Intensity
           Decay Time: 0
           Enabled: true
           Invert Rainbow: true
@@ -765,7 +727,7 @@ Visualization Manager:
           Channel Name: intensity
           Class: rviz/PointCloud2
           Color: 255; 0; 0
-          Color Transformer: RGB8
+          Color Transformer: Intensity
           Decay Time: 0
           Enabled: true
           Invert Rainbow: true
@@ -793,7 +755,7 @@ Visualization Manager:
           Channel Name: intensity
           Class: rviz/PointCloud2
           Color: 255; 0; 0
-          Color Transformer: RGB8
+          Color Transformer: Intensity
           Decay Time: 0
           Enabled: true
           Invert Rainbow: true
@@ -821,7 +783,7 @@ Visualization Manager:
           Channel Name: intensity
           Class: rviz/PointCloud2
           Color: 255; 0; 0
-          Color Transformer: RGB8
+          Color Transformer: Intensity
           Decay Time: 0
           Enabled: true
           Invert Rainbow: true
@@ -849,7 +811,7 @@ Visualization Manager:
           Channel Name: intensity
           Class: rviz/PointCloud2
           Color: 255; 0; 0
-          Color Transformer: RGB8
+          Color Transformer: Intensity
           Decay Time: 0
           Enabled: true
           Invert Rainbow: true
@@ -877,7 +839,7 @@ Visualization Manager:
           Channel Name: intensity
           Class: rviz/PointCloud2
           Color: 255; 0; 0
-          Color Transformer: RGB8
+          Color Transformer: Intensity
           Decay Time: 0
           Enabled: true
           Invert Rainbow: true
@@ -905,7 +867,7 @@ Visualization Manager:
           Channel Name: intensity
           Class: rviz/PointCloud2
           Color: 255; 0; 0
-          Color Transformer: RGB8
+          Color Transformer: Intensity
           Decay Time: 0
           Enabled: true
           Invert Rainbow: true
@@ -933,7 +895,7 @@ Visualization Manager:
           Channel Name: intensity
           Class: rviz/PointCloud2
           Color: 255; 0; 0
-          Color Transformer: RGB8
+          Color Transformer: Intensity
           Decay Time: 0
           Enabled: true
           Invert Rainbow: true
@@ -961,7 +923,7 @@ Visualization Manager:
           Channel Name: intensity
           Class: rviz/PointCloud2
           Color: 255; 0; 0
-          Color Transformer: RGB8
+          Color Transformer: Intensity
           Decay Time: 0
           Enabled: true
           Invert Rainbow: true
@@ -989,7 +951,7 @@ Visualization Manager:
           Channel Name: intensity
           Class: rviz/PointCloud2
           Color: 255; 0; 0
-          Color Transformer: RGB8
+          Color Transformer: Intensity
           Decay Time: 0
           Enabled: true
           Invert Rainbow: true
@@ -1017,7 +979,7 @@ Visualization Manager:
           Channel Name: intensity
           Class: rviz/PointCloud2
           Color: 255; 0; 0
-          Color Transformer: RGB8
+          Color Transformer: Intensity
           Decay Time: 0
           Enabled: true
           Invert Rainbow: true
@@ -1045,7 +1007,7 @@ Visualization Manager:
           Channel Name: intensity
           Class: rviz/PointCloud2
           Color: 255; 0; 0
-          Color Transformer: RGB8
+          Color Transformer: Intensity
           Decay Time: 0
           Enabled: true
           Invert Rainbow: true
@@ -1073,7 +1035,7 @@ Visualization Manager:
           Channel Name: intensity
           Class: rviz/PointCloud2
           Color: 255; 0; 0
-          Color Transformer: RGB8
+          Color Transformer: Intensity
           Decay Time: 0
           Enabled: true
           Invert Rainbow: true
@@ -1101,7 +1063,7 @@ Visualization Manager:
           Channel Name: intensity
           Class: rviz/PointCloud2
           Color: 255; 0; 0
-          Color Transformer: RGB8
+          Color Transformer: Intensity
           Decay Time: 0
           Enabled: true
           Invert Rainbow: true
@@ -1129,7 +1091,7 @@ Visualization Manager:
           Channel Name: intensity
           Class: rviz/PointCloud2
           Color: 255; 0; 0
-          Color Transformer: RGB8
+          Color Transformer: Intensity
           Decay Time: 0
           Enabled: true
           Invert Rainbow: true
@@ -1157,7 +1119,7 @@ Visualization Manager:
           Channel Name: intensity
           Class: rviz/PointCloud2
           Color: 255; 0; 0
-          Color Transformer: RGB8
+          Color Transformer: Intensity
           Decay Time: 0
           Enabled: true
           Invert Rainbow: true
@@ -1185,7 +1147,7 @@ Visualization Manager:
           Channel Name: intensity
           Class: rviz/PointCloud2
           Color: 255; 0; 0
-          Color Transformer: RGB8
+          Color Transformer: Intensity
           Decay Time: 0
           Enabled: true
           Invert Rainbow: true
@@ -1213,7 +1175,7 @@ Visualization Manager:
           Channel Name: intensity
           Class: rviz/PointCloud2
           Color: 255; 0; 0
-          Color Transformer: RGB8
+          Color Transformer: Intensity
           Decay Time: 0
           Enabled: true
           Invert Rainbow: true
@@ -1241,7 +1203,7 @@ Visualization Manager:
           Channel Name: intensity
           Class: rviz/PointCloud2
           Color: 255; 0; 0
-          Color Transformer: RGB8
+          Color Transformer: Intensity
           Decay Time: 0
           Enabled: true
           Invert Rainbow: true
@@ -1269,7 +1231,7 @@ Visualization Manager:
           Channel Name: intensity
           Class: rviz/PointCloud2
           Color: 255; 0; 0
-          Color Transformer: RGB8
+          Color Transformer: Intensity
           Decay Time: 0
           Enabled: true
           Invert Rainbow: true
@@ -1297,7 +1259,7 @@ Visualization Manager:
           Channel Name: intensity
           Class: rviz/PointCloud2
           Color: 255; 0; 0
-          Color Transformer: RGB8
+          Color Transformer: Intensity
           Decay Time: 0
           Enabled: true
           Invert Rainbow: true
@@ -1325,7 +1287,7 @@ Visualization Manager:
           Channel Name: intensity
           Class: rviz/PointCloud2
           Color: 255; 0; 0
-          Color Transformer: RGB8
+          Color Transformer: Intensity
           Decay Time: 0
           Enabled: true
           Invert Rainbow: true
@@ -1353,7 +1315,7 @@ Visualization Manager:
           Channel Name: intensity
           Class: rviz/PointCloud2
           Color: 255; 0; 0
-          Color Transformer: RGB8
+          Color Transformer: Intensity
           Decay Time: 0
           Enabled: true
           Invert Rainbow: true
@@ -1381,7 +1343,7 @@ Visualization Manager:
           Channel Name: intensity
           Class: rviz/PointCloud2
           Color: 255; 0; 0
-          Color Transformer: RGB8
+          Color Transformer: Intensity
           Decay Time: 0
           Enabled: true
           Invert Rainbow: true
@@ -1409,7 +1371,7 @@ Visualization Manager:
           Channel Name: intensity
           Class: rviz/PointCloud2
           Color: 255; 0; 0
-          Color Transformer: RGB8
+          Color Transformer: Intensity
           Decay Time: 0
           Enabled: true
           Invert Rainbow: true
@@ -1437,7 +1399,7 @@ Visualization Manager:
           Channel Name: intensity
           Class: rviz/PointCloud2
           Color: 255; 0; 0
-          Color Transformer: RGB8
+          Color Transformer: Intensity
           Decay Time: 0
           Enabled: true
           Invert Rainbow: true
@@ -1465,7 +1427,7 @@ Visualization Manager:
           Channel Name: intensity
           Class: rviz/PointCloud2
           Color: 255; 0; 0
-          Color Transformer: RGB8
+          Color Transformer: Intensity
           Decay Time: 0
           Enabled: true
           Invert Rainbow: true
@@ -1493,7 +1455,7 @@ Visualization Manager:
           Channel Name: intensity
           Class: rviz/PointCloud2
           Color: 255; 0; 0
-          Color Transformer: RGB8
+          Color Transformer: Intensity
           Decay Time: 0
           Enabled: true
           Invert Rainbow: true
@@ -1521,7 +1483,7 @@ Visualization Manager:
           Channel Name: intensity
           Class: rviz/PointCloud2
           Color: 255; 0; 0
-          Color Transformer: RGB8
+          Color Transformer: Intensity
           Decay Time: 0
           Enabled: true
           Invert Rainbow: true
@@ -1549,7 +1511,7 @@ Visualization Manager:
           Channel Name: intensity
           Class: rviz/PointCloud2
           Color: 255; 0; 0
-          Color Transformer: RGB8
+          Color Transformer: Intensity
           Decay Time: 0
           Enabled: true
           Invert Rainbow: true
@@ -1577,7 +1539,7 @@ Visualization Manager:
           Channel Name: intensity
           Class: rviz/PointCloud2
           Color: 255; 0; 0
-          Color Transformer: RGB8
+          Color Transformer: Intensity
           Decay Time: 0
           Enabled: true
           Invert Rainbow: true
@@ -1605,7 +1567,7 @@ Visualization Manager:
           Channel Name: intensity
           Class: rviz/PointCloud2
           Color: 255; 0; 0
-          Color Transformer: RGB8
+          Color Transformer: Intensity
           Decay Time: 0
           Enabled: true
           Invert Rainbow: true
@@ -1653,7 +1615,7 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 47.368370056152344
+      Distance: 55.4022216796875
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
@@ -1661,17 +1623,17 @@ Visualization Manager:
         Value: false
       Field of View: 0.7853981852531433
       Focal Point:
-        X: 7.209616184234619
-        Y: 6.744166374206543
-        Z: 2.728067636489868
+        X: 5.919036865234375
+        Y: 4.60146427154541
+        Z: 1.2100250720977783
       Focal Shape Fixed Size: true
       Focal Shape Size: 0.05000000074505806
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 0.37979865074157715
+      Pitch: 0.39479854702949524
       Target Frame: global
-      Yaw: 2.2352941036224365
+      Yaw: 2.7922065258026123
     Saved: ~
 Window Geometry:
   Displays:
@@ -1690,4 +1652,4 @@ Window Geometry:
     collapsed: true
   Width: 1920
   X: 991
-  Y: 288
+  Y: 362
