@@ -41,6 +41,9 @@ public:
 public:
 
     cv::Mat img_;
+
+    double intrinsic[4]={0}; // fx fy cx cy
+
     cv::Mat m_raw_img;
     cv::Mat m_img_gray;
     bool sent_once_ = false;
@@ -59,6 +62,9 @@ public:
 //     // GetPoseTws
     
     auto ConvertToMsg(MsgImage &msg, bool is_update, size_t cliend_id)->void;
+public:
+    auto project_3d_to_2d(Vector3Type & in_pt, double &u, double &v, const double &scale=1.0)->bool;
+
 //     auto convert_to_tf()->TransformType;
     protected:
     std::mutex                   mtx_pose_;

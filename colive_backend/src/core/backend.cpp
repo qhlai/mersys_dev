@@ -78,12 +78,12 @@ Backend::Backend(){
         thread_vis_->detach(); // Thread will be cleaned up when exiting main()
     }
 
-    if ( Common_tools::get_total_phy_RAM_size_in_GB() < 18 )
+    if ( Common_tools::get_total_phy_RAM_size_in_GB() < 16 )
     {
         scope_color( ANSI_COLOR_RED_BOLD );
         std::this_thread::sleep_for( std::chrono::seconds( 1 ) );
         cout << "+++++++++++++++++++++++++++++++++++++++++++++++++++" << endl;
-        cout << "I have detected your physical memory smaller than 18GB (currently: " << Common_tools::get_total_phy_RAM_size_in_GB()
+        cout << "I have detected your physical memory smaller than 16GB (currently: " << Common_tools::get_total_phy_RAM_size_in_GB()
              << "GB). I recommend you to add more physical memory for improving the overall performance of Colive." << endl;
         cout << "+++++++++++++++++++++++++++++++++++++++++++++++++++" << endl;
         std::this_thread::sleep_for( std::chrono::seconds( 5 ) );

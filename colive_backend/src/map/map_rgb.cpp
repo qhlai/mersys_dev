@@ -365,7 +365,119 @@ int Global_map::append_points_to_global_map(TypeDefs::PointCloudEXPtr pc_in,  st
     return (m_voxels_recent_visited[client_id].size() -  number_of_voxels_before_add);
     // return 0;
 }
+void Global_map::selection_points_for_projection(TypeDefs::ImageEXPtr image_pose, std::vector<std::shared_ptr<RGB_pts>> *pc_out_vec,
+                                                            std::vector<cv::Point2f> *pc_2d_out_vec, double minimum_dis,
+                                                            int skip_step,
+                                                            int use_all_pts)
+{
+    // Common_tools::Timer tim;
+    // tim.tic();
+    size_t client_id = image_pose->GetClientID();
+    if (pc_out_vec != nullptr)
+    {
+        pc_out_vec->clear();
+    }
+    if (pc_2d_out_vec != nullptr)
+    {
+        pc_2d_out_vec->clear();
+    }
+    Hash_map_2d<int, int> mask_index;
+    Hash_map_2d<int, float> mask_depth;
 
+    std::map<int, cv::Point2f> map_idx_draw_center;
+    std::map<int, cv::Point2f> map_idx_draw_center_raw_pose;
+
+    int u, v;
+    double u_f, v_f;
+    // cv::namedWindow("Mask", cv::WINDOW_FREERATIO);
+    int acc = 0;
+    int blk_rej = 0;
+    // int pts_size = m_rgb_pts_vec.size();
+    std::vector<std::shared_ptr<RGB_pts>> pts_for_projection;
+    m_mutex_m_box_recent_hitted->lock();
+    std::unordered_set< std::shared_ptr< RGB_Voxel > > boxes_recent_hitted = m_voxels_recent_visited[client_id];
+    m_mutex_m_box_recent_hitted->unlock();
+    // 找到预备投影点
+    if ( (!use_all_pts) && boxes_recent_hitted.size()) // 最近访问点
+    {
+        m_mutex_rgb_pts_in_recent_hitted_boxes->lock();
+        
+        for(Voxel_set_iterator it = boxes_recent_hitted.begin(); it != boxes_recent_hitted.end(); it++)
+        {
+            // pts_for_projection.push_back( (*it)->m_pts_in_grid.back() );
+            if ( ( *it )->m_pts_in_grid.size() )
+            {
+                 pts_for_projection.push_back( (*it)->m_pts_in_grid.back() );
+                // pts_for_projection.push_back( ( *it )->m_pts_in_grid[ 0 ] );
+                // pts_for_projection.push_back( ( *it )->m_pts_in_grid[ ( *it )->m_pts_in_grid.size()-1 ] );
+            }
+        }
+
+        m_mutex_rgb_pts_in_recent_hitted_boxes->unlock();
+    }
+    else// 全部点
+    {
+        pts_for_projection = m_rgb_pts_vec;
+    }
+
+
+    int pts_size = pts_for_projection.size();
+    for (int pt_idx = 0; pt_idx < pts_size; pt_idx += skip_step)
+    {
+        // 映射点与相机点距离
+        TypeDefs::Vector3Type pt = pts_for_projection[pt_idx]->get_pos();
+        double depth = (pt - image_pose->GetPoseTwc().translation()).norm();
+        if (depth > m_maximum_depth_for_projection)
+        {
+            continue;
+        }
+        if (depth < m_minimum_depth_for_projection)
+        {
+            continue;
+        }
+        // bool res = image_pose->project_3d_point_in_this_img(pt, u_f, v_f, nullptr, 1.0);
+        // if (res == false)
+        // {
+        //     continue;
+        // }
+        // u = std::round(u_f / minimum_dis) * minimum_dis; // Why can not work
+        // v = std::round(v_f / minimum_dis) * minimum_dis;
+        // if ((!mask_depth.if_exist(u, v)) || mask_depth.m_map_2d_hash_map[u][v] > depth)
+        // {
+        //     acc++;
+        //     if (mask_index.if_exist(u, v))
+        //     {
+        //         // erase old point
+        //         int old_idx = mask_index.m_map_2d_hash_map[u][v];
+        //         blk_rej++;
+        //         map_idx_draw_center.erase(map_idx_draw_center.find(old_idx));
+        //         map_idx_draw_center_raw_pose.erase(map_idx_draw_center_raw_pose.find(old_idx));
+        //     }
+        //     mask_index.m_map_2d_hash_map[u][v] = (int)pt_idx;
+        //     mask_depth.m_map_2d_hash_map[u][v] = (float)depth;
+        //     map_idx_draw_center[pt_idx] = cv::Point2f(v, u);
+        //     map_idx_draw_center_raw_pose[pt_idx] = cv::Point2f(u_f, v_f);
+        // }
+    }
+
+    // if (pc_out_vec != nullptr)
+    // {
+    //     for (auto it = map_idx_draw_center.begin(); it != map_idx_draw_center.end(); it++)
+    //     {
+    //         // pc_out_vec->push_back(m_rgb_pts_vec[it->first]);
+    //         pc_out_vec->push_back(pts_for_projection[it->first]);
+    //     }
+    // }
+
+    // if (pc_2d_out_vec != nullptr)
+    // {
+    //     for (auto it = map_idx_draw_center.begin(); it != map_idx_draw_center.end(); it++)
+    //     {
+    //         pc_2d_out_vec->push_back(map_idx_draw_center_raw_pose[it->first]);
+    //     }
+    // }
+
+}
 
 
 

@@ -25,7 +25,7 @@
 
 namespace colive {
 
-
+// : public Image_ex
 class MsgImage {
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
@@ -55,9 +55,9 @@ public:
     auto SetMsgType(MsgTypeVector msgtype)                              ->void;
 
     // Infrastructure
-    MsgTypeVector           msg_type                                    = std::vector<uint32_t>(5);     // size, is_update, ID of Keyframe, ???,;
-    bool                    is_update_msg                               = false;
-    bool                    save_to_file                                = false;                        // indicates that this LM will be saved to a file, not send over network
+    MsgTypeVector           msg_type                    = std::vector<uint32_t>(5);     // size, is_update, ID of Keyframe, ???,;
+    bool                    is_update_msg               = false;
+    bool                    save_to_file                = false;                        // indicates that this LM will be saved to a file, not send over network
 
     // Identifier
     double                  timestamp_;
@@ -68,7 +68,7 @@ public:
     TransformType           T_w_s_ = TransformType::Identity(); 
     TransformType           T_s_w_ = TransformType::Identity();
     Image                   img_;
-
+    double intrinsic[4]={0};
 
 protected:
 
@@ -80,18 +80,20 @@ protected:
             archive(id_,
                     T_s_w_,
                     img_,
-                    // observations,id_reference
+                    intrinsic,
                     is_update_msg);
         } else if(is_update_msg){
             archive(id_,
                     T_s_w_,
                     img_,
+                    intrinsic,
                     // observations,id_reference
                     is_update_msg);
         } else {
             archive(id_,
                     T_s_w_,
                     img_,
+                    intrinsic,
                     // observations,id_reference
                     is_update_msg);
         }
@@ -103,18 +105,21 @@ protected:
              archive(id_,
                     T_s_w_,
                     img_,
+                    intrinsic,
                     // observations,id_reference
                     is_update_msg);
         } else if(msg_type[1] == true){
             archive(id_,
                     T_s_w_,
                     img_,
+                    intrinsic,
                     // observations,id_reference
                     is_update_msg);
         } else {
             archive(id_,
                     T_s_w_,
                     img_,
+                    intrinsic,
                     // observations,id_reference
                     is_update_msg);
         }
