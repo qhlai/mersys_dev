@@ -52,7 +52,7 @@ public:
     bool m_if_have_set_intrinsic = false;
     Eigen::Matrix3d m_cam_K;
     double fx, fy, cx, cy;
-    Eigen::Matrix<double, 2, 1> m_gama_para;
+    TypeDefs::Vector2Type m_gama_para;
 
     // float intrinsic[4]={0}; // fx fy cx cy
     float m_fov_margin = 0.005; // 图像无效边缘

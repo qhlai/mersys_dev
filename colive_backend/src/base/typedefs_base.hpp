@@ -6,13 +6,21 @@
 #include <map>
 #include <set>
 
+
+
 #include "tools_color_printf.hpp"
+#include "tools_thread_pool.hpp"
+#include "tools_timer.hpp"
+// #include "tools_logger.hpp"
+
 #include "value_redefine.hpp"
 #include "read_parm.hpp"
 
 #include <eigen3/Eigen/Core>
 #include <eigen3/Eigen/Geometry>
 #include <eigen3/Eigen/StdVector>
+
+#define USING_OPENCV_TBB 1
 
 #define COLIVE_MOD
 
@@ -71,6 +79,11 @@ namespace cv{
 };
 
 namespace colive {
+
+
+extern std::shared_ptr<Common_tools::ThreadPool> m_thread_pool_ptr;
+extern Common_tools::Cost_time_logger g_cost_time_logger;
+
 struct IMU_Measurement;
 struct Global_map;
 // Forward Decs

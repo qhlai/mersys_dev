@@ -708,10 +708,11 @@ auto Visualizer::Run()->void{
 
             this->PubLoopEdges();
         }
-        
+        // m_thread_pool_ptr->commit_task(&Visualizer::PubPointCloud_service,this);
         if(board_cnt%2==0){
             print_dash_board();
-            this->PubPointCloud_service();
+            m_thread_pool_ptr->commit_task(&Visualizer::PubPointCloud_service,this);
+            // this->PubPointCloud_service();
         }
         // if(board_cnt%3==0){
         //     // print_dash_board();this->PubPointCloud_service();

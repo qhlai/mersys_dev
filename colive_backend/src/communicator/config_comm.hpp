@@ -28,6 +28,7 @@
 #include <opencv2/opencv.hpp>
 
 //COVINS
+#include "read_parm.hpp"
 #include "typedefs_base.hpp"
 
 namespace colive_params {

@@ -41,8 +41,9 @@ Map::Map(size_t id_)
     }
     associated_clients_.insert(id_);
 
-    thread_rgb_map_.reset(new std::thread(&Map::Add2RGBMap_service,this));
-    thread_rgb_map_->detach();
+    m_thread_pool_ptr->commit_task(&Map::Add2RGBMap_service,this);
+    // thread_rgb_map_.reset(new std::thread(&Map::Add2RGBMap_service,this));
+    // thread_rgb_map_->detach();
     // thread_rgb_map_=std::thread(Map::Add2RGBMap_service);
     // T_ws <<  1,0,0,0,
     //                 0,1,0,0,

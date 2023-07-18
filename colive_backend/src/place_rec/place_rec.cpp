@@ -88,10 +88,10 @@ auto PlaceRecognition::doICPVirtualRelative(int _loop_pc_idx, int _curr_pc_idx, 
 
     float loopFitnessScoreThreshold = 0.3; // user parameter but fixed low value is safe. 
     if (icp.hasConverged() == false || icp.getFitnessScore() > loopFitnessScoreThreshold) {
-        std::cout << "[SC loop] ICP fitness test failed (" << icp.getFitnessScore() << " > " << loopFitnessScoreThreshold << "). Reject this SC loop." << std::endl;
+        std::cout << COUTDEBUG << "[SC loop] ICP fitness test failed (" << icp.getFitnessScore() << " > " << loopFitnessScoreThreshold << "). Reject this SC loop." << std::endl;
         return -1;// return std::nullopt;
     } else {
-        std::cout << "[SC loop] ICP fitness test passed (" << icp.getFitnessScore() << " < " << loopFitnessScoreThreshold << "). Add this SC loop." << std::endl;
+        std::cout << COUTDEBUG << "[SC loop] ICP fitness test passed (" << icp.getFitnessScore() << " < " << loopFitnessScoreThreshold << "). Add this SC loop." << std::endl;
     }
 
     Eigen::Affine3f correctionLidarFrame;
@@ -102,12 +102,12 @@ auto PlaceRecognition::doICPVirtualRelative(int _loop_pc_idx, int _curr_pc_idx, 
 
 auto PlaceRecognition::process_icp()->void
 {
-    // while(1)
+    while(1)
     {
 		while ( !scLoopICPBuf.empty() )
         {
             if( scLoopICPBuf.size() > 30 ) {
-                ROS_WARN("Too many loop clousre candidates to be ICPed is waiting ... Do process_lcd less frequently (adjust loopClosureFrequency)");
+                std::cout << COUTWARN <<"Too many loop clousre candidates to be ICPed is waiting ... Do process_lcd less frequently (adjust loopClosureFrequency)"<<std::endl;
             }
 
             mtx_mBuf_.lock(); 
@@ -117,19 +117,77 @@ auto PlaceRecognition::process_icp()->void
 
             const int prev_node_idx = loop_idx_pair.first;
             const int curr_node_idx = loop_idx_pair.second;
-            TransformType tf;
-            auto relative_pose_optional = doICPVirtualRelative(prev_node_idx, curr_node_idx, tf);
-            if(relative_pose_optional==0) {
-                Eigen::Vector3d position = tf.translation();
-                Eigen::Vector3d euler = tf.rotation().eulerAngles(0, 1, 2);
-            }else{
+            
+            auto loop_pc = mapmanager_->cl_pcs[prev_node_idx];
+            auto curr_pc = mapmanager_->cl_pcs[curr_node_idx];
+
+
+            int check_num_map;
+            MapPtr map_query = mapmanager_->CheckoutMapExclusiveOrWait(curr_pc->GetClientID(),check_num_map);
+            
+            // 检查是否已经有回环关系
+            for(auto lc : map_query->GetLoopConstraints()) {
+                bool existing_match = false;
+                if(lc.type==0){
+                    if(lc.pc1 == loop_pc && lc.pc2 == curr_pc) existing_match = true;
+                    if(lc.pc2 == loop_pc && lc.pc1 == curr_pc) existing_match = true;
+                }
+
+                if(!existing_match) continue;
+                std::cout << "!!! Loop Constraint already exisiting -- skip !!!" << std::endl;
+                curr_pc->SetErase();
+                pc_match_->SetErase();
+                mapmanager_->ReturnMap(curr_pc->GetClientID(),check_num_map);
                 continue;
             }
-        }
+            // LoopConstraint lc(kf_match,kf_query,T_smatch_squery);
+            // loop_constraints_.push_back(lc);
+            TransformType T_curr_loop;// 当前转到过去回环的  T_curr_loop
+            auto relative_pose_optional = doICPVirtualRelative(prev_node_idx, curr_node_idx, T_curr_loop);
+            if(relative_pose_optional==0) {
+                // 记录历史回环帧
+                std::cout << "\033[1;32m+++ PLACE RECOGNITION FOUND +++\033[0m" << std::endl;
+
+                last_loops_[curr_pc->GetClientID()] = curr_pc->GetFrameID();
+
+                if(map_query->GetPointCloudEX(loop_pc->id_)){
+                    bool perform_pgo_ =true;
+                    LoopConstraint lc(curr_pc,loop_pc, T_curr_loop);
+                    map_query->AddLoopConstraint(lc); // have fix crash here
+                    // std::cout << "do icp success0.2" << std::endl;
+                    if(perform_pgo_){
+                        Eigen::Vector3d position = T_curr_loop.translation();
+                        Eigen::Vector3d euler = T_curr_loop.rotation().eulerAngles(0, 1, 2);
+
+                        gtsam::Pose3 relative_pose = gtsam::Pose3(gtsam::Rot3::RzRyRx(euler[0], euler[1], euler[2]), gtsam::Point3(position[0], position[1], position[2]));
+                        // std::cout << "do icp success1" << relative_pose << std::endl;
+                        // std::cout << "do icp success2" << T_curr_loop.matrix() << std::endl;
+                        mtx_Posegraph_.lock();
+                        gtSAMgraph.add(gtsam::BetweenFactor<gtsam::Pose3>(prev_node_idx, curr_node_idx, relative_pose, robustLoopNoise));
+                        mtx_Posegraph_.unlock();
+                    } else {
+                        std::cout << COUTNOTICE << "!!! PGO deativated !!!" << std::endl;
+                    }
+                }else{
+                        std::cout << COUTNOTICE<< "+++ FUSION FOUND +++" << std::endl;
+                        // std::cout << "\033[1;32m+++ FUSION FOUND +++\033[0m" << std::endl;
+                        MergeInformation merge;
+                        merge.pc_query = curr_pc;
+                        merge.pc_match = loop_pc;
+                        merge.T_squery_smatch = T_curr_loop;
+                        // merge.cov_mat = mcov_mat;
+                        mapmanager_->RegisterMerge(merge);
+                }
+
+            }else{
+                mapmanager_->ReturnMap(curr_pc->id_.second,check_num_map);
+                continue;
+            }
+            mapmanager_->ReturnMap(curr_pc->id_.second,check_num_map);
+            }
 
         // wait (must required for running the while loop)
-        std::chrono::milliseconds dura(2);
-        std::this_thread::sleep_for(dura);
+        std::this_thread::sleep_for(std::chrono::milliseconds(10)); 
     }
 } // process_icp
 
@@ -144,101 +202,105 @@ auto PlaceRecognition::ComputeSE3() -> bool {
     return true;
 }
 auto PlaceRecognition::ConnectLoop(PointCloudEXPtr pc_query, PointCloudEXPtr pc_match, TransformType T_squery_smatch, PoseMap &corrected_poses, MapPtr map)->void {
+
+
 }
 auto PlaceRecognition::CorrectLoop()->bool {
 
     bool if_detect = false;
 
-    while ( !scLoopICPBuf.empty() )
-    {
-        std::cout << "\033[1;32m+++ PLACE RECOGNITION FOUND +++\033[0m" << std::endl;
+    // while ( !scLoopICPBuf.empty() )
+    // {
+    //     // std::cout << "\033[1;32m+++ PLACE RECOGNITION FOUND +++\033[0m" << std::endl;
 
-        if( scLoopICPBuf.size() > 30 ) {
-            ROS_WARN("Too many loop clousre candidates to be ICPed is waiting ... Do process_lcd less frequently (adjust loopClosureFrequency)");
-        }
+    //     if( scLoopICPBuf.size() > 30 ) {
+    //         std::cout << COUTWARN <<"Too many loop clousre candidates to be ICPed is waiting ... Do process_lcd less frequently (adjust loopClosureFrequency)"<<std::endl;
+    //     }
 
-        mtx_mBuf_.lock(); 
-        std::pair<int, int> loop_idx_pair = scLoopICPBuf.front();
-        scLoopICPBuf.pop();
-        mtx_mBuf_.unlock(); 
+    //     mtx_mBuf_.lock(); 
+    //     std::pair<int, int> loop_idx_pair = scLoopICPBuf.front();
+    //     scLoopICPBuf.pop();
+    //     mtx_mBuf_.unlock(); 
 
-        const int prev_node_idx = loop_idx_pair.first;
-        const int curr_node_idx = loop_idx_pair.second;
+    //     const int prev_node_idx = loop_idx_pair.first;
+    //     const int curr_node_idx = loop_idx_pair.second;
 
-        auto loop_pc = mapmanager_->cl_pcs[prev_node_idx];
-        auto curr_pc = mapmanager_->cl_pcs[curr_node_idx];
+    //     auto loop_pc = mapmanager_->cl_pcs[prev_node_idx];
+    //     auto curr_pc = mapmanager_->cl_pcs[curr_node_idx];
 
 
-        int check_num_map;
-        MapPtr map_query = mapmanager_->CheckoutMapExclusiveOrWait(curr_pc->GetClientID(),check_num_map);
+    //     int check_num_map;
+    //     MapPtr map_query = mapmanager_->CheckoutMapExclusiveOrWait(curr_pc->GetClientID(),check_num_map);
         
-        // 检查是否已经有回环关系
-        for(auto lc : map_query->GetLoopConstraints()) {
-            bool existing_match = false;
-            if(lc.type==0){
-                if(lc.pc1 == loop_pc && lc.pc2 == curr_pc) existing_match = true;
-                if(lc.pc2 == loop_pc && lc.pc1 == curr_pc) existing_match = true;
-            }
+    //     // 检查是否已经有回环关系
+    //     for(auto lc : map_query->GetLoopConstraints()) {
+    //         bool existing_match = false;
+    //         if(lc.type==0){
+    //             if(lc.pc1 == loop_pc && lc.pc2 == curr_pc) existing_match = true;
+    //             if(lc.pc2 == loop_pc && lc.pc1 == curr_pc) existing_match = true;
+    //         }
 
-            if(!existing_match) continue;
-            std::cout << "!!! Loop Constraint already exisiting -- skip !!!" << std::endl;
-            curr_pc->SetErase();
-            pc_match_->SetErase();
-            mapmanager_->ReturnMap(curr_pc->GetClientID(),check_num_map);
-            return false;
-        }
-        // LoopConstraint lc(kf_match,kf_query,T_smatch_squery);
-        // loop_constraints_.push_back(lc);
-        TransformType T_curr_loop;// 当前转到过去回环的  T_curr_loop
-        auto relative_pose_optional = doICPVirtualRelative(prev_node_idx, curr_node_idx, T_curr_loop);
-        if(relative_pose_optional==0) {
-            // 记录历史回环帧
-            last_loops_[curr_pc->GetClientID()] = curr_pc->GetFrameID();
+    //         if(!existing_match) continue;
+    //         std::cout << "!!! Loop Constraint already exisiting -- skip !!!" << std::endl;
+    //         curr_pc->SetErase();
+    //         pc_match_->SetErase();
+    //         mapmanager_->ReturnMap(curr_pc->GetClientID(),check_num_map);
+    //         return false;
+    //     }
+    //     // LoopConstraint lc(kf_match,kf_query,T_smatch_squery);
+    //     // loop_constraints_.push_back(lc);
+    //     TransformType T_curr_loop;// 当前转到过去回环的  T_curr_loop
+    //     auto relative_pose_optional = doICPVirtualRelative(prev_node_idx, curr_node_idx, T_curr_loop);
+    //     if(relative_pose_optional==0) {
+    //         // 记录历史回环帧
+    //         std::cout << "\033[1;32m+++ PLACE RECOGNITION FOUND +++\033[0m" << std::endl;
 
-            if_detect = true;
-            // std::cout << COUTDEBUG << "CheckoutMapExclusiveOrWait OK " << std::endl;
-            // T_squery_smatch = tf;
-            // std::cout << "do icp success0" << std::endl;
-            // auto loop_pc = mapmanager_->cl_pcs[prev_node_idx];
-            // auto curr_pc = mapmanager_->cl_pcs[curr_node_idx];
+    //         last_loops_[curr_pc->GetClientID()] = curr_pc->GetFrameID();
 
-            // std::cout << "do icp success0.1:"<<loop_pc->id_.first<<"sdada:"<<curr_pc->id_.first << std::endl;
-            // curr_pc->map_.GetPointCloudEX(loop_pc->id_)
-            if(map_query->GetPointCloudEX(loop_pc->id_)){
-                bool perform_pgo_ =true;
-                LoopConstraint lc(curr_pc,loop_pc, T_curr_loop);
-                map_query->AddLoopConstraint(lc); // have fix crash here
-                // std::cout << "do icp success0.2" << std::endl;
-                if(perform_pgo_){
-                    Eigen::Vector3d position = T_curr_loop.translation();
-                    Eigen::Vector3d euler = T_curr_loop.rotation().eulerAngles(0, 1, 2);
+    //         if_detect = true;
+    //         // std::cout << COUTDEBUG << "CheckoutMapExclusiveOrWait OK " << std::endl;
+    //         // T_squery_smatch = tf;
+    //         // std::cout << "do icp success0" << std::endl;
+    //         // auto loop_pc = mapmanager_->cl_pcs[prev_node_idx];
+    //         // auto curr_pc = mapmanager_->cl_pcs[curr_node_idx];
 
-                    gtsam::Pose3 relative_pose = gtsam::Pose3(gtsam::Rot3::RzRyRx(euler[0], euler[1], euler[2]), gtsam::Point3(position[0], position[1], position[2]));
-                    // std::cout << "do icp success1" << relative_pose << std::endl;
-                    // std::cout << "do icp success2" << T_curr_loop.matrix() << std::endl;
-                    mtx_Posegraph_.lock();
-                    gtSAMgraph.add(gtsam::BetweenFactor<gtsam::Pose3>(prev_node_idx, curr_node_idx, relative_pose, robustLoopNoise));
-                    mtx_Posegraph_.unlock();
-                } else {
-                    std::cout << COUTNOTICE << "!!! PGO deativated !!!" << std::endl;
-                }
-            }else{
-                    std::cout << COUTNOTICE<< "+++ FUSION FOUND +++" << std::endl;
-                    // std::cout << "\033[1;32m+++ FUSION FOUND +++\033[0m" << std::endl;
-                    MergeInformation merge;
-                    merge.pc_query = curr_pc;
-                    merge.pc_match = loop_pc;
-                    merge.T_squery_smatch = T_curr_loop;
-                    // merge.cov_mat = mcov_mat;
-                    mapmanager_->RegisterMerge(merge);
-            }
+    //         // std::cout << "do icp success0.1:"<<loop_pc->id_.first<<"sdada:"<<curr_pc->id_.first << std::endl;
+    //         // curr_pc->map_.GetPointCloudEX(loop_pc->id_)
+    //         if(map_query->GetPointCloudEX(loop_pc->id_)){
+    //             bool perform_pgo_ =true;
+    //             LoopConstraint lc(curr_pc,loop_pc, T_curr_loop);
+    //             map_query->AddLoopConstraint(lc); // have fix crash here
+    //             // std::cout << "do icp success0.2" << std::endl;
+    //             if(perform_pgo_){
+    //                 Eigen::Vector3d position = T_curr_loop.translation();
+    //                 Eigen::Vector3d euler = T_curr_loop.rotation().eulerAngles(0, 1, 2);
 
-        }else{
-            mapmanager_->ReturnMap(curr_pc->id_.second,check_num_map);
-            continue;
-        }
-        mapmanager_->ReturnMap(curr_pc->id_.second,check_num_map);
-    }
+    //                 gtsam::Pose3 relative_pose = gtsam::Pose3(gtsam::Rot3::RzRyRx(euler[0], euler[1], euler[2]), gtsam::Point3(position[0], position[1], position[2]));
+    //                 // std::cout << "do icp success1" << relative_pose << std::endl;
+    //                 // std::cout << "do icp success2" << T_curr_loop.matrix() << std::endl;
+    //                 mtx_Posegraph_.lock();
+    //                 gtSAMgraph.add(gtsam::BetweenFactor<gtsam::Pose3>(prev_node_idx, curr_node_idx, relative_pose, robustLoopNoise));
+    //                 mtx_Posegraph_.unlock();
+    //             } else {
+    //                 std::cout << COUTNOTICE << "!!! PGO deativated !!!" << std::endl;
+    //             }
+    //         }else{
+    //                 std::cout << COUTNOTICE<< "+++ FUSION FOUND +++" << std::endl;
+    //                 // std::cout << "\033[1;32m+++ FUSION FOUND +++\033[0m" << std::endl;
+    //                 MergeInformation merge;
+    //                 merge.pc_query = curr_pc;
+    //                 merge.pc_match = loop_pc;
+    //                 merge.T_squery_smatch = T_curr_loop;
+    //                 // merge.cov_mat = mcov_mat;
+    //                 mapmanager_->RegisterMerge(merge);
+    //         }
+
+    //     }else{
+    //         mapmanager_->ReturnMap(curr_pc->id_.second,check_num_map);
+    //         continue;
+    //     }
+    //     mapmanager_->ReturnMap(curr_pc->id_.second,check_num_map);
+    // }
     
     return if_detect;
 }
@@ -302,16 +364,17 @@ auto PlaceRecognition::Run()->void {
     int num_runs = 0;
     int num_detected = 0;
 
+    m_thread_pool_ptr->commit_task(&PlaceRecognition::process_icp,this);
     while(1){
         if (CheckBuffer()) {
             num_runs++;
 
             bool detected = DetectLoop();
             // std::cout<<"add query"<<std::endl;
-            if(detected) {
-                num_detected++;
-                this->CorrectLoop();    
-            }
+            // if(detected) {
+            //     num_detected++;
+            //     this->CorrectLoop();    
+            // }
             
             
         }
@@ -320,8 +383,10 @@ auto PlaceRecognition::Run()->void {
             std::cout << "PlaceRec " << ": close" << std::endl;
             break;
         }
-
-        usleep(1000);
+        // std::chrono::milliseconds dura(1000);
+        // std::this_thread::sleep_for(dura);
+        std::this_thread::sleep_for(std::chrono::microseconds(1)); 
+        // usleep(1000);
     }
 
     std::unique_lock<std::mutex> lock(mtx_finish_);

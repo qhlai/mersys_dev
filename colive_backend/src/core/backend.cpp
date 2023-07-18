@@ -11,7 +11,8 @@
 // }
 namespace colive {
 
-
+std::shared_ptr< Common_tools::ThreadPool > m_thread_pool_ptr;
+Common_tools::Cost_time_logger g_cost_time_logger;
 
 
 // void vis(){
@@ -31,14 +32,18 @@ Client::Client(size_t client_id, int newfd, MapManagerPtr man, VisPtr vis)
     mapmanager_->Display();
     std::cout << "map init done"<< std::endl;
 
+    
+
     placerec_.reset(new PlaceRecognition(mapmanager_,true));
-    thread_placerec_.reset(new std::thread(&PlaceRecognition::Run,placerec_));
-    thread_placerec_->detach();
+    m_thread_pool_ptr->commit_task( &PlaceRecognition::Run,placerec_ );
+    // thread_placerec_.reset(new std::thread(&PlaceRecognition::Run,placerec_));
+    // thread_placerec_->detach();
 
     comm_.reset(new Communicator_server(client_id_,newfd,man,placerec_,vis));
-    thread_comm_.reset(new std::thread(&Communicator_server::Run,comm_));
-    thread_comm_->detach();
-
+    m_thread_pool_ptr->commit_task(&Communicator_server::Run,comm_);
+    // thread_comm_.reset(new std::thread(&Communicator_server::Run,comm_));
+    // thread_comm_->detach();
+    std::cout << "thread init done"<< std::endl;
 }
 
 Client::Client(size_t client_id_)
@@ -62,9 +67,20 @@ Backend::Backend(){
     colive_params::ShowParamsComm();
     colive_params::ShowParamsBackend();
 
+    m_thread_pool_ptr = std::make_shared<Common_tools::ThreadPool>(colive_params::sys::threads_pool, true, false); 
+
+    if(!Common_tools::if_file_exist(colive_params::sys::output_path))
+    {
+        cout << ANSI_COLOR_BLUE_BOLD << "Create r3live output dir: " << colive_params::sys::output_path << ANSI_COLOR_RESET << endl;
+        Common_tools::create_dir(colive_params::sys::output_path);
+    }
+        
+    g_cost_time_logger.init_log( std::string(colive_params::sys::output_path).append("/cost_time_logger.log"));
+
     mapmanager_.reset(new MapManager());
-    thread_mapmanager_.reset(new std::thread(&MapManager::Run,mapmanager_));
-    thread_mapmanager_->detach(); // Thread will be cleaned up when exiting main()
+    m_thread_pool_ptr->commit_task(&MapManager::Run,mapmanager_);
+    // thread_mapmanager_.reset(new std::thread(&MapManager::Run,mapmanager_));
+    // thread_mapmanager_->detach(); // Thread will be cleaned up when exiting main()
 
 
 
@@ -74,8 +90,9 @@ Backend::Backend(){
         // std::string a;
         // a="_be";
         vis_.reset(new Visualizer("_be"));
-        thread_vis_.reset(new std::thread(&Visualizer::Run,vis_));
-        thread_vis_->detach(); // Thread will be cleaned up when exiting main()
+        // thread_vis_.reset(new std::thread(&Visualizer::Run,vis_));
+        // thread_vis_->detach(); // Thread will be cleaned up when exiting main()
+        m_thread_pool_ptr->commit_task(&Visualizer::Run,vis_);
     }
 
     if ( Common_tools::get_total_phy_RAM_size_in_GB() < 16 )
