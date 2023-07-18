@@ -79,6 +79,8 @@ public:
     using ImageEXMap               = TypeDefs::ImageEXMap;
 
     using LoopVector                    = TypeDefs::LoopVector;
+
+    using ThreadPtr                  = TypeDefs::ThreadPtr;
     // using KeyframeVector                = TypeDefs::KeyframeVector;
     // using LandmarkVector                = TypeDefs::LandmarkVector;
     // using LandmarkSet                   = TypeDefs::LandmarkSet;
@@ -114,6 +116,7 @@ public:
 
     virtual auto AddPointCloud(PointCloudEXPtr pc)->void;
     virtual auto AddPointCloud(PointCloudEXPtr pc, bool suppress_output)->void;
+    virtual auto Add2RGBMap_service()->void;
     virtual auto Add2RGBMap(PointCloudEXPtr pc)->void;
 
 
@@ -145,7 +148,10 @@ protected:
 
     KeyframeMap                 keyframes_erased_;
 
-
+    std::queue<PointCloudEXPtr> pcs_should_be_added_to_rgb_map;
+    std::queue<PointCloudEXPtr> imgs_should_be_added_to_rgb_map;
+    ThreadPtr                   thread_rgb_map_;
+    // std::thread                  thread_rgb_map_;
     // Loop Correction
     LoopVector                  loop_constraints_;
 
