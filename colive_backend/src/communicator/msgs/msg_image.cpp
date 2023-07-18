@@ -3,12 +3,14 @@
 
 namespace colive {
 
-MsgImage::MsgImage() {
+MsgImage::MsgImage()
+//  : Image_ex()
+{
     //...
 }
 
 MsgImage::MsgImage(bool filesave)
-    : save_to_file(filesave)
+    :  save_to_file(filesave)
 {
     //...
 }

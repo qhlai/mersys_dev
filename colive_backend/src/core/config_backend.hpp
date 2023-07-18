@@ -28,6 +28,7 @@
 #include <opencv2/opencv.hpp>
 
 // colive
+#include "read_parm.hpp"
 #include <typedefs_base.hpp>
 
 namespace colive_params {
@@ -90,6 +91,8 @@ inline std::vector<VisColorRGB> LoadColAsVec(std::string path)
 }
 
 namespace sys {
+    const std::string output_path                      = read_parm::GetStringFromYaml(conf,"sys.output_path");
+    const int threads_pool                            = read_parm::GetValFromYaml<int>(conf,"sys.threads_pool");    
     const int threads_server                            = read_parm::GetValFromYaml<int>(conf,"sys.threads_server");
     const int covis_thres                               = read_parm::GetValFromYaml<int>(conf,"sys.covis_thres");
     const std::string map_path0                         = read_parm::GetStringFromYaml(conf,"sys.map_path0");

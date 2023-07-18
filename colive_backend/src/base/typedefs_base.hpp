@@ -6,13 +6,21 @@
 #include <map>
 #include <set>
 
+
+
 #include "tools_color_printf.hpp"
+#include "tools_thread_pool.hpp"
+#include "tools_timer.hpp"
+// #include "tools_logger.hpp"
+
 #include "value_redefine.hpp"
 #include "read_parm.hpp"
 
 #include <eigen3/Eigen/Core>
 #include <eigen3/Eigen/Geometry>
 #include <eigen3/Eigen/StdVector>
+
+#define USING_OPENCV_TBB 1
 
 #define COLIVE_MOD
 
@@ -29,9 +37,9 @@
 
 
 // #include <pcl_conversions/pcl_conversions.h>
-// #include <pcl/point_cloud.h>
-// #include <pcl/point_types.h>
-// #include <pcl/filters/voxel_grid.h>
+#include <pcl/point_cloud.h>
+#include <pcl/point_types.h>
+#include <pcl/filters/voxel_grid.h>
 // #include <pcl/kdtree/kdtree_flann.h>
 // #include <pcl/io/pcd_io.h>
 // #include <pcl/filters/radius_outlier_removal.h>
@@ -51,16 +59,19 @@
 #define FRAME_GRID_ROWS 48
 #define FRAME_GRID_COLS 64
 
-#define MAX_CLIENT_NUM   20
-namespace pcl{
-// public:
-    class PointXYZI;
-    class PointXYZINormal;   
-    class PointXYZRGB;
+#define MAX_CLIENT_NUM   20\
 
-    template<typename T> class PointCloud; 
-    template<typename T> class VoxelGrid;
-};
+#define POINTCLOUD_HAVE_INTENSITY 1
+#define DISPLAY_POINTCLOUD_INTENSITY 1
+// namespace pcl{
+// // public:
+//     class PointXYZI;
+//     class PointXYZINormal;   
+//     class PointXYZRGB;
+
+//     template<typename T> class PointCloud; 
+//     template<typename T> class VoxelGrid;
+// };
 
 namespace cv{
 // public:
@@ -68,6 +79,11 @@ namespace cv{
 };
 
 namespace colive {
+
+
+extern std::shared_ptr<Common_tools::ThreadPool> m_thread_pool_ptr;
+extern Common_tools::Cost_time_logger g_cost_time_logger;
+
 struct IMU_Measurement;
 struct Global_map;
 // Forward Decs
@@ -109,7 +125,11 @@ namespace TypeDefs {
     using ThreadPtr                     = std::unique_ptr<std::thread>;
 
     // #define PointType_                  = pcl::PointXYZINormal;
+#if POINTCLOUD_HAVE_INTENSITY
     using PointType                     = pcl::PointXYZI;
+#elif
+    using PointType                     = pcl::PointXYZI;
+#endif
     // using PointType                     = pcl::PointXYZI;
     using PointTypeRGB                  = pcl::PointXYZRGB;
     using VoxelGrid                     = pcl::VoxelGrid<PointType>;
@@ -143,6 +163,7 @@ namespace TypeDefs {
 
     using KeypointVector                = std::vector<KeypointType,Eigen::aligned_allocator<KeypointType>>;
     using AorsVector                    = std::vector<AorsType,Eigen::aligned_allocator<AorsType>>;
+
 
     using Vector2Type                   = Eigen::Matrix<precision_t,2,1>;
     using Vector3Type                   = Eigen::Matrix<precision_t,3,1>;

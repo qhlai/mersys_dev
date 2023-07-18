@@ -22,6 +22,7 @@
 
 #include "map_co.hpp"
 
+#include <pcl/visualization/pcl_visualizer.h>
 
 namespace colive{
 
@@ -34,7 +35,7 @@ public:
 
     using TransformType                 = TypeDefs::TransformType;
 
-
+    using Vector3Type                   = TypeDefs::Vector3Type;
     using KeyframePtr                   = TypeDefs::KeyframePtr;
     using LandmarkPtr                   = TypeDefs::LandmarkPtr;
     using PointCloudEXPtr                   = TypeDefs::PointCloudEXPtr;
@@ -89,7 +90,7 @@ public:
     virtual auto PubLoopEdges()         ->void;
     // Draw Loaded Map
     auto DrawMapBitByBit(MapPtr map, std::string frame)                                 ->void;
-
+    auto getRgbFromGray(double gray_value, int colormap_type)->Vector3Type;
 
     // Reset
     virtual auto RequestReset()                                                         ->void;
@@ -112,6 +113,11 @@ protected:
     ros::Publisher              pub_odom_;
     std::vector< std::shared_ptr <ros::Publisher> > pub_odom_vec_;
     std::vector< std::shared_ptr <ros::Publisher> > m_pub_rgb_render_pointcloud_ptr_vec;
+
+    // Define the color map   intensity to rgb
+    // pcl::visualization::PCLVisualizer::Ptr pcl_visualizer;
+    // double min_intensity = 0.0;  // Minimum intensity value
+    // double max_intensity = 255.0;  // Maximum intensity value
 
     std::string                 topic_prefix_                                           = std::string();
 

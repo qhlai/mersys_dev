@@ -41,7 +41,6 @@
 #include "msgs/msg_pointcloud.hpp"
 // #include "msgs/msg_odometry.hpp"
 #include "msgs/msg_image.hpp"
-
 // #include "msgs/msg_landmark.hpp"
 #define ContainerSize 10
 

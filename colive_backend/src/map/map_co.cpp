@@ -40,6 +40,11 @@ Map::Map(size_t id_)
         exit(-1);
     }
     associated_clients_.insert(id_);
+
+    m_thread_pool_ptr->commit_task(&Map::Add2RGBMap_service,this);
+    // thread_rgb_map_.reset(new std::thread(&Map::Add2RGBMap_service,this));
+    // thread_rgb_map_->detach();
+    // thread_rgb_map_=std::thread(Map::Add2RGBMap_service);
     // T_ws <<  1,0,0,0,
     //                 0,1,0,0,
     //                 0,0,1,0,
@@ -110,8 +115,12 @@ Map::Map(MapPtr map_target, MapPtr map_tofuse, TransformType T_wtofuse_wtarget)
     for(PointCloudEXMap::iterator mit =pointclouds_.begin();mit != pointclouds_.end();++mit){
         PointCloudEXPtr pc = mit->second;
         // m_map_rgb_pts.append_points_to_global_map(pc)
-        Add2RGBMap(pc);
+        // Add2RGBMap(pc);
+        pcs_should_be_added_to_rgb_map.push(pc);
     }
+
+    thread_rgb_map_.reset(new std::thread(&Map::Add2RGBMap_service,this));
+    thread_rgb_map_->detach();
     // Matrix3Type R_wmatch_wtofuse = T_wtarget_wtofuse.block<3,3>(0,0);
     // Vector3Type t_wmatch_wtofuse = T_wtarget_wtofuse.block<3,1>(0,3);
     // for(KeyframeMap::iterator mit = keyframes_tofuse.begin();mit != keyframes_tofuse.end();++mit) {
@@ -137,33 +146,47 @@ auto Map::AddPointCloud(PointCloudEXPtr pc, bool suppress_output)->void {
     std::unique_lock<std::mutex> lock(mtx_map_);
     pointclouds_[pc->id_] = pc;
     max_id_pc_ = std::max(max_id_pc_,pc->GetFrameID());
-
-    Add2RGBMap(pc);
-
-    if(!suppress_output && !(pointclouds_.size() % 50)) {
-        // std::cout << "Map " << this->id_map_  << " : " << keyframes_.size() << " KFs | " << landmarks_.size() << " LMs" << std::endl;
-        // this->WriteKFsToFile();
-        // this->WriteKFsToFileAllAg();
-    }
-}
-// auto Map::AddImage(ImageEXPtr img)->void {
-//     this->AddImage(img,false);
-// }
-auto Map::AddImage(ImageEXPtr img, bool suppress_output)->void {
-    std::unique_lock<std::mutex> lock(mtx_map_);
-    images_[img->id_] = img;
-    max_id_img_ = std::max(max_id_img_,img->GetFrameID());
+// 在另外一个线程里加rgb_map
+    pcs_should_be_added_to_rgb_map.push(pc);
 
     // Add2RGBMap(pc);
-
     if(!suppress_output && !(pointclouds_.size() % 50)) {
         // std::cout << "Map " << this->id_map_  << " : " << keyframes_.size() << " KFs | " << landmarks_.size() << " LMs" << std::endl;
         // this->WriteKFsToFile();
         // this->WriteKFsToFileAllAg();
     }
 }
+auto Map::Add2RGBMap_service()->void {
+    // std::vector<idpair> = std::make_unique<
+    // size_t pc_index = 0;
+    // size_t img_index = 0;
+// std::cout<< COUTDEBUG << "Add2RGBMap_servic " << std::endl;
+    while(1){
+        // std::cout<< COUTDEBUG << "Add2RGBMap_servic " << std::endl;
+        if(pcs_should_be_added_to_rgb_map.size()>20){
+            std::cout << COUTNOTICE << "RGBMap load too high" << std::endl;
+        }
+        if (pcs_should_be_added_to_rgb_map.size() > 0) 
+        {
+            // q.front()
+            
+            Add2RGBMap(pcs_should_be_added_to_rgb_map.front());
+            // std::cout<< COUTDEBUG << "Added " << std::endl;
+            pcs_should_be_added_to_rgb_map.pop();
+            /* code */
+        }
+        
+        if (imgs_should_be_added_to_rgb_map.size() > 0) 
+        {
+            /* code */
+        }
+        std::this_thread::sleep_for(std::chrono::microseconds(10));        
+    }
+
+}
+
 auto Map::Add2RGBMap(PointCloudEXPtr pc)->void {
-    int m_append_global_map_point_step = 1;
+    int m_append_global_map_point_step = 2; // 间隔一个点加入global map
     bool m_if_record_mvs =true;//if record_offline_map
     if ( m_if_record_mvs )
     {

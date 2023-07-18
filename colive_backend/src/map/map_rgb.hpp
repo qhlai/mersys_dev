@@ -64,8 +64,9 @@ class RGB_pts
     std::atomic<int> m_N_rgb;
 #else
     double m_pos[ 3 ] = { 0 };
-    double m_rgb[ 3 ] = { 0 };
-    double intensity = 0;
+    float m_rgb[ 3 ] = { 0 };
+    float intensity = 0;
+    uint8_t bgr_intensity[3] = {0};
     double m_cov_rgb[ 3 ] = { 0 };
     double m_gray = 0;
     double m_cov_gray = 0;
@@ -112,7 +113,7 @@ class RGB_pts
     pcl::PointXYZI get_pt();
     void update_gray( const double gray, double obs_dis = 1.0 );
     int update_rgb( const TypeDefs::Vector3Type &rgb, const double obs_dis, const TypeDefs::Vector3Type obs_sigma, const double obs_time );
-
+    void Intensity2Rgb( int colormap_type=cv::COLORMAP_RAINBOW);
   private:
     friend class boost::serialization::access;
     template < typename Archive >
@@ -172,7 +173,7 @@ struct Global_map
     double                                   m_voxel_resolution = 0.1;
     double                                   m_maximum_depth_for_projection = 200;
     double                                   m_minimum_depth_for_projection = 3;
-    TypeDefs::idpair                                   m_last_updated_frame_idx;
+    TypeDefs::idpair                         m_last_updated_frame_idx;
     void                                     clear();
     void set_minmum_dis( double minimum_dis );
 
@@ -187,12 +188,14 @@ struct Global_map
     void unset_busy();
     // template < typename T >
     int append_points_to_global_map( TypeDefs::PointCloudEXPtr pc_in,  std::vector< RGB_pt_ptr > *pts_added_vec = nullptr, int step = 1 );
-    // void render_with_a_image( std::shared_ptr< Image_frame > &img_ptr, int if_select = 1 );
-    // void selection_points_for_projection( std::shared_ptr< Image_frame > &image_pose, std::vector< std::shared_ptr< RGB_pts > > *pc_out_vec = nullptr,
-    //                                       std::vector< cv::Point2f > *pc_2d_out_vec = nullptr, double minimum_dis = 5, int skip_step = 1,int use_all_pts = 0 );
+
+    // TypeDefs::Vector3Type getRgbFromIntensity(double gray_value, int colormap_type);
+    void render_with_a_image( TypeDefs::PointCloudEXPtr img_ptr, int if_select = 1 );
+    void selection_points_for_projection(TypeDefs::ImageEXPtr image_pose, std::vector< std::shared_ptr< RGB_pts > > *pc_out_vec = nullptr,
+                                          std::vector< cv::Point2f > *pc_2d_out_vec = nullptr, double minimum_dis = 5, int skip_step = 1,int use_all_pts = 0 );
     // void save_to_pcd( std::string dir_name, std::string file_name = std::string( "/rgb_pt" ) , int save_pts_with_views = 3);
     // void save_and_display_pointcloud( std::string dir_name = std::string( "/home/ziv/temp/" ), std::string file_name = std::string( "/rgb_pt" ) ,  int save_pts_with_views = 3);
-    // void render_pts_in_voxels( TypeDefs::ImageEXPtr img_ptr, std::vector< std::shared_ptr< RGB_pts > > &voxels_for_render, double obs_time = 0 );
+    void render_pts_in_voxels( TypeDefs::ImageEXPtr img_ptr, std::vector< std::shared_ptr< RGB_pts > > &voxels_for_render, double obs_time = 0 );
 
 
   private:
@@ -203,6 +206,8 @@ struct Global_map
     //     boost::serialization::split_free( ar, *this, version );
     // }
 };
+
+void render_pts_in_voxels_mp( TypeDefs::ImageEXPtr  img_ptr, std::unordered_set< RGB_voxel_ptr > *voxels_for_render, const double &obs_time = 0 );
 
 // template < typename Archive >
 // inline void load( Archive &ar, Global_map &global_map, const unsigned int /*version*/ )

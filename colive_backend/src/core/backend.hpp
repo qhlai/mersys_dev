@@ -42,8 +42,13 @@
 #include "tools_logger.hpp"
 #include "tools_mem_used.h"
 
+// tools_thread_pool.hpp
 
 namespace colive {
+
+
+// extern std::shared_ptr<Common_tools::ThreadPool> m_thread_pool_ptr
+// std::shared_ptr< Common_tools::ThreadPool > m_thread_pool_ptr;
 
 class Client{
 public:
@@ -70,6 +75,7 @@ protected:
     PlacerecPtr                 placerec_;
     ThreadPtr                   thread_comm_;
     ThreadPtr                   thread_placerec_;
+
 };
 
 class Backend{
@@ -118,6 +124,8 @@ protected:
 
     ThreadPtr                   thread_mapmanager_;
     ThreadPtr                   thread_vis_;
+
+    // std::shared_ptr< Common_tools::ThreadPool > m_thread_pool_ptr;
 
    int agent_next_id_              = 0;    
 

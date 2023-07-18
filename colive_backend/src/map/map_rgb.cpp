@@ -1,7 +1,11 @@
 #include "map_rgb.hpp"
 
 #include "tools_logger.hpp"
+#include "tools_timer.hpp"
 #include "tools_color_printf.hpp"
+#include <opencv2/opencv.hpp>
+
+#include "config_backend.hpp"
 
 // #include "common_tools.h"
 namespace colive {
@@ -102,6 +106,20 @@ int RGB_pts::update_rgb(const TypeDefs::Vector3Type &rgb, const double obs_dis, 
     return 1;
 }
 
+void RGB_pts::Intensity2Rgb( int colormap_type){
+    // Define the color map
+    cv::Mat colormap;
+    cv::applyColorMap(cv::Mat(1, 1, CV_8U, intensity), colormap, colormap_type);
+
+    // Split the RGB channels
+    // Vector3Type  rgb_value;
+    cv::Vec3b* ptr = colormap.ptr<cv::Vec3b>();
+    bgr_intensity[0] = ptr[0][0];  // blue channel
+    bgr_intensity[1] = ptr[0][1];  // green channel
+    bgr_intensity[2] = ptr[0][2];  // red channel
+
+    // return rgb_value;
+}
 
 void Global_map::clear()
 {
@@ -319,6 +337,22 @@ int Global_map::append_points_to_global_map(TypeDefs::PointCloudEXPtr pc_in,  st
             pc.points[pt_idx].z));
 
         pt_rgb->m_pt_index = m_rgb_pts_vec.size();
+// for intensity
+#if POINTCLOUD_HAVE_INTENSITY
+        pt_rgb->intensity=pc.points[pt_idx].intensity;
+        // float intensity = static_cast<float>(map_rgb_pts.m_rgb_pts_vec[ i ]->intensity);
+        // TypeDefs::Vector3Type bgr = getRgbFromIntensity(pt_rgb->intensity, cv::COLORMAP_RAINBOW);
+#if DISPLAY_POINTCLOUD_INTENSITY
+        pt_rgb->Intensity2Rgb();
+        // colored_point.r = static_cast<uint8_t>(r * 255);
+        // colored_point.g = static_cast<uint8_t>(g * 255);
+        // colored_point.b = static_cast<uint8_t>(b * 255);
+#endif
+        // pc_rgb.points[ pub_idx_size ].r = bgr[2];
+        // pc_rgb.points[ pub_idx_size ].g = bgr[1];
+        // pc_rgb.points[ pub_idx_size ].b = bgr[0];
+        // std::cout << COUTDEBUG << "intensity:"<<intensity<< std::endl;
+#endif
         m_rgb_pts_vec.push_back(pt_rgb);
         m_hashmap_3d_pts.insert(grid_x, grid_y, grid_z, pt_rgb);
         box_ptr->add_pt(pt_rgb);
@@ -331,9 +365,257 @@ int Global_map::append_points_to_global_map(TypeDefs::PointCloudEXPtr pc_in,  st
     m_mutex_m_box_recent_hitted->lock();
     m_voxels_recent_visited[pc_in->GetClientID()] = voxels_recent_visited ;
     m_mutex_m_box_recent_hitted->unlock();
-    std::cout << COUTDEBUG <<"m_rgb_pts_vec size:"<<m_rgb_pts_vec.size()<<", pts_added_vec size:"<< pts_added_vec->size()<<std::endl;
+    // std::cout << COUTDEBUG <<"m_rgb_pts_vec size:"<<m_rgb_pts_vec.size()<<", pts_added_vec size:"<< pts_added_vec->size()<<std::endl;
     return (m_voxels_recent_visited[client_id].size() -  number_of_voxels_before_add);
     // return 0;
+}
+void Global_map::render_with_a_image(TypeDefs::PointCloudEXPtr img_ptr, int if_select)
+{
+
+    // std::vector<std::shared_ptr<RGB_pts>> pts_for_render;
+    // // pts_for_render = m_rgb_pts_vec;
+    // if (if_select)
+    // {
+    //     selection_points_for_projection(img_ptr, &pts_for_render, nullptr, 1.0);
+    // }
+    // else
+    // {
+    //     pts_for_render = m_rgb_pts_vec;
+    // }
+    // render_pts_in_voxels(img_ptr, pts_for_render);
+}
+void Global_map::selection_points_for_projection(TypeDefs::ImageEXPtr image_pose, std::vector<std::shared_ptr<RGB_pts>> *pc_out_vec,
+                                                            std::vector<cv::Point2f> *pc_2d_out_vec, double minimum_dis,
+                                                            int skip_step,
+                                                            int use_all_pts)
+{
+    // Common_tools::Timer tim;
+    // tim.tic();
+    size_t client_id = image_pose->GetClientID();
+    if (pc_out_vec != nullptr)
+    {
+        pc_out_vec->clear();
+    }
+    if (pc_2d_out_vec != nullptr)
+    {
+        pc_2d_out_vec->clear();
+    }
+    Hash_map_2d<int, int> mask_index;
+    Hash_map_2d<int, float> mask_depth;
+
+    std::map<int, cv::Point2f> map_idx_draw_center;
+    std::map<int, cv::Point2f> map_idx_draw_center_raw_pose;
+
+    int u, v;
+    double u_f, v_f;
+    // cv::namedWindow("Mask", cv::WINDOW_FREERATIO);
+    int acc = 0;
+    int blk_rej = 0;
+    // int pts_size = m_rgb_pts_vec.size();
+    std::vector<std::shared_ptr<RGB_pts>> pts_for_projection;
+    m_mutex_m_box_recent_hitted->lock();
+    std::unordered_set< std::shared_ptr< RGB_Voxel > > boxes_recent_hitted = m_voxels_recent_visited[client_id];
+    m_mutex_m_box_recent_hitted->unlock();
+    // 找到预备投影点
+    if ( (!use_all_pts) && boxes_recent_hitted.size()) // 最近访问点
+    {
+        m_mutex_rgb_pts_in_recent_hitted_boxes->lock();
+        
+        for(Voxel_set_iterator it = boxes_recent_hitted.begin(); it != boxes_recent_hitted.end(); it++)
+        {
+            // pts_for_projection.push_back( (*it)->m_pts_in_grid.back() );
+            if ( ( *it )->m_pts_in_grid.size() )
+            {
+                 pts_for_projection.push_back( (*it)->m_pts_in_grid.back() );
+                // pts_for_projection.push_back( ( *it )->m_pts_in_grid[ 0 ] );
+                // pts_for_projection.push_back( ( *it )->m_pts_in_grid[ ( *it )->m_pts_in_grid.size()-1 ] );
+            }
+        }
+
+        m_mutex_rgb_pts_in_recent_hitted_boxes->unlock();
+    }
+    else// 全部点
+    {
+        pts_for_projection = m_rgb_pts_vec;
+    }
+
+
+    int pts_size = pts_for_projection.size();
+    for (int pt_idx = 0; pt_idx < pts_size; pt_idx += skip_step)
+    {
+        // 映射点与相机点距离
+        TypeDefs::Vector3Type pt = pts_for_projection[pt_idx]->get_pos();
+        double depth = (pt - image_pose->GetPoseTwc().translation()).norm();
+        if (depth > m_maximum_depth_for_projection)
+        {
+            continue;
+        }
+        if (depth < m_minimum_depth_for_projection)
+        {
+            continue;
+        }
+        bool res = image_pose->project_3d_point_in_this_img(pt, u_f, v_f, nullptr, 1.0);
+        if (res == false)
+        {
+            continue;
+        }
+        u = std::round(u_f / minimum_dis) * minimum_dis; // Why can not work
+        v = std::round(v_f / minimum_dis) * minimum_dis;
+        if ((!mask_depth.if_exist(u, v)) || mask_depth.m_map_2d_hash_map[u][v] > depth)
+        {
+            acc++;
+            if (mask_index.if_exist(u, v))
+            {
+                // erase old point
+                int old_idx = mask_index.m_map_2d_hash_map[u][v];
+                blk_rej++;
+                map_idx_draw_center.erase(map_idx_draw_center.find(old_idx));
+                map_idx_draw_center_raw_pose.erase(map_idx_draw_center_raw_pose.find(old_idx));
+            }
+            mask_index.m_map_2d_hash_map[u][v] = (int)pt_idx;
+            mask_depth.m_map_2d_hash_map[u][v] = (float)depth;
+            map_idx_draw_center[pt_idx] = cv::Point2f(v, u);
+            map_idx_draw_center_raw_pose[pt_idx] = cv::Point2f(u_f, v_f);
+        }
+    }
+
+    if (pc_out_vec != nullptr)
+    {
+        for (auto it = map_idx_draw_center.begin(); it != map_idx_draw_center.end(); it++)
+        {
+            // pc_out_vec->push_back(m_rgb_pts_vec[it->first]);
+            pc_out_vec->push_back(pts_for_projection[it->first]);
+        }
+    }
+
+    if (pc_2d_out_vec != nullptr)
+    {
+        for (auto it = map_idx_draw_center.begin(); it != map_idx_draw_center.end(); it++)
+        {
+            pc_2d_out_vec->push_back(map_idx_draw_center_raw_pose[it->first]);
+        }
+    }
+
+}
+void Global_map::render_pts_in_voxels(TypeDefs::ImageEXPtr img_ptr, std::vector<std::shared_ptr<RGB_pts>> &pts_for_render, double obs_time)
+{
+    // Common_tools::Timer tim;
+    // tim.tic();
+    double u, v;
+    int hit_count = 0;
+    int pt_size = pts_for_render.size();
+    m_last_updated_frame_idx = img_ptr->id_;
+    for (int i = 0; i < pt_size; i++)
+    {
+
+        TypeDefs::Vector3Type pt_w = pts_for_render[i]->get_pos();
+        bool res = img_ptr->project_3d_point_in_this_img(pt_w, u, v, nullptr, 1.0);
+        if (res == false)
+        {
+            continue;
+        }
+        // TypeDefs::Vector3Type pt_cam = (pt_w - img_ptr->m_pose_w2c_t);
+        TypeDefs::Vector3Type pt_cam = (pt_w - img_ptr->GetPoseTwc().translation());
+        hit_count++;
+        TypeDefs::Vector2Type gama_bak = img_ptr->m_gama_para;
+        img_ptr->m_gama_para = TypeDefs::Vector2Type(1.0, 0.0); // Render using normal value?
+        double gray = img_ptr->get_grey_color(u, v, 0);
+        TypeDefs::Vector3Type rgb_color = img_ptr->get_rgb(u, v, 0);
+        pts_for_render[i]->update_gray(gray, pt_cam.norm());
+        pts_for_render[i]->update_rgb(rgb_color, pt_cam.norm(), TypeDefs::Vector3Type(image_obs_cov, image_obs_cov, image_obs_cov), obs_time);
+        img_ptr->m_gama_para = gama_bak;
+        // m_rgb_pts_vec[i]->update_rgb( vec_3(gray, gray, gray) );
+    }
+    // cout << "Render cost time = " << tim.toc() << endl;
+    // cout << "Total hit count = " << hit_count << endl;
+}
+
+Common_tools::Cost_time_logger cost_time_logger_render(std::string(colive_params::sys::output_path).append("/render_thread.log"));
+
+std::atomic<long> render_pts_count ;
+static inline double thread_render_pts_in_voxel(const int & pt_start, const int & pt_end, const TypeDefs::ImageEXPtr & img_ptr,
+                                                const std::vector<RGB_voxel_ptr> * voxels_for_render, const double obs_time)
+{
+    TypeDefs::Vector3Type pt_w;
+    TypeDefs::Vector3Type rgb_color;
+    double u, v;
+    double pt_cam_norm;
+    Common_tools::Timer tim;
+    tim.tic();
+    for (int voxel_idx = pt_start; voxel_idx < pt_end; voxel_idx++)
+    {
+        // continue;
+        RGB_voxel_ptr voxel_ptr = (*voxels_for_render)[ voxel_idx ];
+        for ( int pt_idx = 0; pt_idx < voxel_ptr->m_pts_in_grid.size(); pt_idx++ )
+        {
+            pt_w = voxel_ptr->m_pts_in_grid[pt_idx]->get_pos();
+            if ( img_ptr->project_3d_point_in_this_img( pt_w, u, v, nullptr, 1.0 ) == false )
+            {
+                continue;
+            }
+            // pt_cam_norm = ( pt_w - img_ptr->m_pose_w2c_t ).norm();
+            pt_cam_norm = ( pt_w - img_ptr->GetPoseTwc().translation() ).norm();
+            // double gray = img_ptr->get_grey_color(u, v, 0);
+            // pts_for_render[i]->update_gray(gray, pt_cam_norm);
+            rgb_color = img_ptr->get_rgb( u, v, 0 );
+            if (  voxel_ptr->m_pts_in_grid[pt_idx]->update_rgb(
+                     rgb_color, pt_cam_norm, TypeDefs::Vector3Type( image_obs_cov, image_obs_cov, image_obs_cov ), obs_time ) )
+            {
+                render_pts_count++;
+            }
+        }
+    }
+    double cost_time = tim.toc() * 100;
+    return cost_time;
+}
+std::vector<RGB_voxel_ptr>  g_voxel_for_render;
+void render_pts_in_voxels_mp(TypeDefs::ImageEXPtr img_ptr, std::unordered_set<RGB_voxel_ptr> * _voxels_for_render,  const double & obs_time)
+{
+    Common_tools::Timer tim;
+    g_voxel_for_render.clear();
+    for(Voxel_set_iterator it = (*_voxels_for_render).begin(); it != (*_voxels_for_render).end(); it++)
+    {
+        g_voxel_for_render.push_back(*it);
+    }
+    std::vector<std::future<double>> results;
+    tim.tic("Render_mp");
+    int numbers_of_voxels = g_voxel_for_render.size();
+    g_cost_time_logger.record("Pts_num", numbers_of_voxels);
+    render_pts_count= 0 ;
+    if(USING_OPENCV_TBB)
+    {
+        // lamada function
+        cv::parallel_for_(cv::Range(0, numbers_of_voxels), [&](const cv::Range &r)
+                          { thread_render_pts_in_voxel(r.start, r.end, img_ptr, &g_voxel_for_render, obs_time); });
+    }
+    else
+    {
+        int num_of_threads = std::min(8*2, (int)numbers_of_voxels);
+        // results.clear();
+        results.resize(num_of_threads);
+        tim.tic("Com");
+        for (int thr = 0; thr < num_of_threads; thr++)
+        {
+            // cv::Range range(thr * pt_size / num_of_threads, (thr + 1) * pt_size / num_of_threads);
+            int start = thr * numbers_of_voxels / num_of_threads;
+            int end = (thr + 1) * numbers_of_voxels / num_of_threads;
+            results[thr] = m_thread_pool_ptr->commit_task(thread_render_pts_in_voxel, start, end,  img_ptr, &g_voxel_for_render, obs_time);
+        }
+        g_cost_time_logger.record(tim, "Com");
+        tim.tic("wait_Opm");
+        for (int thr = 0; thr < num_of_threads; thr++)
+        {
+            double cost_time = results[thr].get();
+            cost_time_logger_render.record(std::string("T_").append(std::to_string(thr)), cost_time );
+        }
+        g_cost_time_logger.record(tim, "wait_Opm");
+        cost_time_logger_render.record(tim, "wait_Opm");
+    }
+    // img_ptr->release_image();
+    cost_time_logger_render.flush_d();
+    g_cost_time_logger.record(tim, "Render_mp");
+    g_cost_time_logger.record("Pts_num_r", render_pts_count);
+    
 }
 
 }
