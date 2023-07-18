@@ -81,11 +81,11 @@ protected:
     PlacerecPtr                 placerec_                                               = nullptr;
 
      //data
-    // idpair                      most_recent_kf_id_                                      = defpair;
+    idpair                      most_recent_img_id_                                      = defpair;
     idpair                      most_recent_pc_id_                                      = defpair;
 
     PointCloudEXList                pointclouds_new_;
-    ImageEXList                     image_new_;
+    ImageEXList                     images_new_;
     // LandmarkList                landmarks_new_;
 
     //data
@@ -94,7 +94,7 @@ protected:
     // KeyframeList                keyframes_new_;
     // LandmarkList                landmarks_new_;
 
-    idpair                      last_processed_kf_msg_                                  = defpair;
+    idpair                      last_processed_img_msg_                                  = defpair;
     idpair                      last_processed_pc_msg_                                  = defpair;
     // LM Culling
     // LandmarkList                recent_landmarks_;

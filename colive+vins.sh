@@ -13,7 +13,7 @@ gnome-terminal -t "roslaunch" -x bash -c "cd ../../;source ./devel/setup.bash;ro
 
 sleep 3
 
-gnome-terminal -t "roslaunch" -x bash -c "cd ../../;source ./devel/setup.bash;roslaunch fast_lio mapping_avia_client.launch;exec bash;"
+gnome-terminal -t "roslaunch vins node" -x bash -c "cd ../../;source ./devel/setup.bash;roslaunch vins vins_run.launch;exec bash;"
 
 
 sleep 3

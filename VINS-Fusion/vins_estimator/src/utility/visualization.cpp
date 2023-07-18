@@ -143,9 +143,9 @@ void pubOdometry(const Estimator &estimator, const std_msgs::Header &header, col
         odometry.twist.twist.linear.z = estimator.Vs[WINDOW_SIZE].z();
         pub_odometry.publish(odometry);
 
-        Eigen::Isometry3d T = Eigen::Isometry3d::Identity();
-        T = img->convert2T(odometry);
-        img->SetPoseTsw(T);
+        // Eigen::Isometry3d T = Eigen::Isometry3d::Identity();
+        // T = img->convert2T(odometry);
+        // img->SetPoseTsw(T);
 
     // pc->pos_w[0] = odomAftMapped.pose.pose.position.x;
     // pc->pos_w[1] = odomAftMapped.pose.pose.position.y;
@@ -194,6 +194,9 @@ void pubOdometry(const Estimator &estimator, const std_msgs::Header &header, col
         Eigen::Vector3d tmp_T = estimator.Ps[WINDOW_SIZE];
         printf("time: %f, t: %f %f %f q: %f %f %f %f \n", header.stamp.toSec(), tmp_T.x(), tmp_T.y(), tmp_T.z(),
                                                           tmp_Q.w(), tmp_Q.x(), tmp_Q.y(), tmp_Q.z());
+    Eigen::Isometry3d T = Eigen::Isometry3d::Identity();
+    T = img->convert2T(tmp_T.x(), tmp_T.y(), tmp_T.z(), tmp_Q.x(), tmp_Q.y(), tmp_Q.z(), tmp_Q.w());
+    img->SetPoseTsw(T);
     }
 }
 

@@ -1,5 +1,6 @@
 #!/bin/bash
-path_dataset='/media/lqh/WDC/dataset/r3live_offical'
+# path_dataset='/media/lqh/WDC/dataset/r3live_offical'
+path_dataset='/media/viosus/WDC/dataset/r3live_offical'
 path_workspace='~/ros/r3live'
 
 

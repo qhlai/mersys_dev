@@ -42,6 +42,7 @@ class Estimator
 {
   public:
     Estimator();
+    // Estimator(std::shared_ptr<colive::Communicator_client> comm_, std::shared_ptr<std::thread> thread_comm_);
     ~Estimator();
     void setParameter();
 
@@ -81,6 +82,7 @@ class Estimator
     bool IMUAvailable(double t);
     void initFirstIMUPose(vector<pair<double, Eigen::Vector3d>> &accVector);
 
+    // std::shared_ptr<colive::Communicator_client> thread_comm;
     std::shared_ptr<colive::Communicator_client> comm_;
     std::unique_ptr<std::thread> thread_comm_;
     colive::Image_ex img1;

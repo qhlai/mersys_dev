@@ -100,7 +100,7 @@ auto Communicator_server::ProcessPointCloudMessages()->void {
             PointCloudEXPtr pc;
             TransformType Twg;
             pc = map_->GetPointCloudEX(msg.id_);// id: id+pointcloud
-            Twg = map_->GetFamily(msg.id_.second);
+            Twg = map_->GetFamilyPc(msg.id_.second);
             if(!pc){
                 // pc.reset(new PointCloud_ex(msg,map_));
                 // map_->AddPointCloud(pc);
@@ -141,7 +141,7 @@ auto Communicator_server::ProcessNewPointClouds()->void {
             PointCloudEXPtr pc;
             TransformType Twg;
             pc = map_->GetPointCloudEX(msg.id_);// id: id+pointcloud
-            Twg = map_->GetFamily(msg.id_.second);
+            Twg = map_->GetFamilyPc(msg.id_.second);
             if(!pc){
                 // pc.reset(new PointCloud_ex(msg,map_));
                 // map_->AddPointCloud(pc);
@@ -188,67 +188,67 @@ auto Communicator_server::ProcessNewPointClouds()->void {
 }
 
 auto Communicator_server::ProcessNewImages()->void {
-    // std::unique_lock<std::mutex> lock(mtx_in_);
+    std::unique_lock<std::mutex> lock(mtx_in_);
 
-    // while(!buffer_images_in_.empty()) {
-    //     MsgImage msg = buffer_images_in_.front();
-    //     // if(msg.id_reference.first > last_processed_kf_msg_.first) break;
-    //     buffer_images_in_.pop_front();
-    //     if(msg.is_update_msg){
-    //         if(!colive_params::comm::send_updates) continue;
-    //         else{
-    //             // TODO: update
-    //             // auto pc =map_->GetPointCloud();
-    //         }
-    //     }
-    //     else{
-    //         ImageEXPtr img;
-    //         TransformType Twg;
-    //         img = map_->GetPointCloudEX(msg.id_);// id: id+pointcloud
-    //         Twg = map_->GetFamily(msg.id_.second);
-    //         if(!pc){
-    //             // pc.reset(new PointCloud_ex(msg,map_));
-    //             // map_->AddPointCloud(pc);
+    while(!buffer_images_in_.empty()) {
+        MsgImage msg = buffer_images_in_.front();
+        // if(msg.id_reference.first > last_processed_kf_msg_.first) break;
+        buffer_images_in_.pop_front();
+        if(msg.is_update_msg){
+            if(!colive_params::comm::send_updates) continue;
+            else{
+                // TODO: update
+                // auto pc =map_->GetPointCloud();
+            }
+        }
+        else{
+            ImageEXPtr img;
+            TransformType Twg;
+            img = map_->GetImageEX(msg.id_);// id: id+pointcloud
+            Twg = map_->GetFamilyImg(msg.id_.second);
+            if(!img){
+                // pc.reset(new PointCloud_ex(msg,map_));
+                // map_->AddPointCloud(pc);
                 
-    //             pc.reset(new PointCloudEX(msg,map_));
-    //             pc->SetPoseTwg(Twg);
-    //             // pc->map_=map_;
-    //             // std::cout<<"Added point cloud id: "<<pc->id_.first<<" of client:"<<pc->id_.second <<" pc size: "<<pc->pts_cloud.size()<<std::endl;
-    //             pointclouds_new_.push_back(pc);
-    //             last_processed_pc_msg_ = pc->id_;
-    //         }else{
-    //             // TODO: 
-    //         }
+                img.reset(new ImageEX(msg));
+                img->SetPoseTwg(Twg);
+                // pc->map_=map_;
+                std::cout<<"Added image id: "<<img->id_.first<<" of client:"<<img->id_.second <<" img size: "<<img->img_.rows<<std::endl;
+                images_new_.push_back(img);
+                last_processed_img_msg_ = img->id_;
+            }else{
+                // TODO: 
+            }
 
-    //     }
-    // }
+        }
+    }
 
-    // while(!pointclouds_new_.empty()) {
-    //     PointCloudEXPtr pc = pointclouds_new_.front();
-    //     pointclouds_new_.pop_front();
+    while(!images_new_.empty()) {
+        ImageEXPtr img = images_new_.front();
+        images_new_.pop_front();
 
-    //     if(colive_params::placerec::active)
-    //         placerec_->InsertKeyframe(pc);
-    //     // map_->UpdateCovisibilityConnections(kf->id_);
+        // if(colive_params::placerec::active)
+            // placerec_->InsertKeyframe(img);
+        // map_->UpdateCovisibilityConnections(kf->id_);
 
-    //     // Keyframe::LandmarkVector landmarks = kf->GetLandmarks();
+        // Keyframe::LandmarkVector landmarks = kf->GetLandmarks();
 
-    //     // for(size_t idx=0;idx<landmarks.size();++idx) {
-    //     //     LandmarkPtr i = landmarks[idx];
-    //     //     if(!i) {
-    //     //         continue;
-    //     //     }
-    //     //     i->ComputeDescriptor();
-    //     //     i->UpdateNormal();
-    //     // }
+        // for(size_t idx=0;idx<landmarks.size();++idx) {
+        //     LandmarkPtr i = landmarks[idx];
+        //     if(!i) {
+        //         continue;
+        //     }
+        //     i->ComputeDescriptor();
+        //     i->UpdateNormal();
+        // }
 
-    //     if(static_cast<int>(pc->id_.second) == client_id_) {
-    //         if(most_recent_pc_id_ == defpair) most_recent_pc_id_ = pc->id_;
-    //         else most_recent_pc_id_.first = std::max(most_recent_pc_id_.first,pc->id_.first);
-    //         // map_->pointclouds_.push_back(pc);
-    //         map_->AddPointCloud(pc);
-    //     }
-    // }
+        if(static_cast<int>(img->id_.second) == client_id_) {
+            if(most_recent_img_id_ == defpair) most_recent_img_id_ = img->id_;
+            else most_recent_img_id_.first = std::max(most_recent_img_id_.first,img->id_.first);
+            // map_->pointclouds_.push_back(pc);
+            map_->AddImage(img);
+        }
+    }
 }
 
 auto Communicator_server::Run()->void {

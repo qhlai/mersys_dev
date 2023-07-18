@@ -2,7 +2,7 @@
 path_dataset='/media/lqh/WDC/dataset/r3live_offical'
 path_workspace='~/ros/r3live'
 
-
+clear
 if [ $# -eq 0 ]
 then
     NR_JOBS=""
@@ -23,7 +23,7 @@ fi
 # catkin build ${CATKIN_JOBS} livox_ros_driver r3live
 
 #colive
-
+CATKIN_JOBS="-j11"
 catkin build ${CATKIN_JOBS} colive_backend 
 # catkin build ${CATKIN_JOBS} livox_ros_driver  fast_lio 
 # catkin build ${CATKIN_JOBS}  vins camera_models global_fusion loop_fusion

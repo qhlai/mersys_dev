@@ -130,15 +130,31 @@ Map::Map(MapPtr map_target, MapPtr map_tofuse, TransformType T_wtofuse_wtarget)
     //     lm->SetWorldPos(pos_w_corrected);
     // }
 }
-auto Map::AddPointCloud(PointCloudEXPtr pc)->void {
-    this->AddPointCloud(pc,false);
-}
+// auto Map::AddPointCloud(PointCloudEXPtr pc)->void {
+//     this->AddPointCloud(pc,false);
+// }
 auto Map::AddPointCloud(PointCloudEXPtr pc, bool suppress_output)->void {
     std::unique_lock<std::mutex> lock(mtx_map_);
     pointclouds_[pc->id_] = pc;
     max_id_pc_ = std::max(max_id_pc_,pc->GetFrameID());
 
     Add2RGBMap(pc);
+
+    if(!suppress_output && !(pointclouds_.size() % 50)) {
+        // std::cout << "Map " << this->id_map_  << " : " << keyframes_.size() << " KFs | " << landmarks_.size() << " LMs" << std::endl;
+        // this->WriteKFsToFile();
+        // this->WriteKFsToFileAllAg();
+    }
+}
+// auto Map::AddImage(ImageEXPtr img)->void {
+//     this->AddImage(img,false);
+// }
+auto Map::AddImage(ImageEXPtr img, bool suppress_output)->void {
+    std::unique_lock<std::mutex> lock(mtx_map_);
+    images_[img->id_] = img;
+    max_id_img_ = std::max(max_id_img_,img->GetFrameID());
+
+    // Add2RGBMap(pc);
 
     if(!suppress_output && !(pointclouds_.size() % 50)) {
         // std::cout << "Map " << this->id_map_  << " : " << keyframes_.size() << " KFs | " << landmarks_.size() << " LMs" << std::endl;
@@ -180,7 +196,7 @@ auto Map::GetLoopConstraints()->LoopVector {
 //     std::unique_lock<std::mutex> lock(mtx_map_);
 //     return pointclouds_;
 // }
-auto Map::GetFamily(size_t client_id)->TransformType  {
+auto Map::GetFamilyPc(size_t client_id)->TransformType  {
     std::unique_lock<std::mutex> lock(mtx_map_);
     idpair idp;
     idp.first=0;
@@ -202,6 +218,18 @@ auto Map::GetPointCloudEX(idpair idp)->PointCloudEXPtr {
 auto Map::GetPointCloudEXs()->PointCloudEXMap {
     std::unique_lock<std::mutex> lock(mtx_map_);
     return pointclouds_;
+}
+
+auto Map::GetFamilyImg(size_t client_id)->TransformType  {
+    std::unique_lock<std::mutex> lock(mtx_map_);
+    idpair idp;
+    idp.first=0;
+    idp.second=client_id;
+    ImageEXMap::iterator mit =  images_.find(idp);
+    if(mit != images_.end()) return mit->second->GetPoseTwg();
+    else {
+        return  TransformType::Identity() ;
+    }
 }
 auto Map::GetImageEX(idpair idp)->ImageEXPtr {
     std::unique_lock<std::mutex> lock(mtx_map_);

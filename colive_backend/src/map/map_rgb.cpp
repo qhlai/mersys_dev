@@ -129,7 +129,7 @@ Global_map::Global_map( int if_start_service )
     // // Allocate memory for pointclouds
     if ( Common_tools::get_total_phy_RAM_size_in_GB() < 16 )
     {
-        std::cout << COUTNOTICE << "less memory occupy" << std::endl;
+        // std::cout << COUTNOTICE << "less memory occupy" << std::endl;
         m_rgb_pts_vec.reserve( 1e8 );
     }
     else

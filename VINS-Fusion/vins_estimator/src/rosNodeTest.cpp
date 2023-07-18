@@ -10,6 +10,7 @@
  *******************************************************/
 
 #include <stdio.h>
+#include <iostream>
 #include <queue>
 #include <map>
 #include <thread>
@@ -20,10 +21,15 @@
 #include "estimator/estimator.h"
 #include "estimator/parameters.h"
 #include "utility/visualization.h"
-#include <communicator/client/enable_client.hpp>
+// #include <communicator/client/enable_client.hpp>
 
+// std::shared_ptr<colive::Communicator_client> comm_;
+// std::shared_ptr<std::thread> thread_comm_;
 Estimator estimator;
+// comm_.reset(new colive::Communicator_client(colive_params::sys::server_ip,colive_params::sys::port));
 
+// std::cout << ">>> COLIVE: Start comm thread" << std::endl;
+// thread_comm_.reset(new std::thread(&colive::Communicator_client::Run,comm_));
 queue<sensor_msgs::ImuConstPtr> imu_buf;
 queue<sensor_msgs::PointCloudConstPtr> feature_buf;
 queue<sensor_msgs::ImageConstPtr> img0_buf;
@@ -266,17 +272,17 @@ int main(int argc, char **argv)
     /*** communication ***/
     // use namespace colive
     
-    std::cout << ">>> COLIVE: Initialize communicator" << std::endl;
-    std::shared_ptr<colive::Communicator_client> comm_;
+    // std::cout << ">>> COLIVE: Initialize communicator" << std::endl;
+    // std::shared_ptr<colive::Communicator_client> comm_;
 
-    comm_.reset(new colive::Communicator_client(colive_params::sys::server_ip,colive_params::sys::port));
-    std::unique_ptr<std::thread> thread_comm_;
-    std::cout << ">>> COLIVE: Start comm thread" << std::endl;
-    thread_comm_.reset(new std::thread(&colive::Communicator_client::Run,comm_));
+    // comm_.reset(new colive::Communicator_client(colive_params::sys::server_ip,colive_params::sys::port));
+    // std::unique_ptr<std::thread> thread_comm_;
+    // std::cout << ">>> COLIVE: Start comm thread" << std::endl;
+    // thread_comm_.reset(new std::thread(&colive::Communicator_client::Run,comm_));
 
-    colive::Image_ex img1;
-    colive::Image_ex* img;
-    img = &img1;
+    // colive::Image_ex img1;
+    // colive::Image_ex* img;
+    // img = &img1;
 
     if(argc != 2)
     {

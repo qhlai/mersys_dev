@@ -55,7 +55,7 @@ add_library(vins_lib
     src/initial/initial_sfm.cpp
     src/initial/initial_ex_rotation.cpp
     src/featureTracker/feature_tracker.cpp)
-target_link_libraries(vins_lib ${catkin_LIBRARIES} ${OpenCV_LIBS} ${CERES_LIBRARIES})
+target_link_libraries(vins_lib ${catkin_LIBRARIES} ${OpenCV_LIBS} ${CERES_LIBRARIES} ${PCL_LIBRARIES})
 
 
 # add_executable(vins_node src/rosNodeTest.cpp)
@@ -64,9 +64,10 @@ target_link_libraries(vins_lib ${catkin_LIBRARIES} ${OpenCV_LIBS} ${CERES_LIBRAR
 add_executable(vins_node src/rosNodeTest.cpp)
 target_link_libraries(vins_node vins_lib ${colive_backend_LIBRARIES} ${PCL_LIBRARIES} ) 
 target_include_directories(vins_node PRIVATE  ${colive_backend_INCLUDE_DIRS})
-
+ 
 # add_executable(kitti_odom_test src/KITTIOdomTest.cpp)
 # target_link_libraries(kitti_odom_test vins_lib) 
+
 
 # add_executable(kitti_gps_test src/KITTIGPSTest.cpp)
 # target_link_libraries(kitti_gps_test vins_lib) 

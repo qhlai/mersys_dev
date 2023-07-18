@@ -10,6 +10,7 @@
 #include "estimator.h"
 #include "../utility/visualization.h"
 
+
 Estimator::Estimator(): f_manager{Rs}
 {
     ROS_INFO("init begins");
@@ -18,10 +19,14 @@ Estimator::Estimator(): f_manager{Rs}
 
     /*** communication ***/
     // use namespace colive
-    
+    // std::shared_ptr comm;
+    // comm = comm_;
     std::cout << ">>> COLIVE: Initialize communicator" << std::endl;
     comm_.reset(new colive::Communicator_client(colive_params::sys::server_ip,colive_params::sys::port));
     std::cout << ">>> COLIVE: Start comm thread" << std::endl;
+    // StartThread();
+    // thread_comm = thread_comm_;
+    // std::unique_ptr<std::thread> thread_comm_;
     thread_comm_.reset(new std::thread(&colive::Communicator_client::Run,comm_));
     img = &img1;
 }
@@ -177,7 +182,6 @@ void Estimator::inputImage(double t, const cv::Mat &_img, const cv::Mat &_img1 )
     else
         featureFrame = featureTracker.trackImage(t, _img, _img1);
     //printf("featureTracker time: %f\n", featureTrackerTime.toc());
-
     if (SHOW_TRACK)
     {
         cv::Mat imgTrack = featureTracker.getTrackImage();
@@ -352,7 +356,8 @@ void Estimator::processMeasurements()
         std::chrono::milliseconds dura(2);
         std::this_thread::sleep_for(dura);
     }
-    // comm_->TryPassKeyPcToComm(img1);
+    comm_->TryPassKeyImgToComm(img);
+    std::cout << ">>> COLIVE: Start comm thread 3 " << std::endl;
 }
 
 

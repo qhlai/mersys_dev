@@ -105,15 +105,17 @@ public:
     Map()=delete;
     Map(size_t id);
     Map(MapPtr map_target, MapPtr map_tofuse, TransformType T_wtofuse_wmatch);
-    virtual auto GetFamily(size_t client_id)->TransformType;
+    virtual auto GetFamilyPc(size_t client_id)->TransformType;
+    virtual auto GetFamilyImg(size_t client_id)->TransformType;
     virtual auto GetPointCloudEX(idpair idp)        ->PointCloudEXPtr;
     virtual auto GetPointCloudEXs()            ->PointCloudEXMap;
     virtual auto GetImageEX(idpair idp)        ->ImageEXPtr;
     virtual auto GetImageEXs()            ->ImageEXMap;
     virtual auto Display()->void;
 
-    virtual auto AddPointCloud(PointCloudEXPtr pc)->void;
-    virtual auto AddPointCloud(PointCloudEXPtr pc, bool suppress_output)->void;
+    // virtual auto AddPointCloud(PointCloudEXPtr pc)->void;
+    virtual auto AddPointCloud(PointCloudEXPtr pc, bool suppress_output=false)->void;
+    virtual auto AddImage(ImageEXPtr img, bool suppress_output=false)->void;
     virtual auto Add2RGBMap(PointCloudEXPtr pc)->void;
 
 
@@ -149,7 +151,7 @@ protected:
     // Loop Correction
     LoopVector                  loop_constraints_;
 
-    size_t                      max_id_kf_                                              = 0;
+    size_t                      max_id_img_                                              = 0;
     size_t                      max_id_lm_                                              = 0;
     size_t                      max_id_pc_                                              = 0;
     // Sync

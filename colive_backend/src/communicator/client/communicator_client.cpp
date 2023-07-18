@@ -401,12 +401,12 @@ auto Communicator_client::TryPassKeyImgToComm(ImageEX* img)      ->void{
         Vector3Type rot_euler=T.rotation().eulerAngles(2,1,0); // zyx, euler is [0,pi]
         Vector3Type last_rot_euler=last_transform_.rotation().eulerAngles(2, 1, 0); // zyx, euler is [0,pi]
 
-        // // std::cout << "roll_2 pitch_2 yaw_2 = " << rot_euler[2]
-        // //                                 << " " << rot_euler[1]
-	    // //                                 << " " << rot_euler[0] << std::endl << std::endl;
-        // // std::cout << "diff roll_2 pitch_2 yaw_2 = " << rot_euler[2]-last_rot_euler[2]
-        // //                                 << " " << rot_euler[1]-last_rot_euler[1]
-	    // //                                 << " " << rot_euler[0]-last_rot_euler[0] << std::endl << std::endl;
+        std::cout << "roll_2 pitch_2 yaw_2 = " << rot_euler[2]
+                                        << " " << rot_euler[1]
+	                                    << " " << rot_euler[0] << std::endl << std::endl;
+        std::cout << "diff roll_2 pitch_2 yaw_2 = " << rot_euler[2]-last_rot_euler[2]
+                                        << " " << rot_euler[1]-last_rot_euler[1]
+	                                    << " " << rot_euler[0]-last_rot_euler[0] << std::endl << std::endl;
 
         precision_t rot_diff = (fabs(rot_euler[2]-last_rot_euler[2]) + fabs(rot_euler[1]-last_rot_euler[1]) + fabs(rot_euler[0]-last_rot_euler[0]))*(180.0 / M_PI);// TODO:  shoud fix, why max is 532?
         if (rot_diff > 350){
@@ -442,7 +442,7 @@ auto Communicator_client::TryPassKeyImgToComm(ImageEX* img)      ->void{
 
   
         
-        if ( (pos_dis > 0.5 || rot_diff > 10 || time_diff > 1 || pc_final->size() >= 50000) ){
+        if ( (pos_dis > 0.5 || rot_diff > 10 || time_diff > 1 ) ){
         //     if (pc_final->size() == 0){
         //         std::cout<<"Error pc_final->size() == 0"<< std::endl;
         //         // *pc_final+=pc->pts_cloud;
@@ -489,6 +489,7 @@ auto Communicator_client::Run()->void {
 
     while(true)
     {
+        // std::cout<< "123" << std::endl;
         this->ProcessPointCloudBuffer();
         this->ProcessImageBuffer();
         // this->ProcessKfBuffer();
