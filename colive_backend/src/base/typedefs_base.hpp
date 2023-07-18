@@ -151,6 +151,7 @@ namespace TypeDefs {
     using KeypointVector                = std::vector<KeypointType,Eigen::aligned_allocator<KeypointType>>;
     using AorsVector                    = std::vector<AorsType,Eigen::aligned_allocator<AorsType>>;
 
+
     using Vector2Type                   = Eigen::Matrix<precision_t,2,1>;
     using Vector3Type                   = Eigen::Matrix<precision_t,3,1>;
     using Vector4Type                   = Eigen::Matrix<precision_t,4,1>;

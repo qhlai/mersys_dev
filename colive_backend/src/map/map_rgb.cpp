@@ -361,7 +361,7 @@ int Global_map::append_points_to_global_map(TypeDefs::PointCloudEXPtr pc_in,  st
     m_mutex_m_box_recent_hitted->lock();
     m_voxels_recent_visited[pc_in->GetClientID()] = voxels_recent_visited ;
     m_mutex_m_box_recent_hitted->unlock();
-    std::cout << COUTDEBUG <<"m_rgb_pts_vec size:"<<m_rgb_pts_vec.size()<<", pts_added_vec size:"<< pts_added_vec->size()<<std::endl;
+    // std::cout << COUTDEBUG <<"m_rgb_pts_vec size:"<<m_rgb_pts_vec.size()<<", pts_added_vec size:"<< pts_added_vec->size()<<std::endl;
     return (m_voxels_recent_visited[client_id].size() -  number_of_voxels_before_add);
     // return 0;
 }

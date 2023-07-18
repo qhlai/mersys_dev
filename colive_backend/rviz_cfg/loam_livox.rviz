@@ -16,6 +16,7 @@ Panels:
         - /Odometry1/Odometry1/Covariance1/Position1
         - /Odometry1/Odometry1/Covariance1/Orientation1
         - /MarkerArray1/Namespaces1
+        - /mapping_all1
         - /mapping_all1/PointCloud22
         - /mapping_all1/PointCloud23
         - /mapping_all1/PointCloud24
@@ -737,7 +738,7 @@ Visualization Manager:
           Channel Name: intensity
           Class: rviz/PointCloud2
           Color: 255; 0; 0
-          Color Transformer: MONO8
+          Color Transformer: RGB8
           Decay Time: 0
           Enabled: true
           Invert Rainbow: true
@@ -1653,7 +1654,7 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 47.368370056152344
+      Distance: 37.162288665771484
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
@@ -1661,17 +1662,17 @@ Visualization Manager:
         Value: false
       Field of View: 0.7853981852531433
       Focal Point:
-        X: 7.209616184234619
-        Y: 6.744166374206543
-        Z: 2.728067636489868
+        X: 12.293375015258789
+        Y: 7.140883445739746
+        Z: 10.413780212402344
       Focal Shape Fixed Size: true
       Focal Shape Size: 0.05000000074505806
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 0.37979865074157715
+      Pitch: 0.2747988700866699
       Target Frame: global
-      Yaw: 2.2352941036224365
+      Yaw: 2.5702781677246094
     Saved: ~
 Window Geometry:
   Displays:
@@ -1690,4 +1691,4 @@ Window Geometry:
     collapsed: true
   Width: 1920
   X: 991
-  Y: 288
+  Y: 251

@@ -26,6 +26,7 @@
 namespace colive {
 
 // : public Image_ex
+// : public Image_ex_base
 class MsgImage {
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
@@ -68,7 +69,7 @@ public:
     TransformType           T_w_s_ = TransformType::Identity(); 
     TransformType           T_s_w_ = TransformType::Identity();
     Image                   img_;
-    double intrinsic[4]={0};
+    Eigen::Matrix3d m_cam_K; //intrinsic
 
 protected:
 
@@ -80,20 +81,20 @@ protected:
             archive(id_,
                     T_s_w_,
                     img_,
-                    intrinsic,
+                    m_cam_K,
                     is_update_msg);
         } else if(is_update_msg){
             archive(id_,
                     T_s_w_,
                     img_,
-                    intrinsic,
+                    m_cam_K,
                     // observations,id_reference
                     is_update_msg);
         } else {
             archive(id_,
                     T_s_w_,
                     img_,
-                    intrinsic,
+                    m_cam_K,
                     // observations,id_reference
                     is_update_msg);
         }
@@ -105,21 +106,21 @@ protected:
              archive(id_,
                     T_s_w_,
                     img_,
-                    intrinsic,
+                    m_cam_K,
                     // observations,id_reference
                     is_update_msg);
         } else if(msg_type[1] == true){
             archive(id_,
                     T_s_w_,
                     img_,
-                    intrinsic,
+                    m_cam_K,
                     // observations,id_reference
                     is_update_msg);
         } else {
             archive(id_,
                     T_s_w_,
                     img_,
-                    intrinsic,
+                    m_cam_K,
                     // observations,id_reference
                     is_update_msg);
         }

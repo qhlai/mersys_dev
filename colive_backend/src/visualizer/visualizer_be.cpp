@@ -356,7 +356,9 @@ auto Visualizer::PubPointCloud_service()->void {
     auto map_rgb_pts=curr_bundle_.map_rgb_pts;
     int pts_size = map_rgb_pts.m_rgb_pts_vec.size();
 
-    std::cout << COUTNOTICE <<"rviz:pointcloud points sum:"<< pts_size << std::endl;
+    // std::cout << COUTNOTICE <<"rviz:pointcloud points sum:"<< pts_size << std::endl;
+    // g_pointcloud_pts_num=pts_size;
+
     for(uint64_t i=0;i<pts_size;i+=1) {
         // PointCloudEXPtr pc_ex = mit->second;
 
@@ -659,7 +661,12 @@ std::string append_space_to_bits( std::string & in_str, int bits )
 
 auto Visualizer::Run()->void{
     // std::cout<<"run vis"<<std::endl;
-
+    // 
+    uint8_t max_pub_freq = 10; // hz
+    uint32_t wait_time = 1000000 / max_pub_freq;
+    static uint32_t board_cnt=0;
+    uint8_t dash_print = max_pub_freq;
+    // 400000
     while(1) {
 
         if(this->CheckVisData()) {
@@ -669,19 +676,21 @@ auto Visualizer::Run()->void{
         g_camera_frame_num=0;
         g_lidar_frame_num=0;
         g_pointcloud_pts_num =0;
+
          // 每个agent
         for(std::map<size_t,VisBundle>::iterator mit = vis_data_.begin();mit!=vis_data_.end();++mit){
             curr_bundle_ = mit->second;
             g_camera_frame_num+=curr_bundle_.keyframes.size();
             g_lidar_frame_num+=curr_bundle_.pointCloud.size();
+            g_pointcloud_pts_num+=curr_bundle_.map_rgb_pts.m_rgb_pts_vec.size();
 
-            for(PointCloudEXMap::const_iterator mit=curr_bundle_.pointCloud.begin();mit!=curr_bundle_.pointCloud.end();++mit) {
-                PointCloudEXPtr pc_i = mit->second;
-                g_pointcloud_pts_num += pc_i->pts_cloud.size();
-            }
+            // for(PointCloudEXMap::const_iterator mit=curr_bundle_.pointCloud.begin();mit!=curr_bundle_.pointCloud.end();++mit) {
+            //     PointCloudEXPtr pc_i = mit->second;
+            //     g_pointcloud_pts_num += pc_i->pts_cloud.size();
+            // }
             // std::cout<<"run vis2"<<std::endl;
             // this->PubPointCloud();
-            this->PubPointCloud_service();
+            // this->PubPointCloud_service();
             this->PubTrajectories();
             this->PubOdometries();
             //  std::cout<<"run vis3"<<std::endl;
@@ -699,10 +708,15 @@ auto Visualizer::Run()->void{
 
             this->PubLoopEdges();
         }
-        static uint32_t board_cnt=0;
-        if(board_cnt%10==0){
+        
+        if(board_cnt%2==0){
             print_dash_board();
+            this->PubPointCloud_service();
         }
+        // if(board_cnt%3==0){
+        //     // print_dash_board();this->PubPointCloud_service();
+        //     this->PubPointCloud_service();
+        // }
         board_cnt++;
         vis_data_.clear();
         // limit frequency, TODO: should be modified later may like this
@@ -716,10 +730,12 @@ auto Visualizer::Run()->void{
             //     performRSLoopClosure(); // TODO
             //     visualizeLoopClosure();
             // }
-        usleep(200000);// limit frequency, TODO
+        std::this_thread::sleep_for(std::chrono::microseconds(wait_time));
+        // usleep(wait_time);// limit frequency, TODO
     }
     this->ResetIfRequested();
-    usleep(5000);
+    // usleep(5000);
+    std::this_thread::sleep_for(std::chrono::microseconds(5000));
     }
     
 }
