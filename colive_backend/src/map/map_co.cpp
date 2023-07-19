@@ -156,6 +156,20 @@ auto Map::AddPointCloud(PointCloudEXPtr pc, bool suppress_output)->void {
         // this->WriteKFsToFileAllAg();
     }
 }
+auto Map::AddImage(ImageEXPtr img, bool suppress_output)->void {
+    std::unique_lock<std::mutex> lock(mtx_map_);
+    images_[img->id_] = img;
+    max_id_img_ = std::max(max_id_img_,img->GetFrameID());
+// 在另外一个线程里加rgb_map
+    // pcs_should_be_added_to_rgb_map.push(pc);
+
+    // Add2RGBMap(pc);
+    if(!suppress_output && !(images_.size() % 50)) {
+        // std::cout << "Map " << this->id_map_  << " : " << keyframes_.size() << " KFs | " << landmarks_.size() << " LMs" << std::endl;
+        // this->WriteKFsToFile();
+        // this->WriteKFsToFileAllAg();
+    }
+}
 auto Map::Add2RGBMap_service()->void {
     // std::vector<idpair> = std::make_unique<
     // size_t pc_index = 0;

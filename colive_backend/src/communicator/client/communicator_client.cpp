@@ -358,6 +358,7 @@ auto Communicator_client::TryPassKeyPcToComm(PointCloudEX* pc)      ->void{
             pc->pts_cloud=*pc_final;
             pc->SetPoseTsw(base_frame_transform_);
             std::cout << "send new pointcloud "<<pc->id_.first <<", size:"<<pc->pts_cloud.size()<< std::endl;
+            pc->save_to_pcd( "~/ros/temp/pcd", std::to_string(pc->GetTimeStamp()) , 0);
             PassPcToComm(pc);
 
             // last_pos_=pc->pos_w;

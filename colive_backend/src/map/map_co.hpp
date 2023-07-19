@@ -115,8 +115,9 @@ public:
     virtual auto GetImageEXs()            ->ImageEXMap;
     virtual auto Display()->void;
 
-    virtual auto AddPointCloud(PointCloudEXPtr pc)->void;
-    virtual auto AddPointCloud(PointCloudEXPtr pc, bool suppress_output)->void;
+    // virtual auto AddPointCloud(PointCloudEXPtr pc)->void;
+    virtual auto AddImage(ImageEXPtr img, bool suppress_output=false)->void ;
+    virtual auto AddPointCloud(PointCloudEXPtr pc, bool suppress_output=false)->void;
     virtual auto Add2RGBMap_service()->void;
     virtual auto Add2RGBMap(PointCloudEXPtr pc)->void;
 

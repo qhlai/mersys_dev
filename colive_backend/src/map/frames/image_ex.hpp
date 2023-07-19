@@ -88,6 +88,9 @@ public:
 
     // auto project_3d_point_in_this_img(const pcl::PointXYZI & in_pt, double &u, double &v,   pcl::PointXYZRGB * rgb_pt = nullptr, double intrinsic_scale = 1.0)->bool;
     auto project_3d_point_in_this_img(const Vector3Type & in_pt, double &u, double &v, pcl::PointXYZRGB *rgb_pt = nullptr, double intrinsic_scale = 1.0)->bool;
+
+    auto save_to_png( std::string dir_name, std::string _file_name = std::string( "/img" ))->void;
+
 //     auto convert_to_tf()->TransformType;
     protected:
     std::mutex                   mtx_pose_;

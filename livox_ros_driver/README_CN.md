@@ -40,7 +40,7 @@ ROS 环境安装请参考 ROS 安装指南：
 ## 2. 获取并构建览沃 ROS 驱动源代码包
 
 1. 从览沃 GitHub 获取览沃 ROS 驱动程序
-
+   
    `git clone https://github.com/Livox-SDK/livox_ros_driver.git ws_livox/src`
 
 &ensp;&ensp;&ensp;&ensp;***说明：***
@@ -48,14 +48,14 @@ ROS 环境安装请参考 ROS 安装指南：
 &ensp;&ensp;&ensp;&ensp;务必使用上面的命令克隆代码到本地，否则会因为文件路径的问题而编译出错
 
 2. 参照如下命令，构建览沃 ROS 驱动程序
-
+   
    ```bash
    cd ws_livox
    catkin_make
    ```
 
 3. 使用如下命令更新当前 ROS 包环境
-
+   
    `source ./devel/setup.sh`
 
 ## 3. 运行览沃 ROS 驱动程序
@@ -98,26 +98,26 @@ roslaunch livox_ros_driver livox_lidar_rviz.launch bd_list:="0TFDG3B006H2Z11&1HD
 
 览沃驱动程序中所有的 launch 文件都位于 "ws_livox/src/livox_ros_driver/launch" 路径下，不同的 launch 文件拥有不同的配置参数值， 应用在不同的场景中:
 
-| launch 文件名             | 功能                                                         |
-| ------------------------- | ------------------------------------------------------------ |
-| livox_lidar_rviz.launch   | 连接览沃雷达设备<br>向外发布 pointcloud2 格式的点云数据<br>自动加载rviz |
-| livox_hub_rviz.launch     | 连接览沃中心板设备<br>向外发布 pointcloud2 格式的点云数据<br>自动加载rviz |
-| livox_lidar.launch        | 连接览沃雷达设备<br>向外发布 pointcloud2 格式的点云数据    |
-| livox_hub.launch          | 连接览沃中心板设备<br>向外发布 pointcloud2 格式的点云数据  |
-| livox_lidar_msg.launch    | 连接览沃雷达设备<br>向外发布览沃自定义点云数据             |
-| livox_hub_msg.launch      | 连接览沃中心板设备<br/>向外发布览沃自定义点云数据           |
-| lvx_to_rosbag.launch      | 转换 lvx 文件为 rosbag 文件<br>直接将 lvx 文件转换为 rosbag 文件 |
+| launch 文件名                | 功能                                                              |
+| ------------------------- | --------------------------------------------------------------- |
+| livox_lidar_rviz.launch   | 连接览沃雷达设备<br>向外发布 pointcloud2 格式的点云数据<br>自动加载rviz                |
+| livox_hub_rviz.launch     | 连接览沃中心板设备<br>向外发布 pointcloud2 格式的点云数据<br>自动加载rviz               |
+| livox_lidar.launch        | 连接览沃雷达设备<br>向外发布 pointcloud2 格式的点云数据                            |
+| livox_hub.launch          | 连接览沃中心板设备<br>向外发布 pointcloud2 格式的点云数据                           |
+| livox_lidar_msg.launch    | 连接览沃雷达设备<br>向外发布览沃自定义点云数据                                       |
+| livox_hub_msg.launch      | 连接览沃中心板设备<br/>向外发布览沃自定义点云数据                                     |
+| lvx_to_rosbag.launch      | 转换 lvx 文件为 rosbag 文件<br>直接将 lvx 文件转换为 rosbag 文件                 |
 | lvx_to_rosbag_rviz.launch | 转换 lvx 文件为 rosbag 文件<br>从 lvx 文件中读取点云数据，并转换为 pointcloud2 格式向外发布 |
 
 ### 4.2 览沃 ROS 驱动程序内部主要参数配置说明
 
 览沃 ROS 驱动程序中的所有内部参数都位于 launch 文件中，下面将对经常用到的三个参数进行详细说明:
 
-| 参数名       | 详细说明                                                     | 默认值 |
-| ------------ | ------------------------------------------------------------ | ------ |
-| publish_freq | 设置点云发布频率 <br>浮点数据类型，推荐值 5.0，10.0，20.0，50.0 等。 | 10.0   |
-| multi_topic  | LiDAR 设备是否拥有独立的 topic 发布点云数据<br>0 -- 所有 LiDAR 设备共同使用同一个 topic 发送点云数据<br>1 -- 每个 LiDAR 设备各自拥有独立的 topic 发布点云数据 | 0      |
-| xfer_format  | 设置点云格式<br>0 -- 览沃 pointcloud2(PointXYZRTL) 点云格式<br>1 -- 览沃自定义点云数据格式<br>2 -- PCL库中标准 pointcloud2(pcl::PointXYZI) 点云格式 | 0      |
+| 参数名          | 详细说明                                                                                                                 | 默认值  |
+| ------------ | -------------------------------------------------------------------------------------------------------------------- | ---- |
+| publish_freq | 设置点云发布频率 <br>浮点数据类型，推荐值 5.0，10.0，20.0，50.0 等。                                                                        | 10.0 |
+| multi_topic  | LiDAR 设备是否拥有独立的 topic 发布点云数据<br>0 -- 所有 LiDAR 设备共同使用同一个 topic 发送点云数据<br>1 -- 每个 LiDAR 设备各自拥有独立的 topic 发布点云数据         | 0    |
+| xfer_format  | 设置点云格式<br>0 -- 览沃 pointcloud2(PointXYZRTL) 点云格式<br>1 -- 览沃自定义点云数据格式<br>2 -- PCL库中标准 pointcloud2(pcl::PointXYZI) 点云格式 | 0    |
 
 ### 4.3 览沃 ROS 驱动程序点云数据详细说明
 
@@ -147,7 +147,7 @@ CustomPoint[] points      # Pointcloud data
 
 &ensp;&ensp;&ensp;&ensp;上述自定义数据包中的自定义点云（CustomＰoint）格式  :
 
-   ```c
+```c
 
 uint32 offset_time      # offset time relative to the base time
 float32 x               # X axis, unit:m
@@ -157,7 +157,7 @@ uint8 reflectivity      # reflectivity, 0~255
 uint8 tag               # livox tag
 uint8 line              # laser number in lidar
 
-   ```
+```
 
 3. PCL 库中标准 pointcloud2(pcl::PointXYZI) 点云格式 :
 
@@ -168,7 +168,7 @@ uint8 line              # laser number in lidar
 在 "ws_livox/src/livox_ros_driver/config" 路径下, 有两个 json 配置文件，分别为  livox_hub_config.json 和 livox_lidar_config.json 。
 
 1. 直接连接 LiDAR 时，使用 livox_lidar_config.json 来配置 LiDAR 参数，文件内容示例如下：
-
+   
    ```json
    {
       "lidar_config": [
@@ -201,9 +201,9 @@ LiDAR 配置参数说明
 &ensp;&ensp;&ensp;&ensp;连接多个 LiDAR 时，如果要使用外参自动补偿功能，必需先使用 livox viewer 标定好外参并保存到 LiDAR 中；
 
 2. 连接中心板时，使用 livox_hub_config.json 来配置中心板和 LiDAR 相关的参数，文件内容示例如下：
-
+   
    ```json
-
+   
    {
       "hub_config": {
          "broadcast_code": "13UUG1R00400170",

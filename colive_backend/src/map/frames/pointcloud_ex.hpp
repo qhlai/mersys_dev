@@ -86,6 +86,8 @@ public:
     auto ConvertToMsg(MsgPointCloud &msg,  bool is_update, size_t cliend_id)->void;
     auto convert_to_tf(Vector3Type pos_w, QuaternionType quan_)->TransformType;
     auto get_transformed_pc()->PointCloud;
+    auto save_to_pcd( std::string dir_name, std::string _file_name = std::string( "/rgb_pt" ) , int save_pts_with_views = 3)->void;
+    virtual auto save_and_display_pointcloud( std::string dir_name = std::string( "~/ros/temp/" ), std::string file_name = std::string( "/rgb_pt" ) ,  int save_pts_with_views = 3)->void;
     protected:
     std::mutex                   mtx_pose_;
     std::mutex                   mtx_in_;
