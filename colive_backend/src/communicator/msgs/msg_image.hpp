@@ -79,12 +79,14 @@ protected:
     auto save(Archive &archive) const ->void {
         if(save_to_file) {
             archive(id_,
+                    timestamp_,
                     T_s_w_,
                     img_,
                     m_cam_K,
                     is_update_msg);
         } else if(is_update_msg){
             archive(id_,
+                    timestamp_,
                     T_s_w_,
                     img_,
                     m_cam_K,
@@ -92,6 +94,7 @@ protected:
                     is_update_msg);
         } else {
             archive(id_,
+                    timestamp_,
                     T_s_w_,
                     img_,
                     m_cam_K,
@@ -104,6 +107,7 @@ protected:
     auto load(Archive &archive)->void {
         if(save_to_file) {
              archive(id_,
+                    timestamp_,
                     T_s_w_,
                     img_,
                     m_cam_K,
@@ -111,6 +115,7 @@ protected:
                     is_update_msg);
         } else if(msg_type[1] == true){
             archive(id_,
+                    timestamp_, 
                     T_s_w_,
                     img_,
                     m_cam_K,
@@ -118,6 +123,7 @@ protected:
                     is_update_msg);
         } else {
             archive(id_,
+                    timestamp_,
                     T_s_w_,
                     img_,
                     m_cam_K,

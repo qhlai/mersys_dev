@@ -288,11 +288,12 @@ auto  Image_ex::project_3d_point_in_this_img(const Vector3Type & in_pt, double &
 }
 auto Image_ex::save_to_png( std::string dir_name, std::string _file_name)->void{
     Common_tools::create_dir(dir_name);
-    std::string file_name = std::string(dir_name).append(_file_name);
+    std::string file_name = std::string(dir_name).append(_file_name).append(".png");
 
     cv::Mat normalized;
     cv::normalize(img_, normalized, 0, 255, cv::NORM_MINMAX, CV_8UC3); // 归一化为 8 位深度
-    cv::imwrite(file_name.append(".png"), normalized);
+    std::cout << COUTDEBUG << " save to "<< file_name<< std::endl;
+    cv::imwrite(file_name, normalized);
     // pcl::io::savePCDFileBinary(std::string(_file_name).append(".pcd"), pts_cloud);
 }
 

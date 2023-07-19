@@ -92,6 +92,7 @@ inline std::vector<VisColorRGB> LoadColAsVec(std::string path)
 
 namespace sys {
     const std::string output_path                      = read_parm::GetStringFromYaml(conf,"sys.output_path");
+    const int save_frames                            = read_parm::GetValFromYaml<int>(conf,"sys.save_frames");
     const int threads_pool                            = read_parm::GetValFromYaml<int>(conf,"sys.threads_pool");    
     const int threads_server                            = read_parm::GetValFromYaml<int>(conf,"sys.threads_server");
     const int covis_thres                               = read_parm::GetValFromYaml<int>(conf,"sys.covis_thres");

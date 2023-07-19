@@ -86,24 +86,21 @@ protected:
     auto save(Archive &archive) const ->void {
         if(save_to_file) {
             archive(id_,
-                    // pos_w,
-                    // quan_,
+                    timestamp_,
                     T_s_w_,
                     pts_cloud,
                     // observations,id_reference
                     is_update_msg);
         } else if(is_update_msg){
             archive(id_,
-                    // pos_w,
-                    // quan_,
+                    timestamp_,
                     T_s_w_,
                     pts_cloud,
                     // observations,id_reference
                     is_update_msg);
         } else {
             archive(id_,
-                    // pos_w,
-                    // quan_,
+                    timestamp_,
                     T_s_w_,
                     pts_cloud,
                     // observations,id_reference
@@ -115,24 +112,23 @@ protected:
     auto load(Archive &archive)->void {
         if(save_to_file) {
              archive(id_,
-                    // pos_w,
-                    // quan_,
+                    timestamp_,
                     T_s_w_,
                     pts_cloud,
                     // observations,id_reference
                     is_update_msg);
         } else if(msg_type[1] == true){
             archive(id_,
-                    // pos_w,
-                    // quan_,
+
+                    timestamp_,
                     T_s_w_,
                     pts_cloud,
                     // observations,id_reference
                     is_update_msg);
         } else {
             archive(id_,
-                    // pos_w,
-                    // quan_,
+
+                    timestamp_,
                     T_s_w_,
                     pts_cloud,
                     // observations,id_reference

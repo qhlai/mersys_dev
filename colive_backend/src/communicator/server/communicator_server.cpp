@@ -122,7 +122,16 @@ auto Communicator_server::ProcessPointCloudMessages()->void {
     
 
 }
+        // if(base_frame_update_){
+        //     base_frame_transform_=pc->GetPoseTsw();
+        //     base_frame_update_=false;
 
+        //     *pc_final+=pc->pts_cloud;
+        // }else{
+        //     PointCloud::Ptr cloud_acc(new PointCloud(pc->pts_cloud));
+        //     pcl::transformPointCloud(*cloud_acc, *cloud_acc, (pc->GetPoseTsw()*base_frame_transform_.inverse()).matrix());
+        //     *pc_final+=*cloud_acc;
+        // }
 auto Communicator_server::ProcessNewPointClouds()->void {
     std::unique_lock<std::mutex> lock(mtx_in_);
 
@@ -183,6 +192,12 @@ auto Communicator_server::ProcessNewPointClouds()->void {
             else most_recent_pc_id_.first = std::max(most_recent_pc_id_.first,pc->id_.first);
             // map_->pointclouds_.push_back(pc);
             map_->AddPointCloud(pc);
+            #ifdef SAVE_FRAMES           
+            if(colive_params::sys::save_frames){
+ 
+            pc->save_to_pcd( std::string("/home/lqh/ros/temp/pcd/").append(std::to_string(pc->GetClientID())).append("/"), std::to_string(pc->GetTimeStamp()) , 0);
+            }
+            #endif            
         }
     }
 }
@@ -247,6 +262,11 @@ auto Communicator_server::ProcessNewImages()->void {
             else most_recent_img_id_.first = std::max(most_recent_img_id_.first,img->id_.first);
             // map_->pointclouds_.push_back(pc);
             map_->AddImage(img);
+            #ifdef SAVE_FRAMES           
+            if(colive_params::sys::save_frames){
+            img->save_to_png( std::string("/home/lqh/ros/temp/img/").append(std::to_string(img->GetClientID())).append("/"), std::to_string(img->GetTimeStamp()));
+            }
+            #endif
         }
     }
 }
