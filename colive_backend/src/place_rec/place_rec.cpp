@@ -366,6 +366,7 @@ auto PlaceRecognition::Run()->void {
 
     m_thread_pool_ptr->commit_task(&PlaceRecognition::process_icp,this);
     while(1){
+        // std::cout<<"add query"<<std::endl;
         if (CheckBuffer()) {
             num_runs++;
 

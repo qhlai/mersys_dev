@@ -4,7 +4,7 @@
 # System Control
 #--------------------------------------------------------------------------------------------
 sys.output_path: ~/ros/r3live_ws/colive/output
-sys.save_frame: 1
+sys.save_frames: 1
 sys.threads_pool: 8
 # Number of threads used for optimization routines
 sys.threads_server: 8
