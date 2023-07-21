@@ -87,6 +87,7 @@ public:
     // auto EraseFromDatabase(KeyframePtr kf)                                              ->void;
 
     auto AddToDatabase(PointCloudEXPtr pc)                                                  ->void;
+
     // auto GetDatabase()                                                                  ->DatabasePtr;
     // auto EraseFromDatabase(KeyframePtr kf)                                              ->void;
     SCManager scManager;

@@ -103,11 +103,12 @@ protected:
     MapManagerPtr                  mapmanager_;
     // SCManager                      scManager;
     std::queue<std::pair<int, int> >                        scLoopICPBuf;
+    // std::queue<std::pair<int, int> >                        
     bool                           perform_pgo_             = true;
     // VocabularyPtr               voc_;
 
     // map<size_t,size_t>          last_loops_;
-    pcl::VoxelGrid<PointType> downSizeFilterScancontext;
+    // pcl::VoxelGrid<PointType> downSizeFilterScancontext;
 
     // // Data
     // KeyframeBufferType          buffer_kfs_in_;

@@ -28,7 +28,40 @@ namespace colive {
 
 class MsgPointCloud;
 
+// class PointCloud_ex_base : public FrameBase{
+// public:
+//     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
+//     using precision_t                   = TypeDefs::precision_t;
+//     using idpair                        = TypeDefs::idpair;
+//     using MapPtr                        = TypeDefs::MapPtr;
+//     using PointType                     = TypeDefs::PointType;
+//     using VoxelGrid                     = TypeDefs::VoxelGrid;
+//     using PointCloud                    = TypeDefs::PointCloud;
+//     using PointCloudEX                    = TypeDefs::PointCloudEX;
+//     using PointCloudEXPtr                    = TypeDefs::PointCloudEXPtr;
+
+//     using Vector3Type                   = TypeDefs::Vector3Type;
+//     using QuaternionType                = TypeDefs::QuaternionType;
+//     using Matrix3Type                   = TypeDefs::Matrix3Type;
+//     using TransformType                 = TypeDefs::TransformType;
+//     // VoxelGrid  vox_cloud;
+//     PointCloud pts_cloud;
+//     PointCloud pts_cloud_d;  // 降采样后的点云
+//     // Position
+//     // Vector3Type             pos_ref;
+//     // Vector3Type             pos_w;
+//     // QuaternionType          quan_;
+// public:
+//     // TransformType           T_s_lm_ = TransformType::Identity(); // 当前帧与本地地图的迁移关系
+//     // TransformType           T_lm_w_ = TransformType::Identity(); // 
+//     // bool have_real_pose=false;
+//     MapPtr                   map_;
+//     // TransformType           T_w_s_ = TransformType::Identity(); // 当前帧与全局地图的迁移关系
+
+//     // Pointclou
+//     // Identifier
+// };
 
 class PointCloud_ex : public FrameBase,  public std::enable_shared_from_this<PointCloud_ex>
 {
@@ -51,10 +84,11 @@ public:
     struct pc_less{
         auto operator() (const PointCloudEXPtr a, const PointCloudEXPtr b) const                ->bool;
     };
+    
 public:
 
     bool sent_once_ = false;
-    // VoxelGrid  vox_cloud;
+
     PointCloud pts_cloud;
     PointCloud pts_cloud_d;  // 降采样后的点云
     // Position
@@ -75,7 +109,62 @@ public:
     PointCloud_ex()=default;
     PointCloud_ex(MsgPointCloud msg, MapPtr map);
 
+    PointCloud_ex(const PointCloud_ex& other) {
+        // TODO: Implem
+        // std::lock_guard<std::mutex> lock(mtx_pose_);
+        // std::lock_guard<std::mutex> lock(mtx_in_);
+        // auto timePoint = std::chrono::steady_clock::now() + std::chrono::milliseconds(100);
 
+        // std::unique_lock<std::mutex> lock1(mtx_pose_, timePoint);
+        // std::unique_lock<std::mutex> lock2(mtx_in_, timePoint);
+        // std::unique_lock<std::mutex> lock3(other.mtx_pose_, timePoint);
+        // std::unique_lock<std::mutex> lock4(other.mtx_in_, timePoint);
+        // uint32_t cnt = 0 ;
+        // while (true) {
+        //     // lock1.try_lock();
+        //     // lock2.try_lock();
+        //     // lock3.try_lock(); 
+        //     // lock4.try_lock();
+        //     if(lock1.owns_lock() && lock2.owns_lock() && lock3.owns_lock() && lock4.owns_lock()){
+        //         id_= other.id_;
+        //         timestamp_=other.timestamp_;    
+        //         pts_cloud=other.pts_cloud;
+        //         SetPoseTsw(other.T_s_w_);  
+
+        //         break;
+
+        //     }else{
+        //         cnt++;
+        //         usleep(10);
+        //     }
+        //     if (cnt == 30)
+        //     {
+        //         break;
+        //     }
+            
+        // }
+        // is dangerous
+        id_= other.id_;
+        timestamp_=other.timestamp_;    
+        pts_cloud=other.pts_cloud;
+        SetPoseTsw(other.T_s_w_);  
+        // pts_cloud
+        
+        // 复制其他成员变量
+    }
+    PointCloud_ex& operator=(const PointCloud_ex& other) {
+            if (this != &other) {
+                // std::unique_lock<std::mutex> lock1(mtx_pose_, mtx_in_);
+                // std::unique_lock<std::mutex> lock2(other.mtx_pose_, other.mtx_in_);
+                id_= other.id_;
+                timestamp_=other.timestamp_;    
+                pts_cloud=other.pts_cloud;
+                SetPoseTsw(other.T_s_w_);  
+                // 复制其他成员变量
+                // TODO:
+            }
+            return *this;
+        }
     // virtual ~PointCloud_ex() {};
     // PointCloud_ex(PointCloud msg, MapPtr map);
     auto SetPointCloud(pcl::PointCloud<pcl::PointXYZI>::Ptr pc)->void;
@@ -99,6 +188,7 @@ public:
     protected:
     std::mutex                   mtx_pose_;
     std::mutex                   mtx_in_;
+
 
 };
 

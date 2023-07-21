@@ -172,8 +172,6 @@ auto Communicator_server::ProcessNewPointClouds()->void {
         PointCloudEXPtr pc = pointclouds_new_.front();
         pointclouds_new_.pop_front();
 
-        if(colive_params::placerec::active)
-            placerec_->InsertKeyframe(pc);
         // map_->UpdateCovisibilityConnections(kf->id_);
 
         // Keyframe::LandmarkVector landmarks = kf->GetLandmarks();
@@ -186,18 +184,59 @@ auto Communicator_server::ProcessNewPointClouds()->void {
         //     i->ComputeDescriptor();
         //     i->UpdateNormal();
         // }
+        static PointCloudEXPtr             p_pc_large_tmp =nullptr;
 
         if(static_cast<int>(pc->id_.second) == client_id_) {
             if(most_recent_pc_id_ == defpair) most_recent_pc_id_ = pc->id_;
             else most_recent_pc_id_.first = std::max(most_recent_pc_id_.first,pc->id_.first);
             // map_->pointclouds_.push_back(pc);
+
+
+            // 建立大型点云
+            // 几帧合一的大型点云
+
+            // static TransformType base_frame_transform_;
+            // static bool base_frame_update_=false;
+            if(p_pc_large_tmp){
+                // std::cout << "1"<<std::endl;
+                if(p_pc_large_tmp->pts_cloud.size()<120000){
+                    // std::cout << "2"<<std::endl;
+                    // PointCloud::Ptr cloud_acc(new PointCloud(pc->pts_cloud));
+                    // pcl::transformPointCloud(*cloud_acc, *cloud_acc, (pc->GetPoseTsw()*base_frame_transform_.inverse()).matrix());
+                    // p_pc_large_tmp->pts_cloud+=*cloud_acc;
+
+                    p_pc_large_tmp->add_and_merge_pointcloudex(pc);
+                }else{
+                    // std::cout << "3"<<std::endl;
+                    // pointclouds_large_[p_pc_large_tmp->id_] = p_pc_large_tmp;
+                    #ifdef SAVE_FRAMES       
+                    if(colive_params::sys::save_frames){
+                    p_pc_large_tmp->save_to_pcd( std::string(colive_params::sys::output_path).append("/frames/pcd_large/").append(std::to_string(p_pc_large_tmp->GetClientID())).append("/"), std::to_string(p_pc_large_tmp->GetTimeStamp()) , 0);
+                    }
+                    #endif
+                    p_pc_large_tmp.reset();
+                }
+            }else{
+                // std::cout << "4"<<std::endl;
+                p_pc_large_tmp.reset(new PointCloudEX(*pc));
+                // base_frame_transform_=pc->GetPoseTsw();
+
+            }
+
             map_->AddPointCloud(pc);
-            #ifdef SAVE_FRAMES           
+            map_->AddPointCloud_large(p_pc_large_tmp);
+            #ifdef SAVE_FRAMES         
             if(colive_params::sys::save_frames){
             pc->save_to_pcd( std::string(colive_params::sys::output_path).append("/frames/pcd/").append(std::to_string(pc->GetClientID())).append("/"), std::to_string(pc->GetTimeStamp()) , 0);
             }
             #endif            
         }
+
+        if(colive_params::placerec::active){
+            placerec_->InsertKeyframe(pc);
+            // placerec_->InsertLargeKeyframe(p_pc_large_tmp);
+        }
+            
     }
 }
 

@@ -146,8 +146,33 @@ auto Map::AddPointCloud(PointCloudEXPtr pc, bool suppress_output)->void {
     std::unique_lock<std::mutex> lock(mtx_map_);
     pointclouds_[pc->id_] = pc;
     max_id_pc_ = std::max(max_id_pc_,pc->GetFrameID());
+
+    // size_t client = pc->GetClientID();
+
+
 // 在另外一个线程里加rgb_map
     pcs_should_be_added_to_rgb_map.push(pc);
+
+    // Add2RGBMap(pc);
+    if(!suppress_output && !(pointclouds_.size() % 50)) {
+        // std::cout << "Map " << this->id_map_  << " : " << keyframes_.size() << " KFs | " << landmarks_.size() << " LMs" << std::endl;
+        // this->WriteKFsToFile();
+        // this->WriteKFsToFileAllAg();
+    }
+}
+auto Map::AddPointCloud_large(PointCloudEXPtr pc, bool suppress_output)->void {
+    if(pc==nullptr){
+        return;
+    }
+
+    std::unique_lock<std::mutex> lock(mtx_map_);
+    // pointclouds_[pc->id_] = pc;
+    // max_id_pc_ = std::max(max_id_pc_,pc->GetFrameID());
+
+    // size_t client = pc->GetClientID();
+
+    // 建立大型点云
+    pointclouds_large_[pc->id_] = pc;
 
     // Add2RGBMap(pc);
     if(!suppress_output && !(pointclouds_.size() % 50)) {

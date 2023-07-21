@@ -38,6 +38,7 @@ MapManager::MapManager()
 
     pcl_pc.reset(new PointCloud);
     pcl_pc_d.reset(new PointCloud);
+    // p_pc_large_tmps.reserve(MAX_CLIENT_NUM);
     float filter_size = 0.4; 
     downSizeFilterScancontext.setLeafSize(filter_size, filter_size, filter_size);
     downSizeFilterICP.setLeafSize(filter_size, filter_size, filter_size);
@@ -368,6 +369,16 @@ auto MapManager::AddToDatabase(PointCloudEXPtr pc)    ->void{
     pc->pts_cloud_d = *pcl_pc_d;
     cl_pcs.push_back(pc);
 
+    // livox camera "calibration"
+
+    
+    // pc_large
+
+    // *pc_large=*pc
+    // pc_large->id_=pc->id_;
+    // pc_large->timestamp_=pc->timestamp_;
+    // pc_large->pts_cloud=pc->pts_cloud;
+    // pc_large->SetPoseTws(pc->GetPoseTws());
     // scManager.makeAndSaveScancontextAndKeys(*pcl_pc_d);
     // cl_pcs_d.push_back(PointCloud::Ptr in(new *pcl_pc_d));
     // *pts_cloud = pc->pts_cloud;

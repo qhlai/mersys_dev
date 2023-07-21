@@ -7,10 +7,11 @@ namespace colive {
 
 PointCloud_ex::PointCloud_ex(MsgPointCloud msg, MapPtr map){
     id_= msg.id_;
+    timestamp_=msg.timestamp_;    
     // pos_w = msg.pos_w;
     // quan_ = msg.quan_;
     pts_cloud=msg.pts_cloud;
-    timestamp_=msg.timestamp_;
+
     // T_s_w_=msg.T_s_w_;
     SetPoseTsw(msg.T_s_w_);
     
@@ -140,7 +141,10 @@ auto PointCloud_ex::get_transformed_pc()->PointCloud{
 }
 
 auto PointCloud_ex::add_and_merge_pointcloudex(PointCloudEXPtr pc)->void{
-    pts_cloud+=pc->get_transformed_pc();
+    // pts_cloud+=pc->get_transformed_pc();
+    PointCloud::Ptr cloud_acc(new PointCloud(pc->pts_cloud));
+    pcl::transformPointCloud(*cloud_acc, *cloud_acc, (pc->GetPoseTsw()*GetPoseTsw().inverse()).matrix());
+    pts_cloud+=*cloud_acc;
 }
 
 auto PointCloud_ex::pc_less::operator ()(const PointCloudEXPtr a, const PointCloudEXPtr b) const ->bool
@@ -158,7 +162,7 @@ auto PointCloud_ex::save_to_pcd( std::string dir_name, std::string _file_name , 
     std::string file_name = std::string(dir_name).append(_file_name).append(".pcd");
     // 更快 ,但人工不可读
     pcl::io::savePCDFileBinary(std::string(file_name), pts_cloud);
-    // std::cout << COUTDEBUG << " save to "<< file_name<< std::endl;
+    std::cout << COUTDEBUG << " save to "<< file_name<< std::endl;
     // pcl::io::savePCDFileASCII(file_name, pts_cloud);
 }
 

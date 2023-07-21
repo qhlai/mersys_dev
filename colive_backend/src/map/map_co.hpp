@@ -35,7 +35,7 @@
 // #include "tools/tools_eigen.hpp"
 #include "typedefs_base.hpp"
 #include "map_rgb.hpp"
-
+#include "config_backend.hpp"
 namespace colive {
 
 // struct Global_map;
@@ -67,7 +67,9 @@ public:
 
     using KeyframePtr                   = TypeDefs::KeyframePtr;
     using LandmarkPtr                   = TypeDefs::LandmarkPtr;
+    using PointCloud                 = TypeDefs::PointCloud;
     using PointCloudPtr                 = TypeDefs::PointCloudPtr;
+    using PointCloudEX               = TypeDefs::PointCloudEX;
     using PointCloudEXPtr               = TypeDefs::PointCloudEXPtr;
     using ImageEXPtr          = TypeDefs::ImageEXPtr;
     using ImagePtr          = TypeDefs::ImagePtr;
@@ -118,6 +120,7 @@ public:
     // virtual auto AddPointCloud(PointCloudEXPtr pc)->void;
     virtual auto AddImage(ImageEXPtr img, bool suppress_output=false)->void ;
     virtual auto AddPointCloud(PointCloudEXPtr pc, bool suppress_output=false)->void;
+    virtual auto AddPointCloud_large(PointCloudEXPtr pc, bool suppress_output=false)->void;
     virtual auto Add2RGBMap_service()->void;
     virtual auto Add2RGBMap(PointCloudEXPtr pc)->void;
 
@@ -135,7 +138,8 @@ public:
     // Identifier
     size_t                      id_map_      = std::numeric_limits<size_t>::max();
     std::set<size_t>            associated_clients_; // set of clients
-    TransformType               T_lm_w_= TransformType::Identity(); // 单机地图与全局地图的估计位姿关系 传感器相对于世界坐标系的位置和方向
+    TransformType               T_lm_w_= TransformType::Identity(); // 单机地图与全局地图的估计位姿关系 传感器相对于世界坐标系的位置和方向/
+
     bool have_real_pos=false;  // 是否与世界坐标系建立了联系
 
     int m_number_of_new_visited_voxel = 0;
@@ -146,6 +150,10 @@ protected:
     KeyframeMap                 keyframes_;
     LandmarkMap                 landmarks_;
     PointCloudEXMap             pointclouds_;// 收集到的所用lidar frame
+    // // 几帧合一的大型点云
+    // PointCloudEXPtr             p_pc_large_tmp =nullptr;
+    size_t                      m_pc_large_frame=0;
+    PointCloudEXMap             pointclouds_large_; // id 
     ImageEXMap                  images_;
 
     KeyframeMap                 keyframes_erased_;
