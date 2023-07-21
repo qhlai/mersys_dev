@@ -321,6 +321,7 @@ auto Communicator_client::TryPassKeyPcToComm(PointCloudEX* pc)      ->void{
                 return;
             }
             
+            
             // pc_sum.pts_cloud
             std::cout<<"pos diff:"<<pos_dis<<", rot_diff:"<<rot_diff<<", time_diff:"<<time_diff<<", pc size:"<<pc_final->size()<< std::endl;
             //  pcl 滤波
