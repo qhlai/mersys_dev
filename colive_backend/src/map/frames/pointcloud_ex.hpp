@@ -41,6 +41,7 @@ public:
     using PointType                     = TypeDefs::PointType;
     using VoxelGrid                     = TypeDefs::VoxelGrid;
     using PointCloud                    = TypeDefs::PointCloud;
+    using PointCloudEX                    = TypeDefs::PointCloudEX;
     using PointCloudEXPtr                    = TypeDefs::PointCloudEXPtr;
 
     using Vector3Type                   = TypeDefs::Vector3Type;
@@ -73,10 +74,14 @@ public:
 
     PointCloud_ex()=default;
     PointCloud_ex(MsgPointCloud msg, MapPtr map);
+
+
     // virtual ~PointCloud_ex() {};
     // PointCloud_ex(PointCloud msg, MapPtr map);
     auto SetPointCloud(pcl::PointCloud<pcl::PointXYZI>::Ptr pc)->void;
     auto SetPointCloud(pcl::PointCloud<pcl::PointXYZINormal>::Ptr pc)->void;
+
+       
 
     virtual auto pointcloud_convert(pcl::PointCloud<pcl::PointXYZINormal>::Ptr pc_in,pcl::PointCloud<pcl::PointXYZI>::Ptr pc_out)->void;
     virtual auto pointcloud_convert(pcl::PointCloud<pcl::PointXYZI>::Ptr pc_in,pcl::PointCloud<pcl::PointXYZINormal>::Ptr pc_out)->void;
@@ -86,6 +91,9 @@ public:
     auto ConvertToMsg(MsgPointCloud &msg,  bool is_update, size_t cliend_id)->void;
     auto convert_to_tf(Vector3Type pos_w, QuaternionType quan_)->TransformType;
     auto get_transformed_pc()->PointCloud;
+
+    virtual auto add_and_merge_pointcloudex(PointCloudEXPtr pc)->void; 
+
     auto save_to_pcd( std::string dir_name, std::string _file_name = std::string( "/rgb_pt" ) , int save_pts_with_views = 3)->void;
     virtual auto save_and_display_pointcloud( std::string dir_name = std::string( "~/ros/temp/" ), std::string file_name = std::string( "/rgb_pt" ) ,  int save_pts_with_views = 3)->void;
     protected:

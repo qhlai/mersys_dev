@@ -38,6 +38,12 @@ class Landmark;
 class Map;
 class MapManager;
 
+
+class Calibration{
+
+};
+
+
 class PlaceRecognition {
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
@@ -112,7 +118,7 @@ protected:
     PointCloud::Ptr                   sc_pcs_d;
     PointCloud::Ptr                   pts_cloud;
     // std::vector< size_t >             last_loop_frame_id;
-    map<size_t,size_t>                last_loops_;
+    map<idpair,size_t>                last_loops_;
     // std::vector< std::shared_ptr <ros::Publisher> >
     
     precision_t                     mnCovisibilityConsistencyTh; // 一致性阈值

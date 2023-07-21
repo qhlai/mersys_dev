@@ -194,8 +194,7 @@ auto Communicator_server::ProcessNewPointClouds()->void {
             map_->AddPointCloud(pc);
             #ifdef SAVE_FRAMES           
             if(colive_params::sys::save_frames){
- 
-            pc->save_to_pcd( std::string("/home/lqh/ros/temp/pcd/").append(std::to_string(pc->GetClientID())).append("/"), std::to_string(pc->GetTimeStamp()) , 0);
+            pc->save_to_pcd( std::string(colive_params::sys::output_path).append("/frames/pcd/").append(std::to_string(pc->GetClientID())).append("/"), std::to_string(pc->GetTimeStamp()) , 0);
             }
             #endif            
         }
@@ -264,7 +263,7 @@ auto Communicator_server::ProcessNewImages()->void {
             map_->AddImage(img);
             #ifdef SAVE_FRAMES           
             if(colive_params::sys::save_frames){
-            img->save_to_png( std::string("/home/lqh/ros/temp/img/").append(std::to_string(img->GetClientID())).append("/"), std::to_string(img->GetTimeStamp()));
+            img->save_to_png( std::string(colive_params::sys::output_path).append("/frames/img/").append(std::to_string(img->GetClientID())).append("/"), std::to_string(img->GetTimeStamp()));
             }
             #endif
         }

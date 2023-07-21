@@ -139,6 +139,10 @@ auto PointCloud_ex::get_transformed_pc()->PointCloud{
     return pt_cloud_tf;
 }
 
+auto PointCloud_ex::add_and_merge_pointcloudex(PointCloudEXPtr pc)->void{
+    pts_cloud+=pc->get_transformed_pc();
+}
+
 auto PointCloud_ex::pc_less::operator ()(const PointCloudEXPtr a, const PointCloudEXPtr b) const ->bool
 {
     if(a->GetClientID() < b->GetClientID())
@@ -154,7 +158,7 @@ auto PointCloud_ex::save_to_pcd( std::string dir_name, std::string _file_name , 
     std::string file_name = std::string(dir_name).append(_file_name).append(".pcd");
     // 更快 ,但人工不可读
     pcl::io::savePCDFileBinary(std::string(file_name), pts_cloud);
-    std::cout << COUTDEBUG << " save to "<< file_name<< std::endl;
+    // std::cout << COUTDEBUG << " save to "<< file_name<< std::endl;
     // pcl::io::savePCDFileASCII(file_name, pts_cloud);
 }
 

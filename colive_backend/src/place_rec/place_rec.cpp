@@ -147,8 +147,11 @@ auto PlaceRecognition::process_icp()->void
             if(relative_pose_optional==0) {
                 // 记录历史回环帧
                 std::cout << "\033[1;32m+++ PLACE RECOGNITION FOUND +++\033[0m" << std::endl;
-
-                last_loops_[curr_pc->GetClientID()] = curr_pc->GetFrameID();
+                // 回环限制更新
+                idpair client_idpair;
+                client_idpair.first = curr_pc->GetClientID();
+                client_idpair.second = loop_pc->GetClientID();
+                last_loops_[client_idpair] = curr_pc->GetFrameID();
 
                 if(map_query->GetPointCloudEX(loop_pc->id_)){
                     bool perform_pgo_ =true;
@@ -323,6 +326,7 @@ auto PlaceRecognition::DetectLoop()->bool {
         std::cout<< COUTNOTICE <<"eraly loop"<<std::endl;
         return false;
     }
+
     auto detectResult = mapmanager_->scManager.detectLoopClosureID(); // first: nn index, second: yaw diff 
     int SCclosestHistoryFrameID = detectResult.first;
     // std::cout << "try detectLoopClosure:" << SCclosestHistoryFrameID<<std::endl;
@@ -331,13 +335,31 @@ auto PlaceRecognition::DetectLoop()->bool {
         std::cout << "detectLoopClosureID: " << SCclosestHistoryFrameID<<std::endl;
         const int prev_node_idx = SCclosestHistoryFrameID;
         const int curr_node_idx = mapmanager_->cl_pcs.size() - 1; // because cpp starts 0 and ends n-1
-        std::cout << COUTDEBUG << "debug loop:"<<pc_query_->GetFrameID()<< ", " << last_loops_[pc_query_->GetClientID()]<< std::endl;
 
-        if(last_loops_.count(pc_query_->GetClientID())) {
+
+
+        auto loop_pc = mapmanager_->cl_pcs[prev_node_idx];
+        auto curr_pc = mapmanager_->cl_pcs[curr_node_idx];
+        // 回环限制
+        // 发生回环的两个设备 // curr, loop
+        idpair client_idpair;
+
+        client_idpair.first = curr_pc->GetClientID();
+        client_idpair.second = loop_pc->GetClientID();     
+        // if(curr_pc->GetFrameID()  <= loop_pc->GetFrameID()){
+        //     client_idpair.first = curr_pc->GetFrameID();
+        //     client_idpair.second = loop_pc->GetFrameID();
+        // }else{
+        //     client_idpair.first = loop_pc->GetFrameID();
+        //     client_idpair.second = curr_pc->GetFrameID();
+        // }
+        std::cout << COUTDEBUG << "debug loop:"<<curr_pc->GetClientID() <<"+"<<curr_pc->GetFrameID()<< ", lastloop:" << last_loops_[client_idpair]<< std::endl;
+
+        if(last_loops_.count(client_idpair)) {
             
-            if((pc_query_->GetFrameID() - last_loops_[pc_query_->GetClientID()]) < colive_params::placerec::consecutive_loop_dist) {
-                std::cout << COUTNOTICE << "loop too offten" << std::endl;
-                pc_query_->SetErase();
+            if((curr_pc->GetFrameID() - last_loops_[client_idpair]) < colive_params::placerec::consecutive_loop_dist) {
+                std::cout << COUTNOTICE << "loop too offten, ignored" << std::endl;
+                curr_pc->SetErase();
                 return false;
                 // return;
             }
@@ -366,6 +388,7 @@ auto PlaceRecognition::Run()->void {
 
     m_thread_pool_ptr->commit_task(&PlaceRecognition::process_icp,this);
     while(1){
+        // std::cout<<"add query"<<std::endl;
         if (CheckBuffer()) {
             num_runs++;
 
