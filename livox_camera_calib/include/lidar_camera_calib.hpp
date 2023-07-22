@@ -38,6 +38,8 @@ public:
   ros::NodeHandle nh_;
   ros::Publisher rgb_cloud_pub_ =
       nh_.advertise<sensor_msgs::PointCloud2>("rgb_cloud", 1);
+  ros::Publisher test_cloud_pub_ =
+      nh_.advertise<sensor_msgs::PointCloud2>("test_cloud_pub", 1);
   ros::Publisher init_rgb_cloud_pub_ =
       nh_.advertise<sensor_msgs::PointCloud2>("init_rgb_cloud", 1);
   ros::Publisher planner_cloud_pub_ =
@@ -126,10 +128,10 @@ public:
   cv::Mat init_extrinsic_;
 
   int is_use_custom_msg_;
-  float voxel_size_ = 1.0;
+  float voxel_size_ = 0.5;
   float down_sample_size_ = 0.02;
   float ransac_dis_threshold_ = 0.02;
-  float plane_size_threshold_ = 60;
+  float plane_size_threshold_ = 25;
   float theta_min_;
   float theta_max_;
   float direction_theta_min_;
@@ -637,6 +639,7 @@ void Calibration::initVoxel(
   // for voxel test
   srand((unsigned)time(NULL));
   pcl::PointCloud<pcl::PointXYZRGB> test_cloud;
+  pcl::PointCloud<pcl::PointXYZRGB> test_cloud_1;
   for (size_t i = 0; i < input_cloud->size(); i++) {
     const pcl::PointXYZI &p_c = input_cloud->points[i];
     float loc_xyz[3];
@@ -649,7 +652,7 @@ void Calibration::initVoxel(
     VOXEL_LOC position((int64_t)loc_xyz[0], (int64_t)loc_xyz[1],
                        (int64_t)loc_xyz[2]);
     auto iter = voxel_map.find(position);
-    if (iter != voxel_map.end()) {
+    if (iter != voxel_map.end()) {// 已经存在
       voxel_map[position]->cloud->push_back(p_c);
       pcl::PointXYZRGB p_rgb;
       p_rgb.x = p_c.x;
@@ -659,7 +662,8 @@ void Calibration::initVoxel(
       p_rgb.g = voxel_map[position]->voxel_color(1);
       p_rgb.b = voxel_map[position]->voxel_color(2);
       test_cloud.push_back(p_rgb);
-    } else {
+      test_cloud_1.push_back(p_rgb);
+    } else {// 不存在
       Voxel *voxel = new Voxel(voxel_size);
       voxel_map[position] = voxel;
       voxel_map[position]->voxel_origin[0] = position.x * voxel_size;
@@ -670,12 +674,29 @@ void Calibration::initVoxel(
       int g = rand() % 256;
       int b = rand() % 256;
       voxel_map[position]->voxel_color << r, g, b;
+
+      pcl::PointXYZRGB p_rgb;
+      p_rgb.x = p_c.x;
+      p_rgb.y = p_c.y;
+      p_rgb.z = p_c.z;
+      p_rgb.r = voxel_map[position]->voxel_color(0);
+      p_rgb.g = voxel_map[position]->voxel_color(1);
+      p_rgb.b = voxel_map[position]->voxel_color(2);
+      test_cloud_1.push_back(p_rgb);
+
+      // test_cloud_1
     }
   }
-  // sensor_msgs::PointCloud2 pub_cloud;
-  // pcl::toROSMsg(test_cloud, pub_cloud);
-  // pub_cloud.header.frame_id = "livox";
-  // rgb_cloud_pub_.publish(pub_cloud);
+
+  std::string file_name = std::string("/home/lqh/ros/r3live_ws/output/frames/1.pcd");
+  // 更快 ,但人工不可读
+  pcl::io::savePCDFileBinary(std::string(file_name), test_cloud_1);
+
+  sensor_msgs::PointCloud2 pub_cloud;
+  pcl::toROSMsg(test_cloud_1, pub_cloud);
+  pub_cloud.header.frame_id = "livox";
+  test_cloud_pub_.publish(pub_cloud);
+  std::cout << "1:"<<test_cloud_1.size()<< std::endl;
   for (auto iter = voxel_map.begin(); iter != voxel_map.end(); iter++) {
     if (iter->second->cloud->size() > 20) {
       down_sampling_voxel(*(iter->second->cloud), 0.02);
@@ -698,13 +719,13 @@ void Calibration::LiDAREdgeExtraction(
       pcl::PointCloud<pcl::PointXYZI>::Ptr cloud_filter(
           new pcl::PointCloud<pcl::PointXYZI>);
       pcl::copyPointCloud(*iter->second->cloud, *cloud_filter);
-      //创建一个模型参数对象，用于记录结果
-      pcl::ModelCoefficients::Ptr coefficients(new pcl::ModelCoefficients);
+      //创建一个模型参数对象，用于记录结果.用于在点云中检测或拟合几何形状的 PCL 算法中。在检测或拟合形状之后，相应的 pcl::ModelCoefficients 对象可用于提取形状信息或可视化形状。
+      pcl::ModelCoefficients::Ptr coefficients(new pcl::ModelCoefficients);//
       // inliers表示误差能容忍的点，记录点云序号
       pcl::PointIndices::Ptr inliers(new pcl::PointIndices);
       //创建一个分割器
       pcl::SACSegmentation<pcl::PointXYZI> seg;
-      // Optional,设置结果平面展示的点是分割掉的点还是分割剩下的点
+      // Optional,设置结果平面展示的点是分割掉的点还是分割剩下的点,结果将是分割掉的点。
       seg.setOptimizeCoefficients(true);
       // Mandatory-设置目标几何形状
       seg.setModelType(pcl::SACMODEL_PLANE);
@@ -720,7 +741,7 @@ void Calibration::LiDAREdgeExtraction(
       int plane_index = 0;
       while (cloud_filter->points.size() > 10) {
         pcl::PointCloud<pcl::PointXYZI> planner_cloud;
-        pcl::ExtractIndices<pcl::PointXYZI> extract;
+        pcl::ExtractIndices<pcl::PointXYZI> extract;//从点云中提取指定索引集合中的点
         //输入点云
         seg.setInputCloud(cloud_filter);
         seg.setMaxIterations(500);

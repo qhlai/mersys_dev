@@ -1,8 +1,11 @@
 # Data path. adjust them!
 common:
-    image_file: "/media/lqh/WDC/dataset/livox_cam/image/0.png"
-    pcd_file: "/media/lqh/WDC/dataset/livox_cam/pcd/0.pcd"
+    image_file: "/home/lqh/ros/r3live_ws/output/frames/img/0/1627807357.381526.png"
+    pcd_file: "/home/lqh/ros/r3live_ws/output/frames/pcd_large/0/1627807357.399411.pcd"
     result_file: "/media/lqh/WDC/dataset/livox_cam/calib/extrinsic.txt"
+    # image_file: "/media/lqh/WDC/dataset/livox_cam/image/0.png"
+    # pcd_file: "/media/lqh/WDC/dataset/livox_cam/pcd/0.pcd"
+    # result_file: "/media/lqh/WDC/dataset/livox_cam/calib/extrinsic.txt"
 
 # Camera Parameters. Adjust them!
 camera:
