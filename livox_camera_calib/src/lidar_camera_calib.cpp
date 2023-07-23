@@ -381,7 +381,7 @@ int main(int argc, char **argv) {
   outfile << 0 << "," << 0 << "," << 0 << "," << 1 << std::endl;
   cv::Mat opt_img = calibra.getProjectionImg(calib_params);
   cv::imshow("Optimization result", opt_img);
-  cv::imwrite("/media/lqh/WDC/dataset/livox_cam/opt.png", opt_img);
+  cv::imwrite("/home/ycj/data/calib/opt.png", opt_img);
   cv::waitKey(1000);
   Eigen::Matrix3d init_rotation;
   init_rotation << 0, -1.0, 0, 0, 0, -1.0, 1, 0, 0;

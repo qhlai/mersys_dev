@@ -14,13 +14,13 @@ ExtrinsicMat: !!opencv-matrix
          0.0,   0.0,    0.0,    1.0]
 # Params for Canny Edge Extraction
 
-Canny.gray_threshold: 25
+Canny.gray_threshold: 10
 Canny.len_threshold: 200
 
 # Params for Voxel Cutting & Plane Fitting & Edge Extraction
-Voxel.size: 1.0
+Voxel.size: 0.5
 Voxel.down_sample_size: 0.02
-Plane.min_points_size: 50 # 要成为一个面至少要多少个点
+Plane.min_points_size: 30
 Plane.normal_theta_min: 45
 Plane.normal_theta_max: 135
 Plane.max_size: 8

@@ -44,6 +44,9 @@ include_directories(
 
 add_executable(lidar_camera_calib src/lidar_camera_calib.cpp include/lidar_camera_calib.hpp)
 add_executable(lidar_camera_calib_1 src/lidar_camera_calib_1.cpp include/lidar_camera_calib_1.hpp)
+add_executable(lidar_camera_calib_2 src/lidar_camera_calib_2.cpp)
+add_executable(lidar_camera_calib_3 src/lidar_camera_calib_3.cpp include/lidar_camera_calib_3.hpp)
+
 add_executable(lidar_camera_multi_calib src/lidar_camera_multi_calib.cpp include/lidar_camera_calib.hpp)
 add_executable(bag_to_pcd src/bag_to_pcd.cpp)
 target_link_libraries(lidar_camera_calib 
@@ -51,6 +54,12 @@ target_link_libraries(lidar_camera_calib
 )
 
 target_link_libraries(lidar_camera_calib_1 
+  ${catkin_LIBRARIES} ${OpenCV_LIBS} ${PCL_LIBRARIES} ${CERES_LIBRARIES}
+)
+target_link_libraries(lidar_camera_calib_2 
+  ${catkin_LIBRARIES} ${OpenCV_LIBS} ${PCL_LIBRARIES} ${CERES_LIBRARIES}
+)
+target_link_libraries(lidar_camera_calib_3 
   ${catkin_LIBRARIES} ${OpenCV_LIBS} ${PCL_LIBRARIES} ${CERES_LIBRARIES}
 )
 

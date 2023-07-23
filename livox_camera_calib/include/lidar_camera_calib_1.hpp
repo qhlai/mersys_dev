@@ -58,7 +58,7 @@ public:
   int min_depth_ = 2.5;
   int max_depth_ = 50;
   int plane_max_size_ = 5;
-  float detect_line_threshold_ = 0.02;
+  float detect_line_threshold_ = 0.1;
   int line_number_ = 0;
   int color_intensity_threshold_ = 5;
   Eigen::Vector3d adjust_euler_angle_;
@@ -128,16 +128,16 @@ public:
   cv::Mat init_extrinsic_;
 
   int is_use_custom_msg_;
-  float voxel_size_ = 0.5;
+  float voxel_size_ = 1.0;
   float down_sample_size_ = 0.02;
-  float ransac_dis_threshold_ = 0.00001;
-  float plane_size_threshold_ = 20;
+  float ransac_dis_threshold_ = 0.02;
+  float plane_size_threshold_ = 60;
   float theta_min_;
   float theta_max_;
   float direction_theta_min_;
   float direction_theta_max_;
-  float min_line_dis_threshold_ = 0.06;
-  float max_line_dis_threshold_ = 0.09;
+  float min_line_dis_threshold_ = 0.03;
+  float max_line_dis_threshold_ = 0.06;
 
   cv::Mat rgb_image_;
   cv::Mat image_;
@@ -713,7 +713,8 @@ void Calibration::LiDAREdgeExtraction(
   lidar_line_cloud_3d =
       pcl::PointCloud<pcl::PointXYZI>::Ptr(new pcl::PointCloud<pcl::PointXYZI>);
   for (auto iter = voxel_map.begin(); iter != voxel_map.end(); iter++) {
-    if (iter->second->cloud->size() > 50) {
+    std::cout << "vovel size:"<< iter->second->cloud->size() << std:: endl;
+    if (iter->second->cloud->size() > 50) {// 检测产生一个面至少需要的点云
       std::vector<Plane> plane_list;
       // 创建一个体素滤波器
       pcl::PointCloud<pcl::PointXYZI>::Ptr cloud_filter(
@@ -739,22 +740,23 @@ void Calibration::LiDAREdgeExtraction(
       }
       pcl::PointCloud<pcl::PointXYZRGB> color_planner_cloud;
       int plane_index = 0;// 多平面分割
-      while (cloud_filter->points.size() > 10) {
+      uint32_t pt_num = cloud_filter->points.size();
+      while (cloud_filter->points.size() > (pt_num*0.03+5)) {
         pcl::PointCloud<pcl::PointXYZI> planner_cloud;
         pcl::ExtractIndices<pcl::PointXYZI> extract;//从点云中提取指定索引集合中的点
         //输入点云
         seg.setInputCloud(cloud_filter);
         seg.setMaxIterations(500);
         //分割点云
-        seg.segment(*inliers, *coefficients);
+        seg.segment(*inliers, *coefficients);//分割操作
         if (inliers->indices.size() == 0) {
           ROS_INFO_STREAM(
               "Could not estimate a planner model for the given dataset");
           break;
         }
-        extract.setIndices(inliers);
+        extract.setIndices(inliers);// 设置分割后的内点为需要提取的点集
         extract.setInputCloud(cloud_filter);
-        extract.filter(planner_cloud);// 拿到一个平面
+        extract.filter(planner_cloud);// 拿到一个平面点云
 
         if (planner_cloud.size() > plane_size_threshold) {
           pcl::PointCloud<pcl::PointXYZRGB> color_cloud;
@@ -788,12 +790,15 @@ void Calibration::LiDAREdgeExtraction(
           single_plane.index = plane_index;
           plane_list.push_back(single_plane);
           plane_index++;
+          // std::cout <<""
         }
+        
         extract.setNegative(true);
         pcl::PointCloud<pcl::PointXYZI> cloud_f;
         extract.filter(cloud_f);
         *cloud_filter = cloud_f;
       }
+      std::cout <<"plane_num: " << plane_index << std::endl;
       if (plane_list.size() >= 2) {
         sensor_msgs::PointCloud2 planner_cloud2;
         pcl::toROSMsg(color_planner_cloud, planner_cloud2);
@@ -1442,7 +1447,7 @@ void Calibration::calcDirection(const std::vector<Eigen::Vector2d> &points,
 
 cv::Mat Calibration::getProjectionImg(const Vector6d &extrinsic_params) {
   cv::Mat depth_projection_img;
-  projection(extrinsic_params, raw_lidar_cloud_, INTENSITY, false,
+  projection(extrinsic_params, raw_lidar_cloud_, BOTH, false,
              depth_projection_img);
   cv::Mat map_img = cv::Mat::zeros(height_, width_, CV_8UC3);
   for (int x = 0; x < map_img.cols; x++) {

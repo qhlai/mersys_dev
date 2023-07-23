@@ -1,7 +1,7 @@
 # Data path. adjust them!
 common:
     image_file: "/home/lqh/ros/r3live_ws/output/frames/img/0/1627807357.381526.png"
-    pcd_file: "/home/lqh/ros/r3live_ws/output/frames/pcd_large/0/1627807348.600288.pcd"
+    pcd_file: "/home/lqh/ros/r3live_ws/output/frames/pcd_large/0/1627807357.700470.pcd"
     result_file: "/media/lqh/WDC/dataset/livox_cam/calib/extrinsic.txt"
     # image_file: "/media/lqh/WDC/dataset/livox_cam/image/0.png"
     # pcd_file: "/media/lqh/WDC/dataset/livox_cam/pcd/0.pcd"

@@ -199,7 +199,7 @@ auto Communicator_server::ProcessNewPointClouds()->void {
             // static bool base_frame_update_=false;
             if(p_pc_large_tmp){
                 // std::cout << "1"<<std::endl;
-                if(p_pc_large_tmp->pts_cloud.size()<200000){
+                if(p_pc_large_tmp->pts_cloud.size()<600000){
                     // std::cout << "2"<<std::endl;
                     // PointCloud::Ptr cloud_acc(new PointCloud(pc->pts_cloud));
                     // pcl::transformPointCloud(*cloud_acc, *cloud_acc, (pc->GetPoseTsw()*base_frame_transform_.inverse()).matrix());
