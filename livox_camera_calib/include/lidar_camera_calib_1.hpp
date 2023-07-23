@@ -738,7 +738,7 @@ void Calibration::LiDAREdgeExtraction(
         seg.setDistanceThreshold(ransac_dis_thre);
       }
       pcl::PointCloud<pcl::PointXYZRGB> color_planner_cloud;
-      int plane_index = 0;
+      int plane_index = 0;// 多平面分割
       while (cloud_filter->points.size() > 10) {
         pcl::PointCloud<pcl::PointXYZI> planner_cloud;
         pcl::ExtractIndices<pcl::PointXYZI> extract;//从点云中提取指定索引集合中的点
@@ -754,7 +754,7 @@ void Calibration::LiDAREdgeExtraction(
         }
         extract.setIndices(inliers);
         extract.setInputCloud(cloud_filter);
-        extract.filter(planner_cloud);
+        extract.filter(planner_cloud);// 拿到一个平面
 
         if (planner_cloud.size() > plane_size_threshold) {
           pcl::PointCloud<pcl::PointXYZRGB> color_cloud;
