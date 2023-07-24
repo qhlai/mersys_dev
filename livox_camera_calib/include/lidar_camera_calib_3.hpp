@@ -82,6 +82,10 @@ public:
                   const pcl::PointCloud<pcl::PointXYZI>::Ptr &lidar_cloud,
                   const ProjectionType projection_type, const bool is_fill_img,
                   cv::Mat &projection_img);
+  void projection_1(const Vector6d &extrinsic_params,
+                  const pcl::PointCloud<pcl::PointXYZI>::Ptr &lidar_cloud,
+                  const ProjectionType projection_type, const bool is_fill_img,
+                  cv::Mat &projection_img);
   void calcLine(const std::vector<Plane> &plane_list, const double voxel_size,
                 const Eigen::Vector3d origin,
                 std::vector<pcl::PointCloud<pcl::PointXYZI>> &line_cloud_list);
@@ -494,6 +498,101 @@ void Calibration::projection(
     }
   }
   projection_img = image_project.clone();
+}
+void Calibration::projection_1(
+    const Vector6d &extrinsic_params,
+    const pcl::PointCloud<pcl::PointXYZI>::Ptr &lidar_cloud,
+    const ProjectionType projection_type, const bool is_fill_img,
+    cv::Mat &projection_img) {
+  std::vector<cv::Point3f> pts_3d;
+  std::vector<float> intensity_list;
+  Eigen::AngleAxisd rotation_vector3;
+  rotation_vector3 =
+      Eigen::AngleAxisd(extrinsic_params[0], Eigen::Vector3d::UnitZ()) *
+      Eigen::AngleAxisd(extrinsic_params[1], Eigen::Vector3d::UnitY()) *
+      Eigen::AngleAxisd(extrinsic_params[2], Eigen::Vector3d::UnitX());
+  for (size_t i = 0; i < lidar_cloud->size(); i++) {
+    pcl::PointXYZI point_3d = lidar_cloud->points[i];
+    float depth =
+        sqrt(pow(point_3d.x, 2) + pow(point_3d.y, 2) + pow(point_3d.z, 2));
+    if (depth > min_depth_ && depth < max_depth_) {
+      pts_3d.emplace_back(cv::Point3f(point_3d.x, point_3d.y, point_3d.z));
+      intensity_list.emplace_back(lidar_cloud->points[i].intensity);
+    }
+  }
+  cv::Mat camera_matrix =
+      (cv::Mat_<double>(3, 3) << fx_, 0.0, cx_, 0.0, fy_, cy_, 0.0, 0.0, 1.0);
+  cv::Mat distortion_coeff =
+      (cv::Mat_<double>(1, 5) << k1_, k2_, p1_, p2_, k3_);
+  cv::Mat r_vec =
+      (cv::Mat_<double>(3, 1)
+           << rotation_vector3.angle() * rotation_vector3.axis().transpose()[0],
+       rotation_vector3.angle() * rotation_vector3.axis().transpose()[1],
+       rotation_vector3.angle() * rotation_vector3.axis().transpose()[2]);
+  cv::Mat t_vec = (cv::Mat_<double>(3, 1) << extrinsic_params[3],
+                   extrinsic_params[4], extrinsic_params[5]);
+  // project 3d-points into image view
+  std::vector<cv::Point2f> pts_2d;
+  cv::projectPoints(pts_3d, r_vec, t_vec, camera_matrix, distortion_coeff,
+                    pts_2d);
+  cv::Mat image_project = cv::Mat::zeros(height_, width_, CV_16UC1);
+  cv::Mat rgb_image_project = cv::Mat::zeros(height_, width_, CV_8UC3);
+  for (size_t i = 0; i < pts_2d.size(); ++i) {
+    cv::Point2f point_2d = pts_2d[i];
+    if (point_2d.x <= 0 || point_2d.x >= width_ || point_2d.y <= 0 ||
+        point_2d.y >= height_) {
+      continue;
+    } else {
+      // test depth and intensity both
+      // if (projection_type == DEPTH) {
+      if (1) {
+        float depth = sqrt(pow(pts_3d[i].x, 2) + pow(pts_3d[i].y, 2) +
+                           pow(pts_3d[i].z, 2));
+        float intensity = intensity_list[i];
+        float depth_weight = 0.3;
+        float grey = depth_weight * depth / max_depth_ * 65535 +
+                     (1 - depth_weight) * intensity / 150 * 65535;
+        if (image_project.at<ushort>(point_2d.y, point_2d.x) == 0) {
+          image_project.at<ushort>(point_2d.y, point_2d.x) = grey;
+          rgb_image_project.at<cv::Vec3b>(point_2d.y, point_2d.x)[0] =
+              depth / max_depth_ * 255;
+          rgb_image_project.at<cv::Vec3b>(point_2d.y, point_2d.x)[1] =
+              intensity / 150 * 255;
+        } else if (depth < image_project.at<ushort>(point_2d.y, point_2d.x)) {
+          image_project.at<ushort>(point_2d.y, point_2d.x) = grey;
+          rgb_image_project.at<cv::Vec3b>(point_2d.y, point_2d.x)[0] =
+              depth / max_depth_ * 255;
+          rgb_image_project.at<cv::Vec3b>(point_2d.y, point_2d.x)[1] =
+              intensity / 150 * 255;
+        }
+
+      } else {
+        float intensity = intensity_list[i];
+        if (intensity > 100) {
+          intensity = 65535;
+        } else {
+          intensity = (intensity / 150.0) * 65535;
+        }
+        image_project.at<ushort>(point_2d.y, point_2d.x) = intensity;
+      }
+    }
+  }
+  cv::Mat grey_image_projection;
+  cv::cvtColor(rgb_image_project, grey_image_projection, cv::COLOR_BGR2GRAY);
+
+  image_project.convertTo(image_project, CV_8UC1, 1 / 256.0);
+  if (is_fill_img) {
+    for (int i = 0; i < 10; i++) {
+      image_project = fillImg(image_project, UP, LEFT);
+    }
+  }
+  if (is_fill_img) {
+    for (int i = 0; i < 5; i++) {
+      grey_image_projection = fillImg(grey_image_projection, UP, LEFT);
+    }
+  }
+  // projection_img = image_project.clone();
+  projection_img = grey_image_projection.clone();
 }
 
 // 填补雷达深度图像
