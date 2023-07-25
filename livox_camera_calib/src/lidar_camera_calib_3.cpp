@@ -99,6 +99,8 @@ int main(int argc, char** argv)
             << calibra.init_translation_vector_.transpose() << std::endl;
   // cv::Mat test_img = calibra.getProjectionImg(calib_params, false);
   cv::Mat depth_projection_img;
+
+  
   calibra.projection_1(calib_params, calibra.raw_lidar_cloud_, Calibration::ProjectionType::DEPTH, true, depth_projection_img);
   
   // cv::imshow("After rough extrinsic", test_img);
@@ -110,12 +112,12 @@ int main(int argc, char** argv)
 
   cv::Mat gray=depth_projection_img.clone();
 
-cv::Rect roi(100, 100, gray.cols-100, gray.rows-100);
-gray = gray(roi);  
-cv::Mat edges, dst;
-cv::Canny(gray, edges, 25, 150, 3);
-cv::imshow("edge", edges);
-cv::cvtColor(edges, dst, cv::COLOR_GRAY2BGR);
+  cv::Rect roi(150, 150, gray.cols-150, gray.rows-150);
+  gray = gray(roi);  
+  cv::Mat edges, dst;
+  cv::Canny(gray, edges, 25, 200, 3);
+  cv::imshow("edge", edges);
+  cv::cvtColor(edges, dst, cv::COLOR_GRAY2BGR);
 
 // void cv::HoughLinesP(
 //     cv::InputArray image,        // 输入图像
@@ -127,7 +129,7 @@ cv::cvtColor(edges, dst, cv::COLOR_GRAY2BGR);
 //     double maxLineGap            // 线段最大间隙
 // );
 std::vector<cv::Vec4i> lines;
-cv::HoughLinesP(edges, lines, 1, CV_PI / 180, 100, 50, 30);
+cv::HoughLinesP(edges, lines, 1, 2* CV_PI / 180, 100, 50, 30);
 for (size_t i = 0; i < lines.size(); i++) {
     cv::Vec4i l = lines[i];
     cv::line(dst, cv::Point(l[0], l[1]), cv::Point(l[2], l[3]), cv::Scalar(0, 0, 255), 3, cv::LINE_AA);

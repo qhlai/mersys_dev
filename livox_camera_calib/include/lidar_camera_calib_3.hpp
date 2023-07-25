@@ -217,13 +217,13 @@ Calibration::Calibration(const std::string &image_file,
     exit(-1);
   }
 
-  // Eigen::Vector3d lwh(50, 50, 30);
-  // Eigen::Vector3d origin(0, -25, -10);
-  // std::vector<VoxelGrid> voxel_list;
-  // std::unordered_map<VOXEL_LOC, Voxel *> voxel_map;
-  // initVoxel(raw_lidar_cloud_, voxel_size_, voxel_map);
-  // LiDAREdgeExtraction(voxel_map, ransac_dis_threshold_, plane_size_threshold_,
-  //                     plane_line_cloud_);
+  Eigen::Vector3d lwh(50, 50, 30);
+  Eigen::Vector3d origin(0, -25, -10);
+  std::vector<VoxelGrid> voxel_list;
+  std::unordered_map<VOXEL_LOC, Voxel *> voxel_map;
+  initVoxel(raw_lidar_cloud_, voxel_size_, voxel_map);
+  LiDAREdgeExtraction(voxel_map, ransac_dis_threshold_, plane_size_threshold_,
+                      plane_line_cloud_);
 };
 
 bool Calibration::loadCameraConfig(const std::string &camera_file) {
@@ -591,8 +591,41 @@ void Calibration::projection_1(
       grey_image_projection = fillImg(grey_image_projection, UP, LEFT);
     }
   }
+
+  std::vector<cv::Mat> channels;
+  cv::split(rgb_image_project, channels);
+  cv::Mat b = channels[0];
+  cv::Mat g = channels[1];
+  cv::Mat r = channels[2];
+
+  if (is_fill_img) {
+    for (int i = 0; i < 2; i++) {
+      b = fillImg(b, UP, LEFT);
+      g = fillImg(g, UP, LEFT);
+      r = fillImg(r, UP, LEFT);
+    }
+  }
+
+  cv::imshow("depth Image", b);
+  cv::waitKey(0);
+
+ cv::imshow("intensity Image", g);
+ cv::waitKey(0);
+
+  cv::Mat feature = cv::Mat::zeros(height_, width_, CV_8UC3);
+  for(int i =0; i < height_; i++){
+    for(int j =0; j < width_; j++){
+      
+
+    }
+  }
+    cv::Mat bgr[3] = { b, g, r };
+  cv::Mat colorImage;
+  cv::merge(bgr, 3, colorImage);
+  // cv::imshow("BGR Image", colorImage);
+
   // projection_img = image_project.clone();
-  projection_img = grey_image_projection.clone();
+  projection_img = colorImage.clone();
 }
 
 // 填补雷达深度图像
@@ -741,6 +774,7 @@ void Calibration::initVoxel(
   srand((unsigned)time(NULL));
   pcl::PointCloud<pcl::PointXYZRGB> test_cloud;
   pcl::PointCloud<pcl::PointXYZRGB> test_cloud_1;
+  pcl::PointCloud<pcl::PointXYZI> test_cloud_2;
   for (size_t i = 0; i < input_cloud->size(); i++) {
     const pcl::PointXYZI &p_c = input_cloud->points[i];
     float loc_xyz[3];
@@ -764,6 +798,14 @@ void Calibration::initVoxel(
       p_rgb.b = voxel_map[position]->voxel_color(2);
       test_cloud.push_back(p_rgb);
       test_cloud_1.push_back(p_rgb);
+
+      pcl::PointXYZI p_i;
+      p_i.x = p_c.x;
+      p_i.y = p_c.y;
+      p_i.z = p_c.z;
+      p_i.intensity = p_c.intensity;
+      test_cloud_2.push_back(p_i);
+
     } else {// 不存在
       Voxel *voxel = new Voxel(voxel_size);
       voxel_map[position] = voxel;
@@ -785,13 +827,22 @@ void Calibration::initVoxel(
       p_rgb.b = voxel_map[position]->voxel_color(2);
       test_cloud_1.push_back(p_rgb);
 
+      pcl::PointXYZI p_i;
+      p_i.x = p_c.x;
+      p_i.y = p_c.y;
+      p_i.z = p_c.z;
+      p_i.intensity = p_c.intensity;
+      test_cloud_2.push_back(p_i);
       // test_cloud_1
     }
   }
 
-  std::string file_name = std::string("/home/lqh/ros/r3live_ws/output/frames/1.pcd");
+
   // 更快 ,但人工不可读
-  pcl::io::savePCDFileBinary(std::string(file_name), test_cloud_1);
+  pcl::io::savePCDFileBinary(std::string("/home/lqh/ros/r3live_ws/output/frames/1.pcd"), test_cloud_1);
+
+
+  pcl::io::savePCDFileBinary(std::string("/home/lqh/ros/r3live_ws/output/frames/2.pcd"), test_cloud_2);
 
   sensor_msgs::PointCloud2 pub_cloud;
   pcl::toROSMsg(test_cloud_1, pub_cloud);

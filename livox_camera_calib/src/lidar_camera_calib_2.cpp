@@ -21,6 +21,7 @@ int main(int argc, char** argv)
   pcl::PointCloud<pcl::PointXYZI>::Ptr cloud(new pcl::PointCloud<pcl::PointXYZI>);
   pcl::io::loadPCDFile<pcl::PointXYZI>("/home/lqh/ros/r3live_ws/output/frames/pcd_large/0/1627807357.700470.pcd", *cloud);
 
+  // pcl::io::loadPCDFile<pcl::PointXYZI>("/home/lqh/ros/r3live_ws/output/frames/pcd_large/0/1627807357.700470.pcd", *cloud);
   // Compute normals
   pcl::NormalEstimation<pcl::PointXYZI, pcl::Normal> ne;
   pcl::PointCloud<pcl::Normal>::Ptr normals(new pcl::PointCloud<pcl::Normal>);
