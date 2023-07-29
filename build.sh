@@ -16,7 +16,7 @@ fi
 #gnome-terminal -t "catkin_make" -x bash -c "catkin_make;exec bash;"
 
 # gnome-terminal -t "roslaunch" -x bash -c "cd ../../;catkin_make;exec bash;"
-# cd ../../
+cd ../../
 # catkin_make -j11
 
 #r3live

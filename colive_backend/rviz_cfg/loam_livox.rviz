@@ -60,6 +60,8 @@ Panels:
         - /mapping_all1/PointCloud242
         - /mapping_all1/PointCloud243
         - /mapping_all1/PointCloud244
+        - /PointCloud24
+        - /PointCloud24/Status1
       Splitter Ratio: 0.4022257626056671
     Tree Height: 779
   - Class: rviz/Selection
@@ -79,7 +81,7 @@ Panels:
   - Class: rviz/Time
     Name: Time
     SyncMode: 0
-    SyncSource: PointCloud2
+    SyncSource: ""
 Preferences:
   PromptSaveOnExit: true
 Toolbars:
@@ -343,7 +345,7 @@ Visualization Manager:
       Marker Topic: /colive_markers_be
       Name: Marker
       Namespaces:
-        Traj0_be: true
+        {}
       Queue Size: 100
       Value: true
     - Alpha: 1
@@ -1626,6 +1628,34 @@ Visualization Manager:
           Value: true
       Enabled: true
       Name: mapping_all
+    - Alpha: 1
+      Autocompute Intensity Bounds: true
+      Autocompute Value Bounds:
+        Max Value: 10
+        Min Value: -10
+        Value: true
+      Axis: Z
+      Channel Name: intensity
+      Class: rviz/PointCloud2
+      Color: 255; 255; 255
+      Color Transformer: ""
+      Decay Time: 0
+      Enabled: true
+      Invert Rainbow: false
+      Max Color: 255; 255; 255
+      Min Color: 0; 0; 0
+      Name: PointCloud2
+      Position Transformer: ""
+      Queue Size: 10
+      Selectable: true
+      Size (Pixels): 3
+      Size (m): 0.009999999776482582
+      Style: Flat Squares
+      Topic: /livox/lidar
+      Unreliable: false
+      Use Fixed Frame: true
+      Use rainbow: true
+      Value: true
   Enabled: true
   Global Options:
     Background Color: 0; 0; 0
@@ -1690,5 +1720,5 @@ Window Geometry:
   Views:
     collapsed: true
   Width: 1920
-  X: 991
-  Y: 251
+  X: 640
+  Y: 214

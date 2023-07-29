@@ -445,7 +445,7 @@ auto Communicator_client::TryPassKeyImgToComm(ImageEX* img)      ->void{
 
   
         
-        if ( (pos_dis > 0.5 || rot_diff > 10 || time_diff > 1 ) ){
+        if ( (pos_dis > 0.5 || rot_diff > 10 || time_diff > 1 )){
         //     if (pc_final->size() == 0){
         //         std::cout<<"Error pc_final->size() == 0"<< std::endl;
         //         // *pc_final+=pc->pts_cloud;
@@ -458,7 +458,7 @@ auto Communicator_client::TryPassKeyImgToComm(ImageEX* img)      ->void{
             img->id_.first = send_cnt++ ;
             // pc->pts_cloud=*pc_final;
             // pc->SetPoseTsw(base_frame_transform_);
-            std::cout << "send new pointcloud "<<img->id_.first << std::endl;
+            std::cout << "send new image"<<img->id_.first <<":"<<img->img_.cols<< std::endl;
             PassImgToComm(img);
 
         //     // last_pos_=pc->pos_w;

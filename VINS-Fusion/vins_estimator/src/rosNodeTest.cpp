@@ -116,7 +116,7 @@ void sync_process()
     {
         if(STEREO)
         {
-            cv::Mat image0, image1;
+            cv::Mat image0, image1, image0_;
             std_msgs::Header header;
             double time = 0;
             m_buf.lock();
@@ -140,6 +140,10 @@ void sync_process()
                     time = img0_buf.front()->header.stamp.toSec();
                     header = img0_buf.front()->header;
                     image0 = getImageFromMsg(img0_buf.front());
+
+                    cv_bridge::CvImageConstPtr ptr = cv_bridge::toCvCopy(img0_buf.front(), sensor_msgs::image_encodings::RGB8);
+                    image0_ = ptr->image.clone();
+
                     img0_buf.pop();
                     image1 = getImageFromMsg(img1_buf.front());
                     img1_buf.pop();
@@ -148,11 +152,11 @@ void sync_process()
             }
             m_buf.unlock();
             if(!image0.empty())
-                estimator.inputImage(time, image0, image1);
+                estimator.inputImage1(time, image0, image1, image0_);
         }
         else
         {
-            cv::Mat image;
+            cv::Mat image, image0_;
             std_msgs::Header header;
             double time = 0;
             m_buf.lock();
@@ -161,11 +165,14 @@ void sync_process()
                 time = img0_buf.front()->header.stamp.toSec();
                 header = img0_buf.front()->header;
                 image = getImageFromMsg(img0_buf.front());
+                cv_bridge::CvImageConstPtr ptr = cv_bridge::toCvCopy(img0_buf.front(), sensor_msgs::image_encodings::RGB8);
+                image0_ = ptr->image.clone();
+
                 img0_buf.pop();
             }
             m_buf.unlock();
             if(!image.empty())
-                estimator.inputImage(time, image);
+                estimator.inputImage1(time, image, cv::Mat(),image0_);
         }
 
         std::chrono::milliseconds dura(2);
