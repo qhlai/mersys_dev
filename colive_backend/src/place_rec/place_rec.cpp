@@ -124,7 +124,21 @@ auto PlaceRecognition::process_icp()->void
 
             int check_num_map;
             MapPtr map_query = mapmanager_->CheckoutMapExclusiveOrWait(curr_pc->GetClientID(),check_num_map);
+                    // 回环限制
+        // 发生回环的两个设备 // curr, loop
+            idpair client_idpair;
+
+            client_idpair.first = curr_pc->GetClientID();
+            client_idpair.second = loop_pc->GetClientID(); 
+            if(last_loops_.count(client_idpair)) {
             
+            if((curr_pc->GetFrameID() - last_loops_[client_idpair]) < colive_params::placerec::consecutive_loop_dist) {
+                std::cout << COUTNOTICE << "loop too offten, ignored" << std::endl;
+                curr_pc->SetErase();
+                return;
+                // return;
+            }
+        }
             // 检查是否已经有回环关系
             for(auto lc : map_query->GetLoopConstraints()) {
                 bool existing_match = false;
@@ -379,6 +393,14 @@ auto PlaceRecognition::DetectLoop()->bool {
 auto PlaceRecognition::InsertKeyframe(PointCloudEXPtr pc)->void {
     std::unique_lock<std::mutex> lock(mtx_in_);
     buffer_pcs_in_.push_back(pc);   
+}
+auto PlaceRecognition::InsertLargeKeyframe(PointCloudEXPtr pc_large)->void {
+    std::unique_lock<std::mutex> lock(mtx_in_);
+    buffer_pcs_large_in_.push_back(pc_large);   
+}
+auto PlaceRecognition::InsertKeyframe1(ImageEXPtr img)->void {
+    std::unique_lock<std::mutex> lock(mtx_in_);
+    buffer_imgs_in_.push_back(img);   
 }
 
 auto PlaceRecognition::Run()->void {

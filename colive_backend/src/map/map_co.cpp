@@ -195,6 +195,33 @@ auto Map::AddImage(ImageEXPtr img, bool suppress_output)->void {
         // this->WriteKFsToFileAllAg();
     }
 }
+
+// auto Map::RenderRGBMap_service->void{
+    // while(1){
+    //     // std::cout<< COUTDEBUG << "Add2RGBMap_servic " << std::endl;
+    //     if(imgs_posed_should_be_added_to_rgb_map.size()>20){
+    //         std::cout << COUTNOTICE << "RGBMap load too high" << std::endl;
+    //     }
+    //     if (imgs_posed_should_be_added_to_rgb_map.size() > 0) 
+    //     {
+    //         // q.front()
+            
+    //         m_map_rgb_pts.render_with_a_image(imgs_posed_should_be_added_to_rgb_map.front());
+    //         // std::cout<< COUTDEBUG << "Added " << std::endl;
+    //         imgs_posed_should_be_added_to_rgb_map.pop();
+    //         /* code */
+    //     }
+        
+    //     if (imgs_should_be_added_to_rgb_map.size() > 0) 
+    //     {
+    //         /* code */
+    //     }
+    //     std::this_thread::sleep_for(std::chrono::microseconds(10));        
+    // }
+
+
+// }
+
 auto Map::Add2RGBMap_service()->void {
     // std::vector<idpair> = std::make_unique<
     // size_t pc_index = 0;

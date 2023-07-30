@@ -15,7 +15,7 @@
 // COVINS
 #include "typedefs_base.hpp"
 #include "config_comm.hpp"
-
+#include "map_rgb.hpp"
 
 // #include "msgs/msg_landmark.hpp"
 #define ContainerSize 10

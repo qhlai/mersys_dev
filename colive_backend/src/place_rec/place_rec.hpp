@@ -71,11 +71,18 @@ using PoseMap                       = TypeDefs::PoseMap;
     using PointCloudEXList  = TypeDefs::PointCloudEXList; 
     // using PointCloudEXBuffer  = TypeDefs::PointCloudEXBuffer;    
 
+    using Image                         = TypeDefs::Image;
+    using ImageEX                       = TypeDefs::ImageEX;
+    using ImageEXPtr                    = TypeDefs::ImageEXPtr;
+    using ImagePtr                      = TypeDefs::ImagePtr;
+    using ImageEXList                    = std::list<ImageEXPtr,Eigen::aligned_allocator<ImageEXPtr>>;
 public:
     PlaceRecognition(MapManagerPtr man, bool perform_pgo = true);
     // virtual ~Placerec(){}
     virtual auto Run()                                                                  ->void;
     virtual auto InsertKeyframe(PointCloudEXPtr pc)                                         ->void;
+    virtual auto InsertLargeKeyframe(PointCloudEXPtr pc)                                         ->void;
+    virtual auto InsertKeyframe1(ImageEXPtr img)                                         ->void;
     virtual auto CheckBufferExt()                                                       ->bool {
         return CheckBuffer();}
     // Synchronization
@@ -113,6 +120,8 @@ protected:
     // // Data
     // KeyframeBufferType          buffer_kfs_in_;
     PointCloudEXList               buffer_pcs_in_;
+    PointCloudEXList               buffer_pcs_large_in_;
+    ImageEXList                    buffer_imgs_in_;
 
     PointCloudEXPtr                   pc_query_;
     PointCloudEXPtr                   pc_match_;

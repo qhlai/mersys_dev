@@ -190,7 +190,7 @@ struct Global_map
     int append_points_to_global_map( TypeDefs::PointCloudEXPtr pc_in,  std::vector< RGB_pt_ptr > *pts_added_vec = nullptr, int step = 1 );
 
     // TypeDefs::Vector3Type getRgbFromIntensity(double gray_value, int colormap_type);
-    void render_with_a_image( TypeDefs::PointCloudEXPtr img_ptr, int if_select = 1 );
+    void render_with_a_image( TypeDefs::ImageEXPtr img_ptr, int if_select = 1 );
     void selection_points_for_projection(TypeDefs::ImageEXPtr image_pose, std::vector< std::shared_ptr< RGB_pts > > *pc_out_vec = nullptr,
                                           std::vector< cv::Point2f > *pc_2d_out_vec = nullptr, double minimum_dis = 5, int skip_step = 1,int use_all_pts = 0 );
     // void save_to_pcd( std::string dir_name, std::string file_name = std::string( "/rgb_pt" ) , int save_pts_with_views = 3);

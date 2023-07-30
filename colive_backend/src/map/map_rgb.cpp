@@ -369,20 +369,20 @@ int Global_map::append_points_to_global_map(TypeDefs::PointCloudEXPtr pc_in,  st
     return (m_voxels_recent_visited[client_id].size() -  number_of_voxels_before_add);
     // return 0;
 }
-void Global_map::render_with_a_image(TypeDefs::PointCloudEXPtr img_ptr, int if_select)
+void Global_map::render_with_a_image(TypeDefs::ImageEXPtr img_ptr, int if_select)
 {
 
-    // std::vector<std::shared_ptr<RGB_pts>> pts_for_render;
-    // // pts_for_render = m_rgb_pts_vec;
-    // if (if_select)
-    // {
-    //     selection_points_for_projection(img_ptr, &pts_for_render, nullptr, 1.0);
-    // }
-    // else
-    // {
-    //     pts_for_render = m_rgb_pts_vec;
-    // }
-    // render_pts_in_voxels(img_ptr, pts_for_render);
+    std::vector<std::shared_ptr<RGB_pts>> pts_for_render;
+    // pts_for_render = m_rgb_pts_vec;
+    if (if_select)
+    {
+        selection_points_for_projection(img_ptr, &pts_for_render, nullptr, 1.0);
+    }
+    else
+    {
+        pts_for_render = m_rgb_pts_vec;
+    }
+    render_pts_in_voxels(img_ptr, pts_for_render);
 }
 void Global_map::selection_points_for_projection(TypeDefs::ImageEXPtr image_pose, std::vector<std::shared_ptr<RGB_pts>> *pc_out_vec,
                                                             std::vector<cv::Point2f> *pc_2d_out_vec, double minimum_dis,

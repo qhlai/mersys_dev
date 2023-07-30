@@ -123,7 +123,7 @@ public:
     virtual auto AddPointCloud_large(PointCloudEXPtr pc, bool suppress_output=false)->void;
     virtual auto Add2RGBMap_service()->void;
     virtual auto Add2RGBMap(PointCloudEXPtr pc)->void;
-
+    virtual auto RenderRGBMap_service()->void;
 
     virtual auto AddLoopConstraint(LoopConstraint lc)                                   ->void;
     virtual auto GetLoopConstraints()                                                   ->LoopVector;

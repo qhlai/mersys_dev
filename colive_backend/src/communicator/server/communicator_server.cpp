@@ -234,12 +234,10 @@ auto Communicator_server::ProcessNewPointClouds()->void {
 
         if(colive_params::placerec::active){
             placerec_->InsertKeyframe(pc);
-            // placerec_->InsertLargeKeyframe(p_pc_large_tmp);
+            placerec_->InsertLargeKeyframe(p_pc_large_tmp);      
         }
-            
     }
 }
-
 auto Communicator_server::ProcessNewImages()->void {
     std::unique_lock<std::mutex> lock(mtx_in_);
 
@@ -307,7 +305,13 @@ auto Communicator_server::ProcessNewImages()->void {
             #endif
         }
     }
+    if(colive_params::placerec::active){
+        placerec_->InsertKeyframe1(img);
+            
+    }
+    
 }
+
 
 auto Communicator_server::Run()->void {
     std::thread thread_recv(&Communicator_server::RecvMsg, this);

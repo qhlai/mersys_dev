@@ -1,7 +1,7 @@
 #!/bin/bash
 # path_dataset='/media/lqh/WDC/dataset/r3live_offical/hku_campus_seq_00.bag'
-# path_dataset='/home/viosus/dataset/r3live_offical/hku_campus_seq_00.bag'
-path_dataset='/home/viosus/dataset/colive/2023-07-28-19-51-53.bag'
+path_dataset='/home/viosus/dataset/r3live_offical/hku_campus_seq_00.bag'
+# path_dataset='/home/viosus/dataset/colive/2023-07-28-19-51-53.bag'
 
 path_workspace='~/ros/r3live'
 

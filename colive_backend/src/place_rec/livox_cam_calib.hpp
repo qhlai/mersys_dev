@@ -22,12 +22,31 @@
 // #include <ad_localization_msgs/NavStateInfo.h>
 // #include "scancontext/Scancontext.h"
 #include "mapmanager.hpp"
+#include "map_rgb.hpp"
 
 
 
 // https://github.com/hku-mars/livox_camera_calib
 namespace colive {
+class Calibration {
+public:
+    using PointType                     = TypeDefs::PointType;
+    using PointCloud                    = TypeDefs::PointCloud;
+    using PointCloudPtr                    = TypeDefs::PointCloudPtr;
+    using PointCloudEX  = TypeDefs::PointCloudEX; 
+    using PointCloudEXPtr  = TypeDefs::PointCloudEXPtr; 
+    using PointCloudEXList  = TypeDefs::PointCloudEXList; 
+    using Image                         = TypeDefs::Image;
+    using ImageEX                       = TypeDefs::ImageEX;
+    using ImageEXPtr                    = TypeDefs::ImageEXPtr;
+    using ImagePtr                      = TypeDefs::ImagePtr;
+    using MapPtr                        = TypeDefs::MapPtr;
+    using MapManagerPtr                 = TypeDefs::MapManagerPtr;
+public:
+    virtual auto Calib(ImageEXPtr img_pose_, int pc)        ->void;
 
 
+    MapPtr                       map_rgb_;
+}
 
 }
