@@ -19,7 +19,9 @@ gnome-terminal -t "roslaunch" -x bash -c "cd ../../;source ./devel/setup.bash;ro
 
 sleep 3
 
-gnome-terminal -t "rosbag play" -x bash -c "rosbag play --clock -r 1 ${path_dataset};exec bash;"
+gnome-terminal -t "rosbag play" -x bash -c "./dataset.sh;exec bash;"
+
+# gnome-terminal -t "rosbag play" -x bash -c "rosbag play --clock -r 1 ${path_dataset};exec bash;"
 
 
 # gnome-terminal -t "band" -x bash -c "sudo iftop -i lo -f "port 9033";"

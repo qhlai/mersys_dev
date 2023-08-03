@@ -1,5 +1,5 @@
 <launch>
-	<arg name="rviz" default="true" />
+	<arg name="rviz" default="false" />
 	
 	
     <!-- <node pkg="r3live" type="r3live_LiDAR_front_end" name="r3live_LiDAR_front_end"  output="screen" required="true"/> -->

@@ -1,6 +1,6 @@
 #!/bin/bash
 # path_dataset='/home/viosus/dataset/r3live_offical'
-path_dataset='/media/lqh/WDC/dataset/r3live_offical'
+# path_dataset='/media/lqh/WDC/dataset/r3live_offical'
 path_workspace='~/ros/r3live'
 
 #gnome-terminal -t "catkin_make" -x bash -c "catkin_make;exec bash;"
@@ -11,10 +11,13 @@ path_workspace='~/ros/r3live'
 
 gnome-terminal -t "roslaunch" -x bash -c "cd ../../;source ./devel/setup.bash;roslaunch fast_lio mapping_avia.launch;exec bash;"
 
+# gnome-terminal -t "roslaunch" -x bash -c "cd ../../;source ./devel/setup.bash;roslaunch fast_lio mapping_avia_client.launch;exec bash;"
 
 sleep 3
 
-gnome-terminal -t "rosbag play" -x bash -c "rosbag play -r 1 ${path_dataset}/hku_campus_seq_00.bag;exec bash;"
+gnome-terminal -t "rosbag play" -x bash -c "./dataset.sh;exec bash;"
+
+# gnome-terminal -t "rosbag play" -x bash -c "rosbag play -r 1 ${path_dataset}/hku_campus_seq_00.bag;exec bash;"
 
 
 # gnome-terminal -t "band" -x bash -c "sudo iftop -i lo -f "port 9033";"

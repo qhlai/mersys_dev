@@ -60,6 +60,7 @@
 #include "preprocess.h"
 #include <ikd-Tree/ikd_Tree.h>
 
+#define COLIVE 1
 // #include "colive_backend/enable_client.hpp"
 // #include <colive_backend/backend/src/communicator/enable_client.hpp>
 
@@ -555,9 +556,10 @@ void publish_frame_body(const ros::Publisher & pubLaserCloudFull_body,colive::Po
     
     sensor_msgs::PointCloud2 laserCloudmsg;
         // pc->SetPoseTsc()
+#if COLIVE        
         pc->SetPointCloud(laserCloudIMUBody);
         pc->timestamp_ = lidar_end_time;
-
+#endif
     pcl::toROSMsg(*laserCloudIMUBody, laserCloudmsg);
     laserCloudmsg.header.stamp = ros::Time().fromSec(lidar_end_time);
     laserCloudmsg.header.frame_id = "body";
@@ -637,10 +639,10 @@ void publish_odometry(const ros::Publisher & pubOdomAftMapped ,colive::PointClou
     transform.setRotation( q );
 
     Eigen::Isometry3d T = Eigen::Isometry3d::Identity();
-
+#if COLIVE 
     T = pc->convert2T(odomAftMapped);
     pc->SetPoseTsw(T);
-   
+#endif  
     br.sendTransform( tf::StampedTransform( transform, odomAftMapped.header.stamp, "camera_init", "body" ) );
 }
 
@@ -885,22 +887,23 @@ int main(int argc, char** argv)
 
     /*** communication ***/
     // use namespace colive
-    
+
+#if COLIVE 
     std::cout << ">>> COLIVE: Initialize communicator" << std::endl;
     std::shared_ptr<colive::Communicator_client> comm_;
-
-
 
     comm_.reset(new colive::Communicator_client(colive_params::sys::server_ip,colive_params::sys::port));
     std::unique_ptr<std::thread> thread_comm_;
     std::cout << ">>> COLIVE: Start comm thread" << std::endl;
     thread_comm_.reset(new std::thread(&colive::Communicator_client::Run,comm_));
-
+#endif
+#if COLIVE || 1
     colive::PointCloud_ex pc1;
     // Eigen::Matrix<double,3,1> m(1.0,2.0,3.0);
     // pc1.pos_w =  m;
     colive::PointCloud_ex* pc;
     pc = &pc1;
+#endif
     int cnt=0;   
 
 //------------------------------------------------------------------------------------------------------
@@ -1029,9 +1032,11 @@ int main(int argc, char** argv)
             if (path_en)                         publish_path(pubPath);
             if (scan_pub_en || pcd_save_en)      publish_frame_world(pubLaserCloudFull,pc);
             if (scan_pub_en && scan_body_pub_en) publish_frame_body(pubLaserCloudFull_body,pc);
-            
+
+#if COLIVE
 /*******  comm *******/
             comm_->TryPassKeyPcToComm(pc);
+#endif          
             // comm_->PassPcToComm(pc);
             // publish_effect_world(pubLaserCloudEffect);
             // publish_map(pubLaserCloudMap);

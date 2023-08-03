@@ -304,11 +304,12 @@ auto Communicator_server::ProcessNewImages()->void {
             }
             #endif
         }
-    }
-    if(colive_params::placerec::active){
+        if(colive_params::placerec::active){
         placerec_->InsertKeyframe1(img);
             
+        }
     }
+
     
 }
 
