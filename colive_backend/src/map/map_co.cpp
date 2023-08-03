@@ -88,6 +88,8 @@ Map::Map(MapPtr map_target, MapPtr map_tofuse, TransformType T_wtofuse_wtarget)
     images_.insert(image_target.begin(),image_target.end());
     images_.insert(image_tofuse.begin(),image_tofuse.end());
 
+
+
     // keyframes_.insert(keyframes_target.begin(),keyframes_target.end());
     // keyframes_.insert(keyframes_tofuse.begin(),keyframes_tofuse.end());
     // landmarks_.insert(landmarks_target.begin(),landmarks_target.end());

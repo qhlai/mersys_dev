@@ -161,6 +161,48 @@ Global_map::Global_map( int if_start_service )
         // m_thread_service = std::make_shared< std::thread >( &Global_map::service_refresh_pts_for_projection, this );
     }
 }
+Global_map::Global_map(Global_map &map_target, Global_map &map_tofuse, TypeDefs::TransformType &T_wtofuse_wtarget){
+    m_mutex_pts_vec = std::make_shared< std::mutex >();
+    m_mutex_img_pose_for_projection = std::make_shared< std::mutex >();
+    m_mutex_recent_added_list = std::make_shared< std::mutex >();
+    m_mutex_rgb_pts_in_recent_hitted_boxes = std::make_shared< std::mutex >();
+    m_mutex_m_box_recent_hitted = std::make_shared< std::mutex >();
+    m_mutex_pts_last_visited = std::make_shared< std::mutex >();
+
+
+    m_voxels_recent_visited.reserve(MAX_CLIENT_NUM);
+    // m_last_visited_time.reserve(MAX_CLIENT_NUM);
+
+    // // Allocate memory for pointclouds
+    if ( Common_tools::get_total_phy_RAM_size_in_GB() < 16 )
+    {
+        // std::cout << COUTNOTICE << "less memory occupy" << std::endl;
+        m_rgb_pts_vec.reserve( 1e8 );
+    }
+    else
+    {
+        m_rgb_pts_vec.reserve( 1e9 );
+    }
+    
+    // m_rgb_pts_in_recent_visited_voxels.reserve( 1e6 );
+    if ( if_start_service )
+    {
+        // m_thread_service = std::make_shared< std::thread >( &Global_map::service_refresh_pts_for_projection, this );
+    }
+    // map_target.m_mutex_pts_vec->lock();
+    // map_tofuse.m_mutex_pts_vec->lock();
+
+    // m_rgb_pts_vec.append(map_target.m_rgb_pts_vec);
+    // m_rgb_pts_vec.append(map_tofuse.m_rgb_pts_vec);
+
+    // Hash_map_3d< long, RGB_pt_ptr >   m_hashmap_3d_pts;
+    // Hash_map_3d< long, std::shared_ptr< RGB_Voxel > > m_hashmap_voxels;
+    // std::vector<std::unordered_set< std::shared_ptr< RGB_Voxel > >> m_voxels_recent_visited;
+    // std::vector< std::shared_ptr< RGB_pts > >          m_pts_last_hitted;
+    // map_target.m_mutex_pts_vec->unlock();
+    // map_tofuse.m_mutex_pts_vec->unlock();
+
+}
 Global_map::~Global_map(){};
 
 void Global_map::service_refresh_pts_for_projection()

@@ -311,6 +311,7 @@ auto MapManager::PerformMerge()->void {
     }
 
 //     map_merged->usage_cnt = 0;
+    // map->check_nums
 
     std::cout << "\033[1;32m+++ MAPS MERGED +++\033[0m" << std::endl;
 }

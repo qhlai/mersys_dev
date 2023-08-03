@@ -710,7 +710,7 @@ auto Visualizer::Run()->void{
         }
         // m_thread_pool_ptr->commit_task(&Visualizer::PubPointCloud_service,this);
         if(board_cnt%2==0){
-            print_dash_board();
+            // print_dash_board();
             m_thread_pool_ptr->commit_task(&Visualizer::PubPointCloud_service,this);
             // this->PubPointCloud_service();
         }

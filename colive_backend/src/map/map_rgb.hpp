@@ -178,6 +178,7 @@ struct Global_map
     void set_minmum_dis( double minimum_dis );
 
     Global_map( int if_start_service = 1 );
+    Global_map(Global_map &map_target, Global_map &map_tofuse, TypeDefs::TransformType T_wtofuse_wtarget,int if_start_service = 1);
     ~Global_map();
 
     void service_refresh_pts_for_projection();
