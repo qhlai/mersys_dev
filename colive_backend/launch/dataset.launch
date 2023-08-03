@@ -1,0 +1,13 @@
+<launch>
+   <arg name="namespace" default="robot1" />
+   <arg name="file_path" default="/media/lqh/WDC/dataset/colive/" />
+   <arg name="file_name" default="2023-08-02-23-10-07fixed.bag" />
+
+
+  <node pkg="rosbag" type="play" name="playback" ns="$(arg namespace)" args="--clock $(arg file_path)$(arg file_name)">
+     <remap from="/livox/imu" to="/$(arg namespace)/livox/imu"/>
+     <remap from="/livox/lidar" to="/$(arg namespace)/livox/lidar"/>
+     <remap from="/camera/image_color" to="/$(arg namespace)/camera/image_color"/>
+  </node>
+
+</launch>
