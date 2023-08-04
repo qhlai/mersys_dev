@@ -215,6 +215,8 @@ namespace vis {
     const bool showlandmarks                            = read_parm::GetValFromYaml<bool>(conf,"vis.showlandmarks");
     const bool showtraj                                 = read_parm::GetValFromYaml<bool>(conf,"vis.showtraj");
     const bool showkeyframes                            = read_parm::GetValFromYaml<bool>(conf,"vis.showkeyframes"); //-1=no KFs;0=frusta;1=spheres
+    const int displaytype                              = read_parm::GetValFromYaml<int>(conf,"vis.displaytype"); //-1=no KFs;0=frusta;1=spheres
+
     const int covgraph_minweight                        = read_parm::GetValFromYaml<int>(conf,"vis.covgraph_minweight");
     const bool covgraph_shared_edges_only               = read_parm::GetValFromYaml<bool>(conf,"vis.covgraph_shared_edges_only"); // show only cov edges between trajectories from different agents
 

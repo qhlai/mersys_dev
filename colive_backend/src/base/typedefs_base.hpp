@@ -108,7 +108,7 @@ class Image_ex;
 // class pcl::PointCloud;
 
 
-
+struct Global_map;
 struct MsgKeyframe;
 struct MsgLandmark;
 struct MsgPointCloud;
@@ -146,6 +146,8 @@ namespace TypeDefs {
     using LandmarkPtr                   = std::shared_ptr<Landmark>;
     using PointCloudPtr                 = std::shared_ptr<PointCloud>;
     using PointCloudEXPtr               = std::shared_ptr<PointCloudEX>;
+    using RGBMap               = Global_map ;
+    using RGBMapPtr               = std::shared_ptr<Global_map> ;
     using Image                         = cv::Mat;
     using ImagePtr                      = std::shared_ptr<Image>;
     using ImageEXPtr                    = std::shared_ptr<ImageEX>;

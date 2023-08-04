@@ -42,6 +42,8 @@ Map::Map(size_t id_)
     associated_clients_.insert(id_);
 
     m_thread_pool_ptr->commit_task(&Map::Add2RGBMap_service,this);
+
+    m_map_rgb_pts.reset(new Global_map());
     // thread_rgb_map_.reset(new std::thread(&Map::Add2RGBMap_service,this));
     // thread_rgb_map_->detach();
     // thread_rgb_map_=std::thread(Map::Add2RGBMap_service);
@@ -114,15 +116,20 @@ Map::Map(MapPtr map_target, MapPtr map_tofuse, TransformType T_wtofuse_wtarget)
     }
 
     // rebuild the rgb map
-    for(PointCloudEXMap::iterator mit =pointclouds_.begin();mit != pointclouds_.end();++mit){
-        PointCloudEXPtr pc = mit->second;
-        // m_map_rgb_pts.append_points_to_global_map(pc)
-        // Add2RGBMap(pc);
-        pcs_should_be_added_to_rgb_map.push(pc);
-    }
+    // m_thread_pool_ptr->commit_task( &PlaceRecognition::Run,placerec_ );
+    map_target->m_map_rgb_pts->merge(map_tofuse->m_map_rgb_pts, T_wtofuse_wtarget);
+    m_map_rgb_pts=map_target->m_map_rgb_pts;
 
-    thread_rgb_map_.reset(new std::thread(&Map::Add2RGBMap_service,this));
-    thread_rgb_map_->detach();
+
+    // for(PointCloudEXMap::iterator mit =pointclouds_.begin();mit != pointclouds_.end();++mit){
+    //     PointCloudEXPtr pc = mit->second;
+    //     // m_map_rgb_pts.append_points_to_global_map(pc)
+    //     // Add2RGBMap(pc);
+    //     pcs_should_be_added_to_rgb_map.push(pc);
+    // }
+
+    // thread_rgb_map_.reset(new std::thread(&Map::Add2RGBMap_service,this));
+    // thread_rgb_map_->detach();
 
 }
 // auto Map::AddPointCloud(PointCloudEXPtr pc)->void {
@@ -245,14 +252,14 @@ auto Map::Add2RGBMap(PointCloudEXPtr pc)->void {
         std::vector< std::shared_ptr< RGB_pts > > pts_last_hitted;
         pts_last_hitted.reserve( 1e6 );
 
-        m_number_of_new_visited_voxel = m_map_rgb_pts.append_points_to_global_map( pc, &pts_last_hitted,m_append_global_map_point_step);
+        m_number_of_new_visited_voxel = m_map_rgb_pts->append_points_to_global_map( pc, &pts_last_hitted,m_append_global_map_point_step);
 
-        m_map_rgb_pts.m_mutex_pts_last_visited->lock();
-        m_map_rgb_pts.m_pts_last_hitted = pts_last_hitted;
-        m_map_rgb_pts.m_mutex_pts_last_visited->unlock();
+        m_map_rgb_pts->m_mutex_pts_last_visited->lock();
+        m_map_rgb_pts->m_pts_last_hitted = pts_last_hitted;
+        m_map_rgb_pts->m_mutex_pts_last_visited->unlock();
 
     }else{
-        m_number_of_new_visited_voxel = m_map_rgb_pts.append_points_to_global_map( pc, nullptr,m_append_global_map_point_step);
+        m_number_of_new_visited_voxel = m_map_rgb_pts->append_points_to_global_map( pc, nullptr,m_append_global_map_point_step);
     }
 
 }

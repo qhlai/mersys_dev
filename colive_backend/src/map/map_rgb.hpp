@@ -186,6 +186,7 @@ struct Global_map
     void update_pose_for_projection( TypeDefs::ImageEXPtr img, double fov_margin = 0.0001 );
     bool is_busy();
     void set_busy();
+    void wait_free();
     void unset_busy();
     // template < typename T >
     int append_points_to_global_map( TypeDefs::PointCloudEXPtr pc_in,  std::vector< RGB_pt_ptr > *pts_added_vec = nullptr, int step = 1 );
@@ -198,7 +199,7 @@ struct Global_map
     // void save_and_display_pointcloud( std::string dir_name = std::string( "/home/ziv/temp/" ), std::string file_name = std::string( "/rgb_pt" ) ,  int save_pts_with_views = 3);
     void render_pts_in_voxels( TypeDefs::ImageEXPtr img_ptr, std::vector< std::shared_ptr< RGB_pts > > &voxels_for_render, double obs_time = 0 );
     
-    void merge(Global_map &map_tofuse, TypeDefs::TransformType &T_wtofuse_wtarget, int step=2);
+    void merge(TypeDefs::RGBMapPtr &map_tofuse, TypeDefs::TransformType &T_wtofuse_wtarget,  int step=2);
     
 
   private:

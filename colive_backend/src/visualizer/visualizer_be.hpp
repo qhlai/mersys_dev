@@ -52,6 +52,8 @@ public:
     using LandmarkVector                = TypeDefs::LandmarkVector;
     using KeyframePairVector            = TypeDefs::KeyframePairVector;
     using LoopVector= TypeDefs::LoopVector;
+    using RGBMap               = TypeDefs::RGBMap;
+    using RGBMapPtr               = TypeDefs::RGBMapPtr;
 
     // using Global_map               = TypeDefs::Global_map;
     // using TransformType                 = TypeDefs::TransformType;
@@ -67,7 +69,7 @@ public:
         LandmarkMap             landmarks;
         PointCloudEXMap         pointCloud;
         
-        Global_map              map_rgb_pts;
+        RGBMapPtr              map_rgb_pts;
         size_t                  id_map;
         std::set<size_t>        associated_clients;
         LoopVector              loops;

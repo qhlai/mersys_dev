@@ -109,7 +109,12 @@ int RGB_pts::update_rgb(const TypeDefs::Vector3Type &rgb, const double obs_dis, 
 void RGB_pts::Intensity2Rgb( int colormap_type){
     // Define the color map
     cv::Mat colormap;
-    cv::applyColorMap(cv::Mat(1, 1, CV_8U, intensity), colormap, colormap_type);
+    auto intensity_color = intensity/200*255;
+    if (intensity_color> 255){
+        std::cout <<COUTNOTICE<< "Intensity2Rgb out range" << std::endl;
+        intensity_color=255;
+    }
+    cv::applyColorMap(cv::Mat(1, 1, CV_8U, intensity_color), colormap, colormap_type);
 
     // Split the RGB channels
     // Vector3Type  rgb_value;
@@ -306,6 +311,12 @@ bool Global_map::is_busy()
 {
     return m_in_appending_pts;
 }
+void Global_map::wait_free()
+{
+    while(is_busy()){
+        usleep(30);
+    }
+}
 void Global_map::set_busy()
 {
     m_in_appending_pts = true;
@@ -318,9 +329,7 @@ void Global_map::unset_busy()
 // template <typename T>
 int Global_map::append_points_to_global_map(TypeDefs::PointCloudEXPtr pc_in,  std::vector<std::shared_ptr<RGB_pts>> *pts_added_vec, int step)
 {
-    while(is_busy()){
-        usleep(30);
-    }
+    wait_free();
     set_busy();
     uint32_t client_id=pc_in->GetClientID();
     double added_time=pc_in->GetTimeStamp();
@@ -411,7 +420,7 @@ int Global_map::append_points_to_global_map(TypeDefs::PointCloudEXPtr pc_in,  st
         // float intensity = static_cast<float>(map_rgb_pts.m_rgb_pts_vec[ i ]->intensity);
         // TypeDefs::Vector3Type bgr = getRgbFromIntensity(pt_rgb->intensity, cv::COLORMAP_RAINBOW);
 #if DISPLAY_POINTCLOUD_INTENSITY
-        pt_rgb->Intensity2Rgb();
+        pt_rgb->Intensity2Rgb(cv::COLORMAP_HSV);
         // colored_point.r = static_cast<uint8_t>(r * 255);
         // colored_point.g = static_cast<uint8_t>(g * 255);
         // colored_point.b = static_cast<uint8_t>(b * 255);
@@ -437,24 +446,23 @@ int Global_map::append_points_to_global_map(TypeDefs::PointCloudEXPtr pc_in,  st
     return (m_voxels_recent_visited[client_id].size() -  number_of_voxels_before_add);
     // return 0;
 }
-void Global_map::merge(Global_map &map_tofuse, TypeDefs::TransformType &T_wtofuse_wtarget, int step){
-    while(is_busy()){
-        usleep(30);
-    }
-    set_busy();
-    while(map_tofuse.is_busy()){
-        usleep(30);
-    }
-    map_tofuse.set_busy();
+void Global_map::merge(TypeDefs::RGBMapPtr &map_tofuse, TypeDefs::TransformType &T_wtofuse_wtarget, int step){
 
-    uint32_t pt_size = map_tofuse.m_rgb_pts_vec.size();
+    std::cout << COUTNOTICE <<"merge"<< std::endl;
+    
+    wait_free();
+    set_busy();
+    map_tofuse->wait_free();
+    map_tofuse->set_busy();
+
+    uint32_t pt_size = map_tofuse->m_rgb_pts_vec.size();
     for (int pt_idx = 0; pt_idx < pt_size; pt_idx += step){
 
         // 坐标转换
 
         Eigen::Vector3d pos_old(
-            map_tofuse.m_rgb_pts_vec[pt_idx]->m_pos[0], 
-            map_tofuse.m_rgb_pts_vec[pt_idx]->m_pos[1], map_tofuse.m_rgb_pts_vec[pt_idx]->m_pos[2]);
+            map_tofuse->m_rgb_pts_vec[pt_idx]->m_pos[0], 
+            map_tofuse->m_rgb_pts_vec[pt_idx]->m_pos[1], map_tofuse->m_rgb_pts_vec[pt_idx]->m_pos[2]);
         Eigen::Vector3d  pos_new = T_wtofuse_wtarget.rotation().matrix()*pos_old+T_wtofuse_wtarget.translation();
 
         int add = 1;
@@ -488,7 +496,7 @@ void Global_map::merge(Global_map &map_tofuse, TypeDefs::TransformType &T_wtofus
         if(!m_hashmap_voxels.if_exist(box_x, box_y, box_z))
         {
             // 拿出旧的box_rgb
-            std::shared_ptr<RGB_Voxel> box_rgb = map_tofuse.m_hashmap_voxels.m_map_3d_hash_map[box_x_old][box_y_old][box_z_old];
+            std::shared_ptr<RGB_Voxel> box_rgb = map_tofuse->m_hashmap_voxels.m_map_3d_hash_map[box_x_old][box_y_old][box_z_old];
             
             // std::make_shared<RGB_Voxel>();
             // std::shared_ptr<RGB_Voxel> box_rgb = 
@@ -504,7 +512,7 @@ void Global_map::merge(Global_map &map_tofuse, TypeDefs::TransformType &T_wtofus
         
 
         // tofuse 的rbg点
-        std::shared_ptr<RGB_pts> pt_rgb = map_tofuse.m_rgb_pts_vec[pt_idx];
+        std::shared_ptr<RGB_pts> pt_rgb = map_tofuse->m_rgb_pts_vec[pt_idx];
 
 
         // 调整一下tofuse中的点的位置，这里点是共享指针
@@ -525,7 +533,7 @@ void Global_map::merge(Global_map &map_tofuse, TypeDefs::TransformType &T_wtofus
         // m_mutex_m_box_recent_hitted->unlock();
     }
     unset_busy();
-    map_tofuse.unset_busy();
+    map_tofuse->unset_busy();
 }
 void Global_map::render_with_a_image(TypeDefs::ImageEXPtr img_ptr, int if_select)
 {

@@ -135,7 +135,9 @@ auto Visualizer::DrawMap(MapPtr map)->void {
     vb.associated_clients = map->associated_clients_;
     vb.loops = map->GetLoopConstraints();
     vb.frame = "camera_init";
-    vb.map_rgb_pts=map->m_map_rgb_pts;
+    // vb.map_rgb_pts=map->m_map_rgb_pts;
+    vb.map_rgb_pts.reset(new Global_map());
+    *(vb.map_rgb_pts)=*(map->m_map_rgb_pts);
     // if(vb.keyframes.size() < 3) return;
     if(vb.pointCloud.size() < 3) return;
     vis_data_[map->id_map_] = vb;
@@ -356,7 +358,7 @@ auto Visualizer::PubPointCloud_service()->void {
 
 
     auto map_rgb_pts=curr_bundle_.map_rgb_pts;
-    int pts_size = map_rgb_pts.m_rgb_pts_vec.size();
+    int pts_size = map_rgb_pts->m_rgb_pts_vec.size();
 
     // std::cout << COUTNOTICE <<"rviz:pointcloud points sum:"<< pts_size << std::endl;
     // g_pointcloud_pts_num=pts_size;
@@ -371,15 +373,15 @@ auto Visualizer::PubPointCloud_service()->void {
         //     std::cout << COUTDEBUG <<"map_rgb_pts.m_rgb_pts_vec[ i ]->m_N_rgb < 1 "<<std::endl;
         //     continue;
         // }
-        pc_rgb.points[ pub_idx_size ].x = map_rgb_pts.m_rgb_pts_vec[ i ]->m_pos[ 0 ];
-        pc_rgb.points[ pub_idx_size ].y = map_rgb_pts.m_rgb_pts_vec[ i ]->m_pos[ 1 ];
-        pc_rgb.points[ pub_idx_size ].z = map_rgb_pts.m_rgb_pts_vec[ i ]->m_pos[ 2 ];
+        pc_rgb.points[ pub_idx_size ].x = map_rgb_pts->m_rgb_pts_vec[ i ]->m_pos[ 0 ];
+        pc_rgb.points[ pub_idx_size ].y = map_rgb_pts->m_rgb_pts_vec[ i ]->m_pos[ 1 ];
+        pc_rgb.points[ pub_idx_size ].z = map_rgb_pts->m_rgb_pts_vec[ i ]->m_pos[ 2 ];
         // rgb 三通道至少一个不为空
-        if(map_rgb_pts.m_rgb_pts_vec[ i ]->m_rgb[ 2 ] || map_rgb_pts.m_rgb_pts_vec[ i ]->m_rgb[ 1 ] || map_rgb_pts.m_rgb_pts_vec[ i ]->m_rgb[ 0 ]){
+        if(map_rgb_pts->m_rgb_pts_vec[ i ]->m_rgb[ 2 ] || map_rgb_pts->m_rgb_pts_vec[ i ]->m_rgb[ 1 ] || map_rgb_pts->m_rgb_pts_vec[ i ]->m_rgb[ 0 ]){
             
-            pc_rgb.points[ pub_idx_size ].r = map_rgb_pts.m_rgb_pts_vec[ i ]->m_rgb[ 2 ];
-            pc_rgb.points[ pub_idx_size ].g = map_rgb_pts.m_rgb_pts_vec[ i ]->m_rgb[ 1 ];
-            pc_rgb.points[ pub_idx_size ].b = map_rgb_pts.m_rgb_pts_vec[ i ]->m_rgb[ 0 ];
+            pc_rgb.points[ pub_idx_size ].r = map_rgb_pts->m_rgb_pts_vec[ i ]->m_rgb[ 2 ];
+            pc_rgb.points[ pub_idx_size ].g = map_rgb_pts->m_rgb_pts_vec[ i ]->m_rgb[ 1 ];
+            pc_rgb.points[ pub_idx_size ].b = map_rgb_pts->m_rgb_pts_vec[ i ]->m_rgb[ 0 ];
             std::cout << COUTDEBUG << "color"<< std::endl;
         }else if( DISPLAY_POINTCLOUD_INTENSITY){
             // std::cout << COUTDEBUG << "intensity"<< std::endl;
@@ -390,9 +392,9 @@ auto Visualizer::PubPointCloud_service()->void {
             // colored_point.g = static_cast<uint8_t>(g * 255);
             // colored_point.b = static_cast<uint8_t>(b * 255);
 
-            pc_rgb.points[ pub_idx_size ].r = map_rgb_pts.m_rgb_pts_vec[ i ]->bgr_intensity[2];
-            pc_rgb.points[ pub_idx_size ].g = map_rgb_pts.m_rgb_pts_vec[ i ]->bgr_intensity[1];
-            pc_rgb.points[ pub_idx_size ].b = map_rgb_pts.m_rgb_pts_vec[ i ]->bgr_intensity[0];
+            pc_rgb.points[ pub_idx_size ].r = map_rgb_pts->m_rgb_pts_vec[ i ]->bgr_intensity[2];
+            pc_rgb.points[ pub_idx_size ].g = map_rgb_pts->m_rgb_pts_vec[ i ]->bgr_intensity[1];
+            pc_rgb.points[ pub_idx_size ].b = map_rgb_pts->m_rgb_pts_vec[ i ]->bgr_intensity[0];
             // std::cout << COUTDEBUG << "intensity:"<<intensity<< std::endl;
         }else{
             // std::cout << COUTDEBUG << "zero"<< std::endl;
@@ -687,7 +689,7 @@ auto Visualizer::Run()->void{
             curr_bundle_ = mit->second;
             g_camera_frame_num+=curr_bundle_.keyframes.size();
             g_lidar_frame_num+=curr_bundle_.pointCloud.size();
-            g_pointcloud_pts_num+=curr_bundle_.map_rgb_pts.m_rgb_pts_vec.size();
+            // g_pointcloud_pts_num+=curr_bundle_.map_rgb_pts->m_rgb_pts_vec.size();
 
             // for(PointCloudEXMap::const_iterator mit=curr_bundle_.pointCloud.begin();mit!=curr_bundle_.pointCloud.end();++mit) {
             //     PointCloudEXPtr pc_i = mit->second;

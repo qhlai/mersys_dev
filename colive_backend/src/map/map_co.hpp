@@ -90,7 +90,7 @@ public:
 
     // pcl::PointCloud<pcl::PointXYZ>::Ptr map_raw_pts;
     // pcl::PointCloud<pcl::PointXYZRGB>::Ptr map_rbg_pts; // or as landmark
-    Global_map m_map_rgb_pts; 
+    std::shared_ptr<Global_map> m_map_rgb_pts; 
     //
     
     // std::pair<int,int> map_;

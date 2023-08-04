@@ -103,7 +103,8 @@
 			"specialfunctions": "cpp",
 			"*.ipp": "cpp",
 			"tensor": "cpp",
-			"stdvector": "cpp"
+			"stdvector": "cpp",
+			"*.inc": "cpp"
 		},
 		"python.autoComplete.extraPaths": [
 			"/home/lqh/ros/covins_ws/devel/lib/python3/dist-packages",

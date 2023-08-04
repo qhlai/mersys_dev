@@ -367,7 +367,7 @@ auto PlaceRecognition::DetectLoop()->bool {
         //     client_idpair.first = loop_pc->GetFrameID();
         //     client_idpair.second = curr_pc->GetFrameID();
         // }
-        std::cout << COUTDEBUG << "debug loop:"<<curr_pc->GetClientID() <<"+"<<curr_pc->GetFrameID()<< ", lastloop:" << last_loops_[client_idpair]<< std::endl;
+        std::cout << COUTDEBUG << "debug loop:"<<curr_pc->GetClientID() <<":"<<curr_pc->GetFrameID()<< ", lastloop:" << client_idpair<<":" << last_loops_[client_idpair]<< std::endl;
 
         if(last_loops_.count(client_idpair)) {
             
