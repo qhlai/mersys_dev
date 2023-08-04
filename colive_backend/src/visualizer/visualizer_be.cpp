@@ -353,12 +353,16 @@ auto Visualizer::PubPointCloud_service()->void {
     uint64_t pub_idx_size = 0;
     int cur_topic_idx = 0;
     
+
+
     auto map_rgb_pts=curr_bundle_.map_rgb_pts;
     int pts_size = map_rgb_pts.m_rgb_pts_vec.size();
 
     // std::cout << COUTNOTICE <<"rviz:pointcloud points sum:"<< pts_size << std::endl;
     // g_pointcloud_pts_num=pts_size;
-
+    // for(std::map<size_t,VisBundle>::iterator mit = vis_data_.begin();mit!=vis_data_.end();++mit){
+        
+    // }
     for(uint64_t i=0;i<pts_size;i+=1) {
         // PointCloudEXPtr pc_ex = mit->second;
 
@@ -679,6 +683,7 @@ auto Visualizer::Run()->void{
 
          // 每个agent
         for(std::map<size_t,VisBundle>::iterator mit = vis_data_.begin();mit!=vis_data_.end();++mit){
+            // mit->id_map
             curr_bundle_ = mit->second;
             g_camera_frame_num+=curr_bundle_.keyframes.size();
             g_lidar_frame_num+=curr_bundle_.pointCloud.size();
@@ -707,6 +712,7 @@ auto Visualizer::Run()->void{
         //         this->PubCovGraph();
 
             this->PubLoopEdges();
+            // m_thread_pool_ptr->commit_task(&Visualizer::PubPointCloud_service,this);
         }
         // m_thread_pool_ptr->commit_task(&Visualizer::PubPointCloud_service,this);
         if(board_cnt%2==0){

@@ -123,23 +123,7 @@ Map::Map(MapPtr map_target, MapPtr map_tofuse, TransformType T_wtofuse_wtarget)
 
     thread_rgb_map_.reset(new std::thread(&Map::Add2RGBMap_service,this));
     thread_rgb_map_->detach();
-    // Matrix3Type R_wmatch_wtofuse = T_wtarget_wtofuse.block<3,3>(0,0);
-    // Vector3Type t_wmatch_wtofuse = T_wtarget_wtofuse.block<3,1>(0,3);
-    // for(KeyframeMap::iterator mit = keyframes_tofuse.begin();mit != keyframes_tofuse.end();++mit) {
-    //     KeyframePtr kf = mit->second;
-    //     TransformType T_w_s_befcorrection = kf->GetPoseTws();
-    //     TransformType T_w_s_corrected = T_wtarget_wtofuse * T_w_s_befcorrection;
-    //     kf->SetPoseTws(T_w_s_corrected);
-    //     kf->velocity_ = T_wtarget_wtofuse.block<3,3>(0,0) * kf->velocity_;
-    // }
-    // Matrix3Type R_wmatch_wtofuse = T_wtarget_wtofuse.block<3,3>(0,0);
-    // Vector3Type t_wmatch_wtofuse = T_wtarget_wtofuse.block<3,1>(0,3);
-    // for(LandmarkMap::iterator mit = landmarks_tofuse.begin();mit != landmarks_tofuse.end();++mit) {
-    //     LandmarkPtr lm = mit->second;
-    //     Vector3Type pos_w_befcorrection = lm->GetWorldPos();
-    //     Vector3Type pos_w_corrected = R_wmatch_wtofuse * pos_w_befcorrection + t_wmatch_wtofuse;
-    //     lm->SetWorldPos(pos_w_corrected);
-    // }
+
 }
 // auto Map::AddPointCloud(PointCloudEXPtr pc)->void {
 //     this->AddPointCloud(pc,false);

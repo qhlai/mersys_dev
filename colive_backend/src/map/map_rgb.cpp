@@ -161,48 +161,71 @@ Global_map::Global_map( int if_start_service )
         // m_thread_service = std::make_shared< std::thread >( &Global_map::service_refresh_pts_for_projection, this );
     }
 }
-Global_map::Global_map(Global_map &map_target, Global_map &map_tofuse, TypeDefs::TransformType &T_wtofuse_wtarget){
-    m_mutex_pts_vec = std::make_shared< std::mutex >();
-    m_mutex_img_pose_for_projection = std::make_shared< std::mutex >();
-    m_mutex_recent_added_list = std::make_shared< std::mutex >();
-    m_mutex_rgb_pts_in_recent_hitted_boxes = std::make_shared< std::mutex >();
-    m_mutex_m_box_recent_hitted = std::make_shared< std::mutex >();
-    m_mutex_pts_last_visited = std::make_shared< std::mutex >();
+// 把map_tofuse 转换到 map_target位置 并生成一个新的map
+// Global_map::Global_map(Global_map &map_target, Global_map &map_tofuse, TypeDefs::TransformType &T_wtofuse_wtarget,int if_start_service){
+//     // this=map_target;
+//     m_mutex_pts_vec = std::make_shared< std::mutex >();
+//     m_mutex_img_pose_for_projection = std::make_shared< std::mutex >();
+//     m_mutex_recent_added_list = std::make_shared< std::mutex >();
+//     m_mutex_rgb_pts_in_recent_hitted_boxes = std::make_shared< std::mutex >();
+//     m_mutex_m_box_recent_hitted = std::make_shared< std::mutex >();
+//     m_mutex_pts_last_visited = std::make_shared< std::mutex >();
 
 
-    m_voxels_recent_visited.reserve(MAX_CLIENT_NUM);
-    // m_last_visited_time.reserve(MAX_CLIENT_NUM);
+//     m_voxels_recent_visited.reserve(MAX_CLIENT_NUM);
+//     // m_last_visited_time.reserve(MAX_CLIENT_NUM);
 
-    // // Allocate memory for pointclouds
-    if ( Common_tools::get_total_phy_RAM_size_in_GB() < 16 )
-    {
-        // std::cout << COUTNOTICE << "less memory occupy" << std::endl;
-        m_rgb_pts_vec.reserve( 1e8 );
-    }
-    else
-    {
-        m_rgb_pts_vec.reserve( 1e9 );
-    }
+//     // // Allocate memory for pointclouds
+//     if ( Common_tools::get_total_phy_RAM_size_in_GB() < 16 )
+//     {
+//         // std::cout << COUTNOTICE << "less memory occupy" << std::endl;
+//         m_rgb_pts_vec.reserve( 1e8 );
+//     }
+//     else
+//     {
+//         m_rgb_pts_vec.reserve( 1e9 );
+//     }
     
-    // m_rgb_pts_in_recent_visited_voxels.reserve( 1e6 );
-    if ( if_start_service )
-    {
-        // m_thread_service = std::make_shared< std::thread >( &Global_map::service_refresh_pts_for_projection, this );
-    }
-    // map_target.m_mutex_pts_vec->lock();
-    // map_tofuse.m_mutex_pts_vec->lock();
+//     // m_rgb_pts_in_recent_visited_voxels.reserve( 1e6 );
+//     if ( if_start_service )
+//     {
+//         // m_thread_service = std::make_shared< std::thread >( &Global_map::service_refresh_pts_for_projection, this );
+//     }
+//     // map_target.m_mutex_pts_vec->lock();
+//     // map_tofuse.m_mutex_pts_vec->lock();
+//     // std::unordered_set< std::shared_ptr< RGB_Voxel > > voxels_recent_visited;
+    
+//     // m_voxels_recent_visited
 
-    // m_rgb_pts_vec.append(map_target.m_rgb_pts_vec);
-    // m_rgb_pts_vec.append(map_tofuse.m_rgb_pts_vec);
+//     uint32_t  target_pts_size = map_target.m_rgb_pts_vec.size();
 
-    // Hash_map_3d< long, RGB_pt_ptr >   m_hashmap_3d_pts;
-    // Hash_map_3d< long, std::shared_ptr< RGB_Voxel > > m_hashmap_voxels;
-    // std::vector<std::unordered_set< std::shared_ptr< RGB_Voxel > >> m_voxels_recent_visited;
-    // std::vector< std::shared_ptr< RGB_pts > >          m_pts_last_hitted;
-    // map_target.m_mutex_pts_vec->unlock();
-    // map_tofuse.m_mutex_pts_vec->unlock();
+//     uint32_t  tofuse_pts_size = map_tofuse.m_rgb_pts_vec.size();
 
-}
+//     // m_hashmap_voxels=map_target.m_hashmap_voxels;
+//     // m_hashmap_3d_pts=map_target.m_hashmap_3d_pts;   
+
+//     // m_rgb_pts_vec=map_target.m_rgb_pts_vec;
+
+//     // m_voxels_recent_visited=map_target.m_rgb_pts_vec;
+//     // m_rgb_pts_vec.
+//     // for (size_t i = 0; i < target_pts_size; i++)
+//     // {
+//     //     /* code */
+//     // }
+    
+
+
+//     // m_rgb_pts_vec.append(map_target.m_rgb_pts_vec);
+//     // m_rgb_pts_vec.append(map_tofuse.m_rgb_pts_vec);
+
+//     // Hash_map_3d< long, RGB_pt_ptr >   m_hashmap_3d_pts;
+//     // Hash_map_3d< long, std::shared_ptr< RGB_Voxel > > m_hashmap_voxels;
+//     // std::vector<std::unordered_set< std::shared_ptr< RGB_Voxel > >> m_voxels_recent_visited;
+//     // std::vector< std::shared_ptr< RGB_pts > >          m_pts_last_hitted;
+//     // map_target.m_mutex_pts_vec->unlock();
+//     // map_tofuse.m_mutex_pts_vec->unlock();
+
+// }
 Global_map::~Global_map(){};
 
 void Global_map::service_refresh_pts_for_projection()
@@ -295,6 +318,9 @@ void Global_map::unset_busy()
 // template <typename T>
 int Global_map::append_points_to_global_map(TypeDefs::PointCloudEXPtr pc_in,  std::vector<std::shared_ptr<RGB_pts>> *pts_added_vec, int step)
 {
+    while(is_busy()){
+        usleep(30);
+    }
     set_busy();
     uint32_t client_id=pc_in->GetClientID();
     double added_time=pc_in->GetTimeStamp();
@@ -363,7 +389,7 @@ int Global_map::append_points_to_global_map(TypeDefs::PointCloudEXPtr pc_in,  st
         {
             box_ptr = m_hashmap_voxels.m_map_3d_hash_map[box_x][box_y][box_z];
         }
-        voxels_recent_visited.insert( box_ptr );
+        
         box_ptr->m_last_visited_time = added_time;
         if (add == 0)
         {
@@ -410,6 +436,96 @@ int Global_map::append_points_to_global_map(TypeDefs::PointCloudEXPtr pc_in,  st
     // std::cout << COUTDEBUG <<"m_rgb_pts_vec size:"<<m_rgb_pts_vec.size()<<", pts_added_vec size:"<< pts_added_vec->size()<<std::endl;
     return (m_voxels_recent_visited[client_id].size() -  number_of_voxels_before_add);
     // return 0;
+}
+void Global_map::merge(Global_map &map_tofuse, TypeDefs::TransformType &T_wtofuse_wtarget, int step){
+    while(is_busy()){
+        usleep(30);
+    }
+    set_busy();
+    while(map_tofuse.is_busy()){
+        usleep(30);
+    }
+    map_tofuse.set_busy();
+
+    uint32_t pt_size = map_tofuse.m_rgb_pts_vec.size();
+    for (int pt_idx = 0; pt_idx < pt_size; pt_idx += step){
+
+        // 坐标转换
+
+        Eigen::Vector3d pos_old(
+            map_tofuse.m_rgb_pts_vec[pt_idx]->m_pos[0], 
+            map_tofuse.m_rgb_pts_vec[pt_idx]->m_pos[1], map_tofuse.m_rgb_pts_vec[pt_idx]->m_pos[2]);
+        Eigen::Vector3d  pos_new = T_wtofuse_wtarget.rotation().matrix()*pos_old+T_wtofuse_wtarget.translation();
+
+        int add = 1;
+
+        // int grid_x = std::round(pos_new[0] / m_minimum_pts_size);
+        // int grid_y = std::round(pos_new[1] / m_minimum_pts_size);
+        // int grid_z = std::round(pos_new[2] / m_minimum_pts_size);
+        int box_x_old =  std::round(pos_old[0] / m_voxel_resolution);
+        int box_y_old =  std::round(pos_old[1] / m_voxel_resolution);
+        int box_z_old =  std::round(pos_old[2] / m_voxel_resolution);
+
+        int grid_x = std::round(pos_new[0] / m_minimum_pts_size);
+        int grid_y = std::round(pos_new[1] / m_minimum_pts_size);
+        int grid_z = std::round(pos_new[2] / m_minimum_pts_size);
+        int box_x =  std::round(pos_new[0] / m_voxel_resolution);
+        int box_y =  std::round(pos_new[1] / m_voxel_resolution);
+        int box_z =  std::round(pos_new[2] / m_voxel_resolution);
+
+        // 是否是重复点， 加过了就不加了
+        if (m_hashmap_3d_pts.if_exist(grid_x, grid_y, grid_z))
+        {
+            add = 0;
+        }
+        else{
+            continue;
+        }
+        // 检查体素是否存在
+        bool if_old_voxel =false;
+        RGB_voxel_ptr box_ptr;
+        // 体素若不存在,则直接使用tofuse的体素
+        if(!m_hashmap_voxels.if_exist(box_x, box_y, box_z))
+        {
+            // 拿出旧的box_rgb
+            std::shared_ptr<RGB_Voxel> box_rgb = map_tofuse.m_hashmap_voxels.m_map_3d_hash_map[box_x_old][box_y_old][box_z_old];
+            
+            // std::make_shared<RGB_Voxel>();
+            // std::shared_ptr<RGB_Voxel> box_rgb = 
+            m_hashmap_voxels.insert( box_x, box_y, box_z, box_rgb );
+            box_ptr = box_rgb;
+            if_old_voxel=true;
+            // continue;
+        }
+        else// 体素若存在，要把tofuse的东西都加进去
+        {
+            box_ptr = m_hashmap_voxels.m_map_3d_hash_map[box_x][box_y][box_z];
+        }
+        
+
+        // tofuse 的rbg点
+        std::shared_ptr<RGB_pts> pt_rgb = map_tofuse.m_rgb_pts_vec[pt_idx];
+
+
+        // 调整一下tofuse中的点的位置，这里点是共享指针
+        pt_rgb->set_pos(TypeDefs::Vector3Type(
+            pos_new[0], 
+            pos_new[1],
+            pos_new[2])); 
+        pt_rgb->m_pt_index = m_rgb_pts_vec.size();
+
+        m_rgb_pts_vec.push_back(pt_rgb);
+        m_hashmap_3d_pts.insert(grid_x, grid_y, grid_z, pt_rgb);
+        // 是target中没有而新创的体素
+        if(!if_old_voxel){
+          box_ptr->add_pt(pt_rgb);
+        }
+        // m_mutex_m_box_recent_hitted->lock();
+        // m_voxels_recent_visited.append(map_tofuse.m_voxels_recent_visited);
+        // m_mutex_m_box_recent_hitted->unlock();
+    }
+    unset_busy();
+    map_tofuse.unset_busy();
 }
 void Global_map::render_with_a_image(TypeDefs::ImageEXPtr img_ptr, int if_select)
 {

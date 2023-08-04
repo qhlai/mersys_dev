@@ -178,7 +178,7 @@ struct Global_map
     void set_minmum_dis( double minimum_dis );
 
     Global_map( int if_start_service = 1 );
-    Global_map(Global_map &map_target, Global_map &map_tofuse, TypeDefs::TransformType T_wtofuse_wtarget,int if_start_service = 1);
+    // Global_map(Global_map &map_target, Global_map &map_tofuse, TypeDefs::TransformType &T_wtofuse_wtarget,int if_start_service = 1);
     ~Global_map();
 
     void service_refresh_pts_for_projection();
@@ -197,7 +197,9 @@ struct Global_map
     // void save_to_pcd( std::string dir_name, std::string file_name = std::string( "/rgb_pt" ) , int save_pts_with_views = 3);
     // void save_and_display_pointcloud( std::string dir_name = std::string( "/home/ziv/temp/" ), std::string file_name = std::string( "/rgb_pt" ) ,  int save_pts_with_views = 3);
     void render_pts_in_voxels( TypeDefs::ImageEXPtr img_ptr, std::vector< std::shared_ptr< RGB_pts > > &voxels_for_render, double obs_time = 0 );
-
+    
+    void merge(Global_map &map_tofuse, TypeDefs::TransformType &T_wtofuse_wtarget, int step=2);
+    
 
   private:
     // friend class boost::serialization::access;
