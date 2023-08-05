@@ -313,8 +313,14 @@ bool Global_map::is_busy()
 }
 void Global_map::wait_free()
 {
+    uint32_t timeout_cout=0;
     while(is_busy()){
         usleep(30);
+        timeout_cout++;
+        if(timeout_cout>300){
+            std::cout << COUTFATAL << "wait too long"<<std::endl;
+            exit(1);
+        }
     }
 }
 void Global_map::set_busy()
@@ -464,6 +470,8 @@ void Global_map::merge(TypeDefs::RGBMapPtr &map_tofuse, TypeDefs::TransformType 
             map_tofuse->m_rgb_pts_vec[pt_idx]->m_pos[0], 
             map_tofuse->m_rgb_pts_vec[pt_idx]->m_pos[1], map_tofuse->m_rgb_pts_vec[pt_idx]->m_pos[2]);
         Eigen::Vector3d  pos_new = T_wtofuse_wtarget.rotation().matrix()*pos_old+T_wtofuse_wtarget.translation();
+        // pos_new=pos_old;
+        // std::cout << COUTDEBUG <<"pos_old:"<<pos_old<<", pos_new:"<<pos_new<< std::endl;
 
         int add = 1;
 
@@ -486,15 +494,14 @@ void Global_map::merge(TypeDefs::RGBMapPtr &map_tofuse, TypeDefs::TransformType 
         {
             add = 0;
         }
-        else{
-            continue;
-        }
+
         // 检查体素是否存在
         bool if_old_voxel =false;
         RGB_voxel_ptr box_ptr;
         // 体素若不存在,则直接使用tofuse的体素
         if(!m_hashmap_voxels.if_exist(box_x, box_y, box_z))
         {
+            // std::cout << COUTDEBUG <<"create new voxel"<< std::endl;
             // 拿出旧的box_rgb
             std::shared_ptr<RGB_Voxel> box_rgb = map_tofuse->m_hashmap_voxels.m_map_3d_hash_map[box_x_old][box_y_old][box_z_old];
             
@@ -507,9 +514,13 @@ void Global_map::merge(TypeDefs::RGBMapPtr &map_tofuse, TypeDefs::TransformType 
         }
         else// 体素若存在，要把tofuse的东西都加进去
         {
+            // std::cout << COUTDEBUG <<"use old voxel"<< std::endl;
             box_ptr = m_hashmap_voxels.m_map_3d_hash_map[box_x][box_y][box_z];
         }
-        
+        if(add==0){
+
+            continue;
+        }
 
         // tofuse 的rbg点
         std::shared_ptr<RGB_pts> pt_rgb = map_tofuse->m_rgb_pts_vec[pt_idx];
@@ -523,6 +534,7 @@ void Global_map::merge(TypeDefs::RGBMapPtr &map_tofuse, TypeDefs::TransformType 
         pt_rgb->m_pt_index = m_rgb_pts_vec.size();
 
         m_rgb_pts_vec.push_back(pt_rgb);
+        // std::cout << COUTDEBUG <<"push back pt"<< std::endl;
         m_hashmap_3d_pts.insert(grid_x, grid_y, grid_z, pt_rgb);
         // 是target中没有而新创的体素
         if(!if_old_voxel){
@@ -782,6 +794,54 @@ void render_pts_in_voxels_mp(TypeDefs::ImageEXPtr img_ptr, std::unordered_set<RG
     g_cost_time_logger.record(tim, "Render_mp");
     g_cost_time_logger.record("Pts_num_r", render_pts_count);
     
+}
+void Global_map::save_to_pcd(std::string dir_name, std::string _file_name, int save_pts_with_views )
+{
+    // Common_tools::Timer tim;
+    // Common_tools::create_dir(dir_name);
+    std::string file_name = std::string(dir_name).append(_file_name);
+    std::cout << file_name << std::endl;
+    scope_color(ANSI_COLOR_BLUE_BOLD);
+    cout << "Save Rgb points to " << file_name << endl;
+    fflush(stdout);
+    pcl::PointCloud<pcl::PointXYZRGB> pc_rgb;
+    long pt_size = m_rgb_pts_vec.size();
+    pc_rgb.resize(pt_size);
+    long pt_count = 0;
+    for (long i = pt_size - 1; i > 0; i--)
+    //for (int i = 0; i  <  pt_size; i++)
+    {
+        if ( i % 1000 == 0)
+        {
+            cout << ANSI_DELETE_CURRENT_LINE << "Saving offline map " << (int)( (pt_size- 1 -i ) * 100.0 / (pt_size-1) ) << " % ...";
+            fflush(stdout);
+        }
+
+        // if (m_rgb_pts_vec[i]->m_N_rgb < save_pts_with_views)
+        // {
+        //     continue;
+        // }
+        pcl::PointXYZRGB pt;
+        pc_rgb.points[ pt_count ].x = m_rgb_pts_vec[ i ]->m_pos[ 0 ];
+        pc_rgb.points[ pt_count ].y = m_rgb_pts_vec[ i ]->m_pos[ 1 ];
+        pc_rgb.points[ pt_count ].z = m_rgb_pts_vec[ i ]->m_pos[ 2 ];
+
+        pc_rgb.points[ pt_count ].r = m_rgb_pts_vec[ i ]->bgr_intensity[ 2 ];
+        pc_rgb.points[ pt_count ].g = m_rgb_pts_vec[ i ]->bgr_intensity[ 1 ];
+        pc_rgb.points[ pt_count ].b = m_rgb_pts_vec[ i ]->bgr_intensity[ 0 ];
+
+        // pc_rgb.points[ pt_count ].r = m_rgb_pts_vec[ i ]->m_rgb[ 2 ];
+        // pc_rgb.points[ pt_count ].g = m_rgb_pts_vec[ i ]->m_rgb[ 1 ];
+        // pc_rgb.points[ pt_count ].b = m_rgb_pts_vec[ i ]->m_rgb[ 0 ];
+        pt_count++;
+    }
+    cout << ANSI_DELETE_CURRENT_LINE  << "Saving offline map 100% ..." << endl;
+    pc_rgb.resize(pt_count);
+    cout << "Total have " << pt_count << " points." << endl;
+    // tim.tic();
+    cout << "Now write to: " << file_name << endl; 
+    pcl::io::savePCDFileBinary(std::string(file_name).append(".pcd"), pc_rgb);
+    // cout << "Save PCD cost time = " << tim.toc() << endl;
 }
 
 }

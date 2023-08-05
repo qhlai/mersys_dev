@@ -151,13 +151,13 @@ struct Global_map
     int                                                          m_if_get_all_pts_in_boxes_using_mp = 1;
     std::vector< RGB_pt_ptr >                    m_rgb_pts_vec;
     // std::vector< RGB_pt_ptr >                    m_rgb_pts_in_recent_visited_voxels;
-    std::shared_ptr< std::vector< RGB_pt_ptr> >                  m_pts_rgb_vec_for_projection = nullptr;
-    std::shared_ptr< std::mutex >                                m_mutex_pts_vec;
-    std::shared_ptr< std::mutex >                                m_mutex_recent_added_list;
-    std::shared_ptr< std::mutex >                                m_mutex_img_pose_for_projection;
-    std::shared_ptr< std::mutex >                                m_mutex_rgb_pts_in_recent_hitted_boxes;
-    std::shared_ptr< std::mutex >                                m_mutex_m_box_recent_hitted;
-    std::shared_ptr< std::mutex >                                m_mutex_pts_last_visited;
+    std::shared_ptr< std::vector< RGB_pt_ptr> > m_pts_rgb_vec_for_projection = nullptr;
+    std::shared_ptr< std::mutex >  m_mutex_pts_vec;
+    std::shared_ptr< std::mutex >  m_mutex_recent_added_list;
+    std::shared_ptr< std::mutex >  m_mutex_img_pose_for_projection;
+    std::shared_ptr< std::mutex >  m_mutex_rgb_pts_in_recent_hitted_boxes;
+    std::shared_ptr< std::mutex >  m_mutex_m_box_recent_hitted;
+    std::shared_ptr< std::mutex >  m_mutex_pts_last_visited;
     TypeDefs::ImageEXPtr                                         m_img_for_projection;
     double                                                       m_recent_visited_voxel_activated_time = 0.0;
     bool                                                         m_in_appending_pts = 0;
@@ -199,8 +199,9 @@ struct Global_map
     // void save_and_display_pointcloud( std::string dir_name = std::string( "/home/ziv/temp/" ), std::string file_name = std::string( "/rgb_pt" ) ,  int save_pts_with_views = 3);
     void render_pts_in_voxels( TypeDefs::ImageEXPtr img_ptr, std::vector< std::shared_ptr< RGB_pts > > &voxels_for_render, double obs_time = 0 );
     
-    void merge(TypeDefs::RGBMapPtr &map_tofuse, TypeDefs::TransformType &T_wtofuse_wtarget,  int step=2);
+    void merge(TypeDefs::RGBMapPtr &map_tofuse, TypeDefs::TransformType &T_wtofuse_wtarget,  int step=1);
     
+    void save_to_pcd( std::string dir_name, std::string file_name = std::string( "/rgb_pt" ) , int save_pts_with_views = 3);
 
   private:
     // friend class boost::serialization::access;

@@ -143,8 +143,13 @@ auto Visualizer::DrawMap(MapPtr map)->void {
     // vb.map_rgb_pts=map->m_map_rgb_pts;
     vb.map_rgb_pts.reset(new Global_map());
     *(vb.map_rgb_pts)=*(map->m_map_rgb_pts);
+
+
     // if(vb.keyframes.size() < 3) return;
-    // if(vb.pointCloud.size() < 3) return;
+    if(map->m_map_rgb_pts->m_rgb_pts_vec.size() < 1000) return;
+
+    std::cout <<COUTDEBUG<< "draw map id:"<<map->id_map_<<" , "<<map->m_map_rgb_pts->m_rgb_pts_vec.size() <<std::endl;    
+
     vis_data_[map->id_map_] = vb;
 }
 void pointcloud_convert(pcl::PointCloud<pcl::PointXYZINormal>::Ptr pc_in,pcl::PointCloud<pcl::PointXYZI>::Ptr pc_out){
@@ -192,13 +197,13 @@ auto Visualizer::PubTrajectories()->void {
         traj.scale.x=colive_params::vis::trajmarkersize;
         traj.action=visualization_msgs::Marker::ADD;
 
-        traj.color = MakeColorMsg(0.5,0.5,0.5);
-        // if(cid < 12){
-        //     colive_params::VisColorRGB col = colive_params::colors::col_vec[cid];
-        //     traj.color = MakeColorMsg(col.mfR,col.mfG,col.mfB);
-        // }
-        // else
-        //     traj.color = MakeColorMsg(0.5,0.5,0.5);
+        // traj.color = MakeColorMsg(0.5,0.5,0.5);
+        if(cid < 12){
+            colive_params::VisColorRGB col = colive_params::colors::col_vec[cid];
+            traj.color = MakeColorMsg(col.mfR,col.mfG,col.mfB);
+        }
+        else
+            traj.color = MakeColorMsg(0.5,0.5,0.5);
 
         msgs[cid] = traj;
     }
@@ -287,7 +292,7 @@ auto Visualizer::PubLoopEdges()->void {
     ss << "LoopEdges_intra_" << curr_bundle_.id_map << topic_prefix_ << std::endl;
     msg_intra.ns = ss.str();
     msg_intra.type = visualization_msgs::Marker::LINE_LIST;
-    msg_intra.color = MakeColorMsg(1.0,0.0,0.0);
+    msg_intra.color = MakeColorMsg(0.0,1.0,0.0);
     msg_intra.action = visualization_msgs::Marker::ADD;
     msg_intra.scale.x = colive_params::vis::loopmarkersize;
     msg_intra.id = 0;
@@ -314,8 +319,8 @@ auto Visualizer::PubLoopEdges()->void {
             PointCloudEXPtr pc1 = loops[idx].pc1;
             PointCloudEXPtr pc2 = loops[idx].pc2;
             b_intra = (pc1->GetClientID() == pc2->GetClientID());
-            T1 = pc1->GetPoseTsw();
-            T2 = pc2->GetPoseTsw();
+            T1 = pc1->GetPoseTsg();
+            T2 = pc2->GetPoseTsg();
             std::cout <<COUTDEBUG << pc1->GetFrameID()<<"<->" << pc2->GetFrameID() << std::endl;
         }
         else{
@@ -383,8 +388,8 @@ auto Visualizer::PubPointCloud_service()->void {
     for(std::map<size_t,VisBundle>::iterator mit = vis_data_.begin();mit!=vis_data_.end();++mit){
         auto map_rgb_pts=mit->second.map_rgb_pts;
         uint32_t pts_size = map_rgb_pts->m_rgb_pts_vec.size();
-        // std::cout <<COUTDEBUG<< "id"<<mit->second.id_map<<std::endl;
-        auto map_bias =mit->second.id_map*5;
+        std::cout <<COUTDEBUG<< "PubPointCloud, id"<<mit->second.id_map<<" , "<<pts_size <<" , "<<mit->second.frame_num_pointcloud <<std::endl;
+        // auto map_bias =mit->second.id_map*5;
     // auto map_rgb_pts=curr_bundle_.map_rgb_pts;
     // int pts_size = map_rgb_pts->m_rgb_pts_vec.size();
 

@@ -1,8 +1,10 @@
 <launch>
-	<arg name="rviz" default="false" />
+	<arg name="rviz" default="true" />
 	
 	
     <!-- <node pkg="r3live" type="r3live_LiDAR_front_end" name="r3live_LiDAR_front_end"  output="screen" required="true"/> -->
+
+	
     <node pkg="colive_backend" type="colive_backend_node" name="colive_backend_node" output="screen" required="true" />
     
 	<group if="$(arg rviz)">

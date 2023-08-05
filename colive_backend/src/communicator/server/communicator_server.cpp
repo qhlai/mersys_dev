@@ -191,10 +191,9 @@ auto Communicator_server::ProcessNewPointClouds()->void {
             else most_recent_pc_id_.first = std::max(most_recent_pc_id_.first,pc->id_.first);
             // map_->pointclouds_.push_back(pc);
 
-
+            map_->AddPointCloud(pc);
             // 建立大型点云
             // 几帧合一的大型点云
-
             // static TransformType base_frame_transform_;
             // static bool base_frame_update_=false;
             if(p_pc_large_tmp){
@@ -223,7 +222,7 @@ auto Communicator_server::ProcessNewPointClouds()->void {
 
             }
 
-            map_->AddPointCloud(pc);
+            
             map_->AddPointCloud_large(p_pc_large_tmp);
             #ifdef SAVE_FRAMES         
             if(colive_params::sys::save_frames){

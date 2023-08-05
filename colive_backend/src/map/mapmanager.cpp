@@ -304,15 +304,19 @@ auto MapManager::PerformMerge()->void {
 
 //    std::cout << "Map Match: Agents|KFs|LMs :" << map_match->map->associated_clients_.size() << "|" << map_match->map->GetKeyframes().size() << "|" << map_match->map->GetLandmarks().size() << std::endl;
 //    std::cout << "Map Query: Agents|KFs|LMs :" << map_query->map->associated_clients_.size() << "|" << map_query->map->GetKeyframes().size() << "|" << map_query->map->GetLandmarks().size() << std::endl;
-    std::cout << "Merged Map: Agents|KFs|LMs: " << map_merged->map->associated_clients_.size() << "|" << map_merged->map->GetPointCloudEXs().size() << "|" << std::endl;
+    std::cout <<COUTNOTICE<< "Merged Map: Agents|PCs|Pts: " << map_merged->map->associated_clients_.size() << "|" << map_merged->map->GetPointCloudEXs().size() << "|" << 
+    map_merged->map->m_map_rgb_pts->m_rgb_pts_vec.size()<< "|" << 
+    std::endl;
 
     for(std::set<size_t>::iterator sit = map_merged->map->associated_clients_.begin();sit != map_merged->map->associated_clients_.end();++sit) {
+        std::cout  << COUTDEBUG <<"remap client:"<< *sit <<  std::endl;
         maps_[*sit] = map_merged;
     }
 
-//     map_merged->usage_cnt = 0;
+    map_merged->usage_cnt = 0; // 激活与释放map，让其他线程可调用
     // map->check_nums
-
+    // ReturnMap(pc_query->GetClientID(),check_query);
+    // ReturnMap(pc_match->GetClientID(),check_match);
     std::cout << "\033[1;32m+++ MAPS MERGED +++\033[0m" << std::endl;
 }
 auto MapManager::Display()->void {

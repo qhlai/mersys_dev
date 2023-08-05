@@ -6,7 +6,6 @@ Panels:
       Expanded:
         - /Global Options1
         - /Axes1
-        - /mapping1
         - /mapping1/surround1
         - /mapping1/currPoints1
         - /mapping1/currPoints1/Autocompute Value Bounds1
@@ -16,7 +15,6 @@ Panels:
         - /Odometry1/Odometry1/Covariance1/Position1
         - /Odometry1/Odometry1/Covariance1/Orientation1
         - /MarkerArray1/Namespaces1
-        - /mapping_all1
         - /mapping_all1/PointCloud22
         - /mapping_all1/PointCloud23
         - /mapping_all1/PointCloud24
@@ -60,8 +58,6 @@ Panels:
         - /mapping_all1/PointCloud242
         - /mapping_all1/PointCloud243
         - /mapping_all1/PointCloud244
-        - /PointCloud24
-        - /PointCloud24/Status1
       Splitter Ratio: 0.4022257626056671
     Tree Height: 779
   - Class: rviz/Selection
@@ -81,7 +77,7 @@ Panels:
   - Class: rviz/Time
     Name: Time
     SyncMode: 0
-    SyncSource: ""
+    SyncSource: PointCloud2
 Preferences:
   PromptSaveOnExit: true
 Toolbars:
@@ -345,7 +341,10 @@ Visualization Manager:
       Marker Topic: /colive_markers_be
       Name: Marker
       Namespaces:
-        {}
+        "LoopEdges_intra_0_be\n": true
+        "LoopEdges_intra_1_be\n": true
+        Traj0_be: true
+        Traj1_be: true
       Queue Size: 100
       Value: true
     - Alpha: 1
@@ -1684,7 +1683,7 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 37.162288665771484
+      Distance: 52.88059997558594
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
@@ -1692,17 +1691,17 @@ Visualization Manager:
         Value: false
       Field of View: 0.7853981852531433
       Focal Point:
-        X: 12.293375015258789
-        Y: 7.140883445739746
-        Z: 10.413780212402344
+        X: 6.131472587585449
+        Y: 2.7177305221557617
+        Z: 6.435378551483154
       Focal Shape Fixed Size: true
       Focal Shape Size: 0.05000000074505806
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 0.2747988700866699
+      Pitch: 0.9447987079620361
       Target Frame: global
-      Yaw: 2.5702781677246094
+      Yaw: 0.36027637124061584
     Saved: ~
 Window Geometry:
   Displays:
@@ -1720,5 +1719,5 @@ Window Geometry:
   Views:
     collapsed: true
   Width: 1920
-  X: 640
-  Y: 214
+  X: 173
+  Y: 302
