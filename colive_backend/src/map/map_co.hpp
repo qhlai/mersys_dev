@@ -64,6 +64,8 @@ public:
     using idpair                        = TypeDefs::idpair;
     using MapPtr                        = TypeDefs::MapPtr;
     using TransformType                 = TypeDefs::TransformType;
+    using TransformVector               = TypeDefs::TransformVector;
+    using PoseMap                       = TypeDefs::PoseMap;
 
     using KeyframePtr                   = TypeDefs::KeyframePtr;
     using LandmarkPtr                   = TypeDefs::LandmarkPtr;
@@ -115,6 +117,7 @@ public:
     virtual auto GetPointCloudEXs()            ->PointCloudEXMap;
     virtual auto GetImageEX(idpair idp)        ->ImageEXPtr;
     virtual auto GetImageEXs()            ->ImageEXMap;
+    virtual auto GetPoseMap()            ->PoseMap;
     virtual auto Display()->void;
 
     // virtual auto AddPointCloud(PointCloudEXPtr pc)->void;
@@ -157,7 +160,7 @@ protected:
     ImageEXMap                  images_;
 
     KeyframeMap                 keyframes_erased_;
-
+    PoseMap                     m_pose_map;
     std::queue<PointCloudEXPtr> pcs_should_be_added_to_rgb_map;
     std::queue<PointCloudEXPtr> imgs_should_be_added_to_rgb_map;
     ThreadPtr                   thread_rgb_map_;

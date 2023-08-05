@@ -180,6 +180,9 @@ namespace TypeDefs {
     using Matrix4Type                   = Eigen::Matrix<precision_t,4,4>;
     using Matrix6Type                   = Eigen::Matrix<precision_t,6,6>;
     using TransformType                 = Eigen::Isometry3d;//Matrix4Type;
+    // using TransformTypeMap                 = std::map<idpair,TransformType,std::less<idpair>,Eigen::aligned_allocator<std::pair<const idpair,TransformType>>>;
+    // using TransformTypeVector                 = std::vector<TransformType,Eigen::aligned_allocator<TransformType>>;
+
     using DynamicMatrixType             = Eigen::Matrix<precision_t,Eigen::Dynamic,Eigen::Dynamic>;
 
     using Vector2Vector                 = std::vector<Vector2Type,Eigen::aligned_allocator<Vector2Type>>;
@@ -190,6 +193,7 @@ namespace TypeDefs {
     
     using TransformVector               = std::vector<Vector4Type,Eigen::aligned_allocator<TransformType>>;
     using PoseMap                       = std::map<idpair,TransformType,std::less<idpair>,Eigen::aligned_allocator<std::pair<const idpair,TransformType>>>;
+    using PoseMap_single                 = std::map<size_t,TransformType,std::less<size_t>,Eigen::aligned_allocator<std::pair<const size_t,TransformType>>>;
     // using VectorIMU                     = std::vector<IMU_Measurement>;
 
     using KeyframeVector                = std::vector<KeyframePtr,Eigen::aligned_allocator<KeyframePtr>>;
@@ -234,6 +238,16 @@ namespace TypeDefs {
 }
 
 
+// auto TransformType::less::operator ()(const PointCloudEXPtr a, const PointCloudEXPtr b) const ->bool
+// {
+//     if(a->GetClientID() < b->GetClientID())
+//         return true;
+//     else if(a->GetClientID() > b->GetClientID())
+//         return false;
+//     else {
+//         return a->GetFrameID() < b->GetFrameID();
+//     }
+// }
 
 inline std::ostream &operator<<(std::ostream &out, const TypeDefs::idpair id) {
     return out << id.first << "|" << id.second;

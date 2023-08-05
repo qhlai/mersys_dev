@@ -127,19 +127,24 @@ auto Visualizer::DrawMap(MapPtr map)->void {
     // std::cout<<"draw vis"<<std::endl;
     std::unique_lock<std::mutex> lock(mtx_draw_);
     VisBundle vb;
-    vb.pointCloud =map->GetPointCloudEXs();
+    
     // vb.keyframes = map->GetKeyframes();
     // vb.keyframes_erased = map->GetKeyframesErased();
     // vb.landmarks = map->GetLandmarks();
     vb.id_map = map->id_map_;
     vb.associated_clients = map->associated_clients_;
     vb.loops = map->GetLoopConstraints();
+    // vb.frame_num_image=
+    vb.frame_num_pointcloud=map->GetPointCloudEXs().size();
     vb.frame = "camera_init";
+    vb.poseMap=map->GetPoseMap();
+    vb.location_bias=vb.id_map*5;
+    // vb.pointCloud =map->GetPointCloudEXs();
     // vb.map_rgb_pts=map->m_map_rgb_pts;
     vb.map_rgb_pts.reset(new Global_map());
     *(vb.map_rgb_pts)=*(map->m_map_rgb_pts);
     // if(vb.keyframes.size() < 3) return;
-    if(vb.pointCloud.size() < 3) return;
+    // if(vb.pointCloud.size() < 3) return;
     vis_data_[map->id_map_] = vb;
 }
 void pointcloud_convert(pcl::PointCloud<pcl::PointXYZINormal>::Ptr pc_in,pcl::PointCloud<pcl::PointXYZI>::Ptr pc_out){
@@ -156,16 +161,21 @@ void pointcloud_convert(pcl::PointCloud<pcl::PointXYZINormal>::Ptr pc_in,pcl::Po
 }
 auto Visualizer::PubTrajectories()->void {
 
+    // if(curr_bundle_.frame_num_image + curr_bundle_.frame_num_pointcloud == 0){
+    //     std::cout << COUTWARN << "no KFs on VisBundle" << std::endl;
+    //     return;
+    // }
 
-    PointCloudEXSetById pctraj;
+    // PointCloudEXSetById pctraj;
+    PoseMap_single pctraj;
     std::set<int> pccids;
 
-    for(PointCloudEXMap::const_iterator mit=curr_bundle_.pointCloud.begin();mit!=curr_bundle_.pointCloud.end();++mit){
+    for(PoseMap::const_iterator mit=curr_bundle_.poseMap.begin();mit!=curr_bundle_.poseMap.end();++mit){
         // KeyframePtr kf = mit->second;
-        PointCloudEXPtr pc = mit->second;
+        // PointCloudEXPtr pc = mit->second;
 
-        pctraj.insert(pc);
-        pccids.insert(pc->id_.second);
+        // pctraj[mit->first.first]=mit->second;                    //
+        pccids.insert(mit->first.second); // client  id
     }
 
     std::map<int,visualization_msgs::Marker> msgs;
@@ -184,7 +194,7 @@ auto Visualizer::PubTrajectories()->void {
 
         traj.color = MakeColorMsg(0.5,0.5,0.5);
         // if(cid < 12){
-        //     covins_params::VisColorRGB col = covins_params::colors::col_vec[cid];
+        //     colive_params::VisColorRGB col = colive_params::colors::col_vec[cid];
         //     traj.color = MakeColorMsg(col.mfR,col.mfG,col.mfB);
         // }
         // else
@@ -195,25 +205,32 @@ auto Visualizer::PubTrajectories()->void {
 
     precision_t scale = colive_params::vis::scalefactor;
 
-    for(PointCloudEXSetById::iterator sit = pctraj.begin(); sit != pctraj.end(); ++sit){
-        PointCloudEXPtr  pc = *sit;
+    for(PoseMap::const_iterator mit=curr_bundle_.poseMap.begin();mit!=curr_bundle_.poseMap.end();++mit){
+        // PointCloudEXPtr  pc = *sit;
         // Eigen::Matrix3d T = pc->pos_w;
         // Eigen::Matrix4d T = pc->GetPoseTws();
-        Eigen::Matrix4d T = pc->GetPoseTsw().matrix();
+        Eigen::Matrix4d T =mit->second.matrix();
+
+        // Eigen::Matrix4d T = mit->senod->GetPoseTsw().matrix();
         geometry_msgs::Point p;
 
         p.x = scale*(T(0,3));
         p.y = scale*(T(1,3));
         p.z = scale*(T(2,3));
+
+
 // std::cout<<"x:"<<pc->pos_w[0]<<" "<<(T(0,3))<<"y:"<<pc->pos_w[1]<<" "<<(T(1,3))<<std::endl;
         // p.x = scale*pc->pos_w[0];
         // p.y = scale*pc->pos_w[1];
         // p.z = scale*pc->pos_w[2];
-        msgs[pc->id_.second].points.push_back(p);
+        msgs[mit->first.second].points.push_back(p);  // 对应的clientid的轨迹加点
     }
 
     for(std::map<int,visualization_msgs::Marker>::iterator mit = msgs.begin(); mit != msgs.end(); ++mit){
         visualization_msgs::Marker msg = mit->second;
+        msg.pose.orientation.x = 0.0;
+        msg.pose.orientation.y = 0.0;
+        msg.pose.orientation.z = 0.0;
         msg.pose.orientation.w = 1.0;
         pub_marker_.publish(msg);
     }
@@ -221,33 +238,40 @@ auto Visualizer::PubTrajectories()->void {
 }
 // void R3LIVE::service_pub_rgb_maps()
 auto Visualizer::PubOdometries()->void {
+    // if(curr_bundle_.frame_num_image + curr_bundle_.frame_num_pointcloud == 0){
+    //     std::cout << COUTWARN << "no KFs on VisBundle" << std::endl;
+    //     return;
+    // }
     // TODO: multi client odom pub
-    PointCloudEXPtr pc = curr_bundle_.pointCloud.rbegin()->second;
-    TransformType T = pc->GetPoseTsw();
-    Eigen::Vector3d position = T.translation();
-    // Eigen::Matrix3d euler = T.rotation();
-    Eigen::Quaterniond q(T.rotation());
+    // auto T = curr_bundle_.poseMap.rbegin()->second;
+    // // TransformType T = pc->GetPoseTsw();
+    // Eigen::Vector3d position = T.translation();
+    // // Eigen::Matrix3d euler = T.rotation();
+    // Eigen::Quaterniond q(T.rotation());
 
-    nav_msgs::Odometry odom;
-    odom.header.frame_id = "camera_init";
-    odom.child_frame_id = "body";
+
+    // // std::map<int,nav_msgs::Odometry> msgs;
+
+    // nav_msgs::Odometry odom;
+    // odom.header.frame_id = "camera_init";
+    // odom.child_frame_id = "body";
     
-    odom.header.stamp = ros::Time::now(); // ros::Time().fromSec(last_timestamp_lidar);
-    odom.pose.pose.orientation.x = q.x();
-    odom.pose.pose.orientation.y = q.y();
-    odom.pose.pose.orientation.z = q.z();
-    odom.pose.pose.orientation.w = q.w();
-    odom.pose.pose.position.x = position[0];
-    odom.pose.pose.position.y = position[1];
-    odom.pose.pose.position.z = position[2];
-    pub_odom_.publish( odom );
+    // odom.header.stamp = ros::Time::now(); // ros::Time().fromSec(last_timestamp_lidar);
+    // odom.pose.pose.orientation.x = q.x();
+    // odom.pose.pose.orientation.y = q.y();
+    // odom.pose.pose.orientation.z = q.z();
+    // odom.pose.pose.orientation.w = q.w();
+    // odom.pose.pose.position.x = position[0];
+    // odom.pose.pose.position.y = position[1];
+    // odom.pose.pose.position.z = position[2];
+    // pub_odom_.publish( odom );
 
 }
 auto Visualizer::PubLoopEdges()->void {
-    if(curr_bundle_.pointCloud.empty() && curr_bundle_.keyframes.empty()){
-        std::cout << COUTWARN << "no KFs on VisBundle" << std::endl;
-        return;
-    }
+    // if(curr_bundle_.frame_num_image + curr_bundle_.frame_num_pointcloud == 0){
+    //     std::cout << COUTWARN << "no KFs on VisBundle" << std::endl;
+    //     return;
+    // }
 
     LoopVector loops = curr_bundle_.loops;
 
@@ -355,79 +379,84 @@ auto Visualizer::PubPointCloud_service()->void {
     uint64_t pub_idx_size = 0;
     int cur_topic_idx = 0;
     
-
-
-    auto map_rgb_pts=curr_bundle_.map_rgb_pts;
-    int pts_size = map_rgb_pts->m_rgb_pts_vec.size();
+    // Global_map 
+    for(std::map<size_t,VisBundle>::iterator mit = vis_data_.begin();mit!=vis_data_.end();++mit){
+        auto map_rgb_pts=mit->second.map_rgb_pts;
+        uint32_t pts_size = map_rgb_pts->m_rgb_pts_vec.size();
+        // std::cout <<COUTDEBUG<< "id"<<mit->second.id_map<<std::endl;
+        auto map_bias =mit->second.id_map*5;
+    // auto map_rgb_pts=curr_bundle_.map_rgb_pts;
+    // int pts_size = map_rgb_pts->m_rgb_pts_vec.size();
 
     // std::cout << COUTNOTICE <<"rviz:pointcloud points sum:"<< pts_size << std::endl;
     // g_pointcloud_pts_num=pts_size;
     // for(std::map<size_t,VisBundle>::iterator mit = vis_data_.begin();mit!=vis_data_.end();++mit){
         
     // }
-    for(uint64_t i=0;i<pts_size;i+=1) {
-        // PointCloudEXPtr pc_ex = mit->second;
+        for(uint64_t i=0;i<pts_size;i+=1) {
+            // PointCloudEXPtr pc_ex = mit->second;
 
-        // if ( map_rgb_pts.m_rgb_pts_vec[ i ]->m_N_rgb < 1 )
-        // {
-        //     std::cout << COUTDEBUG <<"map_rgb_pts.m_rgb_pts_vec[ i ]->m_N_rgb < 1 "<<std::endl;
-        //     continue;
-        // }
-        pc_rgb.points[ pub_idx_size ].x = map_rgb_pts->m_rgb_pts_vec[ i ]->m_pos[ 0 ];
-        pc_rgb.points[ pub_idx_size ].y = map_rgb_pts->m_rgb_pts_vec[ i ]->m_pos[ 1 ];
-        pc_rgb.points[ pub_idx_size ].z = map_rgb_pts->m_rgb_pts_vec[ i ]->m_pos[ 2 ];
-        // rgb 三通道至少一个不为空
-        if(map_rgb_pts->m_rgb_pts_vec[ i ]->m_rgb[ 2 ] || map_rgb_pts->m_rgb_pts_vec[ i ]->m_rgb[ 1 ] || map_rgb_pts->m_rgb_pts_vec[ i ]->m_rgb[ 0 ]){
-            
-            pc_rgb.points[ pub_idx_size ].r = map_rgb_pts->m_rgb_pts_vec[ i ]->m_rgb[ 2 ];
-            pc_rgb.points[ pub_idx_size ].g = map_rgb_pts->m_rgb_pts_vec[ i ]->m_rgb[ 1 ];
-            pc_rgb.points[ pub_idx_size ].b = map_rgb_pts->m_rgb_pts_vec[ i ]->m_rgb[ 0 ];
-            std::cout << COUTDEBUG << "color"<< std::endl;
-        }else if( DISPLAY_POINTCLOUD_INTENSITY){
-            // std::cout << COUTDEBUG << "intensity"<< std::endl;
-            // float intensity = static_cast<float>(map_rgb_pts.m_rgb_pts_vec[ i ]->intensity);
-            // Vector3Type bgr = getRgbFromGray(intensity, cv::COLORMAP_RAINBOW);;
+            // if ( map_rgb_pts.m_rgb_pts_vec[ i ]->m_N_rgb < 1 )
+            // {
+            //     std::cout << COUTDEBUG <<"map_rgb_pts.m_rgb_pts_vec[ i ]->m_N_rgb < 1 "<<std::endl;
+            //     continue;
+            // }
+            pc_rgb.points[ pub_idx_size ].x = map_rgb_pts->m_rgb_pts_vec[ i ]->m_pos[ 0 ];
+            pc_rgb.points[ pub_idx_size ].y = map_rgb_pts->m_rgb_pts_vec[ i ]->m_pos[ 1 ];
+            pc_rgb.points[ pub_idx_size ].z = map_rgb_pts->m_rgb_pts_vec[ i ]->m_pos[ 2 ];
+            // rgb 三通道至少一个不为空
+            if(map_rgb_pts->m_rgb_pts_vec[ i ]->m_rgb[ 2 ] || map_rgb_pts->m_rgb_pts_vec[ i ]->m_rgb[ 1 ] || map_rgb_pts->m_rgb_pts_vec[ i ]->m_rgb[ 0 ]){
+                
+                pc_rgb.points[ pub_idx_size ].r = map_rgb_pts->m_rgb_pts_vec[ i ]->m_rgb[ 2 ];
+                pc_rgb.points[ pub_idx_size ].g = map_rgb_pts->m_rgb_pts_vec[ i ]->m_rgb[ 1 ];
+                pc_rgb.points[ pub_idx_size ].b = map_rgb_pts->m_rgb_pts_vec[ i ]->m_rgb[ 0 ];
+                std::cout << COUTDEBUG << "color"<< std::endl;
+            }else if( DISPLAY_POINTCLOUD_INTENSITY){
+                // std::cout << COUTDEBUG << "intensity"<< std::endl;
+                // float intensity = static_cast<float>(map_rgb_pts.m_rgb_pts_vec[ i ]->intensity);
+                // Vector3Type bgr = getRgbFromGray(intensity, cv::COLORMAP_RAINBOW);;
 
-            // colored_point.r = static_cast<uint8_t>(r * 255);
-            // colored_point.g = static_cast<uint8_t>(g * 255);
-            // colored_point.b = static_cast<uint8_t>(b * 255);
+                // colored_point.r = static_cast<uint8_t>(r * 255);
+                // colored_point.g = static_cast<uint8_t>(g * 255);
+                // colored_point.b = static_cast<uint8_t>(b * 255);
 
-            pc_rgb.points[ pub_idx_size ].r = map_rgb_pts->m_rgb_pts_vec[ i ]->bgr_intensity[2];
-            pc_rgb.points[ pub_idx_size ].g = map_rgb_pts->m_rgb_pts_vec[ i ]->bgr_intensity[1];
-            pc_rgb.points[ pub_idx_size ].b = map_rgb_pts->m_rgb_pts_vec[ i ]->bgr_intensity[0];
-            // std::cout << COUTDEBUG << "intensity:"<<intensity<< std::endl;
-        }else{
-            // std::cout << COUTDEBUG << "zero"<< std::endl;
-            pc_rgb.points[ pub_idx_size ].r = 0;
-            pc_rgb.points[ pub_idx_size ].g = 0;
-            pc_rgb.points[ pub_idx_size ].b = 0;
-        }
-
-        // pcl::transformPointCloud(*pc_tmp, *pc_tmp, pc_ex->GetPoseTsg().matrix());
-        // pc.points.push_back(pc_sum.points[i]);
-        // pc.points[i].x=pc_sum.points[i].x;
-        // pc.points[i].y=pc_sum.points[i].y;
-        // pc.points[i].z=pc_sum.points[i].z;
-        pub_idx_size++;
-        // std::cout << COUTDEBUG <<"pub_idx_size:"<<pub_idx_size <<std::endl;
-        if(pub_idx_size == number_of_pts_per_topic){
-            pub_idx_size = 0;
-            pcl::toROSMsg( pc_rgb, ros_pc_msg );
-            ros_pc_msg.header.frame_id = "camera_init";       
-            ros_pc_msg.header.stamp = ros::Time::now(); 
-            if ( m_pub_rgb_render_pointcloud_ptr_vec[ cur_topic_idx ] == nullptr )
-            {
-                m_pub_rgb_render_pointcloud_ptr_vec[ cur_topic_idx ] =
-                        std::make_shared< ros::Publisher >( nh_.advertise< sensor_msgs::PointCloud2 >(
-                            std::string( "/RGB_map_" ).append( std::to_string( cur_topic_idx ) ), 100 ) );
+                pc_rgb.points[ pub_idx_size ].r = map_rgb_pts->m_rgb_pts_vec[ i ]->bgr_intensity[2];
+                pc_rgb.points[ pub_idx_size ].g = map_rgb_pts->m_rgb_pts_vec[ i ]->bgr_intensity[1];
+                pc_rgb.points[ pub_idx_size ].b = map_rgb_pts->m_rgb_pts_vec[ i ]->bgr_intensity[0];
+                // std::cout << COUTDEBUG << "intensity:"<<intensity<< std::endl;
+            }else{
+                // std::cout << COUTDEBUG << "zero"<< std::endl;
+                pc_rgb.points[ pub_idx_size ].r = 0;
+                pc_rgb.points[ pub_idx_size ].g = 0;
+                pc_rgb.points[ pub_idx_size ].b = 0;
             }
-            m_pub_rgb_render_pointcloud_ptr_vec[ cur_topic_idx ]->publish( ros_pc_msg );
-            // pc_rgb.clear();
-            std::this_thread::sleep_for( std::chrono::microseconds( sleep_time_aft_pub ) );
-            // ros::spinOnce();
-            // ros::spinOnce();
-            cur_topic_idx++;
 
+            // pcl::transformPointCloud(*pc_tmp, *pc_tmp, pc_ex->GetPoseTsg().matrix());
+            // pc.points.push_back(pc_sum.points[i]);
+            // pc.points[i].x=pc_sum.points[i].x;
+            // pc.points[i].y=pc_sum.points[i].y;
+            // pc.points[i].z=pc_sum.points[i].z;
+            pub_idx_size++;
+            // std::cout << COUTDEBUG <<"pub_idx_size:"<<pub_idx_size <<std::endl;
+            if(pub_idx_size == number_of_pts_per_topic){
+                pub_idx_size = 0;
+                pcl::toROSMsg( pc_rgb, ros_pc_msg );
+                ros_pc_msg.header.frame_id = "camera_init";       
+                ros_pc_msg.header.stamp = ros::Time::now(); 
+                if ( m_pub_rgb_render_pointcloud_ptr_vec[ cur_topic_idx ] == nullptr )
+                {
+                    m_pub_rgb_render_pointcloud_ptr_vec[ cur_topic_idx ] =
+                            std::make_shared< ros::Publisher >( nh_.advertise< sensor_msgs::PointCloud2 >(
+                                std::string( "/RGB_map_" ).append( std::to_string( cur_topic_idx ) ), 100 ) );
+                }
+                m_pub_rgb_render_pointcloud_ptr_vec[ cur_topic_idx ]->publish( ros_pc_msg );
+                // pc_rgb.clear();
+                std::this_thread::sleep_for( std::chrono::microseconds( sleep_time_aft_pub ) );
+                // ros::spinOnce();
+                // ros::spinOnce();
+                cur_topic_idx++;
+
+            }
         }
     }
     pc_rgb.resize( pub_idx_size );
@@ -668,7 +697,7 @@ std::string append_space_to_bits( std::string & in_str, int bits )
 auto Visualizer::Run()->void{
     // std::cout<<"run vis"<<std::endl;
     // 
-    uint8_t max_pub_freq = 10; // hz
+    uint8_t max_pub_freq = 5; // hz
     uint32_t wait_time = 1000000 / max_pub_freq;
     static uint32_t board_cnt=0;
     uint8_t dash_print = max_pub_freq;
@@ -687,8 +716,14 @@ auto Visualizer::Run()->void{
         for(std::map<size_t,VisBundle>::iterator mit = vis_data_.begin();mit!=vis_data_.end();++mit){
             // mit->id_map
             curr_bundle_ = mit->second;
-            g_camera_frame_num+=curr_bundle_.keyframes.size();
-            g_lidar_frame_num+=curr_bundle_.pointCloud.size();
+            g_camera_frame_num+=curr_bundle_.frame_num_image;
+            g_lidar_frame_num+=curr_bundle_.frame_num_pointcloud;
+
+
+            if(curr_bundle_.frame_num_image + curr_bundle_.frame_num_pointcloud == 0){
+                std::cout << COUTWARN << "no KFs on VisBundle" << std::endl;
+                continue;
+            }
             // g_pointcloud_pts_num+=curr_bundle_.map_rgb_pts->m_rgb_pts_vec.size();
 
             // for(PointCloudEXMap::const_iterator mit=curr_bundle_.pointCloud.begin();mit!=curr_bundle_.pointCloud.end();++mit) {
@@ -700,6 +735,7 @@ auto Visualizer::Run()->void{
             // this->PubPointCloud_service();
             this->PubTrajectories();
             this->PubOdometries();
+            
             //  std::cout<<"run vis3"<<std::endl;
         //     if(colive_params::vis::showkeyframes)
         //         this->PubKeyframesAsFrusta();
@@ -716,12 +752,15 @@ auto Visualizer::Run()->void{
             this->PubLoopEdges();
             // m_thread_pool_ptr->commit_task(&Visualizer::PubPointCloud_service,this);
         }
+        this->PubPointCloud_service();
         // m_thread_pool_ptr->commit_task(&Visualizer::PubPointCloud_service,this);
-        if(board_cnt%2==0){
-            // print_dash_board();
-            m_thread_pool_ptr->commit_task(&Visualizer::PubPointCloud_service,this);
-            // this->PubPointCloud_service();
-        }
+
+        // if(board_cnt%5==0){
+        //     // print_dash_board();
+        //     m_thread_pool_ptr->commit_task(&Visualizer::PubPointCloud_service,this);
+        //     // this->PubPointCloud_service();
+        // }
+        
         // if(board_cnt%3==0){
         //     // print_dash_board();this->PubPointCloud_service();
         //     this->PubPointCloud_service();

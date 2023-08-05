@@ -34,7 +34,9 @@ public:
     using idpair                        = TypeDefs::idpair;
 
     using TransformType                 = TypeDefs::TransformType;
-
+    using TransformVector               = TypeDefs::TransformVector;
+    using PoseMap                       = TypeDefs::PoseMap;
+    using PoseMap_single                = TypeDefs::PoseMap_single;
     using Vector3Type                   = TypeDefs::Vector3Type;
     using KeyframePtr                   = TypeDefs::KeyframePtr;
     using LandmarkPtr                   = TypeDefs::LandmarkPtr;
@@ -61,14 +63,20 @@ public:
     // using LoopVector                    = TypeDefs::LoopVector;
 
     using PointCloudEXSetById               = std::set<PointCloudEXPtr,PointCloudEX::pc_less,Eigen::aligned_allocator<PointCloudEXPtr>>;
+    // using PoseSetById               = std::set<TransformType,TransformType::less,Eigen::aligned_allocator<TransformType>>;
 
     struct VisBundle
     {
+        uint32_t                frame_num_image;
+        uint32_t                frame_num_pointcloud;
+
         KeyframeMap             keyframes;
         KeyframeMap             keyframes_erased;
         LandmarkMap             landmarks;
         PointCloudEXMap         pointCloud;
-        
+        PoseMap                 poseMap;
+        uint32_t                location_bias;
+
         RGBMapPtr              map_rgb_pts;
         size_t                  id_map;
         std::set<size_t>        associated_clients;

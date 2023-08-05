@@ -325,6 +325,18 @@ auto Map::GetImageEXs()->ImageEXMap {
     std::unique_lock<std::mutex> lock(mtx_map_);
     return images_;
 }
+auto Map::GetPoseMap()         ->PoseMap {
+    // 
+    // auto pcs = GetPointCloudEXs();
+    std::unique_lock<std::mutex> lock(mtx_map_);
+    // PoseMap
+    for(std::map<idpair,PointCloudEXPtr>::iterator mit = pointclouds_.begin();mit!=pointclouds_.end();++mit){
+        m_pose_map[mit->first] = mit->second->GetPoseTsw();
+    }
+
+    return m_pose_map;
+}
+
 auto Map::Display()->void {
     std::unique_lock<std::mutex> lock(mtx_map_);
     // keyframes_.size();

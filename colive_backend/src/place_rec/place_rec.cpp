@@ -158,9 +158,11 @@ auto PlaceRecognition::process_icp()->void
             // loop_constraints_.push_back(lc);
             TransformType T_curr_loop;// 当前转到过去回环的  T_curr_loop
             auto relative_pose_optional = doICPVirtualRelative(prev_node_idx, curr_node_idx, T_curr_loop);
+        
             if(relative_pose_optional==0) {
                 // 记录历史回环帧
                 std::cout << "\033[1;32m+++ PLACE RECOGNITION FOUND +++\033[0m" << std::endl;
+                std::cout<<COUTDEBUG<< "T:"<<std::endl<<T_curr_loop.matrix()<<std::endl;
                 // 回环限制更新
                 idpair client_idpair;
                 client_idpair.first = curr_pc->GetClientID();
