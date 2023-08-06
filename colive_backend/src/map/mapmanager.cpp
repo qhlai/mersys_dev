@@ -118,17 +118,27 @@ auto MapManager::CheckoutMapExclusiveOrWait(int map_id, int &check_num)->MapPtr 
             return nullptr;
         }
     }
-
+    uint32_t wait_cout = 0 ;
     MapPtr map = this->CheckoutMapExclusive(map_id,check_num);
     if(!map) {
-        while(!this->SetCheckoutBlock(map_id,true))
+        while(!this->SetCheckoutBlock(map_id,true)){
             usleep(100);
+            wait_cout++;
+            if(wait_cout>3*1000000/100 && wait_cout % 1000 == 0){
+                std::cout << COUTFATAL << "CheckoutMapExclusive SetCheckoutBlock spend too much time."  << std::endl;
+            }
+        }
+            
     }
-
+    wait_cout=0;
     while(!map){
         map = this->CheckoutMapExclusive(map_id,check_num);
         // std::cout << COUTFATAL << "blocked " << map_id << std::endl;
         usleep(100);
+        wait_cout++;
+        if(wait_cout>3*1000000/100 && wait_cout % 1000 == 0){
+            std::cout << COUTFATAL << "CheckoutMapExclusive spend too much time."  << std::endl;
+        }
     }
 
     return map;
@@ -143,11 +153,15 @@ auto MapManager::CheckoutMapOrWait(int map_id, int &check_num)->MapPtr {
             return nullptr;
         }
     }
-
+    uint32_t wait_cout = 0 ;
     MapPtr map = this->CheckoutMap(map_id,check_num);
     while(!map){
         map = this->CheckoutMap(map_id,check_num);
         usleep(100);
+        wait_cout++;
+        if(wait_cout>3*1000000/100 && wait_cout % 1000 == 0){
+            std::cout << COUTFATAL << "CheckoutMap spend too much time."  << std::endl;
+        }
     }
     return map;
 }
@@ -294,10 +308,24 @@ auto MapManager::PerformMerge()->void {
     // auto pc_query_w_g = pc_query->GetPoseTws() * T_squery_smatch * pc_match->GetPoseTsg();
     // pc_query->SetPoseTwg(pc_query_w_g);
     // TransformType T_wtofuse_wmatch = T_squery_smatch;
-    TransformType T_wtofuse_wmatch = pc_query->GetPoseTgs() *  T_squery_smatch * pc_match->GetPoseTsg();
+    TransformType T_wquery_wmatch = pc_query->GetPoseTws() *  T_squery_smatch * pc_match->GetPoseTsw();
+
+    TransformType T_wquery_gmatch =  T_wquery_wmatch * pc_match->GetPoseTwg();
+
+    TransformType T_wquery_wquery_new = T_wquery_gmatch * pc_query->GetPoseTwg().inverse();
+
+
+    // TransformType T_gtofuse_gmatch = T_gtofuse_wtofuse * T_wtofuse_gmatch;
+
+    // for(PointCloudEXMap::iterator mit =pointcloudex_tofuse.begin();mit != pointcloudex_tofuse.end();++mit) {
+    //     PointCloudEXPtr pc_tofuse = mit->second;
+    //     TransformType T_gtofuse_gmatch = pc_tofuse->GetPoseTgw() * T_wtofuse_gmatch;
+        
+    // }
+    // TransformType T_gtofuse_gmatch = pc_query->GetPoseTgs() *  T_squery_smatch * pc_match->GetPoseTsg();
 
 #endif
-    MapInstancePtr map_merged(new MapInstance(map_match,map_query,T_wtofuse_wmatch));
+    MapInstancePtr map_merged(new MapInstance(map_match,map_query,T_wquery_wquery_new));
 
 //     LoopConstraint lc(kf_match,kf_query,T_squery_smatch, cov_mat);
 //     map_merged->map->AddLoopConstraint(lc);

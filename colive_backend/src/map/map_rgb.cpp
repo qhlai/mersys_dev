@@ -315,11 +315,11 @@ void Global_map::wait_free()
 {
     uint32_t timeout_cout=0;
     while(is_busy()){
-        usleep(30);
+        usleep(50);
         timeout_cout++;
-        if(timeout_cout>300){
+        if(timeout_cout>100){
             std::cout << COUTFATAL << "wait too long"<<std::endl;
-            exit(1);
+            // exit(1);
         }
     }
 }

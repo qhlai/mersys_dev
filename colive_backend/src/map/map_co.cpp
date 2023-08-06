@@ -53,7 +53,7 @@ Map::Map(size_t id_)
     //                 0,0,0,1;
 }
 // 把map_tofuse 转换到 map_target位置 并生成一个新的map
-Map::Map(MapPtr map_target, MapPtr map_tofuse, TransformType T_wtofuse_wtarget)
+Map::Map(MapPtr map_target, MapPtr map_tofuse, TransformType T_wtofuse_wmatch)
     : id_map_(map_target->id_map_)
 {
     // id_map_=map_target.id_map_;
@@ -113,16 +113,24 @@ Map::Map(MapPtr map_target, MapPtr map_tofuse, TransformType T_wtofuse_wtarget)
     // PointCloudEXPtr target = pointcloudex_target.begin()->second;
     // TransformType T_lm_s_befcorrection = pc->GetPoseTwg();
 
+    
+    TransformType T_wquery_wquery_new = T_wtofuse_wmatch;
+    TransformType T_test = TransformType::Identity();
 
-
+    // T_test.translate(Vector3Type(0,0,8));
+    // T_test.tranlate();
     for(PointCloudEXMap::iterator mit =pointcloudex_tofuse.begin();mit != pointcloudex_tofuse.end();++mit) {
         PointCloudEXPtr pc = mit->second;
+        // TransformType T = T_wtofuse_wmatch;
+        pc->SetPoseTwg( T_test);
+
     // TransformType T_wtarget_gtarget  = map_target->GetFamilyPc(map_target);
     // TransformType T_wtofuse_gtarget  = T_wtofuse_wtarget * T_wtarget_gtarget;
 
-        TransformType T_wtofuse_gtofuse = pc->GetPoseTwg();
-        TransformType T_wtarget_gtofuse_corrected =T_wtofuse_gtofuse*T_wtofuse_wtarget; // tofuse 里的帧在target下的坐标
-        pc->SetPoseTwg(T_wtarget_gtofuse_corrected);// TODO： 这里应该算错了吧
+        // TransformType T_wtofuse_gtofuse = pc->GetPoseTwg();
+        // TransformType T_wtarget_gtofuse_corrected =T_wtofuse_gtofuse*T_wtofuse_wmatch; // tofuse 里的帧在target下的坐标
+        // pc->SetPoseTwg(T_wtarget_gtofuse_corrected);// TODO： 这里应该算错了吧
+
         // pc->pointcloud_transform(T_wtarget_wtofuse);
     }
 
@@ -131,7 +139,7 @@ Map::Map(MapPtr map_target, MapPtr map_tofuse, TransformType T_wtofuse_wtarget)
     auto rgbpts_target = map_target->m_map_rgb_pts->m_rgb_pts_vec.size();
     auto rgbpts_tofuse = map_tofuse->m_map_rgb_pts->m_rgb_pts_vec.size();
 
-    map_target->m_map_rgb_pts->merge(map_tofuse->m_map_rgb_pts, T_wtofuse_wtarget);
+    map_target->m_map_rgb_pts->merge(map_tofuse->m_map_rgb_pts, T_test);
     // m_map_rgb_pts.reset(map_target->m_map_rgb_pts);
     m_map_rgb_pts=map_target->m_map_rgb_pts;
     
@@ -143,7 +151,7 @@ Map::Map(MapPtr map_target, MapPtr map_tofuse, TransformType T_wtofuse_wtarget)
     << "|" << "final:"<<rgbpts_merged 
     << "|" << "final:"<<m_map_rgb_pts->m_rgb_pts_vec.size() 
     << "|" << "T:"<<std::endl
-    <<T_wtofuse_wtarget.matrix()
+    // <<T_wtofuse_wtarget.matrix()
     << std::endl;
 
     // pc->save_to_pcd( std::string(colive_params::sys::output_path).append("/frames/pcd/").append(std::to_string(pc->GetClientID())).append("/"), std::to_string(pc->GetTimeStamp()) , 0);

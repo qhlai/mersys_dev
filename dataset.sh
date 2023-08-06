@@ -9,19 +9,20 @@ elif [ "$username" = "viosus" ];then
 path_dataset='/home/viosus/dataset/colive/'
 fi
 client_num=$1
+play_speed=1.5
 
 
-
-file_name="2023-08-02-23-10-07fixed_part2.bag"
+file_name="2023-08-02-22-48-44fixed_part1.bag"
 
 namespace="client1"
-gnome-terminal -t "roslaunch" -x bash -c "cd ../../;source ./devel/setup.bash;roslaunch colive_backend dataset.launch namespace:=$namespace file_path:=$path_dataset file_name:=$file_name ;exec bash;"
+gnome-terminal -t "roslaunch" -x bash -c "cd ../../;source ./devel/setup.bash;roslaunch colive_backend dataset.launch namespace:=$namespace file_path:=$path_dataset file_name:=$file_name play_speed:=$play_speed;exec bash;"
 # sleep 1
 
 if [ "$client_num" != "" ];then
 file_name="2023-08-02-23-10-07fixed_part1.bag"
+# file_name="2023-08-02-22-48-44fixed_part1.bag"
 namespace="client2"
-gnome-terminal -t "roslaunch" -x bash -c "cd ../../;source ./devel/setup.bash;roslaunch colive_backend dataset.launch namespace:=$namespace file_path:=$path_dataset file_name:=$file_name ;exec bash;"
+gnome-terminal -t "roslaunch" -x bash -c "cd ../../;source ./devel/setup.bash;roslaunch colive_backend dataset.launch namespace:=$namespace file_path:=$path_dataset file_name:=$file_name play_speed:=$play_speed;exec bash;"
 fi
 
 

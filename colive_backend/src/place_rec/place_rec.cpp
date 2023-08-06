@@ -122,23 +122,25 @@ auto PlaceRecognition::process_icp()->void
             auto curr_pc = mapmanager_->cl_pcs[curr_node_idx];
 
 
-            int check_num_map;
-            MapPtr map_query = mapmanager_->CheckoutMapExclusiveOrWait(curr_pc->GetClientID(),check_num_map);
-                    // 回环限制
-        // 发生回环的两个设备 // curr, loop
+
+            // 回环限制
+            // 发生回环的两个设备 // curr, loop
             idpair client_idpair;
 
             client_idpair.first = curr_pc->GetClientID();
             client_idpair.second = loop_pc->GetClientID(); 
             if(last_loops_.count(client_idpair)) {
             
-            if((curr_pc->GetFrameID() - last_loops_[client_idpair]) < colive_params::placerec::consecutive_loop_dist) {
-                std::cout << COUTNOTICE << "loop too offten, ignored" << std::endl;
-                curr_pc->SetErase();
-                return;
-                // return;
+                if((curr_pc->GetFrameID() - last_loops_[client_idpair]) < colive_params::placerec::consecutive_loop_dist) {
+                    std::cout << COUTNOTICE << "loop too offten, ignored" << std::endl;
+                    curr_pc->SetErase();
+                    return;
+                    // return;
+                }
             }
-        }
+            int check_num_map;
+            MapPtr map_query = mapmanager_->CheckoutMapExclusiveOrWait(curr_pc->GetClientID(),check_num_map);
+
             // 检查是否已经有回环关系
             for(auto lc : map_query->GetLoopConstraints()) {
                 bool existing_match = false;
@@ -151,8 +153,8 @@ auto PlaceRecognition::process_icp()->void
                 std::cout << "!!! Loop Constraint already exisiting -- skip !!!" << std::endl;
                 curr_pc->SetErase();
                 pc_match_->SetErase();
-                mapmanager_->ReturnMap(curr_pc->GetClientID(),check_num_map);
-                continue;
+                // mapmanager_->ReturnMap(curr_pc->GetClientID(),check_num_map);
+                // continue;
             }
             // LoopConstraint lc(kf_match,kf_query,T_smatch_squery);
             // loop_constraints_.push_back(lc);
@@ -170,7 +172,8 @@ auto PlaceRecognition::process_icp()->void
                 last_loops_[client_idpair] = curr_pc->GetFrameID();
 
                 if(map_query->GetPointCloudEX(loop_pc->id_)){
-                    bool perform_pgo_ =true;
+                    std::cout << COUTNOTICE<< "+++ Single Close Loop FOUND +++" << std::endl;
+                    bool perform_pgo_ =false;
                     LoopConstraint lc(curr_pc,loop_pc, T_curr_loop);
                     map_query->AddLoopConstraint(lc); // have fix crash here
                     // std::cout << "do icp success0.2" << std::endl;
@@ -198,12 +201,9 @@ auto PlaceRecognition::process_icp()->void
                         mapmanager_->RegisterMerge(merge);
                 }
 
-            }else{
-                mapmanager_->ReturnMap(curr_pc->id_.second,check_num_map);
-                continue;
             }
-            mapmanager_->ReturnMap(curr_pc->id_.second,check_num_map);
-            }
+            mapmanager_->ReturnMap(curr_pc->GetClientID(),check_num_map);
+        }
 
         // wait (must required for running the while loop)
         std::this_thread::sleep_for(std::chrono::milliseconds(10)); 

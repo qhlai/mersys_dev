@@ -683,7 +683,8 @@ auto Visualizer::PubPointCloud()->void {
 
     pcl_msg.header.frame_id = curr_bundle_.frame;
     // pcl_msg.header.stamp = ros::Time::now();
-    pcl_msg.header.stamp = ros::Time().fromSec(pc->timestamp_);
+    // pcl_msg.header.stamp = ros::Time().fromSec(pc->timestamp_);
+    pcl_msg.header.stamp = ros::Time::now();
 
     pub_cloud_.publish(pcl_msg);
     // std::cout<<"pub vis"<<std::endl;

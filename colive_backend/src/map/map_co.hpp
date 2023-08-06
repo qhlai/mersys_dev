@@ -65,6 +65,10 @@ public:
     using MapPtr                        = TypeDefs::MapPtr;
     using TransformType                 = TypeDefs::TransformType;
     using TransformVector               = TypeDefs::TransformVector;
+
+    using Vector3Type                   = TypeDefs::Vector3Type;
+    using QuaternionType                = TypeDefs::QuaternionType;
+    
     using PoseMap                       = TypeDefs::PoseMap;
 
     using KeyframePtr                   = TypeDefs::KeyframePtr;
