@@ -142,22 +142,29 @@ auto PlaceRecognition::process_icp()->void
             MapPtr map_query = mapmanager_->CheckoutMapExclusiveOrWait(curr_pc->GetClientID(),check_num_map);
             
             std::cout << COUTDEBUG << "CheckoutMapExclusiveOrWait "<< curr_pc->GetClientID()<<check_num_map<< std::endl;
-
+            
             // 检查是否已经有回环关系
-            for(auto lc : map_query->GetLoopConstraints()) {
-                bool existing_match = false;
+            bool existing_match = false;
+            auto lcs = map_query->GetLoopConstraints();
+            for(int i = 0; i < lcs.size() && !existing_match;i++) {
+                auto lc=lcs[i];
                 if(lc.type==0){
                     if(lc.pc1 == loop_pc && lc.pc2 == curr_pc) existing_match = true;
                     if(lc.pc2 == loop_pc && lc.pc1 == curr_pc) existing_match = true;
                 }
 
-                if(!existing_match) continue;
+                if(!existing_match) continue; // 如果不重复，继续检查下一个
                 std::cout << "!!! Loop Constraint already exisiting -- skip !!!" << std::endl;
+                existing_match=true;
                 curr_pc->SetErase();
                 pc_match_->SetErase();
-                // mapmanager_->ReturnMap(curr_pc->GetClientID(),check_num_map);
+                mapmanager_->ReturnMap(curr_pc->GetClientID(),check_num_map);// 这个不能删
+
                 // continue;
             }
+            // if(existing_match){
+            //     continue;
+            // }
             // LoopConstraint lc(kf_match,kf_query,T_smatch_squery);
             // loop_constraints_.push_back(lc);
             TransformType T_curr_loop;// 当前转到过去回环的  T_curr_loop

@@ -99,8 +99,13 @@ auto MapManager::CheckoutMapExclusive(int map_id, int &check_num)->MapPtr {
         // std::cout << COUTDEBUG << "map->usage_cnt"<<map->usage_cnt<<std::endl;
         return nullptr;
     } else {
+        if(map->check_nums.size() != 0){
+            std::cout << COUTFATAL << "have error here, force repair"<<std::endl;
+            return nullptr;
+        }
         int check = rand();
         map->usage_cnt = -1;
+        
         map->check_nums.insert(check);
         map->block_checkout = false;
         check_num = check;
@@ -284,19 +289,27 @@ auto MapManager::PerformMerge()->void {
 
     // MapInstancePtr map_query = MapInstancePtr this->CheckoutMapExclusiveOrWait(pc_query->GetClientID(),check_query);
     //
-
-    this->CheckoutMapExclusiveOrWait(pc_query->GetClientID(),check_query);
-    MapInstancePtr map_query = maps_[pc_query->GetClientID()];
-
-
-    std::cout << COUTDEBUG << "CheckoutMapExclusiveOrWait "<< pc_query->GetClientID()<<check_query<< std::endl;
-    if(map_query->map->associated_clients_.count(pc_match->GetClientID()) == 0){
-        std::cout << COUTERROR << "have merged" <<std::endl;
+    if(pc_match->GetClientID() == pc_query->GetClientID()){
+        std::cout << COUTFATAL << std::endl;
         return;
     }
-
+ 
     this->CheckoutMapExclusiveOrWait(pc_match->GetClientID(),check_match);
     MapInstancePtr map_match = maps_[pc_match->GetClientID()];
+
+    std::cout << COUTDEBUG << "CheckoutMapExclusiveOrWait "<< pc_query->GetClientID()<<check_query<< std::endl;
+    if(pc_match->map_->associated_clients_.count(pc_query->GetClientID())){
+        std::cout << COUTERROR << "have merged" <<std::endl;
+        // std::cout << COUTFATAL <<"map_query->map->associated_clients_ :"<< map_id<<check_num<< "check_num have";
+        // for (const auto& client : map_query->map->associated_clients_) {
+        //     std::cout << client << " ";
+        // }
+        // std::cout << std::endl;
+        return;
+    }
+   this->CheckoutMapExclusiveOrWait(pc_query->GetClientID(),check_query);
+    MapInstancePtr map_query = maps_[pc_query->GetClientID()];
+
 
 
     std::cout << COUTDEBUG << "CheckoutMapExclusiveOrWait "<< pc_match->GetClientID()<<check_match<< std::endl;
