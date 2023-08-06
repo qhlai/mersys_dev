@@ -104,7 +104,7 @@ auto MapManager::CheckoutMapExclusive(int map_id, int &check_num)->MapPtr {
         map->check_nums.insert(check);
         map->block_checkout = false;
         check_num = check;
-
+        
         return map->map;
     }
 }
@@ -199,7 +199,7 @@ auto MapManager::InitializeMap(int map_id)->void {
 }
 auto MapManager::ReturnMap(int map_id, int &check_num)->void {
     std::unique_lock<std::mutex> lock(mtx_access_);
-
+    
     MapContainer::iterator mit = maps_.find(map_id);
     if(mit == maps_.end()){
         std::cout << COUTFATAL << "no existing map with Map-ID " << map_id << std::endl;
@@ -210,6 +210,11 @@ auto MapManager::ReturnMap(int map_id, int &check_num)->void {
 
     if(!map->check_nums.count(check_num)){
         std::cout << COUTFATAL << "check_num error" << std::endl;
+        std::cout << COUTFATAL <<"check_num :"<< map_id<<check_num<< "check_num have";
+        for (const auto& check_num_ : map->check_nums) {
+            std::cout << check_num_ << " ";
+        }
+        std::cout << std::endl;
         exit(-1);
     }
 
@@ -283,9 +288,18 @@ auto MapManager::PerformMerge()->void {
     this->CheckoutMapExclusiveOrWait(pc_query->GetClientID(),check_query);
     MapInstancePtr map_query = maps_[pc_query->GetClientID()];
 
+
+    std::cout << COUTDEBUG << "CheckoutMapExclusiveOrWait "<< pc_query->GetClientID()<<check_query<< std::endl;
+    if(map_query->map->associated_clients_.count(pc_match->GetClientID()) == 0){
+        std::cout << COUTERROR << "have merged" <<std::endl;
+        return;
+    }
+
     this->CheckoutMapExclusiveOrWait(pc_match->GetClientID(),check_match);
     MapInstancePtr map_match = maps_[pc_match->GetClientID()];
 
+
+    std::cout << COUTDEBUG << "CheckoutMapExclusiveOrWait "<< pc_match->GetClientID()<<check_match<< std::endl;
     // MapInstancePtr map_query = maps_[pc_query->id_.second];
     // MapInstancePtr map_match = maps_[pc_match->id_.second];
     // this->CheckoutMapExclusiveOrWait(kf_match->GetClientID(),check_match);

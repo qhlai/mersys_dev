@@ -140,6 +140,8 @@ auto PlaceRecognition::process_icp()->void
             }
             int check_num_map;
             MapPtr map_query = mapmanager_->CheckoutMapExclusiveOrWait(curr_pc->GetClientID(),check_num_map);
+            
+            std::cout << COUTDEBUG << "CheckoutMapExclusiveOrWait "<< curr_pc->GetClientID()<<check_num_map<< std::endl;
 
             // 检查是否已经有回环关系
             for(auto lc : map_query->GetLoopConstraints()) {
@@ -202,7 +204,9 @@ auto PlaceRecognition::process_icp()->void
                 }
 
             }
+            std::cout << COUTDEBUG << "ReturnMap "<< curr_pc->GetClientID()<<check_num_map<< std::endl;
             mapmanager_->ReturnMap(curr_pc->GetClientID(),check_num_map);
+        
         }
 
         // wait (must required for running the while loop)

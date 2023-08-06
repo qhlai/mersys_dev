@@ -58,6 +58,7 @@ Panels:
         - /mapping_all1/PointCloud242
         - /mapping_all1/PointCloud243
         - /mapping_all1/PointCloud244
+        - /PointCloud24
       Splitter Ratio: 0.4022257626056671
     Tree Height: 779
   - Class: rviz/Selection
@@ -341,9 +342,6 @@ Visualization Manager:
       Marker Topic: /colive_markers_be
       Name: Marker
       Namespaces:
-        "LoopEdges_intra_0_be\n": true
-        "LoopEdges_intra_1_be\n": true
-        Traj0_be: true
         Traj1_be: true
       Queue Size: 100
       Value: true
@@ -1639,7 +1637,7 @@ Visualization Manager:
       Color: 255; 255; 255
       Color Transformer: ""
       Decay Time: 0
-      Enabled: true
+      Enabled: false
       Invert Rainbow: false
       Max Color: 255; 255; 255
       Min Color: 0; 0; 0
@@ -1654,7 +1652,7 @@ Visualization Manager:
       Unreliable: false
       Use Fixed Frame: true
       Use rainbow: true
-      Value: true
+      Value: false
   Enabled: true
   Global Options:
     Background Color: 0; 0; 0
@@ -1699,7 +1697,7 @@ Visualization Manager:
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 0.9447987079620361
+      Pitch: 0.9397987127304077
       Target Frame: global
       Yaw: 0.36027637124061584
     Saved: ~
@@ -1720,4 +1718,4 @@ Window Geometry:
     collapsed: true
   Width: 1920
   X: 173
-  Y: 302
+  Y: 265

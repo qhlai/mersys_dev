@@ -317,8 +317,9 @@ void Global_map::wait_free()
     while(is_busy()){
         usleep(50);
         timeout_cout++;
-        if(timeout_cout>100){
+        if(timeout_cout>1000 & timeout_cout%1000==0){
             std::cout << COUTFATAL << "wait too long"<<std::endl;
+            // unset_busy();
             // exit(1);
         }
     }
@@ -804,8 +805,11 @@ void Global_map::save_to_pcd(std::string dir_name, std::string _file_name, int s
     scope_color(ANSI_COLOR_BLUE_BOLD);
     cout << "Save Rgb points to " << file_name << endl;
     fflush(stdout);
+    wait_free();
+    set_busy();    
     pcl::PointCloud<pcl::PointXYZRGB> pc_rgb;
     long pt_size = m_rgb_pts_vec.size();
+
     pc_rgb.resize(pt_size);
     long pt_count = 0;
     for (long i = pt_size - 1; i > 0; i--)
@@ -822,6 +826,10 @@ void Global_map::save_to_pcd(std::string dir_name, std::string _file_name, int s
         //     continue;
         // }
         pcl::PointXYZRGB pt;
+        if(m_rgb_pts_vec[ i ] == nullptr){
+            std::cout << COUTERROR << "nullptr" << std::endl;
+            continue;
+        }
         pc_rgb.points[ pt_count ].x = m_rgb_pts_vec[ i ]->m_pos[ 0 ];
         pc_rgb.points[ pt_count ].y = m_rgb_pts_vec[ i ]->m_pos[ 1 ];
         pc_rgb.points[ pt_count ].z = m_rgb_pts_vec[ i ]->m_pos[ 2 ];
@@ -841,6 +849,8 @@ void Global_map::save_to_pcd(std::string dir_name, std::string _file_name, int s
     // tim.tic();
     cout << "Now write to: " << file_name << endl; 
     pcl::io::savePCDFileBinary(std::string(file_name).append(".pcd"), pc_rgb);
+
+    unset_busy();
     // cout << "Save PCD cost time = " << tim.toc() << endl;
 }
 

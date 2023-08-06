@@ -142,10 +142,19 @@ auto PointCloud_ex::get_transformed_pc()->PointCloud{
 
 auto PointCloud_ex::add_and_merge_pointcloudex(PointCloudEXPtr pc)->void{
     // pts_cloud+=pc->get_transformed_pc();
-    PointCloud::Ptr cloud_acc(new PointCloud(pc->pts_cloud));
-    pcl::transformPointCloud(*cloud_acc, *cloud_acc, (pc->GetPoseTsw()*GetPoseTsw().inverse()).matrix());
-    pts_cloud+=*cloud_acc;
+    // 这里有内存报错
+    if(!pc){
+        std::cout << COUTWARN <<"pc is nullptr"<< std::endl;
+        return;
+    }
+    PointCloud cloud_acc= PointCloud(pc->pts_cloud);
+    pcl::transformPointCloud(cloud_acc, cloud_acc, (pc->GetPoseTsw()*GetPoseTsw().inverse()).matrix());
+    // std::cout << COUTDEBUG <<"cloud_acc.size()"<<cloud_acc.size()<< std::endl;
+    // if(cloud_acc.size()>100){
+    //     pts_cloud+=cloud_acc;
+    // }
 }
+    
 
 auto PointCloud_ex::pc_less::operator ()(const PointCloudEXPtr a, const PointCloudEXPtr b) const ->bool
 {

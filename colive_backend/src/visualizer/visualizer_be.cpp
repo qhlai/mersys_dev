@@ -321,7 +321,7 @@ auto Visualizer::PubLoopEdges()->void {
             b_intra = (pc1->GetClientID() == pc2->GetClientID());
             T1 = pc1->GetPoseTsg();
             T2 = pc2->GetPoseTsg();
-            std::cout <<COUTDEBUG << pc1->GetFrameID()<<"<->" << pc2->GetFrameID() << std::endl;
+            // std::cout <<COUTDEBUG << pc1->GetFrameID()<<"<->" << pc2->GetFrameID() << std::endl;
         }
         else{
             //TODO::
@@ -387,6 +387,10 @@ auto Visualizer::PubPointCloud_service()->void {
     // Global_map 
     for(std::map<size_t,VisBundle>::iterator mit = vis_data_.begin();mit!=vis_data_.end();++mit){
         auto map_rgb_pts=mit->second.map_rgb_pts;
+        if(!map_rgb_pts){
+            std::cout << COUTWARN << "!map_rgb_pts" << std::endl;
+            return;
+        }
         uint32_t pts_size = map_rgb_pts->m_rgb_pts_vec.size();
         std::cout <<COUTDEBUG<< "PubPointCloud, id"<<mit->second.id_map<<" , "<<pts_size <<" , "<<mit->second.frame_num_pointcloud <<std::endl;
         // auto map_bias =mit->second.id_map*5;
@@ -406,6 +410,10 @@ auto Visualizer::PubPointCloud_service()->void {
             //     std::cout << COUTDEBUG <<"map_rgb_pts.m_rgb_pts_vec[ i ]->m_N_rgb < 1 "<<std::endl;
             //     continue;
             // }
+            // rgb map中的RGB_pt_ptr点是指针，所以在拷贝时不会发生实际内容的拷贝
+            if(!map_rgb_pts->m_rgb_pts_vec[ i ]){
+                continue;
+            }
             pc_rgb.points[ pub_idx_size ].x = map_rgb_pts->m_rgb_pts_vec[ i ]->m_pos[ 0 ];
             pc_rgb.points[ pub_idx_size ].y = map_rgb_pts->m_rgb_pts_vec[ i ]->m_pos[ 1 ];
             pc_rgb.points[ pub_idx_size ].z = map_rgb_pts->m_rgb_pts_vec[ i ]->m_pos[ 2 ];

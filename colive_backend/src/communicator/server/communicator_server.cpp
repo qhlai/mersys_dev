@@ -325,7 +325,7 @@ auto Communicator_server::Run()->void {
     {
         int check_num_map;
         map_ = mapmanager_->CheckoutMapOrWait(client_id_,check_num_map);
-
+        std::cout << COUTDEBUG << "CheckoutMapOrWait "<< client_id_<<check_num_map<< std::endl;
         if(colive_params::comm::data_to_client) {
             auto now = std::chrono::steady_clock::now();
             std::chrono::duration<double> diff = now-last;
@@ -338,6 +338,7 @@ auto Communicator_server::Run()->void {
 
         this->ProcessBufferIn();
         if(this->TryLock()){
+
             // this->ProcessPointCloudMessages();
             this->ProcessNewPointClouds();
             this->ProcessNewImages();
@@ -352,14 +353,16 @@ auto Communicator_server::Run()->void {
             // this->ProcessNewKeyframes();
             // this->ProcessNewLandmarks();
             // this->ProcessAdditional();
+            vis_->DrawMap(map_);
             this->UnLock();
         }
-        vis_->DrawMap(map_);
+        
         // if(client_id_!=0){
         //     std::cout<<COUTDEBUG<<":"<<client_id_<<std::endl;
         // }
-        // std::cout<< COUTDEBUG <<"return map"<<std::endl;
-        mapmanager_->ReturnMap(client_id_,check_num_map);
+        std::cout << COUTDEBUG << "ReturnMap "<< client_id_<<check_num_map<< std::endl;
+        mapmanager_->ReturnMap(client_id_,check_num_map);// check_num error
+        
         map_ = nullptr; //make sure the MapManager is used correctly - this will cause SEGFAULT if accessed
 
         if(this->ShallFinish()){

@@ -117,7 +117,7 @@ Map::Map(MapPtr map_target, MapPtr map_tofuse, TransformType T_wtofuse_wmatch)
     TransformType T_wquery_wquery_new = T_wtofuse_wmatch;
     TransformType T_test = TransformType::Identity();
 
-    // T_test.translate(Vector3Type(0,0,8));
+    T_test.translate(Vector3Type(0,0,8));
     // T_test.tranlate();
     for(PointCloudEXMap::iterator mit =pointcloudex_tofuse.begin();mit != pointcloudex_tofuse.end();++mit) {
         PointCloudEXPtr pc = mit->second;

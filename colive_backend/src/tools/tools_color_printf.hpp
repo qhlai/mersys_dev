@@ -50,6 +50,8 @@ Dr. Fu Zhang < fuzhang@hku.hk >.
 #include <stdio.h>
 #include <string.h>
 #include <iostream>
+#include <chrono>
+
 /*
  * Make screen print colorful :)
  * Author: Jiarong Lin
@@ -66,13 +68,14 @@ const std::string _tools_color_printf_info = "[Enh]: Add delete lines, ANSI_SCRE
 using std::cout;
 using std::endl;
 
+#define TIMESTAMP std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count()
 #define COUTERROR "\033[1;31m!!!!! ERROR !!!!!\033[0m " << __func__ << ":" << __LINE__ << ": "
 #define COUTFATAL "\033[1;31m!!!!! FATAL ERROR !!!!!\033[0m " << __func__ << ":"  << __LINE__ << ": "
 #define COUTWARN "\033[1;33m!!! WARN !!!\033[0m " << __func__ << ":" << __LINE__ << ": "
 #define COUTNOTICE "\033[1;34m!!! NOTICE !!!\033[0m " << __func__ << ":" << __LINE__ << ": "
 #define DEPRECATED_FUNCTION {cout << "\033[1;31m!!!!! FATAL ERROR !!!!!\033[0m " << __func__ << ":"  << __LINE__ << " Use of deprecated function" << std::endl; exit(-1);}
 #define NOT_IMPLEMENTED {std::cout << "\033[1;33m!!! WARN !!!\033[0m " << __func__ << ":" << __LINE__ << ": This functionality is not implemented" << std::endl; }
-#define COUTDEBUG "\033[1;35m!!! DEBUG !!!\033[0m " << __func__ << ":" << __LINE__ << ": "
+#define COUTDEBUG "\033[1;35m!!! DEBUG !!!\033[0m " <<__func__ << ":" << __LINE__ <<  ": "
 
 #define REDL "\033[1;31m"
 #define REDR "\033[0m"
