@@ -141,7 +141,7 @@ auto PlaceRecognition::process_icp()->void
             int check_num_map;
             MapPtr map_query = mapmanager_->CheckoutMapExclusiveOrWait(curr_pc->GetClientID(),check_num_map);
             
-            std::cout << COUTDEBUG << "CheckoutMapExclusiveOrWait "<< curr_pc->GetClientID()<<check_num_map<< std::endl;
+            // std::cout << COUTDEBUG << "CheckoutMapExclusiveOrWait "<< curr_pc->GetClientID()<<check_num_map<< std::endl;
             
             // 检查是否已经有回环关系
             bool existing_match = false;
@@ -162,9 +162,10 @@ auto PlaceRecognition::process_icp()->void
 
                 // continue;
             }
-            // if(existing_match){
-            //     continue;
-            // }
+            // 若已经地图融合过了，则退出此次循环
+            if(existing_match){
+                continue;
+            }
             // LoopConstraint lc(kf_match,kf_query,T_smatch_squery);
             // loop_constraints_.push_back(lc);
             TransformType T_curr_loop;// 当前转到过去回环的  T_curr_loop
@@ -211,7 +212,7 @@ auto PlaceRecognition::process_icp()->void
                 }
 
             }
-            std::cout << COUTDEBUG << "ReturnMap "<< curr_pc->GetClientID()<<check_num_map<< std::endl;
+            // std::cout << COUTDEBUG << "ReturnMap "<< curr_pc->GetClientID()<<check_num_map<< std::endl;
             mapmanager_->ReturnMap(curr_pc->GetClientID(),check_num_map);
         
         }

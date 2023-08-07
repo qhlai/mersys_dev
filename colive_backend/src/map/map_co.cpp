@@ -61,6 +61,9 @@ Map::Map(MapPtr map_target, MapPtr map_tofuse, TransformType T_wtofuse_wmatch)
         std::cout << COUTFATAL << "Map initialized with ID " << id_map_ << std::endl;
         exit(-1);
     }
+    // 清理一下原来两个map内创建的线程
+    map_target->SetFinish();  
+    map_tofuse->SetFinish();  
 
     m_thread_pool_ptr->commit_task(&Map::Add2RGBMap_service,this);
 
@@ -117,7 +120,7 @@ Map::Map(MapPtr map_target, MapPtr map_tofuse, TransformType T_wtofuse_wmatch)
     TransformType T_wquery_wquery_new = T_wtofuse_wmatch;
     TransformType T_test = TransformType::Identity();
 
-    T_test.translate(Vector3Type(0,0,8));
+    T_test.translate(Vector3Type(0,0,12));
     // T_test.tranlate();
     for(PointCloudEXMap::iterator mit =pointcloudex_tofuse.begin();mit != pointcloudex_tofuse.end();++mit) {
         PointCloudEXPtr pc = mit->second;
@@ -163,6 +166,7 @@ Map::Map(MapPtr map_target, MapPtr map_tofuse, TransformType T_wtofuse_wmatch)
     //     // Add2RGBMap(pc);
     //     pcs_should_be_added_to_rgb_map.push(pc);
     // }
+
 
     // thread_rgb_map_.reset(new std::thread(&Map::Add2RGBMap_service,this));
     // thread_rgb_map_->detach();
@@ -274,6 +278,9 @@ auto Map::Add2RGBMap_service()->void {
         if (imgs_should_be_added_to_rgb_map.size() > 0) 
         {
             /* code */
+        }
+        if(this->ShallFinish()){
+            break;
         }
         std::this_thread::sleep_for(std::chrono::microseconds(10));        
     }

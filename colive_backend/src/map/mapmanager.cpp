@@ -95,12 +95,17 @@ auto MapManager::CheckoutMapExclusive(int map_id, int &check_num)->MapPtr {
 
     MapInstancePtr map = mit->second;
 
-    if(map->usage_cnt != 0 && map->usage_cnt > 0){
+    if(map->usage_cnt != 0 ){
+    // if(map->usage_cnt != 0 && map->usage_cnt > 0 && map->check_nums.size() != 0){
         // std::cout << COUTDEBUG << "map->usage_cnt"<<map->usage_cnt<<std::endl;
         return nullptr;
     } else {
         if(map->check_nums.size() != 0){
-            std::cout << COUTFATAL << "have error here, force repair"<<std::endl;
+            static uint32_t check_cout=0;
+            if(check_cout%100==0){
+                std::cout << COUTFATAL << "have error here, force repair"<<std::endl;
+            }
+            check_cout++;
             return nullptr;
         }
         int check = rand();
@@ -130,7 +135,7 @@ auto MapManager::CheckoutMapExclusiveOrWait(int map_id, int &check_num)->MapPtr 
             usleep(100);
             wait_cout++;
             if(wait_cout>3*1000000/100 && wait_cout % 1000 == 0){
-                std::cout << COUTFATAL << "CheckoutMapExclusive SetCheckoutBlock spend too much time."  << std::endl;
+                std::cout << COUTWARN << "CheckoutMapExclusive SetCheckoutBlock spend too much time."  << std::endl;
             }
         }
             
@@ -142,7 +147,7 @@ auto MapManager::CheckoutMapExclusiveOrWait(int map_id, int &check_num)->MapPtr 
         usleep(100);
         wait_cout++;
         if(wait_cout>3*1000000/100 && wait_cout % 1000 == 0){
-            std::cout << COUTFATAL << "CheckoutMapExclusive spend too much time."  << std::endl;
+            std::cout << COUTWARN << "CheckoutMapExclusive spend too much time."  << std::endl;
         }
     }
 
@@ -165,7 +170,7 @@ auto MapManager::CheckoutMapOrWait(int map_id, int &check_num)->MapPtr {
         usleep(100);
         wait_cout++;
         if(wait_cout>3*1000000/100 && wait_cout % 1000 == 0){
-            std::cout << COUTFATAL << "CheckoutMap spend too much time."  << std::endl;
+            std::cout << COUTWARN << "CheckoutMap spend too much time."  << std::endl;
         }
     }
     return map;
@@ -230,6 +235,9 @@ auto MapManager::ReturnMap(int map_id, int &check_num)->void {
                 // std::cout << COUTDEBUG << "map->usage_cnt--:"<<map->usage_cnt<<std::endl;
     // std::cout << COUTFATAL <<"return"<<map->usage_cnt<<std::endl;
     map->check_nums.erase(check_num);
+    if(map->check_nums.size() != map->usage_cnt && map->usage_cnt != -1){
+        std::cout << COUTFATAL <<  "returnmap error"<<map->check_nums.size() <<" "<<map->usage_cnt<<std::endl;
+    }
 }
 
 auto MapManager::RegisterMap(MapPtr external_map)->bool {
@@ -297,9 +305,9 @@ auto MapManager::PerformMerge()->void {
     this->CheckoutMapExclusiveOrWait(pc_match->GetClientID(),check_match);
     MapInstancePtr map_match = maps_[pc_match->GetClientID()];
 
-    std::cout << COUTDEBUG << "CheckoutMapExclusiveOrWait "<< pc_query->GetClientID()<<check_query<< std::endl;
+    // std::cout << COUTDEBUG << "CheckoutMapExclusiveOrWait "<< pc_query->GetClientID()<<check_query<< std::endl;
     if(pc_match->map_->associated_clients_.count(pc_query->GetClientID())){
-        std::cout << COUTERROR << "have merged" <<std::endl;
+        std::cout << COUTERROR << "map have merged" <<std::endl;
         // std::cout << COUTFATAL <<"map_query->map->associated_clients_ :"<< map_id<<check_num<< "check_num have";
         // for (const auto& client : map_query->map->associated_clients_) {
         //     std::cout << client << " ";
@@ -312,7 +320,8 @@ auto MapManager::PerformMerge()->void {
 
 
 
-    std::cout << COUTDEBUG << "CheckoutMapExclusiveOrWait "<< pc_match->GetClientID()<<check_match<< std::endl;
+    // std::cout << COUTDEBUG << "CheckoutMapExclusiveOrWait "<< pc_match->GetClientID()<<check_match<< std::endl;
+
     // MapInstancePtr map_query = maps_[pc_query->id_.second];
     // MapInstancePtr map_match = maps_[pc_match->id_.second];
     // this->CheckoutMapExclusiveOrWait(kf_match->GetClientID(),check_match);
@@ -352,6 +361,8 @@ auto MapManager::PerformMerge()->void {
     // TransformType T_gtofuse_gmatch = pc_query->GetPoseTgs() *  T_squery_smatch * pc_match->GetPoseTsg();
 
 #endif
+
+
     MapInstancePtr map_merged(new MapInstance(map_match,map_query,T_wquery_wquery_new));
 
 //     LoopConstraint lc(kf_match,kf_query,T_squery_smatch, cov_mat);
@@ -363,12 +374,14 @@ auto MapManager::PerformMerge()->void {
     map_merged->map->m_map_rgb_pts->m_rgb_pts_vec.size()<< "|" << 
     std::endl;
 
+    
     for(std::set<size_t>::iterator sit = map_merged->map->associated_clients_.begin();sit != map_merged->map->associated_clients_.end();++sit) {
         std::cout  << COUTDEBUG <<"remap client:"<< *sit <<  std::endl;
         maps_[*sit] = map_merged;
     }
 
     map_merged->usage_cnt = 0; // 激活与释放map，让其他线程可调用
+
     // map->check_nums
     // ReturnMap(pc_query->GetClientID(),check_query);
     // ReturnMap(pc_match->GetClientID(),check_match);

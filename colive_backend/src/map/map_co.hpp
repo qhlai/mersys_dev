@@ -135,6 +135,15 @@ public:
     virtual auto AddLoopConstraint(LoopConstraint lc)                                   ->void;
     virtual auto GetLoopConstraints()                                                   ->LoopVector;
 
+    // Synchronization
+    virtual auto SetFinish()                                                            ->void {
+        std::unique_lock<std::mutex> lock(mtx_finish_); finish_ = true;}
+    virtual auto ShallFinish()                                                          ->bool {
+        std::unique_lock<std::mutex> lock(mtx_finish_); return finish_;}
+    virtual auto IsFinished()                                                           ->bool {
+        std::unique_lock<std::mutex> lock(mtx_finish_); return is_finished_;}
+    virtual auto SetUnFinish()                                                            ->void {
+        std::unique_lock<std::mutex> lock(mtx_finish_); finish_ = false;}
     // void feat_points_callback(const sensor_msgs::PointCloud2::ConstPtr &msg_in);
     // void image_callback(const sensor_msgs::ImageConstPtr &msg);
     // void image_comp_callback(const sensor_msgs::CompressedImageConstPtr &msg);
@@ -178,6 +187,9 @@ protected:
     // Sync
     std::mutex                  mtx_map_;
     std::mutex                  mtx_update_;
+    std::mutex                  mtx_finish_;
+    bool                        finish_                                                 = false;
+    bool                        is_finished_                                            = false;
 };
 
 

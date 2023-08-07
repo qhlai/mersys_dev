@@ -318,7 +318,7 @@ void Global_map::wait_free()
         usleep(50);
         timeout_cout++;
         if(timeout_cout>1000 & timeout_cout%1000==0){
-            std::cout << COUTFATAL << "wait too long"<<std::endl;
+            std::cout << COUTWARN << "wait too long"<<std::endl;
             // unset_busy();
             // exit(1);
         }
