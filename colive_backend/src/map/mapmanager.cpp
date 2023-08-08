@@ -344,11 +344,12 @@ auto MapManager::PerformMerge()->void {
     // auto pc_query_w_g = pc_query->GetPoseTws() * T_squery_smatch * pc_match->GetPoseTsg();
     // pc_query->SetPoseTwg(pc_query_w_g);
     // TransformType T_wtofuse_wmatch = T_squery_smatch;
-    TransformType T_wquery_wmatch = pc_query->GetPoseTws() *  T_squery_smatch * pc_match->GetPoseTsw();
+    TransformType T_wquery_gmatch = pc_query->GetPoseTws() *  T_squery_smatch * pc_match->GetPoseTsg();
+    // TransformType T_wquery_wmatch = pc_query->GetPoseTws() *  T_squery_smatch * pc_match->GetPoseTsw();
 
-    TransformType T_wquery_gmatch =  T_wquery_wmatch * pc_match->GetPoseTwg();
+    // TransformType T_wquery_gmatch =  T_wquery_wmatch * pc_match->GetPoseTwg();
 
-    TransformType T_wquery_wquery_new = T_wquery_gmatch * pc_query->GetPoseTwg().inverse();
+    // TransformType T_wquery_wquery_new = T_wquery_gmatch * pc_query->GetPoseTwg().inverse();
 
 
     // TransformType T_gtofuse_gmatch = T_gtofuse_wtofuse * T_wtofuse_gmatch;
@@ -363,7 +364,7 @@ auto MapManager::PerformMerge()->void {
 #endif
 
 
-    MapInstancePtr map_merged(new MapInstance(map_match,map_query,T_wquery_wquery_new));
+    MapInstancePtr map_merged(new MapInstance(map_match,map_query,T_wquery_gmatch));
 
 //     LoopConstraint lc(kf_match,kf_query,T_squery_smatch, cov_mat);
 //     map_merged->map->AddLoopConstraint(lc);

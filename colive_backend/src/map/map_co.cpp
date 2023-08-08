@@ -118,14 +118,16 @@ Map::Map(MapPtr map_target, MapPtr map_tofuse, TransformType T_wtofuse_wmatch)
 
     
     TransformType T_wquery_wquery_new = T_wtofuse_wmatch;
-    TransformType T_test = TransformType::Identity();
+    TransformType T_test = T_wtofuse_wmatch;//TransformType::Identity();
+    TransformType T_test1 = TransformType::Identity();
 
     T_test.translate(Vector3Type(0,0,12));
+    T_test1.translate(Vector3Type(0,0,12));
     // T_test.tranlate();
     for(PointCloudEXMap::iterator mit =pointcloudex_tofuse.begin();mit != pointcloudex_tofuse.end();++mit) {
         PointCloudEXPtr pc = mit->second;
         // TransformType T = T_wtofuse_wmatch;
-        pc->SetPoseTwg( T_test);
+        pc->SetPoseTwg( T_test1);
 
     // TransformType T_wtarget_gtarget  = map_target->GetFamilyPc(map_target);
     // TransformType T_wtofuse_gtarget  = T_wtofuse_wtarget * T_wtarget_gtarget;
@@ -154,6 +156,7 @@ Map::Map(MapPtr map_target, MapPtr map_tofuse, TransformType T_wtofuse_wmatch)
     << "|" << "final:"<<rgbpts_merged 
     << "|" << "final:"<<m_map_rgb_pts->m_rgb_pts_vec.size() 
     << "|" << "T:"<<std::endl
+    << T_test.matrix()
     // <<T_wtofuse_wtarget.matrix()
     << std::endl;
 
