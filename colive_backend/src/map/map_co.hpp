@@ -110,6 +110,7 @@ public:
     // std::deque<sensor_msgs::PointCloud2::ConstPtr> odom_buffer;
 
     uint8_t map_type=0; // 0: unknow, 1: camera, 2: laser, 3: Cam + laser
+    TransformType  Twg;
 public:
 
     Map()=delete;

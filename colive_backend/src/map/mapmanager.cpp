@@ -44,12 +44,76 @@ MapManager::MapManager()
     downSizeFilterICP.setLeafSize(filter_size, filter_size, filter_size);
     scManager.setSCdistThres(0.1);   //scDistThres
     scManager.setMaximumRadius(80);//scMaximumRadius
+
+    init_gtsam();
+
+
+}
+auto MapManager::init_gtsam()->void{
+
+    gtsam::ISAM2Params parameters;
+    parameters.relinearizeThreshold = 0.01;
+    parameters.relinearizeSkip = 1;
+    isam2 = new gtsam::ISAM2(parameters);
+
+
+    gtsam::Vector priorNoiseVector6(6);
+    priorNoiseVector6 << 1e-12, 1e-12, 1e-12, 1e-12, 1e-12, 1e-12;
+    priorNoise = gtsam::noiseModel::Diagonal::Variances(priorNoiseVector6);
+
+    // gtsam::Vector odomNoiseVector6(6);
+    // // odomNoiseVector6 << 1e-4, 1e-4, 1e-4, 1e-4, 1e-4, 1e-4;
+    // odomNoiseVector6 << 1e-6, 1e-6, 1e-6, 1e-4, 1e-4, 1e-4;
+    // odomNoise = noiseModel::Diagonal::Variances(odomNoiseVector6);
+
+    double loopNoiseScore = 0.001; // constant is ok...
+    gtsam::Vector robustNoiseVector6(6); // gtsam::Pose3 factor has 6 elements (6D)
+    robustNoiseVector6 << loopNoiseScore, loopNoiseScore, loopNoiseScore, loopNoiseScore, loopNoiseScore, loopNoiseScore;
+    maps_robustLoopNoise = gtsam::noiseModel::Robust::Create(
+                    gtsam::noiseModel::mEstimator::Cauchy::Create(1), // optional: replacing Cauchy by DCS or GemanMcClure is okay but Cauchy is empirically good.
+                    gtsam::noiseModel::Diagonal::Variances(robustNoiseVector6) );
+}
+auto MapManager::process_isam_maps()->void{
+    while(1){
+        if( maps_gtSAMgraphMade  ) {
+            std::unique_lock<std::mutex> lock(mtx_pgo_maps_);
+            isam2->update(maps_gtSAMgraph, maps_initialEstimate);
+            isam2->update();
+        
+            maps_gtSAMgraph.resize(0);
+            maps_initialEstimate.clear();
+
+            isamCurrentEstimate = isam2->calculateEstimate();
+            {
+                std::unique_lock<std::mutex> lock(mtx_access_);
+                for (int map_idx=0; map_idx < int(isamCurrentEstimate.size()); map_idx++){
+                    // gtsam::Pose6D p;
+                    // p.x = isamCurrentEstimate.at<gtsam::Pose3>(map_idx).translation().x();
+                    // p.y = isamCurrentEstimate.at<gtsam::Pose3>(map_idx).translation().y();
+                    // p.z = isamCurrentEstimate.at<gtsam::Pose3>(map_idx).translation().z();
+                    // p.roll = isamCurrentEstimate.at<gtsam::Pose3>(map_idx).rotation().roll();
+                    // p.pitch = isamCurrentEstimate.at<gtsam::Pose3>(map_idx).rotation().pitch();
+                    // p.yaw = isamCurrentEstimate.at<gtsam::Pose3>(map_idx).rotation().yaw();
+                }
+            }
+        }
+
+        // updatePoses();
+            usleep(1000000);
+    }   
+        
 }
 
 auto MapManager::Run()->void {
+    // 计算因子图
+    m_thread_pool_ptr->commit_task( &MapManager::process_isam_maps,this);
+    // std::thread isam_update {process_isam_maps};
     while(1) {
         if(this->CheckMergeBuffer()) {
-            this->PerformMerge();
+            //以前的merge map
+            // this->PerformMerge();
+            // 为因子图填充数据
+            this->RecordMerge();
         }
 
         usleep(5000);
@@ -270,9 +334,16 @@ auto MapManager::CheckMergeBuffer()->bool {
     std::unique_lock<std::mutex> lock(mtx_access_);
     return !(buffer_merge_.empty());
 }
-auto MapManager::PerformMerge()->void {
-
-    std::cout << "+++ Perform Merge +++" << std::endl;
+gtsam::Pose3 Transform2Pose3(colive::TypeDefs::TransformType T){
+    Eigen::Vector3d position = T.translation();
+    Eigen::Vector3d euler = T.rotation().eulerAngles(2, 1, 0); // zyx
+    gtsam::Pose3 relative_pose = gtsam::Pose3(gtsam::Rot3::RzRyRx(euler[0], euler[1], euler[2]), gtsam::Point3(position[0], position[1], position[2]));
+    return relative_pose;
+}
+auto MapManager::RecordMerge()->void {
+    std::cout << COUTNOTICE << "+++ Record Merge +++" << std::endl;  
+    // maps_tf_
+    std::cout << COUTNOTICE << "+++ Record Merge +++" << std::endl;
 
     PointCloudEXPtr pc_query;
     PointCloudEXPtr pc_match;
@@ -281,7 +352,7 @@ auto MapManager::PerformMerge()->void {
     TransformType T_squery_smatch;
     // TypeDefs::Matrix6Type cov_mat;
 
-    std::cout << "--> Fetch merge data" << std::endl;
+    std::cout << COUTNOTICE << "--> Fetch merge data" << std::endl;
     {
         std::unique_lock<std::mutex> lock(mtx_access_);
         MergeInformation merge = buffer_merge_.front();
@@ -291,7 +362,78 @@ auto MapManager::PerformMerge()->void {
         T_squery_smatch = merge.T_squery_smatch;
         // cov_mat = merge.cov_mat;
     }
-    std::cout << "--> Process merge data" << std::endl;
+    if(pc_match->GetClientID() == pc_query->GetClientID()){
+        std::cout << COUTFATAL << "same client" <<  std::endl;
+        return;
+    }    
+    std::cout << COUTNOTICE << "--> Process merge data" << std::endl;
+
+
+    gtsam::Pose3 relative_pose = Transform2Pose3(T_squery_smatch);
+    
+    const int query_node_idx = pc_query->GetClientID();
+    const int match_node_idx = pc_match->GetClientID();
+
+
+    if( !maps_gtSAMgraphMade  ) {// 第一次执行，且执行一次
+        int init_node_idx = 0;
+        
+        gtsam::Vector priorNoiseVector6(6);
+        // set a big priorNoise
+        priorNoiseVector6 << 1e6, 1e6, 1e6, 1e6, 1e6, 1e6;
+        priorNoise = gtsam::noiseModel::Diagonal::Variances(priorNoiseVector6);
+        init_node_idx = query_node_idx;
+        
+
+        TransformType Twq_gm = pc_query->GetPoseTws()*T_squery_smatch*pc_match->GetPoseTsg();
+
+        gtsam::Pose3 poseOrigin = Transform2Pose3(Twq_gm);
+
+        {
+            std::unique_lock<std::mutex> lock(mtx_pgo_maps_);
+            // prior factor 
+            maps_gtSAMgraph.add(gtsam::PriorFactor<gtsam::Pose3>(init_node_idx, poseOrigin, priorNoise));
+            maps_initialEstimate.insert(init_node_idx, poseOrigin);
+            // runISAM2opt(); 
+        }
+
+        maps_gtSAMgraphMade  = true; 
+
+        cout << "posegraph prior node " << init_node_idx << " added" << endl;
+
+    }
+    else
+    {
+        std::unique_lock<std::mutex> lock(mtx_pgo_maps_);
+        maps_gtSAMgraph.add(gtsam::BetweenFactor<gtsam::Pose3>(query_node_idx, match_node_idx, relative_pose, maps_robustLoopNoise));
+
+        TransformType Twq_gm = pc_query->GetPoseTws()*T_squery_smatch*pc_match->GetPoseTsg();
+        maps_initialEstimate.insert(query_node_idx, Transform2Pose3(Twq_gm)); 
+    }
+    
+}
+auto MapManager::PerformMerge()->void {
+
+    std::cout << COUTNOTICE << "+++ Perform Merge +++" << std::endl;
+
+    PointCloudEXPtr pc_query;
+    PointCloudEXPtr pc_match;
+    // KeyframePtr kf_query;
+    // KeyframePtr kf_match;
+    TransformType T_squery_smatch;
+    // TypeDefs::Matrix6Type cov_mat;
+
+    std::cout << COUTNOTICE << "--> Fetch merge data" << std::endl;
+    {
+        std::unique_lock<std::mutex> lock(mtx_access_);
+        MergeInformation merge = buffer_merge_.front();
+        buffer_merge_.pop_front();
+        pc_query = merge.pc_query;
+        pc_match = merge.pc_match;
+        T_squery_smatch = merge.T_squery_smatch;
+        // cov_mat = merge.cov_mat;
+    }
+    std::cout << COUTNOTICE << "--> Process merge data" << std::endl;
 
     int check_query, check_match;
 

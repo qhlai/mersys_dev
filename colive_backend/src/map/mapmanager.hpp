@@ -9,6 +9,21 @@
 #include "typedefs_base.hpp"
 #include "scancontext/Scancontext.h"
 
+
+#include <gtsam/inference/Symbol.h>
+#include <gtsam/nonlinear/Values.h>
+#include <gtsam/nonlinear/Marginals.h>
+#include <gtsam/geometry/Rot3.h>
+#include <gtsam/geometry/Pose3.h>
+#include <gtsam/geometry/Rot2.h>
+#include <gtsam/geometry/Pose2.h>
+#include <gtsam/slam/PriorFactor.h>
+#include <gtsam/slam/BetweenFactor.h>
+#include <gtsam/navigation/GPSFactor.h>
+#include <gtsam/nonlinear/NonlinearFactorGraph.h>
+#include <gtsam/nonlinear/LevenbergMarquardtOptimizer.h>
+#include <gtsam/nonlinear/ISAM2.h>
+
 namespace colive
 {
 
@@ -80,6 +95,8 @@ public:
 
     auto Display()->void;
     auto lcd()->void;
+
+    auto init_gtsam()->void;
     // auto GetVoc()                                                                       ->VocabularyPtr {   // will never change - no need to be guarded by mutex
     //     return voc_;
     // }
@@ -99,12 +116,32 @@ public:
     PointCloud::Ptr          pcl_pc_d;
     PointCloud::Ptr          pcl_pc;
     // std::pair<idpair, TransformType> map_tf;
-    MapTransform
+    MapTransform             maps_tf_;
+
+
+public:
+    gtsam::NonlinearFactorGraph maps_gtSAMgraph;
+    gtsam::noiseModel::Base::shared_ptr maps_robustLoopNoise;
+
+
+    bool maps_gtSAMgraphMade = false;
+    gtsam::Values maps_initialEstimate;
+    gtsam::ISAM2 *isam2;
+    gtsam::Values isamCurrentEstimate;
+
+    gtsam::noiseModel::Diagonal::shared_ptr priorNoise;
+    gtsam::noiseModel::Diagonal::shared_ptr odomNoise;
+// noiseModel::Diagonal::shared_ptr RTKNoise;
+// noiseModel::Base::shared_ptr robustLoopNoise;
+// noiseModel::Base::shared_ptr robustGPSNoise;
 
 protected:
 
     auto CheckMergeBuffer()            ->bool;
     auto PerformMerge()                ->void;
+    auto RecordMerge()->void ;
+
+    auto process_isam_maps()->void ;
     // auto Display_()->void;
     // Data
     MapContainer                maps_;
@@ -142,6 +179,7 @@ protected:
     // Sync
     std::mutex                  mtx_access_;
     std::mutex                  mtx_database_;
+    std::mutex                  mtx_pgo_maps_;
 };
 
 }
