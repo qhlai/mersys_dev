@@ -55,6 +55,8 @@ public:
     using idpairVector           = TypeDefs::idpairVector;
     using PointCloudEXVector= TypeDefs::PointCloudEXVector;
     using PointCloudVector   = TypeDefs::PointCloudVector;
+    
+    using MapTransform   = TypeDefs::MapTransform;
     // using DatabasePtr                   = std::shared_ptr<KeyframeDatabaseBase>;
     // using VocabularyPtr                 = CovinsVocabulary::VocabularyPtr;
 public:
@@ -96,6 +98,8 @@ public:
     PointCloudEXPtr pc;
     PointCloud::Ptr          pcl_pc_d;
     PointCloud::Ptr          pcl_pc;
+    // std::pair<idpair, TransformType> map_tf;
+    MapTransform
 
 protected:
 
@@ -137,6 +141,7 @@ protected:
 
     // Sync
     std::mutex                  mtx_access_;
+    std::mutex                  mtx_database_;
 };
 
 }

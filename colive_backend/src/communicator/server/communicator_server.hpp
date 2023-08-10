@@ -86,6 +86,7 @@ protected:
 
     PointCloudEXList                pointclouds_new_;
     ImageEXList                     images_new_;
+    PointCloudEXPtr             p_pc_large_tmp;
     // LandmarkList                landmarks_new_;
 
     //data

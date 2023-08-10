@@ -425,6 +425,8 @@ void pointcloud_convert1(pcl::PointCloud<pcl::PointXYZINormal>::Ptr pc_in,pcl::P
     }
 }
 auto MapManager::AddToDatabase(PointCloudEXPtr pc)    ->void{
+    std::unique_lock<std::mutex> lock(mtx_database_);
+
     *pcl_pc  = pc->pts_cloud;
     downSizeFilterScancontext.setInputCloud(pcl_pc);
     downSizeFilterScancontext.filter(*pcl_pc_d);

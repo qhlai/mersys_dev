@@ -217,6 +217,9 @@ namespace TypeDefs {
     using ImageMap                      = std::map<idpair,ImagePtr,std::less<idpair>,Eigen::aligned_allocator<std::pair<const idpair,ImagePtr>>>; // map allocator: first element of pair must be declared const
     using ImageEXMap                    = std::map<idpair,ImageEXPtr,std::less<idpair>,Eigen::aligned_allocator<std::pair<const idpair,ImageEXPtr>>>; // map allocator: first element of pair must be declared const
 
+    using MapTransform                      = std::map<idpair,TransformType,std::less<idpair>,Eigen::aligned_allocator<std::pair<const idpair,TransformType>>>;
+
+
     using KeyframePairVector            = std::vector<std::pair<KeyframePtr,KeyframePtr>, Eigen::aligned_allocator<std::pair<KeyframePtr,KeyframePtr>>>;
     using KeyframeIntMap                = std::map<KeyframePtr,int,std::less<KeyframePtr>,Eigen::aligned_allocator<std::pair<const KeyframePtr,int>>>;
     using LoopVector                    = std::vector<LoopConstraint, Eigen::aligned_allocator<LoopConstraint>>;

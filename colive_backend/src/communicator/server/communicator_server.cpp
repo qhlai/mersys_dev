@@ -62,6 +62,8 @@ Communicator_server::Communicator_server(int client_id, int newfd, MapManagerPtr
         out_container.msg_info.push_back(0);
     SendMsgContainer(out_container);
 
+    p_pc_large_tmp=nullptr;
+
 }
 auto Communicator_server::CollectDataForAgent()->void {
     // if(most_recent_kf_id_ == defpair) return;
@@ -186,7 +188,7 @@ auto Communicator_server::ProcessNewPointClouds()->void {
         //     i->ComputeDescriptor();
         //     i->UpdateNormal();
         // }
-        static PointCloudEXPtr             p_pc_large_tmp =nullptr;
+        // static PointCloudEXPtr             p_pc_large_tmp =nullptr;
 
         if(static_cast<int>(pc->id_.second) == client_id_) {
             if(most_recent_pc_id_ == defpair) most_recent_pc_id_ = pc->id_;

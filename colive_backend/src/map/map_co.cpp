@@ -127,7 +127,7 @@ Map::Map(MapPtr map_target, MapPtr map_tofuse, TransformType T_wtofuse_wmatch)
     for(PointCloudEXMap::iterator mit =pointcloudex_tofuse.begin();mit != pointcloudex_tofuse.end();++mit) {
         PointCloudEXPtr pc = mit->second;
         // TransformType T = T_wtofuse_wmatch;
-        pc->SetPoseTwg( T_test1);
+        pc->SetPoseTwg( T_test,true);
 
     // TransformType T_wtarget_gtarget  = map_target->GetFamilyPc(map_target);
     // TransformType T_wtofuse_gtarget  = T_wtofuse_wtarget * T_wtarget_gtarget;

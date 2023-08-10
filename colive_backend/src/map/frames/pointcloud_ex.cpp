@@ -143,6 +143,7 @@ auto PointCloud_ex::get_transformed_pc()->PointCloud{
 auto PointCloud_ex::add_and_merge_pointcloudex(PointCloudEXPtr pc)->void{
     // pts_cloud+=pc->get_transformed_pc();
     // 这里可能会有未知内存报错
+    std::unique_lock<std::mutex> lock(mtx_in_);
     if(!pc){
         std::cout << COUTWARN <<"pc is nullptr"<< std::endl;
         return;
@@ -153,7 +154,7 @@ auto PointCloud_ex::add_and_merge_pointcloudex(PointCloudEXPtr pc)->void{
     // if(cloud_acc.size()<1000){
     //     return;
     // }
-    // pts_cloud+=cloud_acc;
+    pts_cloud+=cloud_acc;
 }
     
 
