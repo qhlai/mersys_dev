@@ -222,9 +222,13 @@ auto PlaceRecognition::process_icp()->void
     }
 } // process_icp
 
-auto PlaceRecognition::CheckBuffer()->bool {
+auto PlaceRecognition::CheckBuffer_pc()->bool {
     std::unique_lock<std::mutex> lock(mtx_in_);
     return (!buffer_pcs_in_.empty());
+}
+auto PlaceRecognition::CheckBuffer_img()->bool {
+    std::unique_lock<std::mutex> lock(mtx_in_);
+    return (!buffer_imgs_in_.empty());
 }
 auto PlaceRecognition::ComputeSE3() -> bool {
 
@@ -404,6 +408,74 @@ auto PlaceRecognition::DetectLoop()->bool {
 
     return false;
 }
+auto PlaceRecognition::DetectLoop_C()->bool {
+
+    // performSCLoopClosure();
+    {
+        std::unique_lock<std::mutex> lock(mtx_in_);
+        img_query_ = buffer_imgs_in_.front();
+        buffer_imgs_in_.pop_front();
+        img_query_->SetNotErase();
+    }
+    // mapmanager_->AddToDatabase(pc_query_);
+
+    // // if( int(mapmanager_->cl_pcs.size()) < mapmanager_->scManager.NUM_EXCLUDE_RECENT) // do not try too early 
+    // //     return false;
+    // if(img_query_->GetFrameID() < colive_params::placerec::start_after_kf || int(mapmanager_->cl_pcs.size()) < mapmanager_->scManager.NUM_EXCLUDE_RECENT) {
+    //     pc_query_->SetErase();
+    //     std::cout<< COUTNOTICE <<"eraly loop"<<std::endl;
+    //     return false;
+    // }
+
+    // auto detectResult = mapmanager_->scManager.detectLoopClosureID(); // first: nn index, second: yaw diff 
+    // int SCclosestHistoryFrameID = detectResult.first;
+    // // std::cout << "try detectLoopClosure:" << SCclosestHistoryFrameID<<std::endl;
+    // if( SCclosestHistoryFrameID != -1 ) {
+        
+    //     std::cout << "detectLoopClosureID: " << SCclosestHistoryFrameID<<std::endl;
+    //     const int prev_node_idx = SCclosestHistoryFrameID;
+    //     const int curr_node_idx = mapmanager_->cl_pcs.size() - 1; // because cpp starts 0 and ends n-1
+
+
+
+    //     auto loop_pc = mapmanager_->cl_pcs[prev_node_idx];
+    //     auto curr_pc = mapmanager_->cl_pcs[curr_node_idx];
+    //     // 回环限制
+    //     // 发生回环的两个设备 // curr, loop
+    //     idpair client_idpair;
+
+    //     client_idpair.first = curr_pc->GetClientID();
+    //     client_idpair.second = loop_pc->GetClientID();     
+    //     // if(curr_pc->GetFrameID()  <= loop_pc->GetFrameID()){
+    //     //     client_idpair.first = curr_pc->GetFrameID();
+    //     //     client_idpair.second = loop_pc->GetFrameID();
+    //     // }else{
+    //     //     client_idpair.first = loop_pc->GetFrameID();
+    //     //     client_idpair.second = curr_pc->GetFrameID();
+    //     // }
+    //     std::cout << COUTDEBUG << "debug loop:"<<curr_pc->GetClientID() <<":"<<curr_pc->GetFrameID()<< ", lastloop:" << client_idpair<<":" << last_loops_[client_idpair]<< std::endl;
+
+    //     if(last_loops_.count(client_idpair)) {
+            
+    //         if((curr_pc->GetFrameID() - last_loops_[client_idpair]) < colive_params::placerec::consecutive_loop_dist) {
+    //             std::cout << COUTNOTICE << "loop too offten, ignored" << std::endl;
+    //             curr_pc->SetErase();
+    //             return false;
+    //             // return;
+    //         }
+    //     }
+
+    //     std::cout << COUTNOTICE << "SC Loop detected! - between " << prev_node_idx << " and " << curr_node_idx << "" << endl;
+
+    //     std::unique_lock<std::mutex> lock(mtx_mBuf_);
+    //     scLoopICPBuf.push(std::pair<int, int>(prev_node_idx, curr_node_idx));
+    //     // addding actual 6D constraints in the other thread, icp_calculation.
+    //     mtx_mBuf_.unlock();
+    //     return true;
+    // }
+
+    // return false;
+}
 auto PlaceRecognition::InsertKeyframe(PointCloudEXPtr pc)->void {
     std::unique_lock<std::mutex> lock(mtx_in_);
     buffer_pcs_in_.push_back(pc);   
@@ -425,17 +497,14 @@ auto PlaceRecognition::Run()->void {
     m_thread_pool_ptr->commit_task(&PlaceRecognition::process_icp,this);
     while(1){
         // std::cout<<"add query"<<std::endl;
-        if (CheckBuffer()) {
+        if (CheckBuffer_pc()) {
             num_runs++;
+            bool detected = DetectLoop(); 
+        }
 
-            bool detected = DetectLoop();
-            // std::cout<<"add query"<<std::endl;
-            // if(detected) {
-            //     num_detected++;
-            //     this->CorrectLoop();    
-            // }
-            
-            
+        if (CheckBuffer_img()) {
+            num_runs++;
+            bool detected = DetectLoop_C(); 
         }
 
         if(this->ShallFinish()){
