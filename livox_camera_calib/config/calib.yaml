@@ -1,11 +1,11 @@
 # Data path. adjust them!
 common:
-    image_file: "/home/lqh/ros/r3live_ws/output/frames/img/0/1627807357.381526.png"
-    pcd_file: "/home/lqh/ros/r3live_ws/output/frames/pcd_large/0/1627807348.600288.pcd"
-    result_file: "/media/lqh/WDC/dataset/livox_cam/calib/extrinsic.txt"
-    # image_file: "/media/lqh/WDC/dataset/livox_cam/image/0.png"
-    # pcd_file: "/media/lqh/WDC/dataset/livox_cam/pcd/0.pcd"
+    # image_file: "/home/lqh/ros/r3live_ws/output/frames/img/0/1627807357.381526.png"
+    # pcd_file: "/home/lqh/ros/r3live_ws/output/frames/pcd_large/0/1627807348.600288.pcd"
     # result_file: "/media/lqh/WDC/dataset/livox_cam/calib/extrinsic.txt"
+    image_file: "/home/viosus/dataset/r3live_offical/single_scene_calibration/0.png"
+    pcd_file: "/home/viosus/dataset/r3live_offical/single_scene_calibration/0.pcd"
+    result_file: "/home/viosus/dataset/r3live_offical/single_scene_calibration/extrinsic.txt"
 
 # Camera Parameters. Adjust them!
 camera:
@@ -16,5 +16,6 @@ camera:
 
 # Calibration Parameters.!
 calib:
-    calib_config_file: "/home/lqh/ros/r3live_ws/src/colive/livox_camera_calib/config/config_indoor.yaml"
+    # calib_config_file: "/home/lqh/ros/r3live_ws/src/colive/livox_camera_calib/config/config_indoor.yaml"
+    calib_config_file: "/home/viosus/colive_ws/src/colive/livox_camera_calib/config/config_indoor.yaml"
     use_rough_calib: true # set true if your initial_extrinsic is bad

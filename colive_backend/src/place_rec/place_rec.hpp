@@ -39,9 +39,9 @@ class Map;
 class MapManager;
 
 
-class Calibration{
+// class Calibration{
 
-};
+// };
 
 
 class PlaceRecognition {
