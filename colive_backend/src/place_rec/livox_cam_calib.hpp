@@ -19,6 +19,20 @@
 #include <gtsam/nonlinear/NonlinearFactorGraph.h>
 #include <gtsam/nonlinear/LevenbergMarquardtOptimizer.h>
 #include <gtsam/nonlinear/ISAM2.h>
+
+#include <pcl/ModelCoefficients.h>
+#include <pcl/common/io.h>
+#include <pcl/features/normal_3d.h>
+#include <pcl/features/normal_3d_omp.h>
+#include <pcl/features/principal_curvatures.h>
+#include <pcl/filters/extract_indices.h>
+#include <pcl/filters/voxel_grid.h>
+#include <pcl/kdtree/kdtree_flann.h>
+#include <pcl/sample_consensus/ransac.h>
+#include <pcl/sample_consensus/sac_model_plane.h>
+#include <pcl/search/kdtree.h>
+#include <pcl/segmentation/sac_segmentation.h>
+#include <pcl_conversions/pcl_conversions.h>
 // #include <ad_localization_msgs/NavStateInfo.h>
 // #include "scancontext/Scancontext.h"
 #include "mapmanager.hpp"
@@ -55,7 +69,14 @@ public:
 public:
     auto Calib(ImageEXPtr img_pose_, int pc)        ->void;
     auto roughCalib(std::vector<Calibration> &calibs, Vector6Type &calib_params, double search_resolution, int max_iter)   ->void;
-    
+    void edgeDetector(
+    const int &canny_threshold, const int &edge_threshold,
+    const cv::Mat &src_img, cv::Mat &edge_img,
+    pcl::PointCloud<pcl::PointXYZ>::Ptr &edge_cloud);
+    void LiDAREdgeExtraction(
+    const std::unordered_map<VOXEL_LOC, Voxel *> &voxel_map,
+    const float ransac_dis_thre, const int plane_size_threshold,
+    pcl::PointCloud<pcl::PointXYZI>::Ptr &lidar_line_cloud_3d);
     auto buildVPnp(
     Vector6Type &extrinsic_params, int dis_threshold,
     bool show_residual,
@@ -84,6 +105,9 @@ public:
                   cv::Mat &projection_img);
     cv::Mat fillImg(const cv::Mat &input_img, const Direction first_direct,
                   const Direction second_direct);
+    void calcLine(const std::vector<Plane> &plane_list, const double voxel_size,
+                const Eigen::Vector3d origin,
+                std::vector<pcl::PointCloud<pcl::PointXYZI>> &line_cloud_list);
     MapPtr                       map_rgb_;
 
 
