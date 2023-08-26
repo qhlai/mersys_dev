@@ -134,6 +134,7 @@ auto Visualizer::DrawMap(MapPtr map)->void {
     vb.id_map = map->id_map_;
     vb.associated_clients = map->associated_clients_;
     vb.loops = map->GetLoopConstraints();
+    // vb.map=map;
     // vb.frame_num_image=
     vb.frame_num_pointcloud=map->GetPointCloudEXs().size();
     vb.frame = "camera_init";

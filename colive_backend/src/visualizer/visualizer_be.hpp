@@ -75,6 +75,7 @@ public:
         LandmarkMap             landmarks;
         PointCloudEXMap         pointCloud;
         PoseMap                 poseMap;
+        MapPtr                  map;
         uint32_t                location_bias;
 
         RGBMapPtr              map_rgb_pts;

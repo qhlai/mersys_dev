@@ -102,8 +102,10 @@ auto MapManager::process_isam_maps()->void{
 
                     T.translate(isamCurrentEstimate.at<gtsam::Pose3>(map_idx).translation());
                     T.rotate(isamCurrentEstimate.at<gtsam::Pose3>(map_idx).rotation().matrix());
-                    std::cout << COUTWARN << "gtsam T:" << std::endl << T.matrix() << std::endl;
-
+                    std::cout << COUTWARN << "gtsam T:"<< map_idx << std::endl << T.matrix() << std::endl;
+                    
+                    // 设定转移矩阵
+                    maps_[map_idx]->map->m_T=T;
 
                     // gtsam::Pose6D p;
                     // p.x = isamCurrentEstimate.at<gtsam::Pose3>(map_idx).translation().x();
