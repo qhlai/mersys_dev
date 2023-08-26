@@ -77,6 +77,10 @@ auto MapManager::process_isam_maps()->void{
     while(1){
         if( maps_gtSAMgraphMade  ) {
             std::unique_lock<std::mutex> lock(mtx_pgo_maps_);
+            if(maps_gtSAMgraph.size()==0 ){
+                usleep(1000000);
+                continue;
+            }
             isam2->update(maps_gtSAMgraph, maps_initialEstimate);
             isam2->update();
         
@@ -87,6 +91,20 @@ auto MapManager::process_isam_maps()->void{
             {
                 std::unique_lock<std::mutex> lock(mtx_access_);
                 for (int map_idx=0; map_idx < int(isamCurrentEstimate.size()); map_idx++){
+                    Vector3Type pos = isamCurrentEstimate.at<gtsam::Pose3>(map_idx).translation();
+                    TransformType T = TransformType::Identity();
+                    // T=isamCurrentEstimate.at<gtsam::Pose3>(map_idx);
+
+                    // Eigen::Matrix3d R = 
+                    // Eigen::AngleAxisd(isamCurrentEstimate.at<gtsam::Pose3>(map_idx).rotation().roll(), Eigen::Vector3d::UnitX()) *
+                    // Eigen::AngleAxisd(isamCurrentEstimate.at<gtsam::Pose3>(map_idx).rotation().pitch(), Eigen::Vector3d::UnitY()) *
+                    // Eigen::AngleAxisd(isamCurrentEstimate.at<gtsam::Pose3>(map_idx).rotation().yaw(), Eigen::Vector3d::UnitZ());
+
+                    T.translate(isamCurrentEstimate.at<gtsam::Pose3>(map_idx).translation());
+                    T.rotate(isamCurrentEstimate.at<gtsam::Pose3>(map_idx).rotation().matrix());
+                    std::cout << COUTWARN << "gtsam T:" << std::endl << T.matrix() << std::endl;
+
+
                     // gtsam::Pose6D p;
                     // p.x = isamCurrentEstimate.at<gtsam::Pose3>(map_idx).translation().x();
                     // p.y = isamCurrentEstimate.at<gtsam::Pose3>(map_idx).translation().y();
@@ -388,7 +406,8 @@ auto MapManager::RecordMerge()->void {
         TransformType Twq_gm = pc_query->GetPoseTws()*T_squery_smatch*pc_match->GetPoseTsg();
 
         gtsam::Pose3 poseOrigin = Transform2Pose3(Twq_gm);
-
+        maps_tf_[pc_match->GetClientID()]=TransformType::Identity();
+        maps_tf_[pc_query->GetClientID()]=Twq_gm;
         {
             std::unique_lock<std::mutex> lock(mtx_pgo_maps_);
             // prior factor 

@@ -50,6 +50,7 @@ public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
     using idpair                        = TypeDefs::idpair;
+    using Vector3Type                   = TypeDefs::Vector3Type;
     using Matrix3Type                   = TypeDefs::Matrix3Type;
     using TransformType                 = TypeDefs::TransformType;
 
@@ -72,6 +73,7 @@ public:
     using PointCloudVector   = TypeDefs::PointCloudVector;
     
     using MapTransform   = TypeDefs::MapTransform;
+    
     // using DatabasePtr                   = std::shared_ptr<KeyframeDatabaseBase>;
     // using VocabularyPtr                 = CovinsVocabulary::VocabularyPtr;
 public:
