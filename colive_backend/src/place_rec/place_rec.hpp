@@ -39,9 +39,9 @@ class Map;
 class MapManager;
 
 
-class Calibration{
+// class Calibration{
 
-};
+// };
 
 
 class PlaceRecognition {
@@ -83,8 +83,8 @@ public:
     virtual auto InsertKeyframe(PointCloudEXPtr pc)                                         ->void;
     virtual auto InsertLargeKeyframe(PointCloudEXPtr pc)                                         ->void;
     virtual auto InsertKeyframe1(ImageEXPtr img)                                         ->void;
-    virtual auto CheckBufferExt()                                                       ->bool {
-        return CheckBuffer();}
+    // virtual auto CheckBufferExt()                                                       ->bool {
+    //     return CheckBuffer();}
     // Synchronization
     auto SetFinish()                                                                    ->void  {
         std::unique_lock<std::mutex> lock(mtx_finish_); finish_ = true;}
@@ -100,8 +100,10 @@ public:
     virtual auto doICPVirtualRelative(int _loop_pc_idx, int _curr_pc_idx, TransformType &corrected_tf)        ->int;
 
 protected:
-    virtual auto CheckBuffer()                                                          ->bool;
+    virtual auto CheckBuffer_pc()                                                          ->bool;
+    virtual auto CheckBuffer_img()                                                          ->bool;
     virtual auto DetectLoop()                                                           ->bool;
+    virtual auto DetectLoop_C()                                                           ->bool;
     virtual auto ComputeSE3()                                                           ->bool;
     virtual auto CorrectLoop()                                                          ->bool;
     virtual auto ConnectLoop(PointCloudEXPtr pc_query, PointCloudEXPtr pc_match, TransformType T_squery_smatch, PoseMap &corrected_poses, MapPtr map)                              ->void;
@@ -125,6 +127,8 @@ protected:
 
     PointCloudEXPtr                   pc_query_;
     PointCloudEXPtr                   pc_match_;
+    ImageEXPtr                        img_query_;
+    ImageEXPtr                        img_match_;
     PointCloud::Ptr                   sc_pcs_d;
     PointCloud::Ptr                   pts_cloud;
     // std::vector< size_t >             last_loop_frame_id;

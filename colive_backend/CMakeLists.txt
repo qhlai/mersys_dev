@@ -143,12 +143,17 @@ file(GLOB_RECURSE PLACE_INC_FILES
 ${PROJECT_SOURCE_DIR}/src/place_rec/place_rec.hpp
 ${PROJECT_SOURCE_DIR}/src/place_rec/scancontext/*.hpp
 ${PROJECT_SOURCE_DIR}/src/place_rec/scancontext/*.h
+${PROJECT_SOURCE_DIR}/src/place_rec/livox_cam/*.hpp
+${PROJECT_SOURCE_DIR}/src/place_rec/livox_cam/*.h
+${PROJECT_SOURCE_DIR}/src/place_rec/livox_cam_calib.hpp
 # ${PROJECT_SOURCE_DIR}/src/visualizer/visualizer.cpp
 )
 
 file(GLOB_RECURSE PLACE_SRC_FILES     
 ${PROJECT_SOURCE_DIR}/src/place_rec/place_rec.cpp
 ${PROJECT_SOURCE_DIR}/src/place_rec/scancontext/Scancontext.cpp
+${PROJECT_SOURCE_DIR}/src/place_rec/livox_cam_calib.cpp
+# ${PROJECT_SOURCE_DIR}/src/place_rec/livox_cam/lidar_camera_calib.cpp
 # ${PROJECT_SOURCE_DIR}/src/visualizer/visualizer.cpp
 )
 file(GLOB_RECURSE VIS_INC_FILES     

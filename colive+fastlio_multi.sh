@@ -8,7 +8,7 @@ gnome-terminal -t "roslaunch" -x bash -c "cd ../../;source ./devel/setup.bash;ro
 # gnome-terminal -t "roslaunch" -x bash -c "cd ../../;source ./devel/setup.bash;roslaunch colive_backend colive_backend.launch rviz:=true;exec bash;"
 
 gnome-terminal -t "roslaunch" -x bash -c "gdb  -ex run  /home/lqh/ros/r3live_ws/devel/lib/colive_backend/colive_backend_node;exec bash;"
-
+gnome-terminal -t "roslaunch" -x bash -c "gdb  -ex run  /home/viosus/colive_ws/devel/lib/colive_backend/colive_backend_node;exec bash;"
 
 sleep 8
 

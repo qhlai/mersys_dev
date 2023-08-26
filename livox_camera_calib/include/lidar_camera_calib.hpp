@@ -1419,7 +1419,7 @@ void Calibration::calcDirection(const std::vector<Eigen::Vector2d> &points,
   direction << evecs.real()(0, evalsMax), evecs.real()(1, evalsMax);
 }
 
-cv::Mat Calibration::getProjectionImg(const Vector6d &extrinsic_params) {
+cv::Mat Calibration::getProjectionImg(const Vector6d &extrinsic_params) {   //接受外部的外参参数和深度信息，通过将深度信息映射为彩色，并将深度图像与输入图像进行叠加，最终生成一个彩色投影图像
   cv::Mat depth_projection_img;
   projection(extrinsic_params, raw_lidar_cloud_, INTENSITY, false,
              depth_projection_img);

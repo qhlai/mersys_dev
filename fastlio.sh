@@ -12,7 +12,7 @@ gnome-terminal -t "roslaunch" -x bash -c "cd ../../;source ./devel/setup.bash;ro
 sleep 3
 
 # gnome-terminal -t "rosbag play" -x bash -c "./dataset.sh;exec bash;"
-
+# gnome-terminal -t "rosbag play" -x bash -c "rosbag play ${path_dataset}/hku_campus_seq_00.bag;exec bash;"
 gnome-terminal -t "rosbag play" -x bash -c "rosbag play -r 3 ${path_dataset};exec bash;"
 
 
