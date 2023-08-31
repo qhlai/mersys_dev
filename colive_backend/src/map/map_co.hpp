@@ -36,6 +36,7 @@
 #include "typedefs_base.hpp"
 #include "map_rgb.hpp"
 #include "config_backend.hpp"
+#include "loop_info.hpp"
 namespace colive {
 
 // struct Global_map;
@@ -158,7 +159,7 @@ public:
     // for visualization
     TransformType               m_T= TransformType::Identity(); // 单机地图与全局地图的估计位姿关系 传感器相对于世界坐标系的位置和方向/
 
-    bool have_real_pos=false;  // 是否与世界坐标系建立了联系
+    bool have_set_vis_pos=false;  // 是否与世界坐标系建立了联系
 
     int m_number_of_new_visited_voxel = 0;
 protected:

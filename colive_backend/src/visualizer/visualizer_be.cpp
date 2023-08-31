@@ -134,20 +134,22 @@ auto Visualizer::DrawMap(MapPtr map)->void {
     vb.id_map = map->id_map_;
     vb.associated_clients = map->associated_clients_;
     vb.loops = map->GetLoopConstraints();
-    // vb.map=map;
+    vb.map=map;
+    vb.vis_T=map->m_T;
     // vb.frame_num_image=
     vb.frame_num_pointcloud=map->GetPointCloudEXs().size();
     vb.frame = "camera_init";
     vb.poseMap=map->GetPoseMap();
-    vb.location_bias=vb.id_map*5;
+    // vb.location_bias=vb.id_map*5;
+
     // vb.pointCloud =map->GetPointCloudEXs();
     // vb.map_rgb_pts=map->m_map_rgb_pts;
-    vb.map_rgb_pts.reset(new Global_map());
-    *(vb.map_rgb_pts)=*(map->m_map_rgb_pts);
+    // vb.map_rgb_pts.reset(new Global_map());
+    // *(vb.map_rgb_pts)=*(map->m_map_rgb_pts);
 
 
     // if(vb.keyframes.size() < 3) return;
-    if(map->m_map_rgb_pts->m_rgb_pts_vec.size() < 1000) return;
+    // if(map->m_map_rgb_pts->m_rgb_pts_vec.size() < 1000) return;
 
     std::cout <<COUTDEBUG<< "draw map id:"<<map->id_map_<<" , "<<map->m_map_rgb_pts->m_rgb_pts_vec.size() <<std::endl;    
 
@@ -175,13 +177,13 @@ auto Visualizer::PubTrajectories()->void {
     // PointCloudEXSetById pctraj;
     PoseMap_single pctraj;
     std::set<int> pccids;
-
+    TransformType vis_T = curr_bundle_.vis_T;
     for(PoseMap::const_iterator mit=curr_bundle_.poseMap.begin();mit!=curr_bundle_.poseMap.end();++mit){
         // KeyframePtr kf = mit->second;
         // PointCloudEXPtr pc = mit->second;
 
         // pctraj[mit->first.first]=mit->second;                    //
-        pccids.insert(mit->first.second); // client  id
+        pccids.insert( mit->first.second); // client  id
     }
 
     std::map<int,visualization_msgs::Marker> msgs;
@@ -210,19 +212,22 @@ auto Visualizer::PubTrajectories()->void {
     }
 
     precision_t scale = colive_params::vis::scalefactor;
-
+    // auto vis_T =curr_bundle_.vis_T;
     for(PoseMap::const_iterator mit=curr_bundle_.poseMap.begin();mit!=curr_bundle_.poseMap.end();++mit){
         // PointCloudEXPtr  pc = *sit;
         // Eigen::Matrix3d T = pc->pos_w;
         // Eigen::Matrix4d T = pc->GetPoseTws();
-        Eigen::Matrix4d T =mit->second.matrix();
+        auto T =mit->second;
 
+        Eigen::Vector3d pos_old= T.translation();
+
+        Eigen::Vector3d  pos_new = vis_T.rotation().matrix()*pos_old+vis_T.translation();
         // Eigen::Matrix4d T = mit->senod->GetPoseTsw().matrix();
         geometry_msgs::Point p;
 
-        p.x = scale*(T(0,3));
-        p.y = scale*(T(1,3));
-        p.z = scale*(T(2,3));
+        p.x = scale*(pos_new[0]);
+        p.y = scale*(pos_new[1]);
+        p.z = scale*(pos_new[2]);
 
 
 // std::cout<<"x:"<<pc->pos_w[0]<<" "<<(T(0,3))<<"y:"<<pc->pos_w[1]<<" "<<(T(1,3))<<std::endl;
@@ -315,18 +320,21 @@ auto Visualizer::PubLoopEdges()->void {
     for(size_t idx = 0; idx<loops.size(); ++idx) {
         TransformType T1, T2;
 
-        bool b_intra = false;
-        if(loops[idx].type == 0){
+        // bool b_intra = false;
+        // if(loops[idx].type == 0){
             PointCloudEXPtr pc1 = loops[idx].pc1;
             PointCloudEXPtr pc2 = loops[idx].pc2;
-            b_intra = (pc1->GetClientID() == pc2->GetClientID());
-            T1 = pc1->GetPoseTsg();
-            T2 = pc2->GetPoseTsg();
+            // maps[pc1->GetClientID()]
+            // b_intra = (pc1->GetClientID() == pc2->GetClientID());
+            // b_intra = loops[idx].is_same_client;
+
+            T1 = pc1->map_->m_T * pc1->GetPoseTsg();
+            T2 = pc2->map_->m_T * pc2->GetPoseTsg();
             // std::cout <<COUTDEBUG << pc1->GetFrameID()<<"<->" << pc2->GetFrameID() << std::endl;
-        }
-        else{
-            //TODO::
-        }
+        // }
+        // else{
+        //     //TODO::
+        // }
 
 
         geometry_msgs::Point p1;
@@ -335,6 +343,7 @@ auto Visualizer::PubLoopEdges()->void {
         Eigen::Vector3d pos1, pos2;
         pos1= T1.translation();
         pos2= T2.translation();
+
         p1.x = scale*((double)(pos1[0]));
         p1.y = scale*((double)(pos1[1]));
         p1.z = scale*((double)(pos1[2]));
@@ -343,7 +352,7 @@ auto Visualizer::PubLoopEdges()->void {
         p2.y = scale*((double)(pos2[1]));
         p2.z = scale*((double)(pos2[2]));
 
-        if(b_intra){
+        if(loops[idx].is_same_client){
             msg_intra.points.push_back(p1);
             msg_intra.points.push_back(p2);
         } else {
@@ -387,7 +396,11 @@ auto Visualizer::PubPointCloud_service()->void {
     
     // Global_map 
     for(std::map<size_t,VisBundle>::iterator mit = vis_data_.begin();mit!=vis_data_.end();++mit){
-        auto map_rgb_pts=mit->second.map_rgb_pts;
+        auto map = mit->second.map;
+        auto map_rgb_pts=map->m_map_rgb_pts;
+        auto vis_T = map->m_T;
+        std::cout <<COUTWARN<< "PubPointCloud, id:"<<mit->second.id_map <<" , vis_T:"<<std::endl<<vis_T.matrix() <<std::endl;     
+
         if(!map_rgb_pts){
             std::cout << COUTWARN << "!map_rgb_pts" << std::endl;
             return;
@@ -395,14 +408,14 @@ auto Visualizer::PubPointCloud_service()->void {
         uint32_t pts_size = map_rgb_pts->m_rgb_pts_vec.size();
         std::cout <<COUTDEBUG<< "PubPointCloud, id"<<mit->second.id_map<<" , "<<pts_size <<" , "<<mit->second.frame_num_pointcloud <<std::endl;
         // auto map_bias =mit->second.id_map*5;
-    // auto map_rgb_pts=curr_bundle_.map_rgb_pts;
-    // int pts_size = map_rgb_pts->m_rgb_pts_vec.size();
+        // auto map_rgb_pts=curr_bundle_.map_rgb_pts;
+        // int pts_size = map_rgb_pts->m_rgb_pts_vec.size();
 
-    // std::cout << COUTNOTICE <<"rviz:pointcloud points sum:"<< pts_size << std::endl;
-    // g_pointcloud_pts_num=pts_size;
-    // for(std::map<size_t,VisBundle>::iterator mit = vis_data_.begin();mit!=vis_data_.end();++mit){
-        
-    // }
+        // std::cout << COUTNOTICE <<"rviz:pointcloud points sum:"<< pts_size << std::endl;
+        // g_pointcloud_pts_num=pts_size;
+        // for(std::map<size_t,VisBundle>::iterator mit = vis_data_.begin();mit!=vis_data_.end();++mit){
+            
+        // }
         for(uint64_t i=0;i<pts_size;i+=1) {
             // PointCloudEXPtr pc_ex = mit->second;
 
@@ -415,9 +428,27 @@ auto Visualizer::PubPointCloud_service()->void {
             if(!map_rgb_pts->m_rgb_pts_vec[ i ]){
                 continue;
             }
+#if 1
+            // auto 
+            Eigen::Vector3d pos_old(
+            map_rgb_pts->m_rgb_pts_vec[ i ]->m_pos[ 0 ], 
+            map_rgb_pts->m_rgb_pts_vec[ i ]->m_pos[ 1 ], 
+            map_rgb_pts->m_rgb_pts_vec[ i ]->m_pos[ 2 ]);
+
+            Eigen::Vector3d  pos_new = vis_T.rotation().matrix()*pos_old+vis_T.translation();
+            pc_rgb.points[ pub_idx_size ].x = pos_new[ 0 ];
+            pc_rgb.points[ pub_idx_size ].y = pos_new[ 1 ];
+            pc_rgb.points[ pub_idx_size ].z = pos_new[ 2 ];          
+#else
             pc_rgb.points[ pub_idx_size ].x = map_rgb_pts->m_rgb_pts_vec[ i ]->m_pos[ 0 ];
             pc_rgb.points[ pub_idx_size ].y = map_rgb_pts->m_rgb_pts_vec[ i ]->m_pos[ 1 ];
             pc_rgb.points[ pub_idx_size ].z = map_rgb_pts->m_rgb_pts_vec[ i ]->m_pos[ 2 ];
+#endif
+            
+
+
+
+
             // rgb 三通道至少一个不为空
             if(map_rgb_pts->m_rgb_pts_vec[ i ]->m_rgb[ 2 ] || map_rgb_pts->m_rgb_pts_vec[ i ]->m_rgb[ 1 ] || map_rgb_pts->m_rgb_pts_vec[ i ]->m_rgb[ 0 ]){
                 

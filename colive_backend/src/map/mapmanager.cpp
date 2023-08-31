@@ -14,7 +14,7 @@
 
 #include "pointcloud_ex.hpp"
 #include "image_ex.hpp"
-
+#include "tools_isometry.hpp"
 namespace colive
 {
 
@@ -389,49 +389,80 @@ auto MapManager::RecordMerge()->void {
     std::cout << COUTNOTICE << "--> Process merge data" << std::endl;
 
 
+
     gtsam::Pose3 relative_pose = Transform2Pose3(T_squery_smatch);
     
     const int query_node_idx = pc_query->GetClientID();
     const int match_node_idx = pc_match->GetClientID();
+    TransformType Twq_gm = pc_query->GetPoseTws()*T_squery_smatch*pc_match->GetPoseTsw();
+    std::cout << COUTERROR 
+    << "pc_query->GetPoseTws " << std::endl << pc_query->GetPoseTws().matrix()<< std::endl
+    << "T_squery_smatch " << std::endl << T_squery_smatch.matrix()<< std::endl
+    << "pc_match->GetPoseTsg " << std::endl << pc_match->GetPoseTsg().matrix()<< std::endl
+     << " Twq_gm " << std::endl <<  Twq_gm.matrix()<< std::endl
+     << std::endl;
+#if 1  // old version
+    if(maps_[pc_query->GetClientID()]->map->have_set_vis_pos ){
+        TransformType T = TransformType::Identity();
+        double dis = (maps_[pc_query->GetClientID()]->map->m_T.translation() - Twq_gm.translation()).norm();
+        if (dis < 2){
+            maps_[pc_query->GetClientID()]->map->m_T = AverageIsometry(maps_[pc_query->GetClientID()]->map->m_T,Twq_gm,0.5, 0.5);
+        }        
+        else if (dis > 2 && dis < 4){
+            maps_[pc_query->GetClientID()]->map->m_T = AverageIsometry(maps_[pc_query->GetClientID()]->map->m_T,Twq_gm,0.1, 0.1);
+        }else{
+            // ignore
+            // maps_[pc_query->GetClientID()]->map->m_T = AverageIsometry(maps_[pc_query->GetClientID()]->map->m_T,Twq_gm,0.05);
+        }
+        
+    }else{
+        maps_[pc_query->GetClientID()]->map->m_T=Twq_gm;     
+        maps_[pc_query->GetClientID()]->map->have_set_vis_pos= true ;   
+    }
+    return; ///!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
+#else
 
     if( !maps_gtSAMgraphMade  ) {// 第一次执行，且执行一次
-        int init_node_idx = 0;
+        // int init_node_idx = 0;
         
         gtsam::Vector priorNoiseVector6(6);
         // set a big priorNoise
         priorNoiseVector6 << 1e6, 1e6, 1e6, 1e6, 1e6, 1e6;
         priorNoise = gtsam::noiseModel::Diagonal::Variances(priorNoiseVector6);
-        init_node_idx = query_node_idx;
+        // init_node_idx = query_node_idx;
         
 
-        TransformType Twq_gm = pc_query->GetPoseTws()*T_squery_smatch*pc_match->GetPoseTsg();
-
+        gtsam::Pose3 poseOrigin_match = Transform2Pose3(TransformType::Identity());
         gtsam::Pose3 poseOrigin = Transform2Pose3(Twq_gm);
         maps_tf_[pc_match->GetClientID()]=TransformType::Identity();
         maps_tf_[pc_query->GetClientID()]=Twq_gm;
         {
             std::unique_lock<std::mutex> lock(mtx_pgo_maps_);
             // prior factor 
-            maps_gtSAMgraph.add(gtsam::PriorFactor<gtsam::Pose3>(init_node_idx, poseOrigin, priorNoise));
-            maps_initialEstimate.insert(init_node_idx, poseOrigin);
+            maps_gtSAMgraph.add(gtsam::PriorFactor<gtsam::Pose3>(match_node_idx, poseOrigin_match, priorNoise));
+            maps_initialEstimate.insert(match_node_idx, poseOrigin_match);
+
+            maps_gtSAMgraph.add(gtsam::PriorFactor<gtsam::Pose3>(query_node_idx, poseOrigin, priorNoise));
+            maps_initialEstimate.insert(query_node_idx, poseOrigin);
             // runISAM2opt(); 
         }
 
         maps_gtSAMgraphMade  = true; 
 
-        cout << "posegraph prior node " << init_node_idx << " added" << endl;
+        cout << "posegraph prior node " << query_node_idx << " added" << endl;
 
     }
     else
     {
         std::unique_lock<std::mutex> lock(mtx_pgo_maps_);
+        relative_pose = Transform2Pose3(Twq_gm);
         maps_gtSAMgraph.add(gtsam::BetweenFactor<gtsam::Pose3>(query_node_idx, match_node_idx, relative_pose, maps_robustLoopNoise));
 
-        TransformType Twq_gm = pc_query->GetPoseTws()*T_squery_smatch*pc_match->GetPoseTsg();
-        maps_initialEstimate.insert(query_node_idx, Transform2Pose3(Twq_gm)); 
+        maps_initialEstimate.insert(query_node_idx, Transform2Pose3(maps_[pc_query->GetClientID()]->map->m_T)); 
     }
-    
+#endif
+
 }
 auto MapManager::PerformMerge()->void {
 
