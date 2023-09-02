@@ -52,7 +52,9 @@ MapManager::MapManager()
 auto MapManager::init_gtsam()->void{
 
     gtsam::ISAM2Params parameters;
-    parameters.relinearizeThreshold = 0.01;
+    // parameters.relinearizeThreshold = 0.01;
+    // parameters.relinearizeSkip = 1;
+    parameters.relinearizeThreshold = 0.5;
     parameters.relinearizeSkip = 1;
     isam2 = new gtsam::ISAM2(parameters);
 
@@ -483,6 +485,7 @@ auto MapManager::RecordMerge()->void {
             // prior factor 
             maps_gtSAMgraph.add(gtsam::PriorFactor<gtsam::Pose3>(match_node_idx, poseOrigin_match, priorNoise));
             maps_initialEstimate.insert(match_node_idx, poseOrigin_match);
+            maps_initialEstimate.insert(query_node_idx, gtsam::Pose3());
 
 
             maps_gtSAMgraph.add(gtsam::BetweenFactor<gtsam::Pose3>(match_node_idx, query_node_idx, relative_pose, maps_robustLoopNoise));
@@ -525,7 +528,7 @@ auto MapManager::RecordMerge()->void {
         // relative_pose = Transform2Pose3(Twq_gm);
         relative_pose = Transform2Pose3(Twq_gm);
 
-        maps_gtSAMgraph.add(gtsam::BetweenFactor<gtsam::Pose3>(query_node_idx, match_node_idx, relative_pose, maps_robustLoopNoise));
+        maps_gtSAMgraph.add(gtsam::BetweenFactor<gtsam::Pose3>( match_node_idx,query_node_idx, relative_pose, maps_robustLoopNoise));
         std::cout << "GTSAM maps_gtSAMgraph.size(): " << maps_gtSAMgraph.size() << std::endl;
         maps_gtSAMgraphEnable =true;
         // // 因子图中是否已经有map的节点
