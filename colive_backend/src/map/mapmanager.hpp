@@ -127,6 +127,7 @@ public:
 
 
     bool maps_gtSAMgraphMade = false;
+    bool maps_gtSAMgraphEnable = false;
     gtsam::Values maps_initialEstimate;
     gtsam::ISAM2 *isam2;
     gtsam::Values isamCurrentEstimate;
