@@ -313,7 +313,7 @@ auto Communicator_client::TryPassKeyPcToComm(PointCloudEX* pc)      ->void{
 
   
         
-        if ( ((pos_dis > 0.5 || rot_diff > 10 || time_diff > 1 ||  pc_final->size() >= 40000)&& pc_final->size() >= 30000) ){
+        if ( ((pos_dis > 0.5 || rot_diff > 10 || time_diff > 1 ||  pc_final->size() >= 50000) && pc_final->size() >= 40000) ){
         // if ( (pos_dis > 0.5 || rot_diff > 10 || time_diff > 1 || pc_final->size() >= 50000) ){
             if (pc_final->size() == 0){
                 std::cout<<"Error pc_final->size() == 0"<< std::endl;

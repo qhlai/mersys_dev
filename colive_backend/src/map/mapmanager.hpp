@@ -127,7 +127,7 @@ public:
 
 
     bool maps_gtSAMgraphMade = false;
-    bool maps_gtSAMgraphEnable = false;
+    // bool maps_gtSAMgraphEnable = false;
     gtsam::Values maps_initialEstimate;
     gtsam::ISAM2 *isam2;
     gtsam::Values isamCurrentEstimate;
@@ -144,7 +144,8 @@ protected:
     auto PerformMerge()                ->void;
     auto RecordMerge()->void ;
 
-    auto process_isam_maps()->void ;
+    auto process_isam_maps()->void;
+    auto isam_maps()->void;
     // auto Display_()->void;
     // Data
     MapContainer                maps_;
