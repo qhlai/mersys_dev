@@ -35,7 +35,7 @@
 #include <pcl_conversions/pcl_conversions.h>
 // #include <ad_localization_msgs/NavStateInfo.h>
 // #include "scancontext/Scancontext.h"
-#include "mapmanager.hpp"
+// #include "mapmanager.hpp"
 #include "map_rgb.hpp"
 
 

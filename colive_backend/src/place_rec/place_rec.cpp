@@ -416,8 +416,11 @@ auto PlaceRecognition::DetectLoop_C()->bool {
         std::unique_lock<std::mutex> lock(mtx_in_);
         img_query_ = buffer_imgs_in_.front();
         buffer_imgs_in_.pop_front();
-        img_query_->SetNotErase();
+        pc_query_ = buffer_pcs_in_.front();
+        buffer_pcs_in_.pop_front();
+        // img_query_->SetNotErase();
     }
+    
     // mapmanager_->AddToDatabase(pc_query_);
 
     // // if( int(mapmanager_->cl_pcs.size()) < mapmanager_->scManager.NUM_EXCLUDE_RECENT) // do not try too early 
@@ -499,14 +502,18 @@ auto PlaceRecognition::Run()->void {
     while(1){
         // std::cout<<"add query"<<std::endl;
         if (CheckBuffer_pc()) {
+            if (CheckBuffer_img()) {
+            num_runs++;
+            bool detected = DetectLoop_C(); 
+            }
             num_runs++;
             bool detected = DetectLoop(); 
         }
 
-        if (CheckBuffer_img()) {
-            num_runs++;
-            bool detected = DetectLoop_C(); 
-        }
+        // if (CheckBuffer_img()) {
+        //     num_runs++;
+        //     bool detected = DetectLoop_C(); 
+        // }
 
         if(this->ShallFinish()){
             std::cout << "PlaceRec " << ": close" << std::endl;

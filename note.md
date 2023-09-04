@@ -4,6 +4,10 @@ rosrun rqt_topic rqt_topic
 rosrun rqt_image_view rqt_image_view
 ```
 
+
+sudo add-apt-repository ppa:borglab/gtsam-release-4.0
+sudo apt install libgtsam-dev libgtsam-unstable-dev
+
 https://mp.weixin.qq.com/s?__biz=MzU1NjEwMTY0Mw==&mid=2247516753&idx=2&sn=d45869d8ee7e1d4b1c8ac04adbdcbb98&chksm=fbc8fb35ccbf72232aab1c664210aa005e9aec9c52f74fe8e03408f2cced0e0b21eebdda1594&scene=27
 
 

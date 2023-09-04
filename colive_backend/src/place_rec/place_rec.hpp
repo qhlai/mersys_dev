@@ -22,6 +22,7 @@
 // #include <ad_localization_msgs/NavStateInfo.h>
 // #include "scancontext/Scancontext.h"
 #include "mapmanager.hpp"
+// #include "livox_cam_calib.hpp"
 
 
 
@@ -60,6 +61,7 @@ public:
     using LandmarkPtr                   = TypeDefs::LandmarkPtr;
     using MapPtr                        = TypeDefs::MapPtr;
     using MapManagerPtr                 = TypeDefs::MapManagerPtr;
+    // using CalibrationPtr                = TypeDefs::CalibrationPtr;
 
 using PoseMap                       = TypeDefs::PoseMap;
 
@@ -153,6 +155,15 @@ protected:
     // TypeDefs::Matrix6Type       mcov_mat;
     double                      mrelative_yaw = -1.0;
     
+    int                         rgb_edge_minLen_ = 200;
+    int                         rgb_canny_threshold_ = 20;
+    int                         min_depth_ = 2.5;
+    int                         max_depth_ = 50;
+    int                         plane_max_size_ = 5;
+    float                       detect_line_threshold_ = 0.1;
+    int                         line_number_ = 0;
+    int                         color_intensity_threshold_ = 5;
+
     // Sync
     std::mutex                  mtx_in_;
     std::mutex                  mtx_finish_;

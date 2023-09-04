@@ -97,6 +97,7 @@ class Map;
 
 class MapInstance;  
 class MapManager;
+class Calibration;
 class PlaceRecognition;
 class Visualizer;
 class Client;
@@ -158,6 +159,7 @@ namespace TypeDefs {
     using MapInstancePtr                   = std::shared_ptr<MapInstance>;
     using MapManagerPtr                    = std::shared_ptr<MapManager>;
 
+    using CalibrationPtr                  = std::shared_ptr<Calibration>;
     using PlacerecPtr                   = std::shared_ptr<PlaceRecognition>;
 
     using VisPtr                        = std::shared_ptr<Visualizer>;
