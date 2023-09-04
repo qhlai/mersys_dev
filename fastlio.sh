@@ -1,6 +1,5 @@
 #!/bin/bash
-path_dataset='/home/viosus/dataset/colive/2023-08-09-16-26-08fixed.bag'
-# path_dataset='/home/viosus/dataset/r3live_offical'
+path_dataset='/media/lqh/WDC/dataset/colive/nice/2023-08-02-22-48-44fixed_part1.bag'
 # path_workspace='~/ros/r3live'
 
 # rosbag filter 2023-08-02-22-48-44fixed.bag  2023-08-02-22-48-44fixed_part1.bag  "t.secs >= 1690987730 and t.secs <= 1690988121"

@@ -44,6 +44,7 @@ public:
 public:
     virtual auto GetClientID()            ->size_t;
     virtual auto GetFrameID()            ->size_t;
+    virtual auto GetFrameClientID()       ->idpair;
     virtual auto GetTimeStamp()            ->double;
 
     virtual auto SetErase()            ->void;

@@ -9,6 +9,10 @@ namespace colive {
         // std::unique_lock<std::mutex> lock_conn(mtx_connections_);
         return id_.first;
     }
+    auto FrameBase::GetFrameClientID()->idpair {
+        // std::unique_lock<std::mutex> lock_conn(mtx_connections_);
+        return id_;
+    }
     auto FrameBase::GetTimeStamp()->double {
         // std::unique_lock<std::mutex> lock_conn(mtx_connections_);
         return timestamp_;

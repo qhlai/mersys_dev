@@ -53,7 +53,7 @@ public:
     using KeyframeVector                = TypeDefs::KeyframeVector;
     using LandmarkVector                = TypeDefs::LandmarkVector;
     using KeyframePairVector            = TypeDefs::KeyframePairVector;
-    using LoopVector= TypeDefs::LoopVector;
+    using LoopVector                    = TypeDefs::LoopVector;
     using RGBMap               = TypeDefs::RGBMap;
     using RGBMapPtr               = TypeDefs::RGBMapPtr;
 
@@ -75,6 +75,8 @@ public:
         LandmarkMap             landmarks;
         PointCloudEXMap         pointCloud;
         PoseMap                 poseMap;
+        MapPtr                  map;
+        TransformType           vis_T;
         uint32_t                location_bias;
 
         RGBMapPtr              map_rgb_pts;

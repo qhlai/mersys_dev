@@ -14,7 +14,7 @@
 
 #include "pointcloud_ex.hpp"
 #include "image_ex.hpp"
-
+#include "tools_isometry.hpp"
 namespace colive
 {
 
@@ -52,13 +52,15 @@ MapManager::MapManager()
 auto MapManager::init_gtsam()->void{
 
     gtsam::ISAM2Params parameters;
+    // parameters.relinearizeThreshold = 0.01;
+    // parameters.relinearizeSkip = 1;
     parameters.relinearizeThreshold = 0.01;
     parameters.relinearizeSkip = 1;
     isam2 = new gtsam::ISAM2(parameters);
 
 
     gtsam::Vector priorNoiseVector6(6);
-    priorNoiseVector6 << 1e-12, 1e-12, 1e-12, 1e-12, 1e-12, 1e-12;
+    priorNoiseVector6 << 0.1, 0.1, 0.1, 0.1, 0.1, 0.1;
     priorNoise = gtsam::noiseModel::Diagonal::Variances(priorNoiseVector6);
 
     // gtsam::Vector odomNoiseVector6(6);
@@ -66,27 +68,122 @@ auto MapManager::init_gtsam()->void{
     // odomNoiseVector6 << 1e-6, 1e-6, 1e-6, 1e-4, 1e-4, 1e-4;
     // odomNoise = noiseModel::Diagonal::Variances(odomNoiseVector6);
 
-    double loopNoiseScore = 0.001; // constant is ok...
+    double loopNoiseScore = 0.1; // constant is ok...
     gtsam::Vector robustNoiseVector6(6); // gtsam::Pose3 factor has 6 elements (6D)
     robustNoiseVector6 << loopNoiseScore, loopNoiseScore, loopNoiseScore, loopNoiseScore, loopNoiseScore, loopNoiseScore;
     maps_robustLoopNoise = gtsam::noiseModel::Robust::Create(
                     gtsam::noiseModel::mEstimator::Cauchy::Create(1), // optional: replacing Cauchy by DCS or GemanMcClure is okay but Cauchy is empirically good.
                     gtsam::noiseModel::Diagonal::Variances(robustNoiseVector6) );
 }
+auto MapManager::isam_maps()->void{
+
+    if(maps_gtSAMgraph.size()==0 ){
+        // lock_pgo.unlock();
+       return;
+    }
+    std::cout << COUTERROR << "GTSAM info:" << maps_gtSAMgraph.size() << maps_initialEstimate.size() << std::endl;
+    isam2->update(maps_gtSAMgraph, maps_initialEstimate);
+    isam2->update();
+    std::cout << COUTERROR << "GTSAM info2:" << maps_gtSAMgraph.size() << maps_initialEstimate.size() << std::endl;
+    // for (size_t i = 0; i < 2; i++)
+    // {
+    //     isam2->update();
+    // }
+    
+    // 应该要删掉
+    maps_gtSAMgraph.resize(0);
+    maps_initialEstimate.clear();
+
+    isamCurrentEstimate = isam2->calculateEstimate();
+    if(isamCurrentEstimate.size() == 0){
+        std::cout << COUTERROR << "GTSAM failed to calculate" << std::endl;
+    }else {
+            std::cout << COUTERROR << "GTSAM calculate szie: "<< isamCurrentEstimate.size() << std::endl;
+    }              
+    {
+        
+        std::unique_lock<std::mutex> lock_access(mtx_access_);
+        for (int map_idx=0; map_idx < int(isamCurrentEstimate.size()); map_idx++){
+            // Vector3Type pos = isamCurrentEstimate.at<gtsam::Pose3>(map_idx).translation();
+            TransformType T = TransformType::Identity();
+            // T=isamCurrentEstimate.at<gtsam::Pose3>(map_idx);
+
+            // Eigen::Matrix3d R = 
+            // Eigen::AngleAxisd(isamCurrentEstimate.at<gtsam::Pose3>(map_idx).rotation().roll(), Eigen::Vector3d::UnitX()) *
+            // Eigen::AngleAxisd(isamCurrentEstimate.at<gtsam::Pose3>(map_idx).rotation().pitch(), Eigen::Vector3d::UnitY()) *
+            // Eigen::AngleAxisd(isamCurrentEstimate.at<gtsam::Pose3>(map_idx).rotation().yaw(), Eigen::Vector3d::UnitZ());
+
+            T.translate(isamCurrentEstimate.at<gtsam::Pose3>(map_idx).translation());
+            T.rotate(isamCurrentEstimate.at<gtsam::Pose3>(map_idx).rotation().matrix());
+
+            std::cout << COUTWARN << "gtsam T:"<< map_idx << std::endl << isamCurrentEstimate.at<gtsam::Pose3>(map_idx) << std::endl;
+            
+            // 设定转移矩阵
+            maps_[map_idx]->map->m_T=T;
+
+            // gtsam::Pose6D p;
+            // p.x = isamCurrentEstimate.at<gtsam::Pose3>(map_idx).translation().x();
+            // p.y = isamCurrentEstimate.at<gtsam::Pose3>(map_idx).translation().y();
+            // p.z = isamCurrentEstimate.at<gtsam::Pose3>(map_idx).translation().z();
+            // p.roll = isamCurrentEstimate.at<gtsam::Pose3>(map_idx).rotation().roll();
+            // p.pitch = isamCurrentEstimate.at<gtsam::Pose3>(map_idx).rotation().pitch();
+            // p.yaw = isamCurrentEstimate.at<gtsam::Pose3>(map_idx).rotation().yaw();
+        }
+    }
+
+}
 auto MapManager::process_isam_maps()->void{
     while(1){
         if( maps_gtSAMgraphMade  ) {
-            std::unique_lock<std::mutex> lock(mtx_pgo_maps_);
+            // maps_gtSAMgraphEnable =false;
+            {
+            std::unique_lock<std::mutex>  lock_pgo(mtx_pgo_maps_);
+            
+            if(maps_gtSAMgraph.size()==0 ){
+                // lock_pgo.unlock();
+                usleep(1000000);
+                continue;
+            }
+            std::cout << COUTERROR << "GTSAM info:" << maps_gtSAMgraph.size() << maps_initialEstimate.size() << std::endl;
             isam2->update(maps_gtSAMgraph, maps_initialEstimate);
             isam2->update();
-        
+            std::cout << COUTERROR << "GTSAM info2:" << maps_gtSAMgraph.size() << maps_initialEstimate.size() << std::endl;
+            // for (size_t i = 0; i < 2; i++)
+            // {
+            //     isam2->update();
+            // }
+            
+            // 应该要删掉
             maps_gtSAMgraph.resize(0);
             maps_initialEstimate.clear();
 
             isamCurrentEstimate = isam2->calculateEstimate();
+            if(isamCurrentEstimate.size() == 0){
+                std::cout << COUTERROR << "GTSAM failed to calculate" << std::endl;
+            }else {
+                    std::cout << COUTERROR << "GTSAM calculate szie: "<< isamCurrentEstimate.size() << std::endl;
+            }              
             {
-                std::unique_lock<std::mutex> lock(mtx_access_);
+             
+                std::unique_lock<std::mutex> lock_access(mtx_access_);
                 for (int map_idx=0; map_idx < int(isamCurrentEstimate.size()); map_idx++){
+                    // Vector3Type pos = isamCurrentEstimate.at<gtsam::Pose3>(map_idx).translation();
+                    TransformType T = TransformType::Identity();
+                    // T=isamCurrentEstimate.at<gtsam::Pose3>(map_idx);
+
+                    // Eigen::Matrix3d R = 
+                    // Eigen::AngleAxisd(isamCurrentEstimate.at<gtsam::Pose3>(map_idx).rotation().roll(), Eigen::Vector3d::UnitX()) *
+                    // Eigen::AngleAxisd(isamCurrentEstimate.at<gtsam::Pose3>(map_idx).rotation().pitch(), Eigen::Vector3d::UnitY()) *
+                    // Eigen::AngleAxisd(isamCurrentEstimate.at<gtsam::Pose3>(map_idx).rotation().yaw(), Eigen::Vector3d::UnitZ());
+
+                    T.translate(isamCurrentEstimate.at<gtsam::Pose3>(map_idx).translation());
+                    T.rotate(isamCurrentEstimate.at<gtsam::Pose3>(map_idx).rotation().matrix());
+
+                    std::cout << COUTWARN << "gtsam T:"<< map_idx << std::endl << isamCurrentEstimate.at<gtsam::Pose3>(map_idx) << std::endl;
+                    
+                    // 设定转移矩阵
+                    maps_[map_idx]->map->m_T=T;
+
                     // gtsam::Pose6D p;
                     // p.x = isamCurrentEstimate.at<gtsam::Pose3>(map_idx).translation().x();
                     // p.y = isamCurrentEstimate.at<gtsam::Pose3>(map_idx).translation().y();
@@ -96,6 +193,12 @@ auto MapManager::process_isam_maps()->void{
                     // p.yaw = isamCurrentEstimate.at<gtsam::Pose3>(map_idx).rotation().yaw();
                 }
             }
+
+            // lock_pgo.unlock();
+            // std::cout << COUTERROR << "unlock!!!! "<< std::endl;
+            }
+            // lock.unlock();
+
         }
 
         // updatePoses();
@@ -106,7 +209,7 @@ auto MapManager::process_isam_maps()->void{
 
 auto MapManager::Run()->void {
     // 计算因子图
-    m_thread_pool_ptr->commit_task( &MapManager::process_isam_maps,this);
+    // m_thread_pool_ptr->commit_task( &MapManager::process_isam_maps,this);
     // std::thread isam_update {process_isam_maps};
     while(1) {
         if(this->CheckMergeBuffer()) {
@@ -337,7 +440,8 @@ auto MapManager::CheckMergeBuffer()->bool {
 gtsam::Pose3 Transform2Pose3(colive::TypeDefs::TransformType T){
     Eigen::Vector3d position = T.translation();
     Eigen::Vector3d euler = T.rotation().eulerAngles(2, 1, 0); // zyx
-    gtsam::Pose3 relative_pose = gtsam::Pose3(gtsam::Rot3::RzRyRx(euler[0], euler[1], euler[2]), gtsam::Point3(position[0], position[1], position[2]));
+    gtsam::Pose3 relative_pose = gtsam::Pose3(gtsam::Rot3::RzRyRx(euler[2], euler[1], euler[0]), gtsam::Point3(position[0], position[1], position[2]));
+    std::cout << COUTNOTICE << "Transform2Pose3:"<< euler[2] <<", "<<  euler[1] <<", " << euler[0] <<", " << position[0] <<", " << position[1]<<", " << position[2]<< std::endl;  
     return relative_pose;
 }
 auto MapManager::RecordMerge()->void {
@@ -369,48 +473,143 @@ auto MapManager::RecordMerge()->void {
     std::cout << COUTNOTICE << "--> Process merge data" << std::endl;
 
 
-    gtsam::Pose3 relative_pose = Transform2Pose3(T_squery_smatch);
+
+    
     
     const int query_node_idx = pc_query->GetClientID();
     const int match_node_idx = pc_match->GetClientID();
+    TransformType Twq_gm = pc_query->GetPoseTws()*T_squery_smatch*pc_match->GetPoseTsw();
+    gtsam::Pose3 relative_pose = Transform2Pose3(Twq_gm);
+    std::cout << COUTNOTICE
+    << "pc_query->GetPoseTws " << std::endl << pc_query->GetPoseTws().matrix()<< std::endl
+    << "T_squery_smatch " << std::endl << T_squery_smatch.matrix()<< std::endl
+    << "pc_match->GetPoseTsg " << std::endl << pc_match->GetPoseTsg().matrix()<< std::endl
+     << " Twq_gm " << std::endl <<  Twq_gm.matrix()<< std::endl
+     << std::endl;
+#if 0  // old version
+    if(maps_[pc_query->GetClientID()]->map->have_set_vis_pos ){
+        TransformType T = TransformType::Identity();
+        double dis = (maps_[pc_query->GetClientID()]->map->m_T.translation() - Twq_gm.translation()).norm();
+        if (dis < 2){
+            maps_[pc_query->GetClientID()]->map->m_T = AverageIsometry(maps_[pc_query->GetClientID()]->map->m_T,Twq_gm,0.5, 0.5);
+        }        
+        else if (dis > 2 && dis < 4){
+            maps_[pc_query->GetClientID()]->map->m_T = AverageIsometry(maps_[pc_query->GetClientID()]->map->m_T,Twq_gm,0.1, 0.1);
+        }else{
+            // ignore
+            // maps_[pc_query->GetClientID()]->map->m_T = AverageIsometry(maps_[pc_query->GetClientID()]->map->m_T,Twq_gm,0.05);
+        }
+        
+    }else{
+        maps_[pc_query->GetClientID()]->map->m_T=Twq_gm;     
+        maps_[pc_query->GetClientID()]->map->have_set_vis_pos= true ;   
+    }
+    // return; ///!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
+#else
 
     if( !maps_gtSAMgraphMade  ) {// 第一次执行，且执行一次
-        int init_node_idx = 0;
+        // int init_node_idx = 0;
         
-        gtsam::Vector priorNoiseVector6(6);
-        // set a big priorNoise
-        priorNoiseVector6 << 1e6, 1e6, 1e6, 1e6, 1e6, 1e6;
-        priorNoise = gtsam::noiseModel::Diagonal::Variances(priorNoiseVector6);
-        init_node_idx = query_node_idx;
+        // gtsam::Vector priorNoiseVector6(6);
+        // // set a big priorNoise
+        // priorNoiseVector6 << 1e6, 1e6, 1e6, 1e6, 1e6, 1e6;
+        // priorNoise = gtsam::noiseModel::Diagonal::Variances(priorNoiseVector6);
+        // // init_node_idx = query_node_idx;
         
 
-        TransformType Twq_gm = pc_query->GetPoseTws()*T_squery_smatch*pc_match->GetPoseTsg();
-
-        gtsam::Pose3 poseOrigin = Transform2Pose3(Twq_gm);
-
+        gtsam::Pose3 poseOrigin_match = Transform2Pose3(TransformType::Identity());
+        
+        maps_tf_[pc_match->GetClientID()]=TransformType::Identity();
+        maps_tf_[pc_query->GetClientID()]=Twq_gm;
         {
             std::unique_lock<std::mutex> lock(mtx_pgo_maps_);
             // prior factor 
-            maps_gtSAMgraph.add(gtsam::PriorFactor<gtsam::Pose3>(init_node_idx, poseOrigin, priorNoise));
-            maps_initialEstimate.insert(init_node_idx, poseOrigin);
+            maps_gtSAMgraph.add(gtsam::PriorFactor<gtsam::Pose3>(match_node_idx, poseOrigin_match, gtsam::noiseModel::Diagonal::Sigmas((gtsam::Vector(6) << 0.1, 0.1, 0.1, 0.1, 0.1, 0.1).finished())));
+            maps_initialEstimate.insert(match_node_idx, poseOrigin_match);
+            
+
+
+            maps_gtSAMgraph.add(gtsam::BetweenFactor<gtsam::Pose3>(match_node_idx, query_node_idx, relative_pose, gtsam::noiseModel::Diagonal::Sigmas((gtsam::Vector(6) << 0.1, 0.1, 0.1, 0.1, 0.1, 0.1).finished())));
+            maps_initialEstimate.insert(query_node_idx, gtsam::Pose3());
+
+            // maps_gtSAMgraph.add(gtsam::PriorFactor<gtsam::Pose3>(query_node_idx, poseOrigin, priorNoise));
+            // maps_initialEstimate.insert(query_node_idx, poseOrigin);
+            // lock.unlock();
+
+            std::cout << "GTSAM maps_gtSAMgraph.size(): " << maps_gtSAMgraph.size() << std::endl;
             // runISAM2opt(); 
         }
 
         maps_gtSAMgraphMade  = true; 
-
-        cout << "posegraph prior node " << init_node_idx << " added" << endl;
+        // maps_gtSAMgraphEnable =true;
+        cout << COUTNOTICE << "posegraph prior node " << query_node_idx << " added" << endl;
 
     }
     else
     {
+        std::cout << COUTNOTICE <<  "gtsam insert start" << std::endl;
         std::unique_lock<std::mutex> lock(mtx_pgo_maps_);
-        maps_gtSAMgraph.add(gtsam::BetweenFactor<gtsam::Pose3>(query_node_idx, match_node_idx, relative_pose, maps_robustLoopNoise));
 
-        TransformType Twq_gm = pc_query->GetPoseTws()*T_squery_smatch*pc_match->GetPoseTsg();
-        maps_initialEstimate.insert(query_node_idx, Transform2Pose3(Twq_gm)); 
+        // std::unique_lock<std::mutex>  lock_pgo(mtx_pgo_maps_, std::try_to_lock);
+        // if(!lock_pgo.owns_lock())
+        // {
+        //     cout << COUTERROR << "unlock failed " << endl;
+        //     while(!lock_pgo.try_lock()){
+        //         lock_pgo.unlock(); // have bug here, wait to be fixed
+        //         cout << COUTERROR << "unlock failed " << endl;
+        //         usleep(50000);
+
+        //     }
+        
+        //     cout << COUTERROR << "unlock success " << endl;
+        // // return;
+        // }else{
+        //     cout << COUTERROR << "unlock success " << endl;
+        // }
+
+        std::cout << COUTNOTICE <<  "posegraph prior node " << query_node_idx << " added" << std::endl;
+        // relative_pose = Transform2Pose3(Twq_gm);
+        // relative_pose = Transform2Pose3(Twq_gm);
+
+
+        // std::cout << "GTSAM maps_gtSAMgraph.size(): " << maps_gtSAMgraph.size() << std::endl;
+        // maps_gtSAMgraphEnable =true;
+        // // 因子图中是否已经有map的节点
+        if (isamCurrentEstimate.exists(query_node_idx) && isamCurrentEstimate.exists(match_node_idx))
+        {
+            std::cout << "GTSAM: add graph" << std::endl;
+
+            // maps_gtSAMgraph.add(gtsam::BetweenFactor<gtsam::Pose3>( match_node_idx,query_node_idx, relative_pose, gtsam::noiseModel::Diagonal::Sigmas((gtsam::Vector(6) << 0.1, 0.1, 0.1, 0.5, 0.5, 0.1).finished())));
+        }
+        else if (!isamCurrentEstimate.exists(query_node_idx) && isamCurrentEstimate.exists(match_node_idx)){
+            std::cout << "GTSAM: add node" << std::endl;
+            maps_initialEstimate.insert(query_node_idx, gtsam::Pose3()); 
+        }
+        else if (isamCurrentEstimate.exists(query_node_idx) && !isamCurrentEstimate.exists(match_node_idx)){
+            std::cout << "GTSAM: add node" << std::endl;
+            maps_initialEstimate.insert(match_node_idx, gtsam::Pose3()); 
+        }else{
+            std::cout << "GTSAM: ignore" << std::endl;
+            return;
+        }
+        maps_gtSAMgraph.add(gtsam::BetweenFactor<gtsam::Pose3>( match_node_idx,query_node_idx, relative_pose, gtsam::noiseModel::Diagonal::Sigmas((gtsam::Vector(6) << 0.1, 0.1, 0.1, 0.5, 0.5, 0.1).finished())));
+        //     std::cout << COUTDEBUG << "GTSAM : new map node added, match" << std::endl;
+
+
+        // //    // 从values中获取key1的值
+        // //     gtsam::Vector3 value1 = values.at<gtsam::Vector3>(key1);
+        // //     std::cout << "Value of key1: " << value1 << std::endl;
+
+        
+        // maps_initialEstimate.insert(query_node_idx, Transform2Pose3(maps_[query_node_idx]->map->m_T)); 
+        // maps_initialEstimate.count(query_node_idx);
+        // lock.unlock();
     }
-    
+    std::cout << COUTNOTICE <<  "gtsam insert done" << std::endl;
+    isam_maps();
+#endif
+
 }
 auto MapManager::PerformMerge()->void {
 

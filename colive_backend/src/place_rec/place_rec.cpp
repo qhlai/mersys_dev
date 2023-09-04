@@ -185,8 +185,7 @@ auto PlaceRecognition::process_icp()->void
                 if(map_query->GetPointCloudEX(loop_pc->id_)){
                     std::cout << COUTNOTICE<< "+++ Single Close Loop FOUND +++" << std::endl;
                     bool perform_pgo_ =false;
-                    LoopConstraint lc(curr_pc,loop_pc, T_curr_loop);
-                    map_query->AddLoopConstraint(lc); // have fix crash here
+
                     // std::cout << "do icp success0.2" << std::endl;
                     if(perform_pgo_){
                         Eigen::Vector3d position = T_curr_loop.translation();
@@ -211,7 +210,9 @@ auto PlaceRecognition::process_icp()->void
                         // merge.cov_mat = mcov_mat;
                         mapmanager_->RegisterMerge(merge);
                 }
-
+                // 记录回环边
+                LoopConstraint lc(curr_pc,loop_pc, T_curr_loop);
+                map_query->AddLoopConstraint(lc); // have fix crash here
             }
             // std::cout << COUTDEBUG << "ReturnMap "<< curr_pc->GetClientID()<<check_num_map<< std::endl;
             mapmanager_->ReturnMap(curr_pc->GetClientID(),check_num_map);

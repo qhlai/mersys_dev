@@ -1,3 +1,4 @@
 colive_backend/lib
+colive_backend/test/build
 build
 .vscode
