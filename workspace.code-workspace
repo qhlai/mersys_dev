@@ -105,7 +105,8 @@
 			"tensor": "cpp",
 			"stdvector": "cpp",
 			"*.inc": "cpp",
-			"eigen": "cpp"
+			"eigen": "cpp",
+			"cassert": "cpp"
 		},
 		"python.autoComplete.extraPaths": [
 			"/home/lqh/ros/covins_ws/devel/lib/python3/dist-packages",
