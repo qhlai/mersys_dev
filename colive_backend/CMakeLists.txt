@@ -192,7 +192,6 @@ add_executable(colive_test_timer src/tools/test_timer.cpp)
 
 add_executable(colive_backend_node src/core/backend_node.cpp
     ${BACKEND_SRC_FILES}
-    
     ${MAP_SRC_FILES}
     ${COMM_SRC_FILES}
     ${PLACE_SRC_FILES}   

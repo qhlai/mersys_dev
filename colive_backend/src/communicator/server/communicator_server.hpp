@@ -23,6 +23,7 @@
 namespace colive {
 
 
+
 // class KeyFrame;
 class Communicator_server : public CommunicatorBase, public std::enable_shared_from_this<Communicator_server> {
 public:
