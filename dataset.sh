@@ -34,6 +34,11 @@ if [ "$client_num" != "" ];then
 file_name="2023-08-02-23-10-07fixed_part1.bag"
 namespace="client2"
 gnome-terminal -t "roslaunch" -x bash -c "cd ../../;source ./devel/setup.bash;roslaunch colive_backend dataset.launch namespace:=$namespace file_path:=$path_dataset file_name:=$file_name_2 play_speed:=$play_speed;exec bash;"
+
+
+namespace="client3"
+gnome-terminal -t "roslaunch" -x bash -c "cd ../../;source ./devel/setup.bash;roslaunch colive_backend dataset.launch namespace:=$namespace file_path:=$path_dataset file_name:=$file_name_3 play_speed:=$play_speed;exec bash;"
+
 fi
 
 # rosbag filter  2023-08-02-22-48-44fixed_part1.bag 2023-08-02-22-48-44fixed_part1_1.bag "t.secs >= 1690987730 and t.secs <= 1690987950"
