@@ -495,11 +495,14 @@ auto MapManager::RecordMerge()->void {
     << "Ts2w2 " << std::endl << pc_match->GetPoseTsw().matrix()<< std::endl
     << "Ts1w2_ " << std::endl << (pc_query->GetPoseTsw()*Twq_gm).matrix()<< std::endl
     << "Ts1w2 p " << std::endl << (Twq_gm.rotation()*pc_query->GetPoseTsw().translation()+Twq_gm.translation()).matrix()<< std::endl
-    
+    << "Ts1w2 p1 " << std::endl << (Twq_gm.rotation()*pc_query->GetPoseTsw().translation()).matrix()<< std::endl
     << "Ts2w2 " << std::endl << pc_match->GetPoseTsw().matrix()<< std::endl
 
      << std::endl;
-
+    Twq_gm.translation() = Twq_gm.translation()+(T_squery_smatch*pc_match->GetPoseTsw()).translation()-Twq_gm.rotation()*pc_query->GetPoseTsw().translation();
+    std::cout << COUTNOTICE<<"***************************"<< std::endl
+     << " Twq_gm " << std::endl <<  Twq_gm.matrix()<< std::endl
+     << std::endl;
 
 #if 0  // old version
     if(maps_[pc_query->GetClientID()]->map->have_set_vis_pos ){
