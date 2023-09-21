@@ -85,7 +85,7 @@ public:
     // }
     virtual auto TryPassKeyPcToComm(PointCloudEX* pc)                                        ->void;
     virtual auto TryPassKeyImgToComm(ImageEX* img)                                        ->void;
-    virtual auto PassPcToComm(PointCloudEX* pc)                                             ->void {
+    virtual auto PassPcToComm(PointCloudEX pc)                                             ->void {
         std::unique_lock<std::mutex>(mtx_pc_queue_);
         pointcloud_out_buffer_.push_back(pc);
     }
@@ -130,7 +130,7 @@ protected:
     precision_t             last_timestamp_=0;
 
     // std::list<KeyFrame*>   kf_out_buffer_;
-    std::list<PointCloudEX*>   pointcloud_out_buffer_;
+    std::list<PointCloudEX>   pointcloud_out_buffer_;
     std::list<ImageEX*>        image_out_buffer_;
     std::mutex              mtx_pc_queue_;
     std::mutex              mtx_img_queue_;

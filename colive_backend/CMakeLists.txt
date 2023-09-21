@@ -212,29 +212,29 @@ target_link_libraries(colive_backend_node
                         #   pcl_io
                           ) 
 
-add_executable(colive_test_node src/test/test_node.cpp
-    ${PROJECT_SOURCE_DIR}/src/core/backend.cpp
-    ${PROJECT_SOURCE_DIR}/src/core/config_backend.cpp
-    ${PROJECT_SOURCE_DIR}/src/test/test_client.cpp
-    ${MAP_SRC_FILES}
-    ${COMM_SRC_FILES}   
-    ${PLACE_SRC_FILES}
-    ${VIS_SRC_FILES}
-)
+# add_executable(colive_test_node src/test/test_node.cpp
+#     ${PROJECT_SOURCE_DIR}/src/core/backend.cpp
+#     ${PROJECT_SOURCE_DIR}/src/core/config_backend.cpp
+#     ${PROJECT_SOURCE_DIR}/src/test/test_client.cpp
+#     ${MAP_SRC_FILES}
+#     ${COMM_SRC_FILES}   
+#     ${PLACE_SRC_FILES}
+#     ${VIS_SRC_FILES}
+# )
 
-target_link_libraries(colive_test_node
-                        ${catkin_LIBRARIES}
-                        ${Boost_LIBRARIES}
-                        ${Boost_FILESYSTEM_LIBRARY}
-                        ${Boost_SERIALIZATION_LIBRARY} # serialization
-                        ${OpenCV_LIBRARIES}
-                        # ${OpenMVS_LIBRARIES}
-                        ${PCL_LIBRARIES}
-                        ZLIB::ZLIB
-                        gtsam
-                        #   pcl_common 
-                        #   pcl_io
-) 
+# target_link_libraries(colive_test_node
+#                         ${catkin_LIBRARIES}
+#                         ${Boost_LIBRARIES}
+#                         ${Boost_FILESYSTEM_LIBRARY}
+#                         ${Boost_SERIALIZATION_LIBRARY} # serialization
+#                         ${OpenCV_LIBRARIES}
+#                         # ${OpenMVS_LIBRARIES}
+#                         ${PCL_LIBRARIES}
+#                         ZLIB::ZLIB
+#                         gtsam
+#                         #   pcl_common 
+#                         #   pcl_io
+# ) 
 
 add_library(${PROJECT_NAME} SHARED 
     ${BACKEND_INC_FILES}

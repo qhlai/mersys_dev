@@ -325,9 +325,14 @@ auto Communicator_server::Run()->void {
     double wait_time = 1.0/colive_params::comm::to_agent_freq;
     while(true)
     {
+        if (client_id_==2){
+            std::cout << COUTWARN << "client_id_==2: "<< client_id_<< std::endl;
+        }
+
         int check_num_map;
         map_ = mapmanager_->CheckoutMapOrWait(client_id_,check_num_map);
-        // std::cout << COUTDEBUG << "CheckoutMapOrWait "<< client_id_<<check_num_map<< std::endl;
+
+        
         if(colive_params::comm::data_to_client) {
             auto now = std::chrono::steady_clock::now();
             std::chrono::duration<double> diff = now-last;

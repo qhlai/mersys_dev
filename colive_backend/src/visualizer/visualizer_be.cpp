@@ -217,18 +217,24 @@ auto Visualizer::PubTrajectories()->void {
         // PointCloudEXPtr  pc = *sit;
         // Eigen::Matrix3d T = pc->pos_w;
         // Eigen::Matrix4d T = pc->GetPoseTws();
-        auto T =mit->second;
+        auto Tsw =mit->second;
 
-        Eigen::Vector3d pos_old= T.translation();
+        // Eigen::Vector3d pos_old= T.translation();
 
-        Eigen::Vector3d  pos_new = vis_T.rotation().matrix()*pos_old+vis_T.translation();
-        // Eigen::Matrix4d T = mit->senod->GetPoseTsw().matrix();
+        Eigen::Vector3d  pos_new = vis_T.rotation().matrix()*Tsw.translation()+vis_T.translation();
+        // // Eigen::Matrix4d T = mit->senod->GetPoseTsw().matrix();
         geometry_msgs::Point p;
 
+        // p.x = scale*(pos_new[0]);
+        // p.y = scale*(pos_new[1]);
+        // p.z = scale*(pos_new[2]);
+        // Eigen::Vector3d pos_old= T.translation();
+        // Eigen::Vector3d  pos_new = vis_T.rotation()*Tsw.translation()+Tsw.translation();
+        // auto T_new =   Tsw * vis_T ;
+        // Eigen::Vector3d pos_new= T_new.translation();
         p.x = scale*(pos_new[0]);
         p.y = scale*(pos_new[1]);
         p.z = scale*(pos_new[2]);
-
 
 // std::cout<<"x:"<<pc->pos_w[0]<<" "<<(T(0,3))<<"y:"<<pc->pos_w[1]<<" "<<(T(1,3))<<std::endl;
         // p.x = scale*pc->pos_w[0];
@@ -329,8 +335,8 @@ auto Visualizer::PubLoopEdges()->void {
             // b_intra = loops[idx].is_same_client;
 
             T1 = pc1->map_->m_T * pc1->GetPoseTsg();
-            T2 = pc2->map_->m_T * pc2->GetPoseTsg();
-            // std::cout <<COUTDEBUG << pc1->GetFrameID()<<"<->" << pc2->GetFrameID() << std::endl;
+            T2 =  pc2->map_->m_T * pc2->GetPoseTsg();
+
         // }
         // else{
         //     //TODO::
@@ -358,6 +364,12 @@ auto Visualizer::PubLoopEdges()->void {
         } else {
             msg_inter.points.push_back(p1);
             msg_inter.points.push_back(p2);
+
+            std::cout <<COUTNOTICE << std::endl << 
+            pc1->map_->id_map_<<std::endl << T1.matrix() <<std::endl<<
+            pc2->map_->id_map_<<std::endl << T2.matrix() <<std::endl<<
+            p1.x<< " " <<p1.y <<" " << p1.z <<std::endl
+            << std::endl;
         }
     }
 

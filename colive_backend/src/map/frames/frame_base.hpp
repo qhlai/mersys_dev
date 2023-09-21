@@ -80,6 +80,7 @@ protected:
 
     // Infrastructure
     bool   invalid_               = false;
+    bool   m_lock_Tws_               = false;
 
 protected:
     // SE3 Pose, Bias, Velocity
