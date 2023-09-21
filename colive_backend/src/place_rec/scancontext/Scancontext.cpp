@@ -363,7 +363,23 @@ std::pair<int, float> SCManager::detectLoopClosureID ( void )
         polarcontext_invkeys_to_search_.assign( polarcontext_invkeys_mat_.begin(), polarcontext_invkeys_mat_.end() - NUM_EXCLUDE_RECENT ) ;
 
         polarcontext_tree_.reset(); 
-        polarcontext_tree_ = std::make_unique<InvKeyTree>(PC_NUM_RING /* dim */, polarcontext_invkeys_to_search_, 10 /* max leaf */ );
+        try {
+            polarcontext_tree_ = std::make_unique<InvKeyTree>(PC_NUM_RING /* dim */, polarcontext_invkeys_to_search_, 10 /* max leaf */ );
+                    // 检查指针是否为空
+            if (polarcontext_tree_) {
+                // 指针不为空，表示成功创建
+                // 执行您的操作
+            } else {
+                // 指针为空，表示分配内存失败
+                // 处理内存分配失败的情况
+            }
+        } catch (const std::bad_alloc& e) {
+            // 捕获 std::bad_alloc 异常，表示分配内存失败
+            // 处理内存分配失败的情况
+            std::cout << "scancontext fail polarcontext_tree_"<<std::endl;
+            std::pair<int, float> result {loop_id, 0.0};
+            return result; // Early return 
+        }
         // tree_ptr_->index->buildIndex(); // inernally called in the constructor of InvKeyTree (for detail, refer the nanoflann and KDtreeVectorOfVectorsAdaptor)
         t_tree_construction.toc("Tree construction");
     }
@@ -380,7 +396,15 @@ std::pair<int, float> SCManager::detectLoopClosureID ( void )
     TicTocV2 t_tree_search;
     nanoflann::KNNResultSet<float> knnsearch_result( NUM_CANDIDATES_FROM_TREE );
     knnsearch_result.init( &candidate_indexes[0], &out_dists_sqr[0] );
-    polarcontext_tree_->index->findNeighbors( knnsearch_result, &curr_key[0] /* query */, nanoflann::SearchParams(10) ); 
+    try {
+    polarcontext_tree_->index->findNeighbors( knnsearch_result, &curr_key.at(0) /* query */, nanoflann::SearchParams(10) ); 
+    } catch (const std::exception& e) {
+    // 捕获异常并打印错误消息
+    std::cerr << "scancontext fail polarcontext_tree_->index->findNeighbors: " << e.what() << std::endl;
+    std::pair<int, float> result {loop_id, 0.0};
+    return result; // Early return 
+    }
+
     t_tree_search.toc("Tree search");
 
     /* 

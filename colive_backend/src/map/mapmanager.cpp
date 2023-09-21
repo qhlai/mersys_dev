@@ -102,7 +102,7 @@ auto MapManager::isam_maps()->void{
     }              
     {
         
-        std::unique_lock<std::mutex> lock_access(mtx_access_);
+        // std::unique_lock<std::mutex> lock_access(mtx_access_);
         for (int map_idx=0; map_idx < int(isamCurrentEstimate.size()); map_idx++){
             // Vector3Type pos = isamCurrentEstimate.at<gtsam::Pose3>(map_idx).translation();
             TransformType T = TransformType::Identity();
@@ -479,7 +479,7 @@ auto MapManager::RecordMerge()->void {
     const int query_node_idx = pc_query->GetClientID();
     const int match_node_idx = pc_match->GetClientID();
     TransformType Twq_gm = pc_query->GetPoseTgs()*T_squery_smatch*pc_match->GetPoseTsw();
-    gtsam::Pose3 relative_pose = Transform2Pose3(Twq_gm);
+    
     std::cout.precision(15);
     std::cout << COUTNOTICE
     << "pc_query->GetPoseTsw " << std::endl << pc_query->GetPoseTsw().matrix()<< std::endl
@@ -499,10 +499,11 @@ auto MapManager::RecordMerge()->void {
     << "Ts2w2 " << std::endl << pc_match->GetPoseTsw().matrix()<< std::endl
 
      << std::endl;
-    Twq_gm.translation() = Twq_gm.translation()+(T_squery_smatch*pc_match->GetPoseTsw()).translation()-Twq_gm.rotation()*pc_query->GetPoseTsw().translation();
+    Twq_gm.translation() = (T_squery_smatch*pc_match->GetPoseTsw()).translation()-Twq_gm.rotation()*pc_query->GetPoseTsw().translation();
     std::cout << COUTNOTICE<<"***************************"<< std::endl
      << " Twq_gm " << std::endl <<  Twq_gm.matrix()<< std::endl
      << std::endl;
+     gtsam::Pose3 relative_pose = Transform2Pose3(Twq_gm);
 
 #if 0  // old version
     if(maps_[pc_query->GetClientID()]->map->have_set_vis_pos ){
@@ -564,7 +565,7 @@ auto MapManager::RecordMerge()->void {
         cout << COUTNOTICE << "posegraph prior node " << query_node_idx << " added" << endl;
 
     }
-    else if(false)
+    else
     {
         std::cout << COUTNOTICE <<  "gtsam insert start" << std::endl;
         std::unique_lock<std::mutex> lock(mtx_pgo_maps_);
@@ -603,15 +604,17 @@ auto MapManager::RecordMerge()->void {
         else if (!isamCurrentEstimate.exists(query_node_idx) && isamCurrentEstimate.exists(match_node_idx)){
             std::cout << "GTSAM: add node" << std::endl;
             maps_initialEstimate.insert(query_node_idx, gtsam::Pose3()); 
+            maps_gtSAMgraph.add(gtsam::BetweenFactor<gtsam::Pose3>( match_node_idx,query_node_idx, relative_pose, gtsam::noiseModel::Diagonal::Sigmas((gtsam::Vector(6) << 0.1, 0.1, 0.1, 0.5, 0.5, 0.1).finished())));
         }
         else if (isamCurrentEstimate.exists(query_node_idx) && !isamCurrentEstimate.exists(match_node_idx)){
             std::cout << "GTSAM: add node" << std::endl;
             maps_initialEstimate.insert(match_node_idx, gtsam::Pose3()); 
+            maps_gtSAMgraph.add(gtsam::BetweenFactor<gtsam::Pose3>( match_node_idx,query_node_idx, relative_pose, gtsam::noiseModel::Diagonal::Sigmas((gtsam::Vector(6) << 0.1, 0.1, 0.1, 0.5, 0.5, 0.1).finished())));
         }else{
             std::cout << "GTSAM: ignore" << std::endl;
             return;
         }
-        maps_gtSAMgraph.add(gtsam::BetweenFactor<gtsam::Pose3>( match_node_idx,query_node_idx, relative_pose, gtsam::noiseModel::Diagonal::Sigmas((gtsam::Vector(6) << 0.1, 0.1, 0.1, 0.5, 0.5, 0.1).finished())));
+        // maps_gtSAMgraph.add(gtsam::BetweenFactor<gtsam::Pose3>( match_node_idx,query_node_idx, relative_pose, gtsam::noiseModel::Diagonal::Sigmas((gtsam::Vector(6) << 0.1, 0.1, 0.1, 0.5, 0.5, 0.1).finished())));
         //     std::cout << COUTDEBUG << "GTSAM : new map node added, match" << std::endl;
 
 

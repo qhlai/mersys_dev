@@ -111,7 +111,7 @@ void RGB_pts::Intensity2Rgb( int colormap_type){
     cv::Mat colormap;
     auto intensity_color = intensity/230*255;
     if (intensity_color> 255){
-        std::cout <<COUTNOTICE<< "Intensity2Rgb out range" << std::endl;
+        // std::cout <<COUTNOTICE<< "Intensity2Rgb out range" << std::endl;
         intensity_color=255;
     }
     cv::applyColorMap(cv::Mat(1, 1, CV_8U, intensity_color), colormap, colormap_type);

@@ -107,7 +107,7 @@ auto PlaceRecognition::process_icp()->void
     {
 		while ( !scLoopICPBuf.empty() )
         {
-            if( scLoopICPBuf.size() > 30 ) {
+            if( scLoopICPBuf.size() > 10 ) {
                 std::cout << COUTWARN <<"Too many loop clousre candidates to be ICPed is waiting ... Do process_lcd less frequently (adjust loopClosureFrequency)"<<std::endl;
             }
 
@@ -130,15 +130,15 @@ auto PlaceRecognition::process_icp()->void
 
             client_idpair.first = curr_pc->GetClientID();
             client_idpair.second = loop_pc->GetClientID(); 
-            if(last_loops_.count(client_idpair)) {
+            // if(last_loops_.count(client_idpair)) {
             
-                if((curr_pc->GetFrameID() - last_loops_[client_idpair]) < colive_params::placerec::consecutive_loop_dist) {
-                    std::cout << COUTNOTICE << "loop too offten, ignored" << std::endl;
-                    curr_pc->SetErase();
-                    return;
-                    // return;
-                }
-            }
+            //     if((curr_pc->GetFrameID() - last_loops_[client_idpair]) < colive_params::placerec::consecutive_loop_dist) {
+            //         std::cout << COUTNOTICE << "loop too offten, ignored" << std::endl;
+            //         curr_pc->SetErase();
+            //         return;
+            //         // return;
+            //     }
+            // }
             int check_num_map;
             MapPtr map_query = mapmanager_->CheckoutMapExclusiveOrWait(curr_pc->GetClientID(),check_num_map);
             
@@ -389,15 +389,15 @@ auto PlaceRecognition::DetectLoop()->bool {
         // }
         std::cout << COUTDEBUG << "debug loop:"<<curr_pc->GetClientID() <<":"<<curr_pc->GetFrameID()<< ", lastloop:" << client_idpair<<":" << last_loops_[client_idpair]<< std::endl;
 
-        if(last_loops_.count(client_idpair)) {
+        // if(last_loops_.count(client_idpair)) {
             
-            if((curr_pc->GetFrameID() - last_loops_[client_idpair]) < colive_params::placerec::consecutive_loop_dist) {
-                std::cout << COUTNOTICE << "loop too offten, ignored" << std::endl;
-                curr_pc->SetErase();
-                return false;
-                // return;
-            }
-        }
+        //     if((curr_pc->GetFrameID() - last_loops_[client_idpair]) < colive_params::placerec::consecutive_loop_dist) {
+        //         std::cout << COUTNOTICE << "loop too offten, ignored" << std::endl;
+        //         curr_pc->SetErase();
+        //         return false;
+        //         // return;
+        //     }
+        // }
 
         std::cout << COUTNOTICE << "SC Loop detected! - between " << prev_node_idx << " and " << curr_node_idx << "" << endl;
 

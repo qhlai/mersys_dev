@@ -11,9 +11,9 @@ if [ "$username" = "lqh" ];then
 
 gnome-terminal -t "roslaunch" -x bash -c "gdb  -ex run  /home/lqh/ros/r3live_ws/devel/lib/colive_backend/colive_backend_node;exec bash;"
 
-elif [ "$username" = "viosus" ];then
+elif [ "$username" = "uestc" ];then
 
-gnome-terminal -t "roslaunch" -x bash -c "gdb  -ex run  /home/viosus/colive_ws/devel/lib/colive_backend/colive_backend_node;exec bash;"
+gnome-terminal -t "roslaunch" -x bash -c "gdb  -ex run  /home/uestc/colive_ws/devel/lib/colive_backend/colive_backend_node;exec bash;"
 fi
 
 
@@ -28,9 +28,9 @@ gnome-terminal -t "roslaunch" -x bash -c "cd ../../;source ./devel/setup.bash;ro
 
 sleep 2
 
-# gnome-terminal -t "roslaunch" -x bash -c "cd ../../;source ./devel/setup.bash;roslaunch fast_lio mapping_avia_client.launch rviz:=false namespace:=client3;exec bash;"
+gnome-terminal -t "roslaunch" -x bash -c "cd ../../;source ./devel/setup.bash;roslaunch fast_lio mapping_avia_client.launch rviz:=false namespace:=client3;exec bash;"
 
 
 sleep 5
 
-gnome-terminal -t "rosbag play" -x bash -c "./dataset.sh 2;exec bash;"
+gnome-terminal -t "rosbag play" -x bash -c "./dataset.sh 3;exec bash;"

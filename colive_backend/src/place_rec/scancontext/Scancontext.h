@@ -39,7 +39,7 @@ using std::sin;
 
 using SCPointType = pcl::PointXYZI; // using xyz only. but a user can exchange the original bin encoding function (i.e., max hegiht) to max intensity (for detail, refer 20 ICRA Intensity Scan Context)
 using KeyMat = std::vector<std::vector<float> >;
-using InvKeyTree = KDTreeVectorOfVectorsAdaptor< KeyMat, float >;
+using InvKeyTree = KDTreeVectorOfVectorsAdaptor< KeyMat, float >;//是使用 KeyMat 类型的向量集合，并使用 float 类型来计算向量之间的距离，构建 KD 树以进行最近邻搜索
 
 
 // namespace SC2
@@ -100,7 +100,7 @@ public:
     // const double SC_DIST_THRES = 0.7; // 0.4-0.6 is good choice for using with robust kernel (e.g., Cauchy, DCS) + icp fitness threshold / if not, recommend 0.1-0.15
 
     // config 
-    const int    TREE_MAKING_PERIOD_ = 30; // i.e., remaking tree frequency, to avoid non-mandatory every remaking, to save time cost / in the LeGO-LOAM integration, it is synchronized with the loop detection callback (which is 1Hz) so it means the tree is updated evrey 10 sec. But you can use the smaller value because it is enough fast ~ 5-50ms wrt N.
+    const int    TREE_MAKING_PERIOD_ = 60; // i.e., remaking tree frequency, to avoid non-mandatory every remaking, to save time cost / in the LeGO-LOAM integration, it is synchronized with the loop detection callback (which is 1Hz) so it means the tree is updated evrey 10 sec. But you can use the smaller value because it is enough fast ~ 5-50ms wrt N.
     int          tree_making_period_conter = 0;
 
     // setter
