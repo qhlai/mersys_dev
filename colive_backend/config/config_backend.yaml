@@ -6,7 +6,7 @@
 # sys.output_path: /home/lqh/ros/r3live_ws/output
 sys.output_path: /home/uestc/colive_ws/output
 sys.save_frames: 0
-sys.threads_pool: 12
+sys.threads_pool: 20
 # Number of threads used for optimization routines
 sys.threads_server: 8
 

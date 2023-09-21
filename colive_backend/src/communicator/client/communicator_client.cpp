@@ -125,11 +125,11 @@ auto Communicator_client::ProcessPointCloudBuffer()->void {
         colive::data_bundle map_chunk;
         colive::MsgPointCloud msg_ptcloud;
         // Vector3Type m(1.0,2.0,3.0);
-        ptcloud->ConvertToMsg(msg_ptcloud ,ptcloud->sent_once_,client_id_);
-        ptcloud->sent_once_ = true;
+        ptcloud.ConvertToMsg(msg_ptcloud ,ptcloud.sent_once_,client_id_);
+        ptcloud.sent_once_ = true;
         map_chunk.pointclouds.push_back(msg_ptcloud);
 
-        this->PassDataBundle(map_chunk);// 最后加到封包发送缓存中
+        PassDataBundle(map_chunk);// 最后加到封包发送缓存中
 
         if(cnt >= colive_params::comm::max_sent_kfs_per_iteration) break;
 
@@ -313,7 +313,13 @@ auto Communicator_client::TryPassKeyPcToComm(PointCloudEX* pc)      ->void{
 
   
         
-        if ( ((pos_dis > 0.5 || rot_diff > 10 || time_diff > 1 ||  pc_final->size() >= 50000) && pc_final->size() >= 40000) ){
+        // if (
+        //     (pos_dis > 0.5 || rot_diff > 10 || time_diff > 1) ||  pc_final->size() >= 40000) 
+        //     && pc_final->size() >= 25000) || (pos_dis > 3 )){
+        if (
+            (pos_dis > 0.5 || rot_diff > 10 || time_diff > 1) 
+            || pc_final->size() >= 35000
+            ){
         // if ( (pos_dis > 0.5 || rot_diff > 10 || time_diff > 1 || pc_final->size() >= 50000) ){
             if (pc_final->size() == 0){
                 std::cout<<"Error pc_final->size() == 0"<< std::endl;
@@ -330,7 +336,7 @@ auto Communicator_client::TryPassKeyPcToComm(PointCloudEX* pc)      ->void{
                 // 球半径滤波器
                 pcl::RadiusOutlierRemoval<PointType> outrem;  //创建滤波器
                 outrem.setInputCloud(pc_final);    //设置输入点云
-                outrem.setRadiusSearch(0.22);    //设置半径为0.2的范围内找临近点  该项参数越小 越严格
+                outrem.setRadiusSearch(0.25);    //设置半径为0.2的范围内找临近点  该项参数越小 越严格
                 outrem.setMinNeighborsInRadius (2);//设置查询点的邻域点集数小于2的删除
                 outrem.filter (*pc_final);
             #endif
@@ -345,7 +351,7 @@ auto Communicator_client::TryPassKeyPcToComm(PointCloudEX* pc)      ->void{
             #if 1// 降采样
 
                 // 设置降采样的体素大小
-                float voxel_size = 0.05f;
+                float voxel_size = 0.04f;
                 // 创建降采样对象
                 pcl::VoxelGrid<PointType> voxel_grid;
                 voxel_grid.setInputCloud(pc_final);
@@ -354,18 +360,18 @@ auto Communicator_client::TryPassKeyPcToComm(PointCloudEX* pc)      ->void{
                 // pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_downsampled(new pcl::PointCloud<pcl::PointXYZ>);
                 voxel_grid.filter(*pc_final);
             #endif
+            PointCloudEX pc_send;
+            pc_send.id_.second =  GetClientId();
+            pc_send.id_.first = send_cnt++ ;
+            pc_send.pts_cloud=*pc_final;
+            pc_send.SetPoseTsw(base_frame_transform_);
+            std::cout << "send new pointcloud "<<pc_send.id_.first <<", size:"<<pc_send.pts_cloud.size()<< std::endl <<pc_send.GetPoseTsw().matrix()<< std::endl <<last_transform_.matrix()<< std::endl;
             
-            pc->id_.second =  GetClientId();
-            pc->id_.first = send_cnt++ ;
-            pc->pts_cloud=*pc_final;
-            pc->SetPoseTsw(base_frame_transform_);
-            std::cout << "send new pointcloud "<<pc->id_.first <<", size:"<<pc->pts_cloud.size()<< std::endl;
-            
-            PassPcToComm(pc);
+            PassPcToComm(pc_send);
 
             // last_pos_=pc->pos_w;
             // last_quan_=pc->quan_; 
-            last_transform_=pc->GetPoseTsw();
+            last_transform_=pc_send.GetPoseTsw();
             last_timestamp_=pc->timestamp_;          
             pc_final->clear(); // reset
             base_frame_update_=true;

@@ -478,14 +478,32 @@ auto MapManager::RecordMerge()->void {
     
     const int query_node_idx = pc_query->GetClientID();
     const int match_node_idx = pc_match->GetClientID();
-    TransformType Twq_gm = pc_query->GetPoseTws()*T_squery_smatch*pc_match->GetPoseTsw();
+    TransformType Twq_gm = pc_query->GetPoseTgs()*T_squery_smatch*pc_match->GetPoseTsw();
     gtsam::Pose3 relative_pose = Transform2Pose3(Twq_gm);
+    std::cout.precision(15);
     std::cout << COUTNOTICE
+    << "pc_query->GetPoseTsw " << std::endl << pc_query->GetPoseTsw().matrix()<< std::endl
+    << "pc_query->GetPoseTgs " << std::endl << pc_query->GetPoseTgs().matrix()<< std::endl
     << "pc_query->GetPoseTws " << std::endl << pc_query->GetPoseTws().matrix()<< std::endl
     << "T_squery_smatch " << std::endl << T_squery_smatch.matrix()<< std::endl
-    << "pc_match->GetPoseTsg " << std::endl << pc_match->GetPoseTsg().matrix()<< std::endl
+    << "pc_match->GetPoseTsg " << std::endl << pc_match->GetPoseTsw().matrix()<< std::endl
      << " Twq_gm " << std::endl <<  Twq_gm.matrix()<< std::endl
      << std::endl;
+
+    std::cout << COUTNOTICE<<"***************************"<< std::endl
+    << "Ts1w2 " << std::endl << (T_squery_smatch*pc_match->GetPoseTsw()).matrix()<< std::endl
+    << "Ts2w2 " << std::endl << pc_match->GetPoseTsw().matrix()<< std::endl
+    << "Ts1w2_ " << std::endl << (pc_query->GetPoseTsw()*Twq_gm).matrix()<< std::endl
+    << "Ts1w2 p " << std::endl << (Twq_gm.rotation()*pc_query->GetPoseTsw().translation()+Twq_gm.translation()).matrix()<< std::endl
+    << "Ts1w2 p1 " << std::endl << (Twq_gm.rotation()*pc_query->GetPoseTsw().translation()).matrix()<< std::endl
+    << "Ts2w2 " << std::endl << pc_match->GetPoseTsw().matrix()<< std::endl
+
+     << std::endl;
+    Twq_gm.translation() = Twq_gm.translation()+(T_squery_smatch*pc_match->GetPoseTsw()).translation()-Twq_gm.rotation()*pc_query->GetPoseTsw().translation();
+    std::cout << COUTNOTICE<<"***************************"<< std::endl
+     << " Twq_gm " << std::endl <<  Twq_gm.matrix()<< std::endl
+     << std::endl;
+
 #if 0  // old version
     if(maps_[pc_query->GetClientID()]->map->have_set_vis_pos ){
         TransformType T = TransformType::Identity();
@@ -546,7 +564,7 @@ auto MapManager::RecordMerge()->void {
         cout << COUTNOTICE << "posegraph prior node " << query_node_idx << " added" << endl;
 
     }
-    else
+    else if(false)
     {
         std::cout << COUTNOTICE <<  "gtsam insert start" << std::endl;
         std::unique_lock<std::mutex> lock(mtx_pgo_maps_);
