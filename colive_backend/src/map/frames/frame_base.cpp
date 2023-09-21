@@ -96,6 +96,14 @@ namespace colive {
     }
     auto FrameBase::SetPoseTsw(TransformType Tsw, bool lock_mtx)->void {
         if(lock_mtx) mtx_pose_.lock();
+        // if (!m_lock_Tws_)
+        // {
+        //     m_lock_Tws_=true;
+        // }else{
+        //     std::cout<< COUTERROR <<"m_lock_Tws_=true;"<< std::endl;
+        //     // if(lock_mtx) mtx_pose_.unlock();
+        //     // return;
+        // }
         T_s_w_ = Tsw;
         T_w_s_ = T_s_w_.inverse();
         T_w_c_ = T_w_s_*T_s_c_;
@@ -104,6 +112,14 @@ namespace colive {
     }
     auto FrameBase::SetPoseTws(TransformType Tws, bool lock_mtx)->void {
         if(lock_mtx) mtx_pose_.lock();
+        // if (!m_lock_Tws_)
+        // {
+        //     m_lock_Tws_=true;
+        // }else{
+        //     std::cout<< COUTERROR <<"m_lock_Tws_=true;"<< std::endl;
+        //     // if(lock_mtx) mtx_pose_.unlock();
+        //     // return;
+        // }
         T_w_s_ = Tws;
         T_s_w_ = T_w_s_.inverse();
         T_w_c_ = T_w_s_*T_s_c_;

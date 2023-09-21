@@ -228,7 +228,9 @@ auto Visualizer::PubTrajectories()->void {
         p.x = scale*(pos_new[0]);
         p.y = scale*(pos_new[1]);
         p.z = scale*(pos_new[2]);
-
+        // p.x = scale*(pos_new[0]);
+        // p.y = scale*(pos_new[1]);
+        // p.z = scale*(pos_new[2]);
 
 // std::cout<<"x:"<<pc->pos_w[0]<<" "<<(T(0,3))<<"y:"<<pc->pos_w[1]<<" "<<(T(1,3))<<std::endl;
         // p.x = scale*pc->pos_w[0];

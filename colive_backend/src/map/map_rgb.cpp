@@ -109,7 +109,7 @@ int RGB_pts::update_rgb(const TypeDefs::Vector3Type &rgb, const double obs_dis, 
 void RGB_pts::Intensity2Rgb( int colormap_type){
     // Define the color map
     cv::Mat colormap;
-    auto intensity_color = intensity/200*255;
+    auto intensity_color = intensity/230*255;
     if (intensity_color> 255){
         std::cout <<COUTNOTICE<< "Intensity2Rgb out range" << std::endl;
         intensity_color=255;
