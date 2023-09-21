@@ -5,14 +5,14 @@ gnome-terminal -t "roslaunch" -x bash -c "cd ../../;source ./devel/setup.bash;ro
 
 sleep 3
 
-gnome-terminal -t "roslaunch" -x bash -c "cd ../../;source ./devel/setup.bash;roslaunch fast_lio mapping_avia_client.launch rviz:=false namespace:=client1;exec bash;"
+gnome-terminal -t "roslaunch" -x bash -c "cd ../../;source ./devel/setup.bash;roslaunch fast_lio mapping_avia_client.launch rviz:=false ;exec bash;"
 
 
 sleep 3
 
-gnome-terminal -t "rosbag play" -x bash -c "./dataset.sh;exec bash;"
-
-# gnome-terminal -t "rosbag play" -x bash -c "rosbag play --clock -r 1 ${path_dataset};exec bash;"
+# gnome-terminal -t "rosbag play" -x bash -c "./dataset.sh;exec bash;"
+path_dataset='/home/uestc/dataset/colive/2023-08-09-16-26-08fixed.bag'
+gnome-terminal -t "rosbag play" -x bash -c "rosbag play -r 1 ${path_dataset};exec bash;"
 
 
 # gnome-terminal -t "band" -x bash -c "sudo iftop -i lo -f "port 9033";"

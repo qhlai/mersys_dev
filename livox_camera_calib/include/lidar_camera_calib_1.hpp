@@ -688,7 +688,7 @@ void Calibration::initVoxel(
     }
   }
 
-  std::string file_name = std::string("/home/viosus/dataset/r3live_offical/single_scene_calibration/0.pcd");
+  std::string file_name = std::string("/home/uestc/dataset/r3live_offical/single_scene_calibration/0.pcd");
   // 更快 ,但人工不可读
   pcl::io::savePCDFileBinary(std::string(file_name), test_cloud_1);
 

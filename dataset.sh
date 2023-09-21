@@ -12,26 +12,28 @@ file_name_3="2023-08-02-23-10-07fixed_part1.bag"
 file_name_4="2023-08-02-23-10-07fixed_part1.bag"
 # path_dataset='/media/lqh/WDC/dataset/colive/fine/'
 echo "lqh"
-elif [ "$username" = "viosus" ];then
-path_dataset='/home/viosus/dataset/colive/'
+elif [ "$username" = "uestc" ];then
+path_dataset='/home/uestc/dataset/colive/'
 file_name_1="2023-08-09-16-26-08fixed_part1.bag"
 file_name_2="2023-08-09-16-26-08fixed_part2.bag"
 file_name_3="2023-08-02-23-10-07fixed_part1.bag"
 file_name_4="2023-08-02-23-10-07fixed_part1.bag"
+
+echo "uestc"
 fi
 client_num=$1
 play_speed=1.5
 
 
 # file_name="2023-08-09-16-26-08fixed_part1.bag"
-file_name="2023-08-02-22-48-44fixed_part1.bag"
+
 namespace="client1"
 gnome-terminal -t "roslaunch" -x bash -c "cd ../../;source ./devel/setup.bash;roslaunch colive_backend dataset.launch namespace:=$namespace file_path:=$path_dataset file_name:=$file_name_1 play_speed:=$play_speed;exec bash;"
 # sleep 1
 
 if [ "$client_num" != "" ];then
 # file_name="2023-08-09-16-26-08fixed_part2.bag"
-file_name="2023-08-02-23-10-07fixed_part1.bag"
+
 namespace="client2"
 gnome-terminal -t "roslaunch" -x bash -c "cd ../../;source ./devel/setup.bash;roslaunch colive_backend dataset.launch namespace:=$namespace file_path:=$path_dataset file_name:=$file_name_2 play_speed:=$play_speed;exec bash;"
 fi
