@@ -302,7 +302,7 @@ std::pair<int, float> SCManager::detectLoopClosureIDBetweenSession (std::vector<
 
     nanoflann::KNNResultSet<float> knnsearch_result( NUM_CANDIDATES_FROM_TREE );
     knnsearch_result.init( &candidate_indexes[0], &out_dists_sqr[0] );
-    polarcontext_tree_batch_->index->findNeighbors( knnsearch_result, &curr_key[0] /* query */, nanoflann::SearchParams(10) ); // error here
+    polarcontext_tree_batch_->index->findNeighbors( knnsearch_result, &curr_key[0] /* query */, nanoflann::SearchParameters(10) ); // error here
 
     // step 2: pairwise distance (find optimal columnwise best-fit using cosine distance)
     TicTocV2 t_calc_dist;   
@@ -344,16 +344,16 @@ std::pair<int, float> SCManager::detectLoopClosureID ( void )
 
     auto curr_key = polarcontext_invkeys_mat_.back(); // current observation (query)
     auto curr_desc = polarcontexts_.back(); // current observation (query)
-
+    std::cout << "0" << std::endl;
     /* 
      * step 1: candidates from ringkey tree_
      */
-    if( (int)polarcontext_invkeys_mat_.size() < NUM_EXCLUDE_RECENT + 1)
+    if(( (int)polarcontext_invkeys_mat_.size() < NUM_EXCLUDE_RECENT + 1) || (curr_key.size()!= PC_NUM_RING))
     {
         std::pair<int, float> result {loop_id, 0.0};
         return result; // Early return 
     }
-
+    std::cout << "1" << std::endl;
     // tree_ reconstruction (not mandatory to make everytime)
     if( tree_making_period_conter % TREE_MAKING_PERIOD_ == 0) // to save computation cost
     {
@@ -364,8 +364,10 @@ std::pair<int, float> SCManager::detectLoopClosureID ( void )
 
         polarcontext_tree_.reset(); 
         try {
+            std::cout << "2" << std::endl;
             polarcontext_tree_ = std::make_unique<InvKeyTree>(PC_NUM_RING /* dim */, polarcontext_invkeys_to_search_, 10 /* max leaf */ );
                     // 检查指针是否为空
+                
             if (polarcontext_tree_) {
                 // 指针不为空，表示成功创建
                 // 执行您的操作
@@ -397,14 +399,15 @@ std::pair<int, float> SCManager::detectLoopClosureID ( void )
     nanoflann::KNNResultSet<float> knnsearch_result( NUM_CANDIDATES_FROM_TREE );
     knnsearch_result.init( &candidate_indexes[0], &out_dists_sqr[0] );
     try {
-    polarcontext_tree_->index->findNeighbors( knnsearch_result, &curr_key.at(0) /* query */, nanoflann::SearchParams(10) ); 
+        std::cout << "3" << std::endl;
+    polarcontext_tree_->index->findNeighbors( knnsearch_result, &curr_key.at(0) /* query */, nanoflann::SearchParameters(10) ); 
     } catch (const std::exception& e) {
     // 捕获异常并打印错误消息
     std::cerr << "scancontext fail polarcontext_tree_->index->findNeighbors: " << e.what() << std::endl;
     std::pair<int, float> result {loop_id, 0.0};
     return result; // Early return 
     }
-
+    std::cout << "4" << std::endl;
     t_tree_search.toc("Tree search");
 
     /* 
@@ -428,7 +431,7 @@ std::pair<int, float> SCManager::detectLoopClosureID ( void )
         }
     }
     t_calc_dist.toc("Distance calc");
-
+    std::cout << "5" << std::endl;
     /* 
      * loop threshold check
      */
@@ -450,7 +453,7 @@ std::pair<int, float> SCManager::detectLoopClosureID ( void )
     // To do: return also nn_align (i.e., yaw diff)
     float yaw_diff_rad = deg2rad(nn_align * PC_UNIT_SECTORANGLE);
     std::pair<int, float> result {loop_id, yaw_diff_rad};
-
+    std::cout << "6" << std::endl;
     return result;
 
 } // SCManager::detectLoopClosureID

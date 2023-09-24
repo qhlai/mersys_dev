@@ -360,8 +360,11 @@ auto PlaceRecognition::DetectLoop()->bool {
         std::cout<< COUTNOTICE <<"eraly loop"<<std::endl;
         return false;
     }
-
-    auto detectResult = mapmanager_->scManager.detectLoopClosureID(); // first: nn index, second: yaw diff 
+    auto detectResult;
+    {
+        std::unique_lock<std::mutex> lock_database(mapmanager_->mtx_database_);
+        detectResult = mapmanager_->scManager.detectLoopClosureID(); // first: nn index, second: yaw diff 
+    }
     int SCclosestHistoryFrameID = detectResult.first;
     // std::cout << "try detectLoopClosure:" << SCclosestHistoryFrameID<<std::endl;
     if( SCclosestHistoryFrameID != -1 ) {

@@ -137,7 +137,7 @@ public:
 // noiseModel::Diagonal::shared_ptr RTKNoise;
 // noiseModel::Base::shared_ptr robustLoopNoise;
 // noiseModel::Base::shared_ptr robustGPSNoise;
-
+    std::mutex                  mtx_database_;
 protected:
 
     auto CheckMergeBuffer()            ->bool;
@@ -182,7 +182,8 @@ protected:
 
     // Sync
     std::mutex                  mtx_access_;
-    std::mutex                  mtx_database_;
+    // std::mutex                  mtx_scancontext_;
+    // std::mutex                  mtx_database_;
     std::mutex                  mtx_pgo_maps_;
 };
 

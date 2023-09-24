@@ -36,10 +36,10 @@ using std::make_pair;
 using std::atan2;
 using std::cos;
 using std::sin;
-
+// #define PC_NUM_RING =20;
 using SCPointType = pcl::PointXYZI; // using xyz only. but a user can exchange the original bin encoding function (i.e., max hegiht) to max intensity (for detail, refer 20 ICRA Intensity Scan Context)
 using KeyMat = std::vector<std::vector<float> >;
-using InvKeyTree = KDTreeVectorOfVectorsAdaptor< KeyMat, float >;//是使用 KeyMat 类型的向量集合，并使用 float 类型来计算向量之间的距离，构建 KD 树以进行最近邻搜索
+using InvKeyTree = KDTreeVectorOfVectorsAdaptor< KeyMat, float , 20 >;//是使用 KeyMat 类型的向量集合，并使用 float 类型来计算向量之间的距离，构建 KD 树以进行最近邻搜索
 
 
 // namespace SC2
