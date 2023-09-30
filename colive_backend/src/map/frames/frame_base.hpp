@@ -39,7 +39,7 @@ public:
 
 public:
     idpair                      id_;
-    double                      timestamp_;
+    double                      timestamp_ = 0.0;
     bool   is_loop_                = false;
 public:
     virtual auto GetClientID()            ->size_t;

@@ -88,7 +88,7 @@ public:
     using ImageEXMap               = TypeDefs::ImageEXMap;
 
     using LoopVector                    = TypeDefs::LoopVector;
-
+    using PointCloudEXVector         = TypeDefs::PointCloudEXVector;
     using ThreadPtr                  = TypeDefs::ThreadPtr;
     // using KeyframeVector                = TypeDefs::KeyframeVector;
     // using LandmarkVector                = TypeDefs::LandmarkVector;
@@ -136,6 +136,9 @@ public:
 
     virtual auto AddLoopConstraint(LoopConstraint lc)                                   ->void;
     virtual auto GetLoopConstraints()                                                   ->LoopVector;
+
+
+    virtual auto WritePathToFile(std::string suffix, const bool trnc=true)->void;
 
     // Synchronization
     virtual auto SetFinish()                                                            ->void {

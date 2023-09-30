@@ -196,6 +196,11 @@ auto Communicator_server::ProcessNewPointClouds()->void {
             // map_->pointclouds_.push_back(pc);
 
             map_->AddPointCloud(pc);
+
+            if(static_cast<int>(pc->id_.first) == 50){
+                map_->WritePathToFile("test");
+            }
+            
             // 建立大型点云
             // 几帧合一的大型点云
             // static TransformType base_frame_transform_;
@@ -212,6 +217,7 @@ auto Communicator_server::ProcessNewPointClouds()->void {
                 }else{
                     // std::cout << "3"<<std::endl;
                     // pointclouds_large_[p_pc_large_tmp->id_] = p_pc_large_tmp;
+
                     #ifdef SAVE_FRAMES       
                     if(colive_params::sys::save_frames){
                     p_pc_large_tmp->save_to_pcd( std::string(colive_params::sys::output_path).append("/frames/pcd_large/").append(std::to_string(p_pc_large_tmp->GetClientID())).append("/"), std::to_string(p_pc_large_tmp->GetTimeStamp()) , 0);

@@ -10,7 +10,7 @@ file_name_2="2023-08-02-22-48-44fixed_part1_2.bag"
 path_dataset='/home/lqh/dataset/colive/'
 file_name_1="2023-09-19-19-33-05fixed.bag_1.bag"
 file_name_2="2023-09-19-19-33-05fixed.bag_2.bag"
-#file_name_3="2023-09-19-19-33-05fixed.bag_3.bag"
+file_name_3="2023-09-19-19-33-05fixed.bag_3.bag"
 
 # path_dataset='/media/lqh/WDC/dataset/colive/fine/'
 echo "lqh"

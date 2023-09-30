@@ -2,12 +2,15 @@
 #include "pointcloud_ex.hpp"
 #include "msgs/msg_pointcloud.hpp"
 #include "os_compatible.hpp"
+#include <dbg.h>
 namespace colive {
 
 
 PointCloud_ex::PointCloud_ex(MsgPointCloud msg, MapPtr map){
     id_= msg.id_;
-    timestamp_=msg.timestamp_;    
+    timestamp_=msg.timestamp_; 
+    dbg("msg.timestamp_", msg.timestamp_, false);   
+    // std::cout << "msg.timestamp_" <<msg.timestamp_ << std::endl;
     // pos_w = msg.pos_w;
     // quan_ = msg.quan_;
     pts_cloud=msg.pts_cloud;
@@ -176,7 +179,9 @@ auto PointCloud_ex::save_to_pcd( std::string dir_name, std::string _file_name , 
     // std::cout << COUTDEBUG << " save to "<< file_name<< std::endl;
     // pcl::io::savePCDFileASCII(file_name, pts_cloud);
 }
-
+auto PointCloud_ex::CompStamp(PointCloudEXPtr kf1, PointCloudEXPtr kf2)->bool {
+    return  kf1->timestamp_ > kf2->timestamp_;
+}
 auto PointCloud_ex::save_and_display_pointcloud( std::string dir_name, std::string file_name ,  int save_pts_with_views)->void{
 
 

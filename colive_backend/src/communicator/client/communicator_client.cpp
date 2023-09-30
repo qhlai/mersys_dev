@@ -363,6 +363,7 @@ auto Communicator_client::TryPassKeyPcToComm(PointCloudEX* pc)      ->void{
             PointCloudEX pc_send;
             pc_send.id_.second =  GetClientId();
             pc_send.id_.first = send_cnt++ ;
+            pc_send.timestamp_ =  pc->timestamp_;  
             pc_send.pts_cloud=*pc_final;
             pc_send.SetPoseTsw(base_frame_transform_);
             std::cout << "send new pointcloud "<<pc_send.id_.first <<", size:"<<pc_send.pts_cloud.size()<< std::endl <<pc_send.GetPoseTsw().matrix()<< std::endl <<last_transform_.matrix()<< std::endl;
@@ -372,7 +373,8 @@ auto Communicator_client::TryPassKeyPcToComm(PointCloudEX* pc)      ->void{
             // last_pos_=pc->pos_w;
             // last_quan_=pc->quan_; 
             last_transform_=pc_send.GetPoseTsw();
-            last_timestamp_=pc->timestamp_;          
+            last_timestamp_=pc->timestamp_;        
+            // std::cout <<"last_timestamp_:"<< last_timestamp_ << std::endl
             pc_final->clear(); // reset
             base_frame_update_=true;
             // pc->pts_cloud.clear();

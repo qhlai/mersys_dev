@@ -75,6 +75,13 @@ find_package(OpenCV REQUIRED)
 find_package(ZLIB)
 find_package(GTSAM REQUIRED QUIET)
 
+
+
+include(FetchContent)
+
+FetchContent_Declare(dbg_macro GIT_REPOSITORY https://github.com/sharkdp/dbg-macro)
+FetchContent_MakeAvailable(dbg_macro)
+
 set (INCLUDE_DIRS
 
 ${PROJECT_SOURCE_DIR}/src
@@ -208,6 +215,7 @@ target_link_libraries(colive_backend_node
                           ${PCL_LIBRARIES}
                           ZLIB::ZLIB
                           gtsam
+                          dbg_macro
                         #   pcl_common 
                         #   pcl_io
                           ) 
@@ -258,11 +266,13 @@ target_link_libraries(${PROJECT_NAME}
                         ${OpenCV_LIBRARIES}
                         ZLIB::ZLIB
                         gtsam
+                        dbg_macro
                         # ${OpenMVS_LIBRARIES}
                         # ${PCL_LIBRARIES}
                         #   pcl_common 
                         #   pcl_io
 ) 
+# target_link_libraries(${PROJECT_NAME} PRIVATE dbg_macro) 
 message(STATUS "=======================================")
 
 

@@ -557,6 +557,7 @@ void publish_frame_body(const ros::Publisher & pubLaserCloudFull_body,colive::Po
 #if COLIVE        
         pc->SetPointCloud(laserCloudIMUBody);
         pc->timestamp_ = lidar_end_time;
+        // std::cout << "lidar_end_time"<< lidar_end_time << std::endl;
 #endif
     pcl::toROSMsg(*laserCloudIMUBody, laserCloudmsg);
     laserCloudmsg.header.stamp = ros::Time().fromSec(lidar_end_time);

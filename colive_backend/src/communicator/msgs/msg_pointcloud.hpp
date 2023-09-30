@@ -66,7 +66,7 @@ public:
     bool                    save_to_file                                = false;                        // indicates that this LM will be saved to a file, not send over network
 
     // Identifier
-    double                  timestamp_;
+    double                  timestamp_ = 0.0;
     idpair                  id_;
 
     // Position

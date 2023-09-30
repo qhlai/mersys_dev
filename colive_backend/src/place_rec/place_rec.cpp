@@ -360,7 +360,7 @@ auto PlaceRecognition::DetectLoop()->bool {
         std::cout<< COUTNOTICE <<"eraly loop"<<std::endl;
         return false;
     }
-    auto detectResult;
+   std::pair<int, float> detectResult;
     {
         std::unique_lock<std::mutex> lock_database(mapmanager_->mtx_database_);
         detectResult = mapmanager_->scManager.detectLoopClosureID(); // first: nn index, second: yaw diff 

@@ -84,7 +84,7 @@ public:
     struct pc_less{
         auto operator() (const PointCloudEXPtr a, const PointCloudEXPtr b) const                ->bool;
     };
-    
+    static auto CompStamp(PointCloudEXPtr kf1, PointCloudEXPtr kf2)                             ->bool;     //greater - newest stamp at beginning of container
 public:
 
     bool sent_once_ = false;

@@ -4,7 +4,7 @@
 # System Control
 #--------------------------------------------------------------------------------------------
 # sys.output_path: /home/lqh/ros/r3live_ws/output
-sys.output_path: /home/uestc/colive_ws/output
+# sys.output_path: /home/uestc/colive_ws/output
 sys.save_frames: 0
 sys.threads_pool: 20
 # Number of threads used for optimization routines
@@ -22,7 +22,7 @@ sys.trajectory_format: 'TUM' # {EUROC|TUM}
 #--------------------------------------------------------------------------------------------
 
 # maps are loaded from here (use absolute path)
-sys.map_path0: '/home/manthan/ws2/covins_ws/src/covins/covins_backend/output/map_data'
+sys.map_path0: '/home/uestc/colive_ws/output/map_data'
 
 #--------------------------------------------------------------------------------------------
 # Features

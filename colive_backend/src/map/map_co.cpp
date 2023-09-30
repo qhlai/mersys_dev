@@ -382,7 +382,46 @@ auto Map::GetPoseMap()         ->PoseMap {
 
     return m_pose_map;
 }
+auto Map::WritePathToFile(std::string suffix, const bool trnc)->void{
+    // 
+    // auto pcs = GetPointCloudEXs();
+    // std::unique_lock<std::mutex> lock(mtx_map_);
+    // PoseMap
+    g_cost_time_logger.record("save file", 0.0);
+    std::stringstream ss;
+    ss << colive_params::sys::output_dir << "path_" << id_map_<< "_" << suffix << "_data" << ".txt";
+    
+    std::string filename = ss.str();
+    std::cout << COUTDEBUG <<  filename << std::endl;
 
+    PointCloudEXVector kfs;
+    for(std::map<idpair,PointCloudEXPtr>::iterator mit = pointclouds_.begin();mit!=pointclouds_.end();++mit){
+        kfs.push_back(mit->second);
+    }
+    if(kfs.empty()){return;} //do not overwrite files from other maps with empty files
+    std::sort(kfs.begin(), kfs.end(), PointCloudEX::CompStamp);
+
+    std::ofstream keyframes_file;
+    if(trnc)
+      keyframes_file.open(filename, std::ios::out | std::ios::trunc);
+    else
+      keyframes_file.open(filename, std::ios::out | std::ios::app);
+    if (keyframes_file.is_open()) {
+        for (PointCloudEXVector::const_iterator vit = kfs.begin(); vit != kfs.end(); ++vit) {
+            PointCloudEXPtr kf = (*vit);
+            const double stamp = kf->timestamp_;
+            const TransformType Tws = kf->GetPoseTws();
+            const Eigen::Quaterniond q(Tws.rotation());
+            keyframes_file << std::setprecision(25) << stamp << ",";
+            keyframes_file << Tws(0,3) << "," << Tws(1,3) << "," << Tws(2,3) << ",";
+            keyframes_file << q.w() << "," << q.x() << "," << q.y() << "," << q.z() ;
+            // keyframes_file << vel[0] << "," << vel[1] << "," << vel[2] << ",";
+            // keyframes_file << bias_gyro[0] << "," << bias_gyro[1] << "," << bias_gyro[2] << ",";
+            // keyframes_file << bias_accel[0] << "," << bias_accel[1] << "," << bias_accel[2] << std::endl;
+            keyframes_file << std::endl;
+        }
+    }
+}
 auto Map::Display()->void {
     std::unique_lock<std::mutex> lock(mtx_map_);
     // keyframes_.size();
