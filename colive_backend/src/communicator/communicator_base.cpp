@@ -233,7 +233,18 @@ auto CommunicatorBase::ProcessBufferOut()->void {
                 image_out_container.msg_info.push_back(0);
             SendMsgContainer(image_out_container);
         }
-
+        for(int i=0;db.drift_correlation.size();++i){
+            // std::cout << "send pointcloiud"<<std::endl;
+            // message_container pointcloud_out_container;
+            // MsgPointCloud msg = db.pointclouds.front();
+            // db.pointclouds.pop_front();
+            // Serialize(msg);   
+            // pointcloud_out_container.ser_msg << send_ser_.str();
+            // pointcloud_out_container.msg_info.insert(pointcloud_out_container.msg_info.end(), msg.msg_type.begin(), msg.msg_type.end());
+            // while(pointcloud_out_container.msg_info.size() != ContainerSize*5)
+            //     pointcloud_out_container.msg_info.push_back(0);
+            // SendMsgContainer(pointcloud_out_container);
+        }
         // while(!db.landmarks.empty()){
         //     message_container mp_out_container;
         //     for(int i = 0; i<ContainerSize; i++){

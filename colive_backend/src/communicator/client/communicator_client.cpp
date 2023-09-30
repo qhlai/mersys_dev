@@ -327,7 +327,7 @@ auto Communicator_client::TryPassKeyPcToComm(PointCloudEX* pc)      ->void{
                 return;
             }
             
-            
+            drift_corr_ = TransformType::Identity();
             // pc_sum.pts_cloud
             std::cout<<"pos diff:"<<pos_dis<<", rot_diff:"<<rot_diff<<", time_diff:"<<time_diff<<", pc size:"<<pc_final->size()<< std::endl;
             //  pcl 滤波
@@ -365,7 +365,7 @@ auto Communicator_client::TryPassKeyPcToComm(PointCloudEX* pc)      ->void{
             pc_send.id_.first = send_cnt++ ;
             pc_send.timestamp_ =  pc->timestamp_;  
             pc_send.pts_cloud=*pc_final;
-            pc_send.SetPoseTsw(base_frame_transform_);
+            pc_send.SetPoseTsw(drift_corr_*base_frame_transform_);
             std::cout << "send new pointcloud "<<pc_send.id_.first <<", size:"<<pc_send.pts_cloud.size()<< std::endl <<pc_send.GetPoseTsw().matrix()<< std::endl <<last_transform_.matrix()<< std::endl;
             
             PassPcToComm(pc_send);

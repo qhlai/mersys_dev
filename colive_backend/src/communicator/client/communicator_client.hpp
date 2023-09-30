@@ -120,6 +120,8 @@ protected:
     pcl::PointCloud<PointType>::Ptr pc_final_filtered; 
     // PointCloudPtr pc_final_filtered1(new PointCloud); 
     bool sending_init_ = false;
+    // 后端反馈的漂移矫正矩阵
+    TransformType           drift_corr_ = TransformType::Identity(); 
 
     Vector3Type             last_pos_ =Vector3Type::Zero();
     QuaternionType          last_quan_=QuaternionType::Identity(); //https://quaternions.online/

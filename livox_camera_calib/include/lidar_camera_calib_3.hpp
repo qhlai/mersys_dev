@@ -197,11 +197,14 @@ Calibration::Calibration(const std::string &image_file,
   }
   cv::Mat edge_image;
 
-  // edgeDetector(rgb_canny_threshold_, rgb_edge_minLen_, grey_image_, edge_image,
-  //              rgb_egde_cloud_);
-  // std::string msg = "Sucessfully extract edge from image, edge size:" +
-  //                   std::to_string(rgb_egde_cloud_->size());
-  // ROS_INFO_STREAM(msg.c_str());
+  edgeDetector(rgb_canny_threshold_, rgb_edge_minLen_, grey_image_, edge_image,
+               rgb_egde_cloud_);
+  std::string msg = "Sucessfully extract edge from image, edge size:" +
+                    std::to_string(rgb_egde_cloud_->size());
+  ROS_INFO_STREAM(msg.c_str());
+
+  cv::imshow("edge_image_img", edge_image);
+  cv::waitKey(0);
 
   raw_lidar_cloud_ =
       pcl::PointCloud<pcl::PointXYZI>::Ptr(new pcl::PointCloud<pcl::PointXYZI>);

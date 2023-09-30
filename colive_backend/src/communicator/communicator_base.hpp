@@ -60,6 +60,7 @@ public:
     // TypeDefs::LandmarkMsgList   landmarks;
     TypeDefs::PointCloudMsgList pointclouds;
     TypeDefs::ImageMsgList      images;
+    TypeDefs::TransformTypeList     drift_correlation;
     // TypeDefs::OdometryMsgList   odometrys;
 
 };

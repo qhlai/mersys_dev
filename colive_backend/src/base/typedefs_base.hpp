@@ -182,6 +182,7 @@ namespace TypeDefs {
     using Matrix4Type                   = Eigen::Matrix<precision_t,4,4>;
     using Matrix6Type                   = Eigen::Matrix<precision_t,6,6>;
     using TransformType                 = Eigen::Isometry3d;//Matrix4Type;
+    using TransformTypeList             = std::list<TransformType,Eigen::aligned_allocator<TransformType>>;
     // using TransformTypeMap                 = std::map<idpair,TransformType,std::less<idpair>,Eigen::aligned_allocator<std::pair<const idpair,TransformType>>>;
     // using TransformTypeVector                 = std::vector<TransformType,Eigen::aligned_allocator<TransformType>>;
 
