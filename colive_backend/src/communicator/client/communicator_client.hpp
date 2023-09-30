@@ -98,6 +98,7 @@ protected:
 //     // data handling
     virtual auto ProcessAdditional()                                                    ->void;
     virtual auto ProcessPointCloudMessages()->void;
+    virtual auto ProcessInstructionMessages()->void;
     // virtual auto ProcessKeyframeMessages()                                              ->void;
     // virtual auto ProcessLandmarkMessages()                                              ->void;
     // virtual auto ProcessNewKeyframes()                                                  ->void;

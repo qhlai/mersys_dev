@@ -247,6 +247,50 @@ auto Communicator_client::ProcessPointCloudMessages()->void {
     // while(!kf_out_buffer_.empty())
 
 }
+
+auto Communicator_client::ProcessInstructionMessages()->void {
+    std::unique_lock<std::mutex>(mtx_in_);
+    u16 cnt =0;
+
+    while(!buffer_pointclouds_in_.empty()) {
+
+        MsgPointCloud msg = buffer_pointclouds_in_.front();
+
+        // if(msg.id_reference.first > last_processed_kf_msg_.first) break;
+
+        buffer_pointclouds_in_.pop_front();
+        if(msg.is_update_msg){
+            if(!colive_params::comm::send_updates) continue;
+            else {
+                // auto kf = map_->GetKeyframe(msg.id,false);
+                // if(kf && kf->id_.first == 0) continue;
+                // if(kf) kf->UpdatePoseFromMsg(msg,map_);
+            }
+
+        }else{
+
+        }
+        // auto ptcloud = pointcloud_out_buffer_.front();
+        // pointcloud_out_buffer_.pop_front();
+
+        // // if(kfi->sent_once_ && !Map_V_params::comm::send_updates) continue;
+        // // if(kfi->sent_once_ && kfi->mnId == 0) continue;
+        // colive::data_bundle map_chunk;
+        // colive::MsgPointCloud msg_ptcloud;
+        // Vector3Type m(1.0,2.0,3.0);
+        // ptcloud->ConvertToMsg(msg_ptcloud,m ,ptcloud->sent_once_,client_id_);
+        // ptcloud->sent_once_ = true;
+        // map_chunk.pointclouds.push_back(msg_ptcloud);
+
+        // this->PassDataBundle(map_chunk);
+
+        // if(cnt >= colive_params::comm::max_sent_kfs_per_iteration) break;
+
+
+    }
+    // while(!kf_out_buffer_.empty())
+
+}
 auto Communicator_client::TryPassKeyPcToComm(PointCloudEX* pc)      ->void{
 
         // lio 一开始可能没初始化好,忽略一开始的5帧
@@ -510,6 +554,7 @@ auto Communicator_client::Run()->void {
         this->ProcessBufferIn();
         if(this->TryLock()){//执行tryLock()方法时未获得锁，则会立即返回false,不会阻塞
                this->ProcessPointCloudMessages();
+               this->ProcessInstructionMessages();
         //     this->ProcessKeyframeMessages();
         //     this->ProcessLandmarkMessages();
         //     this->ProcessNewKeyframes();

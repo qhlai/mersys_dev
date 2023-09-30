@@ -104,6 +104,7 @@ class Client;
 class PointCloud_ex;
 class Image_ex;
 class ServiceManager;
+class Instruction;
 // class pcl::PointXYZI;
 // class pcl::PointXYZRGB;
 // class pcl::PointCloud;
@@ -114,6 +115,7 @@ struct MsgKeyframe;
 struct MsgLandmark;
 struct MsgPointCloud;
 struct MsgImage;
+struct MsgInstruction;
 // struct MsgOdometry;
 struct LoopConstraint;
 // Class 
@@ -183,6 +185,8 @@ namespace TypeDefs {
     using Matrix6Type                   = Eigen::Matrix<precision_t,6,6>;
     using TransformType                 = Eigen::Isometry3d;//Matrix4Type;
     using TransformTypeList             = std::list<TransformType,Eigen::aligned_allocator<TransformType>>;
+
+
     // using TransformTypeMap                 = std::map<idpair,TransformType,std::less<idpair>,Eigen::aligned_allocator<std::pair<const idpair,TransformType>>>;
     // using TransformTypeVector                 = std::vector<TransformType,Eigen::aligned_allocator<TransformType>>;
 
@@ -208,6 +212,7 @@ namespace TypeDefs {
     using KeyframeList                  = std::list<KeyframePtr,Eigen::aligned_allocator<KeyframePtr>>;
     using LandmarkList                  = std::list<LandmarkPtr,Eigen::aligned_allocator<LandmarkPtr>>;
     using PointCloudEXList              = std::list<PointCloudEXPtr,Eigen::aligned_allocator<PointCloudEXPtr>>;
+    using InstructionList             = std::list<Instruction,Eigen::aligned_allocator<Instruction>>;
 
     using KeyframeSet                   = std::set<KeyframePtr,std::less<KeyframePtr>,Eigen::aligned_allocator<KeyframePtr>>;
     using LandmarkSet                   = std::set<LandmarkPtr,std::less<LandmarkPtr>,Eigen::aligned_allocator<LandmarkPtr>>;
@@ -240,6 +245,7 @@ namespace TypeDefs {
     using LandmarkMsgList               = std::list<MsgLandmark,Eigen::aligned_allocator<MsgLandmark>>;
     using PointCloudMsgList             = std::list<MsgPointCloud,Eigen::aligned_allocator<MsgPointCloud>>;
     using ImageMsgList                  = std::list<MsgImage,Eigen::aligned_allocator<MsgImage>>;
+    using InstructionMsgList             = std::list<MsgInstruction,Eigen::aligned_allocator<MsgInstruction>>;
     // using OdometryMsgList               = std::list<MsgOdometry,Eigen::aligned_allocator<MsgOdometry>>;
 }
 

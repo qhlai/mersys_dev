@@ -41,6 +41,7 @@
 #include "msgs/msg_pointcloud.hpp"
 // #include "msgs/msg_odometry.hpp"
 #include "msgs/msg_image.hpp"
+#include "msgs/msg_instruction.hpp"
 // #include "msgs/msg_landmark.hpp"
 #define ContainerSize 10
 
@@ -49,6 +50,7 @@ namespace colive {
 // struct MsgKeyframe;
 // struct MsgLandmark;
 struct MsgPointCloud;
+// struct MsgPointCloud;
 // struct MsgOdometry;
 
 struct data_bundle {
@@ -60,7 +62,7 @@ public:
     // TypeDefs::LandmarkMsgList   landmarks;
     TypeDefs::PointCloudMsgList pointclouds;
     TypeDefs::ImageMsgList      images;
-    TypeDefs::TransformTypeList     drift_correlation;
+    TypeDefs::InstructionMsgList     instructions;
     // TypeDefs::OdometryMsgList   odometrys;
 
 };
@@ -88,6 +90,7 @@ public:
     // using KeyframeBufferType            = TypeDefs::KeyframeMsgList;
     // using LandmarkBufferType            = TypeDefs::LandmarkMsgList;
     using PointCloudBufferType          = TypeDefs::PointCloudMsgList;
+    using InstructionMsgList          = TypeDefs::InstructionMsgList;
     using ImageBufferType               = TypeDefs::ImageMsgList;
     // using OdometryBufferType            = TypeDefs::OdometryMsgList;
 
@@ -111,7 +114,7 @@ public:
     virtual auto Serialize(MsgPointCloud &msg)                                          ->void;
     // virtual auto Serialize(MsgOdometry &msg)                                            ->void;
     virtual auto Serialize(MsgImage &msg)                                               ->void;
-
+    virtual auto Serialize(MsgInstruction &msg)                                               ->void;
     // Message passing
     static auto GetInAddr(struct sockaddr *sa)                                          ->void*;    // get sockaddr, IPv4 or IPv6:
     virtual auto ConnectToServer(const char *node, std::string port)                    ->int;
@@ -163,6 +166,7 @@ protected:
     ImageBufferType             buffer_images_in_;
     // LandmarkBufferType          buffer_landmarks_in_;
     PointCloudBufferType        buffer_pointclouds_in_;
+    InstructionMsgList        buffer_instructions_in_;
     // OdometryBufferType          buffer_odometrys_in_;
 
     // Sync

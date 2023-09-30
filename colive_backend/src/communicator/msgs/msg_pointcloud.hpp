@@ -4,7 +4,7 @@
 
 // COVINS
 #include "typedefs_base.hpp"
-
+#include "msg_define.hpp"
 //SERIALIZATION
 // #include <cereal/cereal.hpp>
 // #include <cereal/types/memory.hpp>

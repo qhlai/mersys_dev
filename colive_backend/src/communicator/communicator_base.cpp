@@ -38,6 +38,7 @@
 
 #include "msgs/msg_pointcloud.hpp"
 #include "msgs/msg_image.hpp"
+#include "msgs/msg_instruction.hpp"
 // #include "msgs/msg_odometry.hpp"
 
 
@@ -173,7 +174,10 @@ auto CommunicatorBase::ProcessBufferIn()->void {
                 MsgPointCloud msg(msg_type_deserialize_);
                 iarchive(msg);
                 buffer_pointclouds_in_.push_back(msg);
-            }else if(msg_type_deserialize_[4] == 3) { // odometry
+            }else if(msg_type_deserialize_[4] == 3) { // instruction
+                MsgInstruction msg(msg_type_deserialize_);
+                iarchive(msg);
+                buffer_instructions_in_.push_back(msg);
                 // MsgOdometry msg(msg_type_deserialize_);
                 // iarchive(msg);
                 // buffer_landmarks_in_.push_back(msg);
@@ -212,38 +216,37 @@ auto CommunicatorBase::ProcessBufferOut()->void {
 
         for(int i=0;db.pointclouds.size();++i){
             // std::cout << "send pointcloiud"<<std::endl;
-            message_container pointcloud_out_container;
+            message_container out_container;
             MsgPointCloud msg = db.pointclouds.front();
             db.pointclouds.pop_front();
             Serialize(msg);   
-            pointcloud_out_container.ser_msg << send_ser_.str();
-            pointcloud_out_container.msg_info.insert(pointcloud_out_container.msg_info.end(), msg.msg_type.begin(), msg.msg_type.end());
-            while(pointcloud_out_container.msg_info.size() != ContainerSize*5)
-                pointcloud_out_container.msg_info.push_back(0);
-            SendMsgContainer(pointcloud_out_container);
+            out_container.ser_msg << send_ser_.str();
+            out_container.msg_info.insert(out_container.msg_info.end(), msg.msg_type.begin(), msg.msg_type.end());
+            while(out_container.msg_info.size() != ContainerSize*5)
+                out_container.msg_info.push_back(0);
+            SendMsgContainer(out_container);
         }
         for(int i=0;db.images.size();++i){
-            message_container image_out_container;
+            message_container out_container;
             MsgImage msg = db.images.front();
             db.images.pop_front();
             Serialize(msg);
-            image_out_container.ser_msg << send_ser_.str();
-            image_out_container.msg_info.insert(image_out_container.msg_info.end(), msg.msg_type.begin(), msg.msg_type.end());
-            while(image_out_container.msg_info.size() != ContainerSize*5)
-                image_out_container.msg_info.push_back(0);
-            SendMsgContainer(image_out_container);
+            out_container.ser_msg << send_ser_.str();
+            out_container.msg_info.insert(out_container.msg_info.end(), msg.msg_type.begin(), msg.msg_type.end());
+            while(out_container.msg_info.size() != ContainerSize*5)
+                out_container.msg_info.push_back(0);
+            SendMsgContainer(out_container);
         }
-        for(int i=0;db.drift_correlation.size();++i){
-            // std::cout << "send pointcloiud"<<std::endl;
-            // message_container pointcloud_out_container;
-            // MsgPointCloud msg = db.pointclouds.front();
-            // db.pointclouds.pop_front();
-            // Serialize(msg);   
-            // pointcloud_out_container.ser_msg << send_ser_.str();
-            // pointcloud_out_container.msg_info.insert(pointcloud_out_container.msg_info.end(), msg.msg_type.begin(), msg.msg_type.end());
-            // while(pointcloud_out_container.msg_info.size() != ContainerSize*5)
-            //     pointcloud_out_container.msg_info.push_back(0);
-            // SendMsgContainer(pointcloud_out_container);
+        for(int i=0;db.instructions.size();++i){
+            message_container out_container;
+            MsgInstruction msg = db.instructions.front();
+            db.instructions.pop_front();
+            Serialize(msg);
+            out_container.ser_msg << send_ser_.str();
+            out_container.msg_info.insert(out_container.msg_info.end(), msg.msg_type.begin(), msg.msg_type.end());
+            while(out_container.msg_info.size() != ContainerSize*5)
+                out_container.msg_info.push_back(0);
+            SendMsgContainer(out_container);
         }
         // while(!db.landmarks.empty()){
         //     message_container mp_out_container;
@@ -460,7 +463,16 @@ auto CommunicatorBase::Serialize(MsgImage &msg)->void {
     package_size_send_ = (int)send_ser_.str().length();
     msg.SetMsgType(package_size_send_);
 }
+auto CommunicatorBase::Serialize(MsgInstruction &msg)->void {
+    //clear stringstream
+    send_ser_.str("");
+    send_ser_.clear();
 
+    cereal::BinaryOutputArchive oarchive(send_ser_);
+    oarchive(msg);
+    package_size_send_ = (int)send_ser_.str().length();
+    msg.SetMsgType(package_size_send_);
+}
 // auto CommunicatorBase::Serialize(MsgOdometry &msg)->void {
 //     //clear stringstream
 //     // send_ser_.str("");

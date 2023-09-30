@@ -130,8 +130,7 @@ protected:
     ThreadPtr                   thread_service_mapmanager_;
     // std::shared_ptr< Common_tools::ThreadPool > m_thread_pool_ptr;
 
-   int agent_next_id_              = 0;    
-
+   size_t agent_next_id_              = 0;    
    // g_las
     double g_last_stamped_mem_mb = 0;
 
