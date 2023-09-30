@@ -3,8 +3,12 @@ rosrun rqt_topic rqt_topic
 
 rosrun rqt_image_view rqt_image_view
 ```
+rostopic echo -b 2023-09-19-19-33-05fixed.bag_1.bag -p /fix > path1.txt
+evo_traj tum path_0_save_all_data.txt --ref=groundtruth0.txt -p --plot_mode=xy -a -v --t_max_diff 0.5
 
 
+curl http://127.0.0.1:9034/hi
+curl http://127.0.0.1:9034/savepath
 sudo add-apt-repository ppa:borglab/gtsam-release-4.0
 sudo apt install libgtsam-dev libgtsam-unstable-dev
 

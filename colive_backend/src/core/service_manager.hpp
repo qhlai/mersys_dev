@@ -1,17 +1,16 @@
 #include <iostream>
 // #include <boost/asio.hpp>
-#include "httplib.h"
+
 #include "typedefs_base.hpp"
+#include "httplib.h"
 // #include <cpprest/http_listener.h>
 // #include "mapmanager.hpp"
 // AgentPackage::AgentPackage(size_t client_id, int newfd, VisPtr vis, ManagerPtr man) {
 //     agent_.reset(new AgentHandler(client_id,newfd,vis,man));
 // }
-class httplib{
-    class Server{
-
-    };
-};
+// namespace httplib{
+//     class Server;
+// };
 namespace colive {
 
 class ServiceManager {

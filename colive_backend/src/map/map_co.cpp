@@ -407,14 +407,14 @@ auto Map::WritePathToFile(std::string suffix, const bool trnc)->void{
     else
       keyframes_file.open(filename, std::ios::out | std::ios::app);
     if (keyframes_file.is_open()) {
-        for (PointCloudEXVector::const_iterator vit = kfs.begin(); vit != kfs.end(); ++vit) {
+        for (PointCloudEXVector::reverse_iterator vit = kfs.rbegin(); vit != kfs.rend(); ++vit) {
             PointCloudEXPtr kf = (*vit);
             const double stamp = kf->timestamp_;
-            const TransformType Tws = kf->GetPoseTws();
+            const TransformType Tws = kf->GetPoseTsw();
             const Eigen::Quaterniond q(Tws.rotation());
-            keyframes_file << std::setprecision(25) << stamp << ",";
-            keyframes_file << Tws(0,3) << "," << Tws(1,3) << "," << Tws(2,3) << ",";
-            keyframes_file << q.w() << "," << q.x() << "," << q.y() << "," << q.z() ;
+            keyframes_file << std::setprecision(25) << stamp << " ";
+            keyframes_file << Tws(0,3) << " " << Tws(1,3) << " " << Tws(2,3) << " ";
+            keyframes_file << q.x() << " " << q.y() << " " << q.z() << " " << q.w() ;
             // keyframes_file << vel[0] << "," << vel[1] << "," << vel[2] << ",";
             // keyframes_file << bias_gyro[0] << "," << bias_gyro[1] << "," << bias_gyro[2] << ",";
             // keyframes_file << bias_accel[0] << "," << bias_accel[1] << "," << bias_accel[2] << std::endl;

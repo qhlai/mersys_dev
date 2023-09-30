@@ -113,7 +113,7 @@ class RGB_pts
     pcl::PointXYZI get_pt();
     void update_gray( const double gray, double obs_dis = 1.0 );
     int update_rgb( const TypeDefs::Vector3Type &rgb, const double obs_dis, const TypeDefs::Vector3Type obs_sigma, const double obs_time );
-    void Intensity2Rgb( int colormap_type=cv::COLORMAP_RAINBOW);
+    void Intensity2Rgb( int colormap_type=cv::COLORMAP_JET);
   private:
     friend class boost::serialization::access;
     template < typename Archive >

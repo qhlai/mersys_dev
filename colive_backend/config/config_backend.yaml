@@ -156,7 +156,7 @@ vis.covgraph_shared_edges_only: 1 # only display covisibility edges between traj
 vis.scalefactor: 1.0 # scale the visalized map by this factor
 
 # ROS marker sizes
-vis.trajmarkersize: 0.08
+vis.trajmarkersize: 0.4
 vis.covmarkersize: 0.008
 vis.loopmarkersize: 0.05
 vis.camsize: 0.1

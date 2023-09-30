@@ -598,7 +598,7 @@ auto MapManager::RecordMerge()->void {
         if (isamCurrentEstimate.exists(query_node_idx) && isamCurrentEstimate.exists(match_node_idx))
         {
             std::cout << "GTSAM: add graph" << std::endl;
-
+            maps_gtSAMgraph.add(gtsam::BetweenFactor<gtsam::Pose3>( match_node_idx,query_node_idx, relative_pose, gtsam::noiseModel::Diagonal::Sigmas((gtsam::Vector(6) << 0.1, 0.1, 0.1, 0.5, 0.5, 0.1).finished())));
             // maps_gtSAMgraph.add(gtsam::BetweenFactor<gtsam::Pose3>( match_node_idx,query_node_idx, relative_pose, gtsam::noiseModel::Diagonal::Sigmas((gtsam::Vector(6) << 0.1, 0.1, 0.1, 0.5, 0.5, 0.1).finished())));
         }
         else if (!isamCurrentEstimate.exists(query_node_idx) && isamCurrentEstimate.exists(match_node_idx)){

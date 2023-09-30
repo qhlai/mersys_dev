@@ -108,12 +108,14 @@ int RGB_pts::update_rgb(const TypeDefs::Vector3Type &rgb, const double obs_dis, 
 
 void RGB_pts::Intensity2Rgb( int colormap_type){
     // Define the color map
-    cv::Mat colormap;
     auto intensity_color = intensity/230*255;
     if (intensity_color> 255){
         // std::cout <<COUTNOTICE<< "Intensity2Rgb out range" << std::endl;
         intensity_color=255;
-    }
+    }    
+#if 1
+    cv::Mat colormap;
+
     cv::applyColorMap(cv::Mat(1, 1, CV_8U, intensity_color), colormap, colormap_type);
 
     // Split the RGB channels
@@ -122,7 +124,30 @@ void RGB_pts::Intensity2Rgb( int colormap_type){
     bgr_intensity[0] = ptr[0][0];  // blue channel
     bgr_intensity[1] = ptr[0][1];  // green channel
     bgr_intensity[2] = ptr[0][2];  // red channel
+#endif
+#if 0
+    cv::Mat colormap;
 
+    cv::applyColorMap(cv::Mat(1, 1, CV_8U, intensity_color), colormap, colormap_type);
+
+    // Split the RGB channels
+    // Vector3Type  rgb_value;
+    cv::Vec3b* ptr = colormap.ptr<cv::Vec3b>();
+    bgr_intensity[0] = 255-ptr[0][0];  // blue channel
+    bgr_intensity[1] = 255-ptr[0][1];  // green channel
+    bgr_intensity[2] = 255-ptr[0][2];  // red channel
+#endif
+
+#if 0
+    cv::Vec3b blue(255, 0, 0);
+    cv::Vec3b red(0, 0, 255);
+    cv::Vec3b color = blue * (1.0 - intensity_color) + red * intensity_color;
+    bgr_intensity[0] = color[0];  // blue channel
+    bgr_intensity[1] = color[1];  // green channel
+    bgr_intensity[2] = color[2];  // red channel
+#endif
+
+    // bgr_intensity[0]=255
     // return rgb_value;
 }
 

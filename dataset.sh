@@ -16,10 +16,21 @@ file_name_3="2023-09-19-19-33-05fixed.bag_3.bag"
 echo "lqh"
 elif [ "$username" = "uestc" ];then
 path_dataset='/home/uestc/dataset/colive/'
+
+file_name_1="2023-08-09-16-26-08fixed_part1.bag"
+file_name_2="2023-08-09-16-26-08fixed_part2.bag"
+file_name_3="2023-09-19-19-33-05fixed.bag_3.bag"
+file_name_4="2023-08-02-23-10-07fixed_part1.bag"
+
+
 file_name_1="2023-09-19-19-33-05fixed.bag_1.bag"
 file_name_2="2023-09-19-19-33-05fixed.bag_2.bag"
 file_name_3="2023-09-19-19-33-05fixed.bag_3.bag"
 file_name_4="2023-08-02-23-10-07fixed_part1.bag"
+
+
+# path_dataset='/home/uestc/dataset/HILTI/'
+# file_name_1="Campus_2.bag"
 
 echo "uestc"
 fi

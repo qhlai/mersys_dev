@@ -5,13 +5,13 @@ gnome-terminal -t "roslaunch" -x bash -c "cd ../../;source ./devel/setup.bash;ro
 
 sleep 3
 
-gnome-terminal -t "roslaunch" -x bash -c "cd ../../;source ./devel/setup.bash;roslaunch fast_lio mapping_avia_client.launch rviz:=false ;exec bash;"
+gnome-terminal -t "roslaunch" -x bash -c "cd ../../;source ./devel/setup.bash;roslaunch fast_lio mapping_mid70_client.launch rviz:=false ;exec bash;"
 
 
 sleep 3
 
 # gnome-terminal -t "rosbag play" -x bash -c "./dataset.sh;exec bash;"
-path_dataset='/home/uestc/dataset/colive/2023-08-09-16-26-08fixed.bag'
+path_dataset='/home/uestc/dataset/HILTI/Campus_2.bag'
 gnome-terminal -t "rosbag play" -x bash -c "rosbag play -r 1 ${path_dataset};exec bash;"
 
 

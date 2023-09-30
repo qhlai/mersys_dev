@@ -107,7 +107,8 @@
 			"*.inc": "cpp",
 			"eigen": "cpp",
 			"cassert": "cpp",
-			"*.dat": "cpp"
+			"*.dat": "cpp",
+			"charconv": "cpp"
 		},
 		"python.autoComplete.extraPaths": [
 			"/home/lqh/ros/covins_ws/devel/lib/python3/dist-packages",
