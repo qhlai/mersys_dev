@@ -2,15 +2,15 @@
 
 #include <set>
 #include <mutex>
-#include <boost/serialization/vector.hpp>
-#include <boost/serialization/export.hpp>
+// #include <boost/serialization/vector.hpp>
+// #include <boost/serialization/export.hpp>
 // #include "pointcloud_rgbd.hpp"
 #include "map_co.hpp"
 #include "typedefs_base.hpp"
 #include "scancontext/Scancontext.h"
 
 
-#include <gtsam/inference/Symbol.h>
+
 #include <gtsam/nonlinear/Values.h>
 #include <gtsam/nonlinear/Marginals.h>
 #include <gtsam/geometry/Rot3.h>
@@ -108,7 +108,7 @@ public:
     // auto EraseFromDatabase(KeyframePtr kf)                                              ->void;
 
     auto AddToDatabase(PointCloudEXPtr pc)                                                  ->void;
-
+    auto SaveAllMapPath()                                                  ->void;
     // auto GetDatabase()                                                                  ->DatabasePtr;
     // auto EraseFromDatabase(KeyframePtr kf)                                              ->void;
     SCManager scManager;

@@ -84,6 +84,7 @@ class Backend{
     
     using MapPtr                     = TypeDefs::MapPtr;
     using MapManagerPtr              = TypeDefs::MapManagerPtr;
+    using ServiceManagerPtr = TypeDefs::ServiceManager;
     using VisPtr                        = TypeDefs::VisPtr;
     using ClientPtr                  = TypeDefs::ClientPtr;
     using ClientVector               = TypeDefs::ClientVector;
@@ -91,6 +92,8 @@ class Backend{
     
 
     ros::NodeHandle             m_ros_node_handle;
+    // ros::ServiceServer          m_service_savemap_;
+
     ClientPtr m_client;
 
     Backend();
@@ -117,14 +120,14 @@ protected:
 
 
 
-
+    ServiceManagerPtr             m_service_mapmanager_;
     MapManagerPtr                mapmanager_;
     VisPtr                      vis_;
     ClientVector                 clients_;
 
     ThreadPtr                   thread_mapmanager_;
     ThreadPtr                   thread_vis_;
-
+    ThreadPtr                   thread_service_mapmanager_;
     // std::shared_ptr< Common_tools::ThreadPool > m_thread_pool_ptr;
 
    int agent_next_id_              = 0;    

@@ -10,7 +10,7 @@
 // #include <pcl/filters/radius_outlier_removal.h>
 // #include <pcl/filters/statistical_outlier_removal.h>
 // #include <pcl/common/transforms.h>
-
+#include <gtsam/inference/Symbol.h>
 
 #include "pointcloud_ex.hpp"
 #include "image_ex.hpp"
@@ -824,5 +824,15 @@ auto MapManager::AddToDatabase(PointCloudEXPtr pc)    ->void{
     // downSizeFilterScancontext.filter(*sc_pcs_d);
 
 }
+auto MapManager::SaveAllMapPath()                                                  ->void{
+    std::unique_lock<std::mutex> lock(mtx_access_);
+
+    // while(true) {//temp should be deleted
+    for(auto iter = maps_.begin(); iter != maps_.end(); iter++)  {
+            std::cout<<"Mapmanager: map id:"<<iter->first<<"  "<<std::endl;;
+            iter->second->map->WritePathToFile("save_all");
+        }
+}
+
 
 }

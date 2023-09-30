@@ -103,7 +103,7 @@ class Visualizer;
 class Client;
 class PointCloud_ex;
 class Image_ex;
-
+class ServiceManager;
 // class pcl::PointXYZI;
 // class pcl::PointXYZRGB;
 // class pcl::PointCloud;
@@ -158,7 +158,7 @@ namespace TypeDefs {
     using MapPtr                           = std::shared_ptr<Map>;
     using MapInstancePtr                   = std::shared_ptr<MapInstance>;
     using MapManagerPtr                    = std::shared_ptr<MapManager>;
-
+    using ServiceManager                    = std::shared_ptr<ServiceManager>;
     using CalibrationPtr                  = std::shared_ptr<Calibration>;
     using PlacerecPtr                   = std::shared_ptr<PlaceRecognition>;
 

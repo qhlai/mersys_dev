@@ -197,9 +197,9 @@ auto Communicator_server::ProcessNewPointClouds()->void {
 
             map_->AddPointCloud(pc);
 
-            if(static_cast<int>(pc->id_.first) == 50){
-                map_->WritePathToFile("test");
-            }
+            // if(static_cast<int>(pc->id_.first) == 50){
+            //     map_->WritePathToFile("test");
+            // }
             
             // 建立大型点云
             // 几帧合一的大型点云

@@ -106,7 +106,8 @@
 			"stdvector": "cpp",
 			"*.inc": "cpp",
 			"eigen": "cpp",
-			"cassert": "cpp"
+			"cassert": "cpp",
+			"*.dat": "cpp"
 		},
 		"python.autoComplete.extraPaths": [
 			"/home/lqh/ros/covins_ws/devel/lib/python3/dist-packages",

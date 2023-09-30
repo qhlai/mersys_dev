@@ -74,7 +74,7 @@ find_package(PCL REQUIRED)
 find_package(OpenCV REQUIRED)
 find_package(ZLIB)
 find_package(GTSAM REQUIRED QUIET)
-
+# find_package(cpprestsdk REQUIRED) #sudo apt-get install libcpprest-dev
 
 
 include(FetchContent)
@@ -83,20 +83,19 @@ FetchContent_Declare(dbg_macro GIT_REPOSITORY https://github.com/sharkdp/dbg-mac
 FetchContent_MakeAvailable(dbg_macro)
 
 set (INCLUDE_DIRS
-
-${PROJECT_SOURCE_DIR}/src
-${PROJECT_SOURCE_DIR}/src/base
-${PROJECT_SOURCE_DIR}/src/core
-${PROJECT_SOURCE_DIR}/src/map
-${PROJECT_SOURCE_DIR}/src/map/frames
-${PROJECT_SOURCE_DIR}/src/tools
-${PROJECT_SOURCE_DIR}/src/communicator
-${PROJECT_SOURCE_DIR}/src/communicator/server
-${PROJECT_SOURCE_DIR}/src/communicator/client
-# ${PROJECT_SOURCE_DIR}/src/communicator/msgs
-# ${PROJECT_SOURCE_DIR}/src/communicator/client/colive_backend
-${PROJECT_SOURCE_DIR}/src/place_rec
-${PROJECT_SOURCE_DIR}/src/visualizer
+    ${PROJECT_SOURCE_DIR}/src
+    ${PROJECT_SOURCE_DIR}/src/base
+    ${PROJECT_SOURCE_DIR}/src/core
+    ${PROJECT_SOURCE_DIR}/src/map
+    ${PROJECT_SOURCE_DIR}/src/map/frames
+    ${PROJECT_SOURCE_DIR}/src/tools
+    ${PROJECT_SOURCE_DIR}/src/communicator
+    ${PROJECT_SOURCE_DIR}/src/communicator/server
+    ${PROJECT_SOURCE_DIR}/src/communicator/client
+    # ${PROJECT_SOURCE_DIR}/src/communicator/msgs
+    # ${PROJECT_SOURCE_DIR}/src/communicator/client/colive_backend
+    ${PROJECT_SOURCE_DIR}/src/place_rec
+    ${PROJECT_SOURCE_DIR}/src/visualizer
 )
 
 
@@ -219,7 +218,10 @@ target_link_libraries(colive_backend_node
                         #   pcl_common 
                         #   pcl_io
                           ) 
-
+target_link_libraries(colive_backend_node PRIVATE 
+                        dbg_macro
+                        # cpprestsdk::cpprest
+                        )
 # add_executable(colive_test_node src/test/test_node.cpp
 #     ${PROJECT_SOURCE_DIR}/src/core/backend.cpp
 #     ${PROJECT_SOURCE_DIR}/src/core/config_backend.cpp
@@ -267,6 +269,7 @@ target_link_libraries(${PROJECT_NAME}
                         ZLIB::ZLIB
                         gtsam
                         dbg_macro
+                        # cpprestsdk::cpprest
                         # ${OpenMVS_LIBRARIES}
                         # ${PCL_LIBRARIES}
                         #   pcl_common 

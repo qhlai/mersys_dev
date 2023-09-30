@@ -1,9 +1,10 @@
 #include "backend.hpp"
 // #include "image_ex.hpp"
-
+#include "service_manager.hpp"
 
 #include "tools_logger.hpp"
 #include "tools_color_printf.hpp"
+
 // #include <ros/ros.h>
 
 // AgentPackage::AgentPackage(size_t client_id, int newfd, VisPtr vis, ManagerPtr man) {
@@ -75,10 +76,13 @@ Backend::Backend(){
         Common_tools::create_dir(colive_params::sys::output_path);
     }
         
-    g_cost_time_logger.init_log( std::string(colive_params::sys::output_path).append("/cost_time_logger.log"));
-
+    g_cost_time_logger.init_log( std::string(colive_params::sys::output_path).append("cost_time_logger.log"));
+    
     mapmanager_.reset(new MapManager());
     m_thread_pool_ptr->commit_task(&MapManager::Run,mapmanager_);
+
+    m_service_mapmanager_.reset(new ServiceManager(mapmanager_));
+    m_thread_pool_ptr->commit_task( &ServiceManager::Run,m_service_mapmanager_);
     // thread_mapmanager_.reset(new std::thread(&MapManager::Run,mapmanager_));
     // thread_mapmanager_->detach(); // Thread will be cleaned up when exiting main()
 
