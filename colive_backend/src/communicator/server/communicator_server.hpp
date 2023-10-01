@@ -50,27 +50,19 @@ public:
     virtual auto Run()            ->void;
 
 protected:
+
     virtual auto CollectDataForAgent()              ->void;
 
-    // virtual auto ClientTest()            ->void;
-
-    // virtual auto PassKfToComm(KeyFrame* kf)                               ->void {
-    //     std::unique_lock<std::mutex>(mtx_kf_queue_);
-    //     kf_out_buffer_.push_back(kf);
-    // }
-
-    // Find data to send to client
-    // virtual auto CollectDataForAgent()                                                  ->void;
 
     // // data handling
-    virtual auto ProcessPointCloudMessages()                                               ->void;
-    // virtual auto ProcessAdditional()                                                    ->void;
-    // virtual auto ProcessKeyframeMessages()                                              ->void;
-    // virtual auto ProcessLandmarkMessages()                                              ->void;
-    // virtual auto ProcessNewKeyframes()                                                  ->void;
-    // virtual auto ProcessNewLandmarks()                                                  ->void;
-    virtual auto ProcessNewPointClouds()->void;
-    virtual auto ProcessNewImages()->void;
+    virtual auto ProcessPointCloudIn()->void;
+
+    virtual auto ProcessImagesIn()->void;
+
+    virtual auto ProcessInstructionIn()->void;    
+    virtual auto ProcessInstructionOut()->void;
+
+ 
     // LM Culling
     // auto LandmarkCulling(size_t min_obs, size_t max_gap)                                ->int;
     // auto KeyframeCulling(double th_red, int recent_window_size)                         ->void;
@@ -101,6 +93,8 @@ protected:
     // LM Culling
     // LandmarkList                recent_landmarks_;
     // KeyframeList                recent_keyframes_;
+
+
 };
 
 } //end ns

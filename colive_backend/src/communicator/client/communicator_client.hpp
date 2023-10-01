@@ -62,7 +62,10 @@ public:
     using PointCloudPtr                    = TypeDefs::PointCloudPtr;
     using PointCloudEX  = TypeDefs::PointCloudEX; 
     using PointCloudEXList  = TypeDefs::PointCloudEXList;  
-    using ImageEX  = TypeDefs::ImageEX;
+    using ImageEX  = TypeDefs::ImageEX;    
+    // using Instruction  = Instruction;  
+    using InstructionList  = TypeDefs::InstructionList; 
+
     // struct cmp_by_id{
     //     bool operator() (const std::pair<size_t,KeyFrame*> a, const std::pair<size_t,KeyFrame*> b){
     //         if(a.first < b.first) return true;
@@ -96,21 +99,13 @@ public:
 protected:
 
 //     // data handling
-    virtual auto ProcessAdditional()                                                    ->void;
-    virtual auto ProcessPointCloudMessages()->void;
-    virtual auto ProcessInstructionMessages()->void;
-    // virtual auto ProcessKeyframeMessages()                                              ->void;
-    // virtual auto ProcessLandmarkMessages()                                              ->void;
-    // virtual auto ProcessNewKeyframes()                                                  ->void;
-    // virtual auto ProcessNewLandmarks()                                                  ->void;
+    virtual auto ProcessPointCloudIn()->void;
+    virtual auto ProcessPointCloudOut()->void;
 
-    // virtual auto ProcessPointCloudMessages()                                            ->void;
+    virtual auto ProcessImageOut()->void;    
 
-    virtual auto ProcessKfBuffer()                                                      ->void;
-    virtual auto ProcessPointCloudBuffer()                                              ->void;
-    virtual auto ProcessImageBuffer()                                                   ->void;
-//     // Infrastructure
-//     Atlas*                  map_                                                                = nullptr;  // the map is not necessary to send data to the server. However, we keep a ptr to it to facilitate implementing potetnial interaction
+    virtual auto ProcessInstructionIn()->void;
+    virtual auto ProcessInstructionOut()->void;
 
 
     std::string server_ip_;
@@ -133,14 +128,9 @@ protected:
     precision_t             last_timestamp_=0;
 
     // std::list<KeyFrame*>   kf_out_buffer_;
-    std::list<PointCloudEX>   pointcloud_out_buffer_;
+    std::list<PointCloudEX>    pointcloud_out_buffer_;
     std::list<ImageEX*>        image_out_buffer_;
-    std::mutex              mtx_pc_queue_;
-    std::mutex              mtx_img_queue_;
-    std::mutex              mtx_kf_queue_;
-
-    std::mutex              mtx_pointcloud_queue_;
-    std::mutex              mtx_image_queue_;
+    std::list<Instruction*>    instruction_out_buffer_;
 
 };
 

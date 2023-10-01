@@ -41,6 +41,7 @@
 
 #include "msgs/msg_pointcloud.hpp"
 #include "msgs/msg_image.hpp"
+#include "msgs/msg_instruction.hpp"
 // #include "msgs/msg_odometry.hpp"
 #include "place_rec.hpp"
 
@@ -85,57 +86,55 @@ auto Communicator_server::CollectDataForAgent()->void {
     // this->PassDataBundle(map_chunk);
 }
 
-auto Communicator_server::ProcessPointCloudMessages()->void {
-    // std::unique_lock<std::mutex> lock(mtx_in_);
-    // while(!buffer_pointclouds_in_.empty()) {
-    //     MsgPointCloud msg = buffer_pointclouds_in_.front();
-    //     // if(msg.id_reference.first > last_processed_kf_msg_.first) break;
-    //     buffer_pointclouds_in_.pop_front();
-    //     if(msg.is_update_msg){
-    //         if(!colive_params::comm::send_updates) continue;
-    //         else{
-    //             // TODO: update
-    //             // auto pc =map_->GetPointCloud();
-    //         }
-    //     }
-    //     else{
-    //         PointCloudEXPtr pc;
-            
-    //         pc = map_->GetPointCloudEX(msg.id_);// id: id+pointcloud
-            
-    //         if(!pc){
-    //             // pc.reset(new PointCloud_ex(msg,map_));
-    //             // map_->AddPointCloud(pc);
-    //             TransformType Twg;
-    //             Twg = map_->GetFamilyPc(msg.id_.second);
-    //             pc.reset(new PointCloudEX(msg,map_));
-    //             pc->SetPoseTwg(Twg);
-    //             // pc->map_=map_;
-    //             // std::cout<<"Added point cloud id: "<<pc->id_.first<<" of client:"<<pc->id_.second <<" pc size: "<<pc->pts_cloud.size()<<std::endl;
-    //             pointclouds_new_.push_back(pc);
-    //             last_processed_pc_msg_ = pc->id_;
-    //         }else{
-    //             // TODO: 
-    //         }
-
-    //     }
-    
-    
-    // }
-    
+auto Communicator_server::ProcessInstructionOut()->void {
 
 }
-        // if(base_frame_update_){
-        //     base_frame_transform_=pc->GetPoseTsw();
-        //     base_frame_update_=false;
 
-        //     *pc_final+=pc->pts_cloud;
-        // }else{
-        //     PointCloud::Ptr cloud_acc(new PointCloud(pc->pts_cloud));
-        //     pcl::transformPointCloud(*cloud_acc, *cloud_acc, (pc->GetPoseTsw()*base_frame_transform_.inverse()).matrix());
-        //     *pc_final+=*cloud_acc;
-        // }
-auto Communicator_server::ProcessNewPointClouds()->void {
+auto Communicator_server::ProcessInstructionIn()->void {
+    std::unique_lock<std::mutex>(mtx_in_);
+    u16 cnt =0;
+
+    while(!buffer_pointclouds_in_.empty()) {
+
+        MsgPointCloud msg = buffer_pointclouds_in_.front();
+
+        // if(msg.id_reference.first > last_processed_kf_msg_.first) break;
+
+        buffer_pointclouds_in_.pop_front();
+        if(msg.is_update_msg){
+            if(!colive_params::comm::send_updates) continue;
+            else {
+                // auto kf = map_->GetKeyframe(msg.id,false);
+                // if(kf && kf->id_.first == 0) continue;
+                // if(kf) kf->UpdatePoseFromMsg(msg,map_);
+            }
+
+        }else{
+
+        }
+        // auto ptcloud = pointcloud_out_buffer_.front();
+        // pointcloud_out_buffer_.pop_front();
+
+        // // if(kfi->sent_once_ && !Map_V_params::comm::send_updates) continue;
+        // // if(kfi->sent_once_ && kfi->mnId == 0) continue;
+        // colive::data_bundle map_chunk;
+        // colive::MsgPointCloud msg_ptcloud;
+        // Vector3Type m(1.0,2.0,3.0);
+        // ptcloud->ConvertToMsg(msg_ptcloud,m ,ptcloud->sent_once_,client_id_);
+        // ptcloud->sent_once_ = true;
+        // map_chunk.pointclouds.push_back(msg_ptcloud);
+
+        // this->PassDataBundle(map_chunk);
+
+        // if(cnt >= colive_params::comm::max_sent_kfs_per_iteration) break;
+
+
+    }
+    // while(!kf_out_buffer_.empty())
+
+}
+
+auto Communicator_server::ProcessPointCloudIn()->void {
     std::unique_lock<std::mutex> lock(mtx_in_);
 
     while(!buffer_pointclouds_in_.empty()) {
@@ -247,7 +246,7 @@ auto Communicator_server::ProcessNewPointClouds()->void {
         }
     }
 }
-auto Communicator_server::ProcessNewImages()->void {
+auto Communicator_server::ProcessImagesIn()->void {
     std::unique_lock<std::mutex> lock(mtx_in_);
 
     while(!buffer_images_in_.empty()) {
@@ -352,13 +351,13 @@ auto Communicator_server::Run()->void {
         this->ProcessBufferIn();
         if(this->TryLock()){
 
-            // this->ProcessPointCloudMessages();
-            this->ProcessNewPointClouds();
-            this->ProcessNewImages();
+            // this->ProcessPointCloudIn();
+            this->ProcessPointCloudIn();
+            this->ProcessImagesIn();
 
 
-            // this->ProcessPointCloudMessages();
-            // this->ProcessNewPointClouds();
+            // this->ProcessPointCloudIn();
+            // this->ProcessPointCloudIn();
 
             // this->ProcessKeyframeMessages();
             // this->ProcessLandmarkMessages();

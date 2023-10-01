@@ -147,7 +147,7 @@ protected:
     virtual auto ProcessBufferIn()                                                      ->void;
     // virtual auto ProcessKeyframeMessages()                                              ->void      = 0;
     // virtual auto ProcessLandmarkMessages()                                              ->void      = 0;
-    virtual auto ProcessPointCloudMessages()                                              ->void      = 0;
+    virtual auto ProcessPointCloudIn()                                              ->void      = 0;
     // virtual auto ProcessImageMessages()                                              ->void      = 0;
     // Infrastructure
     int                         client_id_                                              = -1;
@@ -175,6 +175,10 @@ protected:
     std::mutex                  mtx_recv_buffer_;
     std::mutex                  mtx_out_;
     std::mutex                  mtx_in_;
+
+    std::mutex              mtx_pointcloud_queue_out_;
+    std::mutex              mtx_image_queue_out_;
+    std::mutex              mtx_instruction_out_queue_;
 
     bool                        finish_                                                 = false;
     bool                        is_finished_                                            = false;

@@ -44,6 +44,7 @@
 
 #include "msgs/msg_pointcloud.hpp"
 #include "msgs/msg_image.hpp"
+#include "msgs/msg_instruction.hpp"
 // #include "msgs/msg_odometry.hpp"
 
 namespace colive {
@@ -83,10 +84,6 @@ Communicator_client::Communicator_client(std::string server_ip, std::string port
 // 用于断线重连
 auto Communicator_client::tryReConnect()->void
 {
-    // colive_params::ShowParamsComm();
-
-    // map_ = map;
-
     std::cout << "--> try Reconnecting to server" << std::endl;
     // 加入等待重连 TODO：断线重连
     newfd_ = ConnectToServer(server_ip_.c_str(),port_);
@@ -108,103 +105,73 @@ auto Communicator_client::tryReConnect()->void
     std::cout << ">>> COVINS: client id: " << this->GetClientId() << std::endl;
 }
 
-auto Communicator_client::ProcessAdditional()->void {
 
-}
-auto Communicator_client::ProcessPointCloudBuffer()->void {
-    std::unique_lock<std::mutex>(mtx_pointcloud_queue_);
+auto Communicator_client::ProcessPointCloudOut()->void {
+    std::unique_lock<std::mutex>(mtx_pointcloud_queue_out_);
     u16 cnt =0;
-
-    while(!pointcloud_out_buffer_.empty()) {
-        // std::cout<< "comm: processing point cloud"<<std::endl;
-        auto ptcloud = pointcloud_out_buffer_.front();
-        pointcloud_out_buffer_.pop_front();
-
-        // if(kfi->sent_once_ && !Map_V_params::comm::send_updates) continue;
-        // if(kfi->sent_once_ && kfi->mnId == 0) continue;
+    if(!pointcloud_out_buffer_.empty()){
         colive::data_bundle map_chunk;
         colive::MsgPointCloud msg_ptcloud;
-        // Vector3Type m(1.0,2.0,3.0);
-        ptcloud.ConvertToMsg(msg_ptcloud ,ptcloud.sent_once_,client_id_);
-        ptcloud.sent_once_ = true;
-        map_chunk.pointclouds.push_back(msg_ptcloud);
+        while(!pointcloud_out_buffer_.empty()) {
+            // std::cout<< "comm: processing point cloud"<<std::endl;
+            auto ptcloud = pointcloud_out_buffer_.front();
+            pointcloud_out_buffer_.pop_front();
 
+            ptcloud.ConvertToMsg(msg_ptcloud ,ptcloud.sent_once_,client_id_);
+            ptcloud.sent_once_ = true;
+            map_chunk.pointclouds.push_back(msg_ptcloud);
+
+            
+
+            if(cnt >= colive_params::comm::max_sent_kfs_per_iteration) break;
+        }
         PassDataBundle(map_chunk);// 最后加到封包发送缓存中
-
-        if(cnt >= colive_params::comm::max_sent_kfs_per_iteration) break;
-
-
     }
     // while(!kf_out_buffer_.empty())
 
 
 }
-auto Communicator_client::ProcessImageBuffer()->void {
-    std::unique_lock<std::mutex>(mtx_image_queue_);
+
+auto Communicator_client::ProcessInstructionOut()->void {
+    std::unique_lock<std::mutex>(mtx_instruction_out_queue_);
     u16 cnt =0;
-
-    while(!image_out_buffer_.empty()) {
-        // std::cout<< "comm: processing point cloud"<<std::endl;
-        auto img = image_out_buffer_.front();
-        image_out_buffer_.pop_front();
-
-        // if(kfi->sent_once_ && !Map_V_params::comm::send_updates) continue;
-        // if(kfi->sent_once_ && kfi->mnId == 0) continue;
+    if(!image_out_buffer_.empty()){
         colive::data_bundle map_chunk;
         colive::MsgImage msg_img;
-        img->ConvertToMsg(msg_img,img->sent_once_,client_id_);
-        img->sent_once_ = true;
-        map_chunk.images.push_back(msg_img);
+        while(!image_out_buffer_.empty()) {
+            // std::cout<< "comm: processing point cloud"<<std::endl;
+            auto img = image_out_buffer_.front();
+            image_out_buffer_.pop_front();
+            img->ConvertToMsg(msg_img,img->sent_once_,client_id_);
+            img->sent_once_ = true;
+            map_chunk.images.push_back(msg_img);
 
-        this->PassDataBundle(map_chunk);// 最后加到封包发送缓存中
-
-        if(cnt >= colive_params::comm::max_sent_kfs_per_iteration) break;
-
-
+            if(cnt >= colive_params::comm::max_sent_kfs_per_iteration) break;
+        }
+        this->PassDataBundle(map_chunk);
     }
-    // while(!kf_out_buffer_.empty())
-
-
 }
-auto Communicator_client::ProcessKfBuffer()->void {
-    std::unique_lock<std::mutex>(mtx_kf_queue_);
-    // int cnt = 0;
+auto Communicator_client::ProcessImageOut()->void {
+    std::unique_lock<std::mutex>(mtx_image_queue_out_);
+    u16 cnt =0;
+    if(!image_out_buffer_.empty()){
+        colive::data_bundle map_chunk;
+        colive::MsgImage msg_img;
+        while(!image_out_buffer_.empty()) {
+            // std::cout<< "comm: processing point cloud"<<std::endl;
+            auto img = image_out_buffer_.front();
+            image_out_buffer_.pop_front();
+            img->ConvertToMsg(msg_img,img->sent_once_,client_id_);
+            img->sent_once_ = true;
+            map_chunk.images.push_back(msg_img);
 
-    // while(!kf_out_buffer_.empty()) {
-    //     auto kfi = kf_out_buffer_.front();
-    //     kf_out_buffer_.pop_front();
-    //     if(kfi->sent_once_ && !Map_V_params::comm::send_updates) continue;
-    //     if(kfi->sent_once_ && kfi->mnId == 0) continue;
-    //     Map_V::data_bundle map_chunk;
-    //     Map_V::MsgKeyframe msg_kf;
-    //     kfi->ConvertToMsg(msg_kf,kfi->mPrevKF,kfi->sent_once_,client_id_);
-    //     kfi->sent_once_ = true;
-    //     map_chunk.keyframes.push_back(msg_kf);
-    //     if(!kfi->sent_once_) cnt++;
-    //     auto kfi_lms = kfi->GetMapPointMatches();
-    //     for(auto lmi : kfi_lms){
-    //         if(!lmi) continue;
-    //         if(lmi->sent_once_ && !Map_V_params::comm::send_updates) continue;
-    //         Map_V::MsgLandmark msg_lm;
-    //         lmi->ConvertToMsg(msg_lm,kfi,lmi->sent_once_,client_id_);
-    //         lmi->sent_once_ = true;
-    //         map_chunk.landmarks.push_back(msg_lm);
-    //     }
-    //     this->PassDataBundle(map_chunk);
-    //     if(cnt >= Map_V_params::comm::max_sent_kfs_per_iteration) break;
-    // }
+            if(cnt >= colive_params::comm::max_sent_kfs_per_iteration) break;
+        }
+        this->PassDataBundle(map_chunk);
+    }
 }
 
-// auto Communicator_client::ProcessKeyframeMessages()->void {
-//     std::unique_lock<std::mutex> lock(mtx_in_);
-//     // while(!buffer_keyframes_in_.empty()) {
-//     //     Map_V::MsgKeyframe msg = buffer_keyframes_in_.front();
-//     //     buffer_keyframes_in_.pop_front();
-//     //     std::cout << COUTRED("Received KF from server -- define usage") << std::endl;
-//     //     // Define here what should be done with the received KF
-//     // }
-// }
-auto Communicator_client::ProcessPointCloudMessages()->void {
+auto Communicator_client::ProcessPointCloudIn()->void {
     std::unique_lock<std::mutex>(mtx_in_);
     u16 cnt =0;
 
@@ -226,21 +193,7 @@ auto Communicator_client::ProcessPointCloudMessages()->void {
         }else{
 
         }
-        // auto ptcloud = pointcloud_out_buffer_.front();
-        // pointcloud_out_buffer_.pop_front();
 
-        // // if(kfi->sent_once_ && !Map_V_params::comm::send_updates) continue;
-        // // if(kfi->sent_once_ && kfi->mnId == 0) continue;
-        // colive::data_bundle map_chunk;
-        // colive::MsgPointCloud msg_ptcloud;
-        // Vector3Type m(1.0,2.0,3.0);
-        // ptcloud->ConvertToMsg(msg_ptcloud,m ,ptcloud->sent_once_,client_id_);
-        // ptcloud->sent_once_ = true;
-        // map_chunk.pointclouds.push_back(msg_ptcloud);
-
-        // this->PassDataBundle(map_chunk);
-
-        // if(cnt >= colive_params::comm::max_sent_kfs_per_iteration) break;
 
 
     }
@@ -248,45 +201,24 @@ auto Communicator_client::ProcessPointCloudMessages()->void {
 
 }
 
-auto Communicator_client::ProcessInstructionMessages()->void {
+auto Communicator_client::ProcessInstructionIn()->void {
     std::unique_lock<std::mutex>(mtx_in_);
-    u16 cnt =0;
+    u16 cnt = 0;
 
-    while(!buffer_pointclouds_in_.empty()) {
+    while(!buffer_instructions_in_.empty()) {
 
-        MsgPointCloud msg = buffer_pointclouds_in_.front();
+        MsgInstruction msg = buffer_instructions_in_.front();
 
-        // if(msg.id_reference.first > last_processed_kf_msg_.first) break;
-
-        buffer_pointclouds_in_.pop_front();
+        buffer_instructions_in_.pop_front();
         if(msg.is_update_msg){
             if(!colive_params::comm::send_updates) continue;
             else {
-                // auto kf = map_->GetKeyframe(msg.id,false);
-                // if(kf && kf->id_.first == 0) continue;
-                // if(kf) kf->UpdatePoseFromMsg(msg,map_);
+
             }
 
         }else{
-
-        }
-        // auto ptcloud = pointcloud_out_buffer_.front();
-        // pointcloud_out_buffer_.pop_front();
-
-        // // if(kfi->sent_once_ && !Map_V_params::comm::send_updates) continue;
-        // // if(kfi->sent_once_ && kfi->mnId == 0) continue;
-        // colive::data_bundle map_chunk;
-        // colive::MsgPointCloud msg_ptcloud;
-        // Vector3Type m(1.0,2.0,3.0);
-        // ptcloud->ConvertToMsg(msg_ptcloud,m ,ptcloud->sent_once_,client_id_);
-        // ptcloud->sent_once_ = true;
-        // map_chunk.pointclouds.push_back(msg_ptcloud);
-
-        // this->PassDataBundle(map_chunk);
-
-        // if(cnt >= colive_params::comm::max_sent_kfs_per_iteration) break;
-
-
+            Instruction a = msg;
+        }   
     }
     // while(!kf_out_buffer_.empty())
 
@@ -547,14 +479,16 @@ auto Communicator_client::Run()->void {
     while(true)
     {
         // std::cout<< "123" << std::endl;
-        this->ProcessPointCloudBuffer();
-        this->ProcessImageBuffer();
+        this->ProcessPointCloudOut();
+        this->ProcessImageOut();
+        this->ProcessInstructionOut();
+
         // this->ProcessKfBuffer();
         this->ProcessBufferOut();
         this->ProcessBufferIn();
-        if(this->TryLock()){//执行tryLock()方法时未获得锁，则会立即返回false,不会阻塞
-               this->ProcessPointCloudMessages();
-               this->ProcessInstructionMessages();
+        if(this->TryLock()){//need lock, because receiving data to local database,执行tryLock()方法时未获得锁，则会立即返回false,不会阻塞
+               this->ProcessPointCloudIn();
+               this->ProcessInstructionIn();
         //     this->ProcessKeyframeMessages();
         //     this->ProcessLandmarkMessages();
         //     this->ProcessNewKeyframes();
@@ -565,7 +499,7 @@ auto Communicator_client::Run()->void {
 
         if(this->ShallFinish()){
             this->tryReConnect();
-            std::unique_lock<std::mutex>(mtx_pointcloud_queue_);
+            std::unique_lock<std::mutex>(mtx_pointcloud_queue_out_);
             if(!pointcloud_out_buffer_.empty()) {
                 std::cout << "Comm:: waiting for pc_out_buffer_" << std::endl;
             } else {
