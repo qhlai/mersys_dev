@@ -121,7 +121,7 @@ void printStatistics(const Estimator &estimator, double t)
         ROS_INFO("td %f", estimator.td);
 }
 
-void pubOdometry(const Estimator &estimator, const std_msgs::Header &header, colive::Image_ex* img)
+void pubOdometry(const Estimator &estimator, const std_msgs::Header &header, mersys::Image_ex* img)
 {
     if (estimator.solver_flag == Estimator::SolverFlag::NON_LINEAR)
     {

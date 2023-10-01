@@ -1,5 +1,4 @@
 #!/bin/bash
-path_dataset='/home/uestc/dataset/r3live_offical'
-path_workspace='~/ros/r3live'
 
-curl 
+curl http://127.0.0.1:9034/hi
+curl http://127.0.0.1:9034/savepath

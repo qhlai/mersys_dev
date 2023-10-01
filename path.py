@@ -48,7 +48,7 @@ y_real=[]
 z_real=[]
 x_real_bias=0
 y_real_bias=0
-# with open('./colive_backend/output/path_0_save_all_data.txt', 'r') as f:
+# with open('./mersys_backend/output/path_0_save_all_data.txt', 'r') as f:
 #        line = f.readline()
 #        while line:
 #                line_split=line.split(',')
@@ -61,7 +61,7 @@ y_real_bias=0
 #                data_est.append([time,x,y])
 #             #    print(line.split(','))
 #                line = f.readline()
-with open('./colive_backend/output/path0.txt', 'r') as f:
+with open('./mersys_backend/output/path0.txt', 'r') as f:
        line = f.readline()
        line = f.readline()
        line_split=line.split(',')
@@ -95,7 +95,7 @@ print(y_real)
 # plt.legend()
 # plt.show()
 #保存数据open函数
-with open('./colive_backend/output/groundtruth0.txt','a',encoding='utf-8') as f:#使用with open()新建对象f
+with open('./mersys_backend/output/groundtruth0.txt','a',encoding='utf-8') as f:#使用with open()新建对象f
     for i in range(len(x_real)):
             print(i, time_real[i], x_real[i], y_real[i])
             a =str(time_real[i])+" "+str(x_real[i])+" "+ str(y_real[i])+ " 0 0 0 0 1"+'\n'

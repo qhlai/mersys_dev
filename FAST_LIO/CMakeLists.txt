@@ -43,7 +43,7 @@ find_package(PythonLibs REQUIRED)
 find_path(MATPLOTLIB_CPP_INCLUDE_DIRS "matplotlibcpp.h")
 
 
-# set(colive_backend_DIR "/home/lqh/ros/r3live_ws/build/colive/colive_backend")
+# set(mersys_backend_DIR "/home/lqh/ros/r3live_ws/build/mersys/mersys_backend")
 
 find_package(catkin REQUIRED COMPONENTS
   geometry_msgs
@@ -57,7 +57,7 @@ find_package(catkin REQUIRED COMPONENTS
   livox_ros_driver
   message_generation
   eigen_conversions
-  colive_backend
+  mersys_backend
 )
 
 find_package(Eigen3 REQUIRED)
@@ -65,14 +65,14 @@ find_package(PCL 1.10 REQUIRED)
 find_package(OpenCV 4.2 REQUIRED)
 
 message(STATUS Eigen: ${EIGEN3_INCLUDE_DIR})
-message(STATUS "=============================================colive: ${colive_backend_INCLUDE_DIRS}")
-message(STATUS "==============================================colive: ${colive_backend_LIBRARIES}")
+message(STATUS "=============================================mersys: ${mersys_backend_INCLUDE_DIRS}")
+message(STATUS "==============================================mersys: ${mersys_backend_LIBRARIES}")
 include_directories(
 	${catkin_INCLUDE_DIRS} 
   ${EIGEN3_INCLUDE_DIR}
   ${PCL_INCLUDE_DIRS}
   ${PYTHON_INCLUDE_DIRS}
-  ${colive_backend_INCLUDE_DIRS}
+  ${mersys_backend_INCLUDE_DIRS}
   # src/client
   include)
 
@@ -113,9 +113,9 @@ target_include_directories(fastlio_mapping PRIVATE ${PYTHON_INCLUDE_DIRS})
 # 	${COMM_INC_FILES} )
 
 add_executable(fastlio_mapping_client src/laserMapping_client.cpp include/ikd-Tree/ikd_Tree.cpp src/preprocess.cpp )
-target_link_libraries(fastlio_mapping_client ${catkin_LIBRARIES} ${PCL_LIBRARIES} ${PYTHON_LIBRARIES}  ${OpenCV_LIBRARIES} ${colive_backend_LIBRARIES}  )
-# ${colive_backend_LIBRARIES} 
-target_include_directories(fastlio_mapping_client PRIVATE  ${PYTHON_INCLUDE_DIRS} ${colive_backend_INCLUDE_DIRS})
+target_link_libraries(fastlio_mapping_client ${catkin_LIBRARIES} ${PCL_LIBRARIES} ${PYTHON_LIBRARIES}  ${OpenCV_LIBRARIES} ${mersys_backend_LIBRARIES}  )
+# ${mersys_backend_LIBRARIES} 
+target_include_directories(fastlio_mapping_client PRIVATE  ${PYTHON_INCLUDE_DIRS} ${mersys_backend_INCLUDE_DIRS})
 
 
-#${colive_backend_LIBRARIES}${colive_backend_INCLUDE_DIRS}
+#${mersys_backend_LIBRARIES}${mersys_backend_INCLUDE_DIRS}

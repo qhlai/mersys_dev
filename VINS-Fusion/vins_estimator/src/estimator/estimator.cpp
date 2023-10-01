@@ -17,16 +17,16 @@ Estimator::Estimator() : f_manager{Rs}
     clearState();
 
     /*** communication ***/
-    // use namespace colive
+    // use namespace mersys
     // std::shared_ptr comm;
     // comm = comm_;
-    std::cout << ">>> COLIVE: Initialize communicator" << std::endl;
-    comm_.reset(new colive::Communicator_client(colive_params::sys::server_ip, colive_params::sys::port));
-    std::cout << ">>> COLIVE: Start comm thread" << std::endl;
+    std::cout << ">>> mersys: Initialize communicator" << std::endl;
+    comm_.reset(new mersys::Communicator_client(mersys_params::sys::server_ip, mersys_params::sys::port));
+    std::cout << ">>> mersys: Start comm thread" << std::endl;
     // StartThread();
     // thread_comm = thread_comm_;
     // std::unique_ptr<std::thread> thread_comm_;
-    thread_comm_.reset(new std::thread(&colive::Communicator_client::Run, comm_));
+    thread_comm_.reset(new std::thread(&mersys::Communicator_client::Run, comm_));
     img = &img1;
 }
 
@@ -188,7 +188,7 @@ void Estimator::inputImage(double t, const cv::Mat &_img, const cv::Mat &_img1)
     img1.SetImage(img_origin);
     // // img1.img_ = imgTrack;
     img1.timestamp_ = t;
-    // std::cout << ">>> COLIVE: get image" << std::endl;
+    // std::cout << ">>> mersys: get image" << std::endl;
     if (SHOW_TRACK)
     {
         cv::Mat imgTrack = featureTracker.getTrackImage();
@@ -235,7 +235,7 @@ void Estimator::inputImage1(double t, const cv::Mat &_img, const cv::Mat &_img1,
     img1.SetImage(img_origin);
     // // img1.img_ = imgTrack;
     img1.timestamp_ = t;
-    // std::cout << ">>> COLIVE: get image" << std::endl;
+    // std::cout << ">>> mersys: get image" << std::endl;
     if (SHOW_TRACK)
     {
         cv::Mat imgTrack = featureTracker.getTrackImage();
@@ -409,7 +409,7 @@ void Estimator::processMeasurements()
         std::this_thread::sleep_for(dura);
     }
     comm_->TryPassKeyImgToComm(img);
-    std::cout << ">>> COLIVE: Start comm thread 3 " << std::endl;
+    std::cout << ">>> mersys: Start comm thread 3 " << std::endl;
 }
 
 void Estimator::initFirstIMUPose(vector<pair<double, Eigen::Vector3d>> &accVector)

@@ -2,20 +2,20 @@
 
 username=$(id $uid | awk -F'(' '{print $2}' | cut -d')' -f1)
 if [ "$username" = "lqh" ];then
-path_dataset='/media/lqh/WDC/dataset/colive/nice/'
+path_dataset='/media/lqh/WDC/dataset/mersys/nice/'
 
 file_name_1="2023-08-02-22-48-44fixed_part1_1.bag"
 file_name_2="2023-08-02-22-48-44fixed_part1_2.bag"
 
-path_dataset='/home/lqh/dataset/colive/'
+path_dataset='/home/lqh/dataset/mersys/'
 file_name_1="2023-09-19-19-33-05fixed.bag_1.bag"
 file_name_2="2023-09-19-19-33-05fixed.bag_2.bag"
 file_name_3="2023-09-19-19-33-05fixed.bag_3.bag"
 
-# path_dataset='/media/lqh/WDC/dataset/colive/fine/'
+# path_dataset='/media/lqh/WDC/dataset/mersys/fine/'
 echo "lqh"
 elif [ "$username" = "uestc" ];then
-path_dataset='/home/uestc/dataset/colive/'
+path_dataset='/home/uestc/dataset/mersys/'
 
 file_name_1="2023-08-09-16-26-08fixed_part1.bag"
 file_name_2="2023-08-09-16-26-08fixed_part2.bag"
@@ -40,29 +40,29 @@ play_speed=1
 
 # file_name="2023-08-09-16-26-08fixed_part1.bag"
 namespace="client1"
-gnome-terminal -t "roslaunch" -x bash -c "cd ../../;source ./devel/setup.bash;roslaunch colive_backend dataset.launch namespace:=$namespace file_path:=$path_dataset file_name:=$file_name_1 play_speed:=$play_speed;exec bash;"
+gnome-terminal -t "roslaunch" -x bash -c "cd ../../;source ./devel/setup.bash;roslaunch mersys_backend dataset.launch namespace:=$namespace file_path:=$path_dataset file_name:=$file_name_1 play_speed:=$play_speed;exec bash;"
 # sleep 1
 
 if [ "$client_num" = "2" ];then
 # file_name="2023-08-09-16-26-08fixed_part2.bag"
 namespace="client2"
-gnome-terminal -t "roslaunch" -x bash -c "cd ../../;source ./devel/setup.bash;roslaunch colive_backend dataset.launch namespace:=$namespace file_path:=$path_dataset file_name:=$file_name_2 play_speed:=$play_speed;exec bash;"
+gnome-terminal -t "roslaunch" -x bash -c "cd ../../;source ./devel/setup.bash;roslaunch mersys_backend dataset.launch namespace:=$namespace file_path:=$path_dataset file_name:=$file_name_2 play_speed:=$play_speed;exec bash;"
 
 
 # namespace="client3"
-# gnome-terminal -t "roslaunch" -x bash -c "cd ../../;source ./devel/setup.bash;roslaunch colive_backend dataset.launch namespace:=$namespace file_path:=$path_dataset file_name:=$file_name_3 play_speed:=$play_speed;exec bash;"
+# gnome-terminal -t "roslaunch" -x bash -c "cd ../../;source ./devel/setup.bash;roslaunch mersys_backend dataset.launch namespace:=$namespace file_path:=$path_dataset file_name:=$file_name_3 play_speed:=$play_speed;exec bash;"
 
 fi
 
 if [ "$client_num" = "3" ];then
 # file_name="2023-08-09-16-26-08fixed_part2.bag"
 namespace="client2"
-gnome-terminal -t "roslaunch" -x bash -c "cd ../../;source ./devel/setup.bash;roslaunch colive_backend dataset.launch namespace:=$namespace file_path:=$path_dataset file_name:=$file_name_2 play_speed:=$play_speed;exec bash;"
+gnome-terminal -t "roslaunch" -x bash -c "cd ../../;source ./devel/setup.bash;roslaunch mersys_backend dataset.launch namespace:=$namespace file_path:=$path_dataset file_name:=$file_name_2 play_speed:=$play_speed;exec bash;"
 
 namespace="client3"
-gnome-terminal -t "roslaunch" -x bash -c "cd ../../;source ./devel/setup.bash;roslaunch colive_backend dataset.launch namespace:=$namespace file_path:=$path_dataset file_name:=$file_name_3 play_speed:=$play_speed;exec bash;"
+gnome-terminal -t "roslaunch" -x bash -c "cd ../../;source ./devel/setup.bash;roslaunch mersys_backend dataset.launch namespace:=$namespace file_path:=$path_dataset file_name:=$file_name_3 play_speed:=$play_speed;exec bash;"
 # namespace="client3"
-# gnome-terminal -t "roslaunch" -x bash -c "cd ../../;source ./devel/setup.bash;roslaunch colive_backend dataset.launch namespace:=$namespace file_path:=$path_dataset file_name:=$file_name_3 play_speed:=$play_speed;exec bash;"
+# gnome-terminal -t "roslaunch" -x bash -c "cd ../../;source ./devel/setup.bash;roslaunch mersys_backend dataset.launch namespace:=$namespace file_path:=$path_dataset file_name:=$file_name_3 play_speed:=$play_speed;exec bash;"
 
 fi
 

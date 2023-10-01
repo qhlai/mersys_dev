@@ -1,5 +1,5 @@
-colive_backend/lib
-colive_backend/test/build
+mersys_backend/lib
+mersys_backend/test/build
 build
 .vscode
-colive_backend/output/*
+mersys_backend/output/*

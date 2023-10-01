@@ -48,7 +48,7 @@ void pubTrackImage(const cv::Mat &imgTrack, const double t);
 
 void printStatistics(const Estimator &estimator, double t);
 
-void pubOdometry(const Estimator &estimator, const std_msgs::Header &header, colive::Image_ex* img);
+void pubOdometry(const Estimator &estimator, const std_msgs::Header &header, mersys::Image_ex* img);
 
 void pubInitialGuess(const Estimator &estimator, const std_msgs::Header &header);
 

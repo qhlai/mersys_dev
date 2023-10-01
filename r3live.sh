@@ -1,5 +1,5 @@
 #!/bin/bash
-path_dataset='/home/uestc/dataset/colive/2023-09-23-16-38-52fixed.bag'
+path_dataset='/home/uestc/dataset/mersys/2023-09-23-16-38-52fixed.bag'
 # path_dataset='/media/lqh/WDC/dataset/r3live_offical/hku_campus_seq_00.bag'
 path_workspace='~/ros/r3live'
 
@@ -15,4 +15,4 @@ gnome-terminal -t "rosbag play" -x bash -c "rosbag play ${path_dataset};exec bas
 
 
 # gnome-terminal -t "rosbag play" -x bash -c "rosbag play ${path_dataset}/hku_campus_seq_00.bag;exec bash;"
-# smb://172.168.3.59/dataset/colive
+# smb://172.168.3.59/dataset/mersys
