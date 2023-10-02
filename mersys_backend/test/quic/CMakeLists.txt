@@ -79,12 +79,50 @@ set(${PROJECT_NAME}_LIBRARIES)
 set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 
 
+
+
+
+file(GLOB_RECURSE SERVER_INCLUDE_DIR    
+# ${PROJECT_SOURCE_DIR}/src/place_rec/*.hpp
+${PROJECT_SOURCE_DIR}/src/common/*.hpp
+${PROJECT_SOURCE_DIR}/src/server/*.hpp
+${PROJECT_SOURCE_DIR}/src/server/*.h
+${PROJECT_SOURCE_DIR}/src/inc/*.h
+# ${PROJECT_SOURCE_DIR}/src/visualizer/visualizer.cpp
+)
+
+file(GLOB_RECURSE SERVER_SOURCE_DIR    
+${PROJECT_SOURCE_DIR}/src/common/*.cpp
+${PROJECT_SOURCE_DIR}/src/server/*.cpp
+)
+
+file(GLOB_RECURSE CLIENT_INCLUDE_DIR     
+# ${PROJECT_SOURCE_DIR}/src/place_rec/*.hpp
+${PROJECT_SOURCE_DIR}/src/common/quic_inc/*.h
+${PROJECT_SOURCE_DIR}/src/common/*.hpp
+${PROJECT_SOURCE_DIR}/src/client/*.hpp
+${PROJECT_SOURCE_DIR}/src/client/*.h
+${PROJECT_SOURCE_DIR}/src/inc/*.h
+# ${PROJECT_SOURCE_DIR}/src/visualizer/visualizer.cpp
+)
+
+file(GLOB_RECURSE CLIENT_SOURCE_DIR
+# ${PROJECT_SOURCE_DIR}/src/place_rec/*.hpp
+${PROJECT_SOURCE_DIR}/src/common/quic_inc/*.h
+${PROJECT_SOURCE_DIR}/src/common/*.hpp
+${PROJECT_SOURCE_DIR}/src/client/*.hpp
+${PROJECT_SOURCE_DIR}/src/client/*.h
+${PROJECT_SOURCE_DIR}/src/inc/*.h
+# ${PROJECT_SOURCE_DIR}/src/visualizer/visualizer.cpp
+)
+
 include_directories(
     ${catkin_INCLUDE_DIRS}
     ${EIGEN3_INCLUDE_DIR}
     ${PCL_INCLUDE_DIRS}
     ${INCLUDE_DIRS}
     ${MSQUIC_INCLUDE_DIRS}
+    ${PROJECT_SOURCE_DIR}/src/common/
     
 )
 
@@ -93,26 +131,11 @@ message(STATUS "===== ${PROJECT_NAME}: OpenCV library status: =====")
 message(STATUS "===== OpenCV ersion: ${OpenCV_VERSION}  =====")
 message(STATUS "===== OpenCV libraries: ${OpenCV_LIBS} =====")
 message(STATUS "===== OpenCV include path: ${OpenCV_INCLUDE_DIRS} =====")
-
-
-file(GLOB_RECURSE SERVER_FILES     
-# ${PROJECT_SOURCE_DIR}/src/place_rec/*.hpp
-${PROJECT_SOURCE_DIR}/src/server/*.hpp
-${PROJECT_SOURCE_DIR}/src/server/*.cpp
-${PROJECT_SOURCE_DIR}/src/server/*.h
-${PROJECT_SOURCE_DIR}/src/inc/*.h
-# ${PROJECT_SOURCE_DIR}/src/visualizer/visualizer.cpp
+add_executable(
+    server src/server.cpp
+    # ${SERVER_INCLUDE_DIR}
+    ${SERVER_SOURCE_DIR}
 )
-
-file(GLOB_RECURSE CLIENT_FILES     
-# ${PROJECT_SOURCE_DIR}/src/place_rec/*.hpp
-${PROJECT_SOURCE_DIR}/src/client/*.hpp
-${PROJECT_SOURCE_DIR}/src/client/*.cpp
-${PROJECT_SOURCE_DIR}/src/client/*.h
-${PROJECT_SOURCE_DIR}/src/inc/*.h
-# ${PROJECT_SOURCE_DIR}/src/visualizer/visualizer.cpp
-)
-add_executable(server src/server.cpp)
 target_link_libraries(server
                           ${catkin_LIBRARIES}
                           ${Boost_LIBRARIES}
@@ -123,12 +146,15 @@ target_link_libraries(server
                           ${PCL_LIBRARIES}
                           #${MSQUIC_LIBRARIES}
                           ${PROJECT_SOURCE_DIR}/quic_libs/libmsquic.so
-						${SERVER_FILES}
+						# ${SERVER_FILES}
                         #   pcl_common 
                         #   pcl_io
                           ) 
 
-add_executable(client src/client.cpp)
+add_executable(client src/client.cpp
+    # ${CLIENT_INCLUDE_DIR}
+    ${CLIENT_SOURCE_DIR}           
+)
 target_link_libraries(client
                         ${catkin_LIBRARIES}
                         ${Boost_LIBRARIES}
@@ -139,7 +165,7 @@ target_link_libraries(client
                         ${PCL_LIBRARIES}
                         #${MSQUIC_LIBRARIES}
                         ${PROJECT_SOURCE_DIR}/quic_libs/libmsquic.so
-                        ${CLIENT_FILES}
+                        # ${CLIENT_FILES}
                         #   pcl_common 
                         #   pcl_io
                         ) 
