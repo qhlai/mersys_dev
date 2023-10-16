@@ -15,20 +15,6 @@ Panels:
         - /Odometry1/Odometry1/Covariance1/Position1
         - /Odometry1/Odometry1/Covariance1/Orientation1
         - /MarkerArray1/Namespaces1
-        - /mapping_all1/PointCloud231
-        - /mapping_all1/PointCloud232
-        - /mapping_all1/PointCloud233
-        - /mapping_all1/PointCloud234
-        - /mapping_all1/PointCloud235
-        - /mapping_all1/PointCloud236
-        - /mapping_all1/PointCloud237
-        - /mapping_all1/PointCloud238
-        - /mapping_all1/PointCloud239
-        - /mapping_all1/PointCloud240
-        - /mapping_all1/PointCloud241
-        - /mapping_all1/PointCloud242
-        - /mapping_all1/PointCloud243
-        - /mapping_all1/PointCloud244
       Splitter Ratio: 0.4022257626056671
     Tree Height: 1139
   - Class: rviz/Selection
@@ -312,10 +298,14 @@ Visualization Manager:
       Marker Topic: /mersys_markers_be
       Name: Marker
       Namespaces:
+        "LoopEdges_inter_0_be\n": true
+        "LoopEdges_inter_1_be\n": true
         "LoopEdges_intra_0_be\n": true
         "LoopEdges_intra_1_be\n": true
+        "LoopEdges_intra_2_be\n": true
         Traj0_be: true
         Traj1_be: true
+        Traj2_be: true
       Queue Size: 100
       Value: true
     - Alpha: 1
@@ -1654,7 +1644,7 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 50.54045867919922
+      Distance: 208.83505249023438
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
@@ -1662,17 +1652,17 @@ Visualization Manager:
         Value: false
       Field of View: 0.7853981852531433
       Focal Point:
-        X: 34.153656005859375
-        Y: 8.827118873596191
-        Z: 6.170383930206299
+        X: 45.75387954711914
+        Y: 28.116579055786133
+        Z: 17.278629302978516
       Focal Shape Fixed Size: true
       Focal Shape Size: 0.05000000074505806
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 1.0597974061965942
+      Pitch: 0.5697970986366272
       Target Frame: global
-      Yaw: 3.828427791595459
+      Yaw: 5.4353203773498535
     Saved: ~
 Window Geometry:
   Displays:

@@ -12,6 +12,16 @@ file_name_1="2023-09-19-19-33-05fixed.bag_1.bag"
 file_name_2="2023-09-19-19-33-05fixed.bag_2.bag"
 file_name_3="2023-09-19-19-33-05fixed.bag_3.bag"
 
+
+file_name_1="2023-09-19-20-18-04fixed.bag-1.bag"
+file_name_2="2023-09-19-20-18-04fixed.bag-2.bag"
+file_name_3="2023-09-19-20-18-04fixed.bag-3.bag"
+
+
+#file_name_1="2023-09-19-19-33-05fixed.bag_1.bag"
+#file_name_2="2023-09-19-20-18-04fixed.bag-2.bag"
+#file_name_3="2023-09-19-19-33-05fixed.bag_3.bag"
+
 # path_dataset='/media/lqh/WDC/dataset/mersys/fine/'
 echo "lqh"
 elif [ "$username" = "uestc" ];then

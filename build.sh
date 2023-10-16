@@ -29,7 +29,9 @@ clear
 catkin build ${CATKIN_JOBS} mersys_backend 
 catkin build ${CATKIN_JOBS} livox_ros_driver  fast_lio 
 catkin build ${CATKIN_JOBS}  vins camera_models global_fusion loop_fusion
-catkin build ${CATKIN_JOBS}  livox_camera_calib
+catkin build ${CATKIN_JOBS}  mlcc
+catkin build ${CATKIN_JOBS}  r3live
+#catkin build ${CATKIN_JOBS}  livox_camera_calib joint_lidar_camera_calib mlcc
 # catkin build ${CATKIN_JOBS}  r3live
 
 # catkin build catkin_simple

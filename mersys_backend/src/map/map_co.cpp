@@ -291,7 +291,7 @@ auto Map::Add2RGBMap_service()->void {
 }
 
 auto Map::Add2RGBMap(PointCloudEXPtr pc)->void {
-    int m_append_global_map_point_step = 2; // 间隔一个点加入global map
+    int m_append_global_map_point_step = 1; // 间隔一个点加入global map
     bool m_if_record_mvs =false;//if record_offline_map
     if ( m_if_record_mvs )
     {

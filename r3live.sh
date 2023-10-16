@@ -1,5 +1,6 @@
 #!/bin/bash
 path_dataset='/home/uestc/dataset/mersys/2023-09-23-16-38-52fixed.bag'
+path_dataset='/media/lqh/WDC/dataset/mersys/2023-08-02-22-37-57fixed.bag'
 # path_dataset='/media/lqh/WDC/dataset/r3live_offical/hku_campus_seq_00.bag'
 path_workspace='~/ros/r3live'
 
