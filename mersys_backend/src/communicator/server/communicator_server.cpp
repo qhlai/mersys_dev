@@ -181,7 +181,7 @@ auto Communicator_server::ProcessPointCloudIn()->void {
             // map_->pointclouds_.push_back(pc);
 
             map_->AddPointCloud(pc);
-
+            map_->LongTimeStay(pc);
             // if(static_cast<int>(pc->id_.first) == 50){
             //     map_->WritePathToFile("test");
             // }
@@ -190,31 +190,31 @@ auto Communicator_server::ProcessPointCloudIn()->void {
             // 几帧合一的大型点云
             // static TransformType base_frame_transform_;
             // static bool base_frame_update_=false;
-            if(p_pc_large_tmp){
-                // std::cout << "1"<<std::endl;
-                if(p_pc_large_tmp->pts_cloud.size()<400000){
+            // if(p_pc_large_tmp){
+            //     // std::cout << "1"<<std::endl;
+            //     if(p_pc_large_tmp->pts_cloud.size()<400000){
 
-                    p_pc_large_tmp->add_and_merge_pointcloudex(pc);
-                }else{
-                    // std::cout << "3"<<std::endl;
-                    // pointclouds_large_[p_pc_large_tmp->id_] = p_pc_large_tmp;
+            //         p_pc_large_tmp->add_and_merge_pointcloudex(pc);
+            //     }else{
+            //         // std::cout << "3"<<std::endl;
+            //         // pointclouds_large_[p_pc_large_tmp->id_] = p_pc_large_tmp;
 
-                    #ifdef SAVE_FRAMES       
-                    if(mersys_params::sys::save_frames){
+            //         #ifdef SAVE_FRAMES       
+            //         if(mersys_params::sys::save_frames){
                         
-                        p_pc_large_tmp->save_to_pcd( std::string(mersys_params::sys::output_dir).append("/frames/pcd_large/").append(std::to_string(p_pc_large_tmp->GetClientID())).append("/"), std::to_string(p_pc_large_tmp->GetTimeStamp()) , 0);
-                    }
-                    #endif
-                    p_pc_large_tmp.reset();
-                }
-            }else{
-                // std::cout << "4"<<std::endl;
-                p_pc_large_tmp.reset(new PointCloudEX(*pc));
-                // base_frame_transform_=pc->GetPoseTsw();
-            }
+            //             p_pc_large_tmp->save_to_pcd( std::string(mersys_params::sys::output_dir).append("/frames/pcd_large/").append(std::to_string(p_pc_large_tmp->GetClientID())).append("/"), std::to_string(p_pc_large_tmp->GetTimeStamp()) , 0);
+            //         }
+            //         #endif
+            //         p_pc_large_tmp.reset();
+            //     }
+            // }else{
+            //     // std::cout << "4"<<std::endl;
+            //     p_pc_large_tmp.reset(new PointCloudEX(*pc));
+            //     // base_frame_transform_=pc->GetPoseTsw();
+            // }
 
             
-            map_->AddPointCloud_large(p_pc_large_tmp);
+            // map_->AddPointCloud_large(p_pc_large_tmp);
             #ifdef SAVE_FRAMES         
             if(mersys_params::sys::save_frames){
             pc->save_to_pcd( std::string(mersys_params::sys::output_dir).append("/frames/pcd/").append(std::to_string(pc->GetClientID())).append("/"), std::to_string(pc->GetTimeStamp()) , 0);

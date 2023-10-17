@@ -215,13 +215,6 @@ auto Communicator_client::TryPassKeyPcToComm(PointCloudEX* pc)      ->void{
         // TODO: modify keyframe's max pos diff
         precision_t pos_dis = sqrt(pos_diff[0]*pos_diff[0]+pos_diff[1]*pos_diff[1]+pos_diff[2]*pos_diff[2]);
 
-
-        // QuaternionType quan_diff =pc->quan_*last_quan_.conjugate();
-        // Eigen::Matrix3d R = quan_diff.toRotationMatrix();
-
-        // Eigen::Vector3d position = T_curr_loop.translation();
-        // Eigen::Vector3d euler = T_curr_loop.rotation().eulerAngles(0, 1, 2);
-
         Vector3Type rot_euler=T.rotation().eulerAngles(2,1,0); // zyx, euler is [0,pi]
         Vector3Type last_rot_euler=last_transform_.rotation().eulerAngles(2, 1, 0); // zyx, euler is [0,pi]
 
@@ -243,8 +236,6 @@ auto Communicator_client::TryPassKeyPcToComm(PointCloudEX* pc)      ->void{
         }
         // 把多个frame一起打包压缩，减少传输次数的同时可以合并一些重复点
         // std::cout<<"pc->pts_cloud->size():"<<pc->pts_cloud.size()<< std::endl;  6000 per frame
-        // if
-        // static int tmp=0;
         
         if(base_frame_update_){
             base_frame_transform_=pc->GetPoseTsw();

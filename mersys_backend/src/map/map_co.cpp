@@ -44,6 +44,7 @@ Map::Map(size_t id_)
     m_thread_pool_ptr->commit_task(&Map::Add2RGBMap_service,this);
 
     m_map_rgb_pts.reset(new Global_map());
+    
     // thread_rgb_map_.reset(new std::thread(&Map::Add2RGBMap_service,this));
     // thread_rgb_map_->detach();
     // thread_rgb_map_=std::thread(Map::Add2RGBMap_service);
@@ -175,6 +176,76 @@ Map::Map(MapPtr map_target, MapPtr map_tofuse, TransformType T_wtofuse_wmatch)
     // thread_rgb_map_->detach();
 
 }
+// 只有在激光雷达发生较长时间在同一场景静止时，组装大型点云
+auto Map::LongTimeStay(PointCloudEXPtr pc)->void {
+
+        idpair curr_id = pc->GetFrameClientID();
+        // if(pc->GetClient() == m_id_last_huge_move.second)
+        TransformType T = pc->GetPoseTsw();
+
+        Vector3Type pos_diff = T.translation() - m_T_last_huge_move.translation();
+
+        // TODO: modify keyframe's max pos diff
+        precision_t pos_dis = sqrt(pos_diff[0]*pos_diff[0]+pos_diff[1]*pos_diff[1]+pos_diff[2]*pos_diff[2]);
+
+        Vector3Type rot_euler=T.rotation().eulerAngles(2,1,0); // zyx, euler is [0,pi]
+        Vector3Type last_rot_euler=m_T_last_huge_move.rotation().eulerAngles(2, 1, 0); // zyx, 
+
+        precision_t rot_diff = (fabs(rot_euler[2]-last_rot_euler[2]) + fabs(rot_euler[1]-last_rot_euler[1]) + fabs(rot_euler[0]-last_rot_euler[0]))*(180.0 / M_PI);// TODO:  shoud fix, why max is 532?
+        if (rot_diff > 350){
+            rot_diff = fabs(rot_diff-360);
+        }
+        precision_t time_diff = pc->timestamp_- m_timestamp_last_huge_move;
+        if (time_diff<0){
+                std::cout<<"Error time_diff<0"<< std::endl;
+                return;
+        }
+        // time_diff不能太长
+        if(pos_dis >100.5 || rot_diff > 360 || time_diff > 15){
+        // if(pos_dis >0.5 || rot_diff > 10 || time_diff > 15){
+            // 开始组装大点云
+            if(m_id_last_huge_move.second!=curr_id.second ){
+                std::cout << COUTERROR << "m_id_last_huge_move.second!=curr_id.second" << std::endl;
+            }
+            // clang-format off
+            if(curr_id.first-m_id_last_huge_move.first > 80   // 至少要多少帧组装
+            && m_id_last_huge_move.second==curr_id.second ){
+            // clang-format on
+                idpair index = idpair(m_id_last_huge_move.first,m_id_last_huge_move.second);
+                p_pc_large_tmp=nullptr;
+
+                auto pc = this->GetPointCloudEX(index);
+                p_pc_large_tmp.reset(new PointCloudEX(*pc));
+
+                for(uint16_t i=1 + m_id_last_huge_move.first; i < curr_id.first; ++i){
+                    index.first = i;
+                    pc = this->GetPointCloudEX(index);
+                    p_pc_large_tmp->add_and_merge_pointcloudex(pc);
+                   
+                }
+
+                if(p_pc_large_tmp->pts_cloud.size()>300000){
+                    // pointclouds_large_[p_pc_large_tmp->id_] = p_pc_large_tmp;
+                    this->AddPointCloud_large(p_pc_large_tmp);
+                    #ifdef SAVE_FRAMES       
+                    if(mersys_params::sys::save_frames){
+                        
+                        p_pc_large_tmp->save_to_pcd( std::string(mersys_params::sys::output_dir).append("/frames/pcd_large/").append(std::to_string(p_pc_large_tmp->GetClientID())).append("/"), std::to_string(p_pc_large_tmp->GetTimeStamp()) , 0);
+                    }
+                    #endif
+                }else{
+                    std::cout << COUTERROR << "size()<400000 ignored "<< p_pc_large_tmp->pts_cloud.size() << std::endl;
+                }
+
+
+
+            }
+            m_id_last_huge_move=curr_id;
+            m_T_last_huge_move=pc->GetPoseTsw();
+            m_timestamp_last_huge_move=pc->timestamp_;
+        }
+
+}
 // auto Map::AddPointCloud(PointCloudEXPtr pc)->void {
 //     this->AddPointCloud(pc,false);
 // }
@@ -200,13 +271,6 @@ auto Map::AddPointCloud_large(PointCloudEXPtr pc, bool suppress_output)->void {
     if(pc==nullptr){
         return;
     }
-
-    // std::unique_lock<std::mutex> lock(mtx_map_);
-    // pointclouds_[pc->id_] = pc;
-    // max_id_pc_ = std::max(max_id_pc_,pc->GetFrameID());
-
-    // size_t client = pc->GetClientID();
-
     // 建立大型点云
     pointclouds_large_[pc->id_] = pc;
 

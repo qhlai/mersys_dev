@@ -76,7 +76,7 @@ find_package(OpenCV REQUIRED)
 find_package(ZLIB)
 find_package(GTSAM REQUIRED QUIET)
 # find_package(cpprestsdk REQUIRED) #sudo apt-get install libcpprest-dev
-
+find_package(Ceres REQUIRED)
 
 include(FetchContent)
 
@@ -96,6 +96,7 @@ set (INCLUDE_DIRS
     # ${PROJECT_SOURCE_DIR}/src/communicator/msgs
     # ${PROJECT_SOURCE_DIR}/src/communicator/client/mersys_backend
     ${PROJECT_SOURCE_DIR}/src/place_rec
+    ${PROJECT_SOURCE_DIR}/src/place_rec/calib
     ${PROJECT_SOURCE_DIR}/src/visualizer
 )
 
@@ -105,7 +106,7 @@ include_directories(
     ${EIGEN3_INCLUDE_DIR}
     ${PCL_INCLUDE_DIRS}
     ${INCLUDE_DIRS}
-
+    ${CERES_INCLUDE_DIRS}
 )
 
 
@@ -159,7 +160,8 @@ ${PROJECT_SOURCE_DIR}/src/place_rec/livox_cam_calib.hpp
 file(GLOB_RECURSE PLACE_SRC_FILES     
 ${PROJECT_SOURCE_DIR}/src/place_rec/place_rec.cpp
 ${PROJECT_SOURCE_DIR}/src/place_rec/scancontext/Scancontext.cpp
-${PROJECT_SOURCE_DIR}/src/place_rec/livox_cam_calib.cpp
+# ${PROJECT_SOURCE_DIR}/src/place_rec/livox_cam_calib.cpp
+${PROJECT_SOURCE_DIR}/src/place_rec/calib/calib_single_camera.cpp
 # ${PROJECT_SOURCE_DIR}/src/place_rec/livox_cam/lidar_camera_calib.cpp
 # ${PROJECT_SOURCE_DIR}/src/visualizer/visualizer.cpp
 )
@@ -213,6 +215,7 @@ target_link_libraries(mersys_backend_node
                           ${OpenCV_LIBRARIES}
                           # ${OpenMVS_LIBRARIES}
                           ${PCL_LIBRARIES}
+                          ${CERES_LIBRARIES}
                           ZLIB::ZLIB
                           gtsam
                           dbg_macro
@@ -267,6 +270,7 @@ target_link_libraries(${PROJECT_NAME}
                         ${Boost_FILESYSTEM_LIBRARY}
                         ${Boost_SERIALIZATION_LIBRARY} # serialization
                         ${OpenCV_LIBRARIES}
+                        ${CERES_LIBRARIES}
                         ZLIB::ZLIB
                         gtsam
                         dbg_macro

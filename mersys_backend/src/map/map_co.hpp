@@ -138,6 +138,9 @@ public:
     virtual auto GetLoopConstraints()                                                   ->LoopVector;
 
 
+    virtual auto LongTimeStay(PointCloudEXPtr pc)                                                   ->void;
+
+
     virtual auto WritePathToFile(std::string suffix, const bool trnc=true)->void;
 
     // Synchronization
@@ -163,6 +166,9 @@ public:
     TransformType               m_T= TransformType::Identity(); // 单机地图与全局地图的估计位姿关系 传感器相对于世界坐标系的位置和方向
 
     TransformType               m_T_last_huge_move= TransformType::Identity();//发送上一次巨大位移后的位置
+    idpair               m_id_last_huge_move= idpair(0,0);//发送上一次巨大位移后的位置
+    precision_t               m_timestamp_last_huge_move= 0;//发送上一次巨大位移后的位置
+    PointCloudEXPtr             p_pc_large_tmp;
 
     bool have_set_vis_pos=false;  // 是否与世界坐标系建立了联系
 
