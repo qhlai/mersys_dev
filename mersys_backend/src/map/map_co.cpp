@@ -201,7 +201,7 @@ auto Map::AddPointCloud_large(PointCloudEXPtr pc, bool suppress_output)->void {
         return;
     }
 
-    std::unique_lock<std::mutex> lock(mtx_map_);
+    // std::unique_lock<std::mutex> lock(mtx_map_);
     // pointclouds_[pc->id_] = pc;
     // max_id_pc_ = std::max(max_id_pc_,pc->GetFrameID());
 

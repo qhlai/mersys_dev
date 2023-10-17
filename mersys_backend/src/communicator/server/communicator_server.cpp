@@ -175,20 +175,6 @@ auto Communicator_server::ProcessPointCloudIn()->void {
         PointCloudEXPtr pc = pointclouds_new_.front();
         pointclouds_new_.pop_front();
 
-        // map_->UpdateCovisibilityConnections(kf->id_);
-
-        // Keyframe::LandmarkVector landmarks = kf->GetLandmarks();
-
-        // for(size_t idx=0;idx<landmarks.size();++idx) {
-        //     LandmarkPtr i = landmarks[idx];
-        //     if(!i) {
-        //         continue;
-        //     }
-        //     i->ComputeDescriptor();
-        //     i->UpdateNormal();
-        // }
-        // static PointCloudEXPtr             p_pc_large_tmp =nullptr;
-
         if(static_cast<int>(pc->id_.second) == client_id_) {
             if(most_recent_pc_id_ == defpair) most_recent_pc_id_ = pc->id_;
             else most_recent_pc_id_.first = std::max(most_recent_pc_id_.first,pc->id_.first);
@@ -206,11 +192,7 @@ auto Communicator_server::ProcessPointCloudIn()->void {
             // static bool base_frame_update_=false;
             if(p_pc_large_tmp){
                 // std::cout << "1"<<std::endl;
-                if(p_pc_large_tmp->pts_cloud.size()<600000){
-                    // std::cout << "2"<<std::endl;
-                    // PointCloud::Ptr cloud_acc(new PointCloud(pc->pts_cloud));
-                    // pcl::transformPointCloud(*cloud_acc, *cloud_acc, (pc->GetPoseTsw()*base_frame_transform_.inverse()).matrix());
-                    // p_pc_large_tmp->pts_cloud+=*cloud_acc;
+                if(p_pc_large_tmp->pts_cloud.size()<400000){
 
                     p_pc_large_tmp->add_and_merge_pointcloudex(pc);
                 }else{
@@ -219,7 +201,8 @@ auto Communicator_server::ProcessPointCloudIn()->void {
 
                     #ifdef SAVE_FRAMES       
                     if(mersys_params::sys::save_frames){
-                        p_pc_large_tmp->save_to_pcd( std::string(mersys_params::sys::output_path).append("/frames/pcd_large/").append(std::to_string(p_pc_large_tmp->GetClientID())).append("/"), std::to_string(p_pc_large_tmp->GetTimeStamp()) , 0);
+                        
+                        p_pc_large_tmp->save_to_pcd( std::string(mersys_params::sys::output_dir).append("/frames/pcd_large/").append(std::to_string(p_pc_large_tmp->GetClientID())).append("/"), std::to_string(p_pc_large_tmp->GetTimeStamp()) , 0);
                     }
                     #endif
                     p_pc_large_tmp.reset();
@@ -228,14 +211,13 @@ auto Communicator_server::ProcessPointCloudIn()->void {
                 // std::cout << "4"<<std::endl;
                 p_pc_large_tmp.reset(new PointCloudEX(*pc));
                 // base_frame_transform_=pc->GetPoseTsw();
-
             }
 
             
             map_->AddPointCloud_large(p_pc_large_tmp);
             #ifdef SAVE_FRAMES         
             if(mersys_params::sys::save_frames){
-            pc->save_to_pcd( std::string(mersys_params::sys::output_path).append("/frames/pcd/").append(std::to_string(pc->GetClientID())).append("/"), std::to_string(pc->GetTimeStamp()) , 0);
+            pc->save_to_pcd( std::string(mersys_params::sys::output_dir).append("/frames/pcd/").append(std::to_string(pc->GetClientID())).append("/"), std::to_string(pc->GetTimeStamp()) , 0);
             }
             #endif            
         }

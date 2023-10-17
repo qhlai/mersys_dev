@@ -50,13 +50,13 @@ play_speed=1
 
 # file_name="2023-08-09-16-26-08fixed_part1.bag"
 namespace="client1"
-gnome-terminal -t "roslaunch" -x bash -c "cd ../../../../;source ./devel/setup.bash;roslaunch mersys_backend dataset.launch namespace:=$namespace file_path:=$path_dataset file_name:=$file_name_1 play_speed:=$play_speed;exec bash;"
+gnome-terminal -t "roslaunch" -x bash -c "cd ../../../;source ./devel/setup.bash;roslaunch mersys_backend dataset.launch namespace:=$namespace file_path:=$path_dataset file_name:=$file_name_1 play_speed:=$play_speed;exec bash;"
 # sleep 1
 
 if [ "$client_num" = "2" ];then
 # file_name="2023-08-09-16-26-08fixed_part2.bag"
 namespace="client2"
-gnome-terminal -t "roslaunch" -x bash -c "cd ../../../../;source ./devel/setup.bash;roslaunch mersys_backend dataset.launch namespace:=$namespace file_path:=$path_dataset file_name:=$file_name_2 play_speed:=$play_speed;exec bash;"
+gnome-terminal -t "roslaunch" -x bash -c "cd ../../../;source ./devel/setup.bash;roslaunch mersys_backend dataset.launch namespace:=$namespace file_path:=$path_dataset file_name:=$file_name_2 play_speed:=$play_speed;exec bash;"
 
 
 # namespace="client3"
@@ -67,7 +67,7 @@ fi
 if [ "$client_num" = "3" ];then
 # file_name="2023-08-09-16-26-08fixed_part2.bag"
 namespace="client2"
-gnome-terminal -t "roslaunch" -x bash -c "cd ../../../../;source ./devel/setup.bash;roslaunch mersys_backend dataset.launch namespace:=$namespace file_path:=$path_dataset file_name:=$file_name_2 play_speed:=$play_speed;exec bash;"
+gnome-terminal -t "roslaunch" -x bash -c "cd ../../../;source ./devel/setup.bash;roslaunch mersys_backend dataset.launch namespace:=$namespace file_path:=$path_dataset file_name:=$file_name_2 play_speed:=$play_speed;exec bash;"
 
 namespace="client3"
 gnome-terminal -t "roslaunch" -x bash -c "cd ../../../;source ./devel/setup.bash;roslaunch mersys_backend dataset.launch namespace:=$namespace file_path:=$path_dataset file_name:=$file_name_3 play_speed:=$play_speed;exec bash;"

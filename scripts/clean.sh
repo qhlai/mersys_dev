@@ -5,5 +5,5 @@ path_workspace='~/ros/r3live'
 #gnome-terminal -t "catkin_make" -x bash -c "catkin_make;exec bash;"
 
 # gnome-terminal -t "roslaunch" -x bash -c "cd ../../../;catkin_make;exec bash;"
-cd ../../../../
+cd ../../../
 catkin_make clean
