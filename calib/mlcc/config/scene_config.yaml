@@ -1,7 +1,7 @@
 %YAML:1.0
 
-LiDARNumber: 2
-ImageNumber: 2
+LiDARNumber: 3
+ImageNumber: 3
 DataPath: "/home/lqh/ros/r3live_ws/src/mersys/calib/mlcc/single_test/"
 CameraFoV: 100
 

@@ -1,0 +1,26 @@
+%YAML:1.0
+CameraMat: !!opencv-matrix
+  rows: 3
+  cols: 3
+  dt: d
+  data:  [863.4241, 0.0, 640.6808,
+      0.0,  863.4171, 518.3392,
+      0.0, 0.0, 1.0 ] 
+
+DistCoeffs: !!opencv-matrix
+  rows: 4
+  cols: 1
+  dt: d
+  data: [-0.1080, 0.1050, -1.2872e-04, 5.7923e-05]
+
+Camera.width: 1280
+Camera.height: 1024
+
+ExtrinsicMat: !!opencv-matrix
+  rows: 4
+  cols: 4
+  dt: d
+  data: [-1, 0, 0, 0.0695,
+         0, 0, 1, 0.06885,
+         0, 1, 0, -0.0765,
+         0, 0, 0, 1]

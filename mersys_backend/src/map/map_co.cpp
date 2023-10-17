@@ -379,7 +379,9 @@ auto Map::GetPoseMap()         ->PoseMap {
     for(std::map<idpair,PointCloudEXPtr>::iterator mit = pointclouds_.begin();mit!=pointclouds_.end();++mit){
         m_pose_map[mit->first] = mit->second->GetPoseTsg();
     }
-
+    for(std::map<idpair,ImageEXPtr>::iterator mit = images_.begin();mit!=images_.end();++mit){
+        m_pose_map[mit->first] = mit->second->GetPoseTsg();
+    }
     return m_pose_map;
 }
 auto Map::WritePathToFile(std::string suffix, const bool trnc)->void{
@@ -398,6 +400,9 @@ auto Map::WritePathToFile(std::string suffix, const bool trnc)->void{
     for(std::map<idpair,PointCloudEXPtr>::iterator mit = pointclouds_.begin();mit!=pointclouds_.end();++mit){
         kfs.push_back(mit->second);
     }
+    // for(std::map<idpair,ImageEXPtr>::iterator mit = images_.begin();mit!=images_.end();++mit){
+    //     kfs.push_back(mit->second);
+    // }
     if(kfs.empty()){return;} //do not overwrite files from other maps with empty files
     std::sort(kfs.begin(), kfs.end(), PointCloudEX::CompStamp);
 

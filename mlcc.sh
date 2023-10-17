@@ -6,13 +6,13 @@ path_workspace='~/ros/r3live'
 
 # gnome-terminal -t "build" -x bash -c "./build.sh;exec bash;"
 
-gnome-terminal -t "roslaunch vis" -x bash -c "cd ../../;source ./devel/setup.bash;roslaunch mlcc calib_single_camera.launch;exec bash;"
+gnome-terminal -t "roslaunch vis" -x bash -c "cd ../../../;source ./devel/setup.bash;roslaunch mlcc calib_single_camera_livox.launch;exec bash;"
 
 
-# gnome-terminal -t "roslaunch vis" -x bash -c "cd ../../;source ./devel/setup.bash;roslaunch livox_camera_calib calib_2.launch;exec bash;"
+# gnome-terminal -t "roslaunch vis" -x bash -c "cd ../../../;source ./devel/setup.bash;roslaunch livox_camera_calib calib_2.launch;exec bash;"
 # # rosrun image_transport republish raw in:=/d400/color/image_raw compressed out:=/d400/color/image_raw
 
-# gnome-terminal -t "roslaunch vins node" -x bash -c "cd ../../;source ./devel/setup.bash;roslaunch vins vins_run.launch;exec bash;"
+# gnome-terminal -t "roslaunch vins node" -x bash -c "cd ../../../;source ./devel/setup.bash;roslaunch vins vins_run.launch;exec bash;"
 
 
 

@@ -219,7 +219,7 @@ auto Communicator_server::ProcessPointCloudIn()->void {
 
                     #ifdef SAVE_FRAMES       
                     if(mersys_params::sys::save_frames){
-                    p_pc_large_tmp->save_to_pcd( std::string(mersys_params::sys::output_path).append("/frames/pcd_large/").append(std::to_string(p_pc_large_tmp->GetClientID())).append("/"), std::to_string(p_pc_large_tmp->GetTimeStamp()) , 0);
+                        p_pc_large_tmp->save_to_pcd( std::string(mersys_params::sys::output_path).append("/frames/pcd_large/").append(std::to_string(p_pc_large_tmp->GetClientID())).append("/"), std::to_string(p_pc_large_tmp->GetTimeStamp()) , 0);
                     }
                     #endif
                     p_pc_large_tmp.reset();
@@ -308,12 +308,12 @@ auto Communicator_server::ProcessImagesIn()->void {
             map_->AddImage(img);
             #ifdef SAVE_FRAMES           
             if(mersys_params::sys::save_frames){
-            img->save_to_png( std::string(mersys_params::sys::output_path).append("/frames/img/").append(std::to_string(img->GetClientID())).append("/"), std::to_string(img->GetTimeStamp()));
+                img->save_to_png( std::string(mersys_params::sys::output_dir).append("/frames/img/").append(std::to_string(img->GetClientID())).append("/"), std::to_string(img->GetTimeStamp()));
             }
             #endif
         }
         if(mersys_params::placerec::active){
-        placerec_->InsertKeyframe1(img);
+            placerec_->InsertKeyframe1(img);
             
         }
     }
