@@ -123,6 +123,7 @@ public:
           iter->second->tras_display(color_cloud, marker_array);
 
         sensor_msgs::PointCloud2 dbg_msg;
+        std::cout << "color_cloud.size"<< color_cloud.size() << std::endl;
         pcl::toROSMsg(color_cloud, dbg_msg);
         dbg_msg.header.frame_id = "camera_init";
         pub_residual.publish(dbg_msg);

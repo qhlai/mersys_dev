@@ -6,7 +6,7 @@
 #include "ceres/ceres.h"
 #include "common.h"
 
-// #define debug_mode
+#define debug_mode
 
 using namespace std;
 using namespace Eigen;
@@ -224,7 +224,7 @@ void roughCalib(Calibration& calibra, double search_resolution, int max_iter)
         int pnp_size = pnp_list.size();
         float cost = ((float)(edge_size - pnp_size) / (float)edge_size);
         #ifdef debug_mode
-        std::cout << "n " << n << " round " << round << " a " << a << " iter "
+        std::cout << "n " << n << " round " << round  << " iter "
                   << iter << " cost:" << cost << std::endl;
         #endif
         if(cost < min_cost)
@@ -244,7 +244,7 @@ void roughCalib(Calibration& calibra, double search_resolution, int max_iter)
           cv::Mat projection_img = calibra.getProjectionImg(test_params);
           // cv::resize(projection_img, projection_img, cv::Size(), 0.5, 0.5, cv::INTER_LINEAR);
           cv::imshow("rough calib", projection_img);
-          cv::waitKey(10);
+          cv::waitKey(0);
         }
       }
     }
