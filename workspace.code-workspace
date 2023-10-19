@@ -108,7 +108,8 @@
 			"eigen": "cpp",
 			"cassert": "cpp",
 			"*.dat": "cpp",
-			"charconv": "cpp"
+			"charconv": "cpp",
+			"sparsecholesky": "cpp"
 		},
 		"python.autoComplete.extraPaths": [
 			"/home/lqh/ros/covins_ws/devel/lib/python3/dist-packages",

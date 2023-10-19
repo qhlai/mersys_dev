@@ -3,11 +3,8 @@
 #include <optional>
 // #include <pcl/point_types.h>
 #include "typedefs_base.hpp"
-#include "config_backend.hpp"
-#include "calib/common.h"
-#include "calib/mypcl.hpp"
-#include "calib/ba.hpp"
-#include "calib/tools.hpp"
+
+
 // #include <ad_localization_msgs/NavStateInfo.h>
 // #include "scancontext/Scancontext.h"
 // #include "mapmanager.hpp"
@@ -17,12 +14,7 @@
 
 // https://github.com/hku-mars/livox_camera_calib
 namespace mersys {
-class PointCloud_Calib{
-    public:
-        std::unordered_map<VOXEL_LOC, OCTO_TREE_ROOT*> surf_map;
-        pcl::PointCloud<pcl::PointXYZI>::Ptr lidar_edge_cloud_; // 存储平面相交得到的点云
-        pcl::PointCloud<pcl::PointXYZI>::Ptr lidar_cloud_; // 存储原始点云
-}
+
 class Calibration {
 public:
     using TransformType                 = TypeDefs::TransformType;
@@ -34,6 +26,7 @@ public:
     using PointType                     = TypeDefs::PointType;
     using PointCloud                    = TypeDefs::PointCloud;
     using PointCloudPtr                    = TypeDefs::PointCloudPtr;
+    using PointCloudMap = TypeDefs::PointCloudMap;
     using PointCloudEX  = TypeDefs::PointCloudEX; 
     using PointCloudEXPtr  = TypeDefs::PointCloudEXPtr; 
     using PointCloudEXList  = TypeDefs::PointCloudEXList; 
@@ -57,18 +50,21 @@ public:
 #endif
 
 public:
-    using PCSurfFrame                        = std::shared_ptr<std::unordered_map<VOXEL_LOC, OCTO_TREE_ROOT*>>;
-    using PCSurfFramesVector                 = std::vector<PCSurfFrame,Eigen::aligned_allocator<PCSurfFrame>>;
+    // using PCSurfFrame                        = std::shared_ptr<std::unordered_map<VOXEL_LOC, OCTO_TREE_ROOT*>>;
+    // using PCSurfFramesVector                 = std::vector<PCSurfFrame,Eigen::aligned_allocator<PCSurfFrame>>;
     // std::unordered_map<VOXEL_LOC, OCTO_TREE_ROOT*> surf_frame;
-
-    
+    // using LidarEdgeMap    = std::map<idpair,PointCloudPtr,std::less<idpair>,Eigen::aligned_allocator<std::pair<const idpair,PointCloudPtr>>>;
+    PointCloudMap lidar_edge_cloud_map_;
     // enum ProjectionType { DEPTH, INTENSITY, BOTH };
 public:
-    auto Calibration::Calibration() -> void;
-    auto add_lidar(PointCloudEXPtr pc)        ->void;
-    auto add_img(ImageEXPtr img,bool if_undistort)        ->void;
+    Calibration();
+    virtual auto add_lidar(PointCloudEXPtr pc)        ->void;
+    virtual auto add_img(ImageEXPtr img,bool if_undistort)        ->void;
 
 
 };
+
+
+
 
 }

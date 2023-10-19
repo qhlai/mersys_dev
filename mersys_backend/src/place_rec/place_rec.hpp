@@ -22,7 +22,7 @@
 // #include <ad_localization_msgs/NavStateInfo.h>
 // #include "scancontext/Scancontext.h"
 #include "mapmanager.hpp"
-// #include "livox_cam_calib.hpp"
+#include "livox_cam_calib.hpp"
 
 
 

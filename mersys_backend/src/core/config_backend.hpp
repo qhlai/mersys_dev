@@ -22,7 +22,9 @@
 */
 
 #pragma once
-
+#ifndef DEG2RAD
+#define DEG2RAD(x) ((x)*0.017453293)
+#endif
 // C++
 #include <iostream>
 #include <opencv2/opencv.hpp>
@@ -231,6 +233,21 @@ namespace vis {
 namespace colors {
     const std::vector<VisColorRGB> col_vec              = LoadColAsVec(conf);
     const VisColorRGB color_cov                         = VisColorRGB(read_parm::GetValFromYaml<mersys::TypeDefs::precision_t>(conf,"vis.colorRcov"),read_parm::GetValFromYaml<mersys::TypeDefs::precision_t>(conf,"vis.colorGcov"),read_parm::GetValFromYaml<mersys::TypeDefs::precision_t>(conf,"vis.colorBcov"));
+}
+namespace fusion {
+    const int rgb_canny_threshold_ = read_parm::GetValFromYaml<int>(conf,"fusion.Canny.gray_threshold");
+    const int rgb_edge_minLen_ = read_parm::GetValFromYaml<int>(conf,"fusion.Canny.len_threshold");
+    const int voxel_size_ = read_parm::GetValFromYaml<int>(conf,"fusion.Voxel.size");
+    const precision_t eigen_ratio_ = read_parm::GetValFromYaml<precision_t>(conf,"fusion.Voxel.eigen_ratio");
+    const int plane_size_threshold_ = read_parm::GetValFromYaml<int>(conf,"fusion.Plane.min_points_size");
+    const int plane_max_size_ = read_parm::GetValFromYaml<int>(conf,"fusion.Plane.max_size");
+    const precision_t ransac_dis_threshold_ = read_parm::GetValFromYaml<precision_t>(conf,"fusion.Ransac.dis_threshold");
+    const precision_t min_line_dis_threshold_ = read_parm::GetValFromYaml<precision_t>(conf,"fusion.Edge.min_dis_threshold");
+    const precision_t max_line_dis_threshold_ = read_parm::GetValFromYaml<precision_t>(conf,"fusion.Edge.max_dis_threshold");
+    const precision_t theta_min_ = cos(DEG2RAD(read_parm::GetValFromYaml<precision_t>(conf,"fusion.Plane.normal_theta_min")));
+    const precision_t theta_max_ = cos(DEG2RAD(read_parm::GetValFromYaml<precision_t>(conf,"fusion.Plane.normal_theta_max")));
+    // theta_min_ = cos(DEG2RAD(theta_min_));
+    // theta_max_ = cos(DEG2RAD(theta_max_));
 }
 
 void ShowParamsBackend();

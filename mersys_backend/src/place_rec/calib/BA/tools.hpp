@@ -1,5 +1,4 @@
-#ifndef TOOLS_HPP
-#define TOOLS_HPP
+#pragma once
 
 #include <Eigen/Core>
 #include <unordered_map>
@@ -448,5 +447,3 @@ bool esti_plane(Eigen::Vector4d &pca_result, const pcl::PointCloud<PointType> &p
   pca_result(3) = 1.0 / n;
   return true;
 }
-
-#endif

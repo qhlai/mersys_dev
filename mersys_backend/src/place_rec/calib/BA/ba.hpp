@@ -1,5 +1,4 @@
-#ifndef HIERARCHICAL_BA
-#define HIERARCHICAL_BA
+#pragma once
 
 #include <thread>
 #include <fstream>
@@ -9,7 +8,8 @@
 #include <Eigen/SparseCholesky>
 #include <visualization_msgs/Marker.h>
 #include <visualization_msgs/MarkerArray.h>
-
+#include <sensor_msgs/PointCloud2.h>
+#include <ros/ros.h>
 #include "tools.hpp"
 #include "common.h"
 
@@ -287,5 +287,3 @@ public:
   OCTO_TREE_ROOT(float _eigen_thr): OCTO_TREE_NODE(_eigen_thr){}
   PLV(3) all_points;
 };
-
-#endif

@@ -160,8 +160,8 @@ ${PROJECT_SOURCE_DIR}/src/place_rec/livox_cam_calib.hpp
 file(GLOB_RECURSE PLACE_SRC_FILES     
 ${PROJECT_SOURCE_DIR}/src/place_rec/place_rec.cpp
 ${PROJECT_SOURCE_DIR}/src/place_rec/scancontext/Scancontext.cpp
-# ${PROJECT_SOURCE_DIR}/src/place_rec/livox_cam_calib.cpp
-${PROJECT_SOURCE_DIR}/src/place_rec/calib/calib_single_camera.cpp
+${PROJECT_SOURCE_DIR}/src/place_rec/livox_cam_calib.cpp
+# ${PROJECT_SOURCE_DIR}/src/place_rec/calib/calib_single_camera.cpp
 # ${PROJECT_SOURCE_DIR}/src/place_rec/livox_cam/lidar_camera_calib.cpp
 # ${PROJECT_SOURCE_DIR}/src/visualizer/visualizer.cpp
 )

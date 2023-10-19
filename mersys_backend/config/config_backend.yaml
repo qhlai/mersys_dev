@@ -215,3 +215,26 @@ vis.colorB11: 0.44
 vis.colorRcov: 0.6
 vis.colorGcov: 0.6
 vis.colorBcov: 0.6
+
+
+fusion.CameraFoV: 100
+# Params for Canny Edge Extraction
+fusion.Canny.gray_threshold: 10
+fusion.Canny.len_threshold: 200
+
+# Params for Voxel Cutting & Plane Fitting & Edge Extraction
+fusion.Voxel.size: 3
+fusion.Voxel.eigen_ratio: 0.05
+fusion.Voxel.down_sample_size: 0.02
+fusion.Plane.min_points_size: 60
+fusion.normal_theta_min: 10
+fusion.normal_theta_max: 170
+fusion.max_size: 4
+fusion.Ransac.dis_threshold: 0.03
+fusion.Ransac.iter_num: 200
+fusion.Edge.min_dis_threshold: 0.05
+fusion.Edge.max_dis_threshold: 0.08
+
+# Params for color point clouds
+fusion.Color.dense: 10
+fusion.Color.intensity_threshold: 10

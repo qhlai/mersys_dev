@@ -1,5 +1,4 @@
-#ifndef MYPCL_HPP
-#define MYPCL_HPP
+#pragma once
 
 #include <iostream>
 #include <fstream>
@@ -178,5 +177,3 @@ namespace mypcl
     file.close();
   }
 }
-
-#endif
