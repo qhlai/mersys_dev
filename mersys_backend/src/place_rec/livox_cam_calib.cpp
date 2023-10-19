@@ -716,7 +716,8 @@ class PointCloud_Calib{
         cv::Mat gray_img, rgb_edge_img;
         cv::cvtColor(img->img_, gray_img, cv::COLOR_BGR2GRAY);
         edgeDetector(mersys_params::fusion::rgb_canny_threshold_, mersys_params::fusion::rgb_edge_minLen_, gray_img, rgb_edge_img, rgb_edge_cloud_);
-        
+        std::shared_ptr<pcl::PointCloud<pcl::PointXYZ>> sharedCloudPtr(new pcl::PointCloud<pcl::PointXYZ>(*rgb_edge_cloud_));
+        image_edge_cloud_map_[img->GetFrameClientID()]=sharedCloudPtr;
 
         // return rgb_edge_cloud_
         // ROS_INFO_STREAM("Initialization complete2");

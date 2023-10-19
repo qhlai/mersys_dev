@@ -23,6 +23,8 @@ public:
     using Vector6Type                   = TypeDefs::Vector6Type;
     using QuaternionType                = TypeDefs::QuaternionType;
 
+    using idpair                     = TypeDefs::idpair;
+
     using PointType                     = TypeDefs::PointType;
     using PointCloud                    = TypeDefs::PointCloud;
     using PointCloudPtr                    = TypeDefs::PointCloudPtr;
@@ -55,6 +57,7 @@ public:
     // std::unordered_map<VOXEL_LOC, OCTO_TREE_ROOT*> surf_frame;
     // using LidarEdgeMap    = std::map<idpair,PointCloudPtr,std::less<idpair>,Eigen::aligned_allocator<std::pair<const idpair,PointCloudPtr>>>;
     PointCloudMap lidar_edge_cloud_map_;
+    std::map<idpair,std::shared_ptr<pcl::PointCloud<pcl::PointXYZ>>,std::less<idpair>,Eigen::aligned_allocator<std::pair<const idpair,std::shared_ptr<pcl::PointCloud<pcl::PointXYZ>>>>> image_edge_cloud_map_;
     // enum ProjectionType { DEPTH, INTENSITY, BOTH };
 public:
     Calibration();
