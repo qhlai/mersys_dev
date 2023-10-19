@@ -157,7 +157,7 @@ public:
         cv::cvtColor(cams[i].rgb_imgs[j], grey_imgs[j], cv::COLOR_BGR2GRAY);
       edgeDetector(rgb_canny_threshold_, rgb_edge_minLen_, grey_imgs, rgb_edge_imgs, cams[i].rgb_edge_clouds);
     }
-    ROS_INFO_STREAM("Initialization complete");
+    ROS_INFO_STREAM("Initialization complete3");
   }
 
   bool loadCameraConfig(std::vector<Camera>& cams, const std::vector<std::string>& CamCfgPaths)

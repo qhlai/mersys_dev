@@ -34,7 +34,7 @@
 #include "BA/ba.hpp"
 #include "BA/tools.hpp"
 
-#define FISHEYE
+// #define FISHEYE
 
 class Camera
 {
@@ -106,25 +106,29 @@ public:
     loadImgAndPointcloud();
 
     std::unordered_map<VOXEL_LOC, OCTO_TREE_ROOT*> surf_map;
+    ROS_INFO_STREAM("use_ada_voxel");
     if(use_ada_voxel)
     {
       cut_voxel(surf_map, *lidar_cloud_, voxel_size_, eigen_ratio_);
-
+      // std::cout << "surf_map.size"<< surf_map.size() << std::endl;
       for(auto iter = surf_map.begin(); iter != surf_map.end(); ++iter)
         iter->second->recut();
+      // std::cout << "surf_map.size"<< surf_map.size() << std::endl;
 
-      // pcl::PointCloud<pcl::PointXYZINormal> color_cloud;
-      // visualization_msgs::MarkerArray marker_array;
+      #if 1
+        pcl::PointCloud<pcl::PointXYZINormal> color_cloud;
+        visualization_msgs::MarkerArray marker_array;
 
-      // for(auto iter = surf_map.begin(); iter != surf_map.end(); ++iter)
-      //   iter->second->tras_display(color_cloud, marker_array);
+        for(auto iter = surf_map.begin(); iter != surf_map.end(); ++iter)
+          iter->second->tras_display(color_cloud, marker_array);
 
-      // sensor_msgs::PointCloud2 dbg_msg;
-      // pcl::toROSMsg(color_cloud, dbg_msg);
-      // dbg_msg.header.frame_id = "camera_init";
-      // pub_residual.publish(dbg_msg);
+        sensor_msgs::PointCloud2 dbg_msg;
+        pcl::toROSMsg(color_cloud, dbg_msg);
+        dbg_msg.header.frame_id = "camera_init";
+        pub_residual.publish(dbg_msg);
 
-      // pub_direct.publish(marker_array);
+        pub_direct.publish(marker_array);
+      #endif
 
       estimate_edge(surf_map);
     }
@@ -153,7 +157,7 @@ public:
     cv::Mat gray_img, rgb_edge_img;
     cv::cvtColor(camera_.rgb_img_, gray_img, cv::COLOR_BGR2GRAY);
     edgeDetector(rgb_canny_threshold_, rgb_edge_minLen_, gray_img, rgb_edge_img, camera_.rgb_edge_cloud_);
-    ROS_INFO_STREAM("Initialization complete");
+    ROS_INFO_STREAM("Initialization complete2");
   }
 
   void loadCameraConfig(const std::string& CamCfgPaths)
@@ -878,7 +882,7 @@ public:
       Eigen::AngleAxisd(extrinsic_params[1], Eigen::Vector3d::UnitY()) *
       Eigen::AngleAxisd(extrinsic_params[2], Eigen::Vector3d::UnitX());
     Eigen::Quaterniond q_(rotation_vector3);
-
+    // ROS_INFO_STREAM("roughCalib1.1");
     std::vector<std::vector<std::vector<pcl::PointXYZI>>> img_pts_container;
     for(int y = 0; y < cam.height_; y++)
     {
@@ -898,21 +902,34 @@ public:
          rotation_vector3.angle() * rotation_vector3.axis().transpose()[2]);
     Eigen::Vector3d t_(extrinsic_params[3], extrinsic_params[4], extrinsic_params[5]);
     cv::Mat t_vec = (cv::Mat_<double>(3, 1) << t_(0), t_(1), t_(2));
-
+// ROS_INFO_STREAM("roughCalib1.2");
     for(size_t i = 0; i < lidar_edge_clouds_3d->size(); i++)
     {
-      pcl::PointXYZI point_3d = lidar_edge_clouds_3d->points[i];
-      Eigen::Vector3d pt1(point_3d.x, point_3d.y, point_3d.z);
-      Eigen::Vector3d pt2(0, 0, 1);
-      if(cos_angle(q_ * pt1 + t_, pt2) > cos(DEG2RAD(cam_fov_/2.0))) // fisheye cam FoV check
-        pts_3d.emplace_back(cv::Point3f(pt1(0), pt1(1), pt1(2)));
+        pcl::PointXYZI point_3d = lidar_edge_clouds_3d->points[i];
+        Eigen::Vector3d pt1(point_3d.x, point_3d.y, point_3d.z);
+        Eigen::Vector3d pt2(0, 0, 1);      
+      #ifdef FISHEYE
+        if(cos_angle(q_ * pt1 + t_, pt2) > cos(DEG2RAD(cam_fov_/2.0))) // fisheye cam FoV check
+          pts_3d.emplace_back(cv::Point3f(pt1(0), pt1(1), pt1(2)));
+      #else
+        if(cos_angle(q_ * pt1 + t_, pt2) > 0.8) // FoV check
+          pts_3d.emplace_back(cv::Point3f(pt1(0), pt1(1), pt1(2)));
+      #endif
     }
+    // ROS_INFO_STREAM("roughCalib1.3");
+    // std::cout << "pts_3d.size():"<<std::endl<<pts_3d.size() << std::endl;
+    // std::cout << "r_vec:"<<std::endl<<r_vec << std::endl;
+    // std::cout << "t_vec:"<<std::endl<<t_vec << std::endl;    
     #ifdef FISHEYE
     cv::fisheye::projectPoints(pts_3d, pts_2d, r_vec, t_vec, camera_.camera_matrix_, camera_.dist_coeffs_);
     #else
+
+    // std::cout << "camera_matrix:"<<std::endl<<camera_matrix << std::endl;
+    // std::cout << "distortion_coeff:"<<std::endl<<distortion_coeff << std::endl;
+    // std::cout << "pts_2d.size():"<<std::endl<<pts_2d.size() << std::endl;
     cv::projectPoints(pts_3d, r_vec, t_vec, camera_matrix, distortion_coeff, pts_2d);
     #endif
-
+    // ROS_INFO_STREAM("roughCalib1.4");
     pcl::PointCloud<pcl::PointXYZ>::Ptr line_edge_cloud_2d(new pcl::PointCloud<pcl::PointXYZ>);
     std::vector<int> line_edge_cloud_2d_number;
     for(size_t i = 0; i < pts_2d.size(); i++)
@@ -1311,6 +1328,11 @@ public:
         map_img.at<cv::Vec3b>(y, x)[2] = r;
       }
     }
+    // cv::resize(projection_img, projection_img, cv::Size(), 0.5, 0.5, cv::INTER_LINEAR);
+    cv::imshow("rough calib map_img", map_img);
+    cv::imshow("rough calib cam.rgb_img_", cam.rgb_img_);
+    // cv::waitKey(10);
+
     cv::Mat merge_img = 0.8 * map_img + 0.8 * cam.rgb_img_;
     return merge_img;
   }

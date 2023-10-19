@@ -215,10 +215,11 @@ void roughCalib(Calibration& calibra, double search_resolution, int max_iter)
         Vector6d test_params;
         test_params << test_euler[0], test_euler[1], test_euler[2], transation[0], transation[1], transation[2];
         std::vector<VPnPData> pnp_list;
+        // ROS_INFO_STREAM("roughCalib1");
         calibra.buildVPnp(calibra.camera_, test_params, match_dis,
                           false, calibra.camera_.rgb_edge_cloud_,
                           calibra.lidar_edge_cloud_, pnp_list);
-
+        // ROS_INFO_STREAM("roughCalib2");
         int edge_size = calibra.lidar_edge_cloud_->size();
         int pnp_size = pnp_list.size();
         float cost = ((float)(edge_size - pnp_size) / (float)edge_size);
@@ -241,7 +242,7 @@ void roughCalib(Calibration& calibra, double search_resolution, int max_iter)
                             true, calibra.camera_.rgb_edge_cloud_,
                             calibra.lidar_edge_cloud_, pnp_list);
           cv::Mat projection_img = calibra.getProjectionImg(test_params);
-          cv::resize(projection_img, projection_img, cv::Size(), 0.5, 0.5, cv::INTER_LINEAR);
+          // cv::resize(projection_img, projection_img, cv::Size(), 0.5, 0.5, cv::INTER_LINEAR);
           cv::imshow("rough calib", projection_img);
           cv::waitKey(10);
         }
@@ -268,7 +269,7 @@ int main(int argc, char **argv)
   /* load calibration configurations */
   Calibration calib(CamConfigPath, CalibSettingPath, use_ada_voxel);
   if(use_rough_calib) roughCalib(calib, DEG2RAD(0.1), 30);
-
+  ROS_INFO_STREAM("roughCalib done");
   string result_file = ResultPath + "/extrinsic.txt";
   ofstream outfile;
   outfile.open(result_file, ofstream::trunc);

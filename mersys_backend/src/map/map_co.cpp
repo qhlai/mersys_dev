@@ -176,7 +176,7 @@ Map::Map(MapPtr map_target, MapPtr map_tofuse, TransformType T_wtofuse_wmatch)
     // thread_rgb_map_->detach();
 
 }
-// 只有在激光雷达发生较长时间在同一场景静止时，组装大型点云
+// 只有在激光雷达发生较长时间在同一场景静止或者允许位移和旋转不大时，组装大型点云
 auto Map::LongTimeStay(PointCloudEXPtr pc)->void {
 
         idpair curr_id = pc->GetFrameClientID();
@@ -200,8 +200,8 @@ auto Map::LongTimeStay(PointCloudEXPtr pc)->void {
                 std::cout<<"Error time_diff<0"<< std::endl;
                 return;
         }
-        // time_diff不能太长
-        if(pos_dis >100.5 || rot_diff > 360 || time_diff > 15){
+        // time_diff不能太长， ps_dis可以长点，rot_diff不要太大
+        if(pos_dis >5 || rot_diff > 30 || time_diff > 15){
         // if(pos_dis >0.5 || rot_diff > 10 || time_diff > 15){
             // 开始组装大点云
             if(m_id_last_huge_move.second!=curr_id.second ){

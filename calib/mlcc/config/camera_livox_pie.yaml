@@ -8,10 +8,10 @@ CameraMat: !!opencv-matrix
       0.0, 0.0, 1.0 ] 
 
 DistCoeffs: !!opencv-matrix
-  rows: 4
+  rows: 5
   cols: 1
   dt: d
-  data: [-0.1080, 0.1050, -1.2872e-04, 5.7923e-05]
+  data: [-0.1080, 0.1050, -1.2872e-04, 5.7923e-05, -0.0222]
 
 Camera.width: 1280
 Camera.height: 1024
@@ -22,5 +22,5 @@ ExtrinsicMat: !!opencv-matrix
   dt: d
   data: [0,-1,0,0,
          0,0,-1,0,
-         1,0,0,0,
+         1,0,0,-0.2,
          0,0,0,1]
