@@ -15,6 +15,27 @@
 // https://github.com/hku-mars/livox_camera_calib
 namespace mersys {
 
+class Camera
+{
+public:
+  float fx_, fy_, cx_, cy_, k1_, k2_, p1_, p2_, k3_, k4_, s_;
+  int width_, height_;
+  cv::Mat camera_matrix_;
+  cv::Mat dist_coeffs_;
+  cv::Mat init_ext_;
+  Eigen::Matrix3d ext_R; // 初始旋转矩阵
+  Eigen::Vector3d ext_t; // 初始平移向量
+
+  cv::Mat rgb_img_;
+  pcl::PointCloud<pcl::PointXYZ>::Ptr rgb_edge_cloud_;
+
+  void update_Rt(const Eigen::Matrix3d& R, const Eigen::Vector3d& t)
+  {
+    ext_R << R(0, 0), R(0, 1), R(0, 2), R(1, 0), R(1, 1), R(1, 2), R(2, 0), R(2, 1), R(2, 2);
+    ext_t << t(0), t(1), t(2);
+  }
+};
+
 class Calibration {
 public:
     using TransformType                 = TypeDefs::TransformType;

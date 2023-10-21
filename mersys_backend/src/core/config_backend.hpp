@@ -241,11 +241,13 @@ namespace fusion {
     const precision_t eigen_ratio_ = read_parm::GetValFromYaml<precision_t>(conf,"fusion.Voxel.eigen_ratio");
     const int plane_size_threshold_ = read_parm::GetValFromYaml<int>(conf,"fusion.Plane.min_points_size");
     const int plane_max_size_ = read_parm::GetValFromYaml<int>(conf,"fusion.Plane.max_size");
+    const int cam_fov_ = read_parm::GetValFromYaml<int>(conf,"fusion.CameraFoV");
+    
     const precision_t ransac_dis_threshold_ = read_parm::GetValFromYaml<precision_t>(conf,"fusion.Ransac.dis_threshold");
     const precision_t min_line_dis_threshold_ = read_parm::GetValFromYaml<precision_t>(conf,"fusion.Edge.min_dis_threshold");
     const precision_t max_line_dis_threshold_ = read_parm::GetValFromYaml<precision_t>(conf,"fusion.Edge.max_dis_threshold");
-    const precision_t theta_min_ = cos(DEG2RAD(read_parm::GetValFromYaml<precision_t>(conf,"fusion.Plane.normal_theta_min")));
-    const precision_t theta_max_ = cos(DEG2RAD(read_parm::GetValFromYaml<precision_t>(conf,"fusion.Plane.normal_theta_max")));
+    const precision_t direction_theta_min_ = cos(DEG2RAD(read_parm::GetValFromYaml<precision_t>(conf,"fusion.Plane.normal_theta_min")));
+    const precision_t direction_theta_max_ = cos(DEG2RAD(read_parm::GetValFromYaml<precision_t>(conf,"fusion.Plane.normal_theta_max")));
     // theta_min_ = cos(DEG2RAD(theta_min_));
     // theta_max_ = cos(DEG2RAD(theta_max_));
 }
