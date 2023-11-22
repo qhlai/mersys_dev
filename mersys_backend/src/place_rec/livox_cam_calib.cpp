@@ -6,6 +6,7 @@
 #include <iostream>
 #include <mutex>
 #include <eigen3/Eigen/Core>
+#include "ceres/ceres.h"
 
 #include <pcl/point_types.h>
 #include <pcl/registration/icp.h>
@@ -33,6 +34,9 @@
 #include "calib/BA/ba.hpp"
 #include "calib/BA/tools.hpp"
 
+Eigen::Matrix3d inner_;
+Eigen::Matrix<double, 5, 1> distor_;
+
 namespace mersys
 {
 
@@ -41,6 +45,92 @@ class PointCloud_Calib{
         std::unordered_map<VOXEL_LOC, OCTO_TREE_ROOT*> surf_map;
         pcl::PointCloud<pcl::PointXYZI>::Ptr lidar_edge_cloud_; // 存储平面相交得到的点云
         pcl::PointCloud<pcl::PointXYZI>::Ptr lidar_cloud_; // 存储原始点云
+};
+
+class vpnp_calib
+{
+public:
+  vpnp_calib(VPnPData p) {pd = p;}
+  template <typename T>
+  bool operator()(const T *_q, const T *_t, T *residuals) const
+  {
+    Eigen::Matrix<T, 3, 3> innerT = inner_.cast<T>();
+    Eigen::Quaternion<T> q_incre{_q[3], _q[0], _q[1], _q[2]};
+    Eigen::Matrix<T, 3, 1> t_incre{_t[0], _t[1], _t[2]};
+    Eigen::Matrix<T, 3, 1> p_l(T(pd.x), T(pd.y), T(pd.z));
+    Eigen::Matrix<T, 3, 1> p_c = q_incre.toRotationMatrix() * p_l + t_incre;
+    #ifdef FISHEYE
+    Eigen::Matrix<T, 4, 1> distorT = distor_.cast<T>();
+    const T &fx = innerT.coeffRef(0, 0);
+    const T &cx = innerT.coeffRef(0, 2);
+    const T &fy = innerT.coeffRef(1, 1);
+    const T &cy = innerT.coeffRef(1, 2);
+    T a = p_c[0] / p_c[2];
+    T b = p_c[1] / p_c[2];
+    T r = sqrt(a * a + b * b);
+    T theta = atan(r);
+    T theta_d = theta *
+      (T(1) + distorT[0] * pow(theta, T(2)) + distorT[1] * pow(theta, T(4)) +
+        distorT[2] * pow(theta, T(6)) + distorT[3] * pow(theta, T(8)));
+
+    T dx = (theta_d / r) * a;
+    T dy = (theta_d / r) * b;
+    T ud = fx * dx + cx;
+    T vd = fy * dy + cy;
+    residuals[0] = ud - T(pd.u);
+    residuals[1] = vd - T(pd.v);
+    #else
+    Eigen::Matrix<T, 5, 1> distorT = distor_.cast<T>();
+    Eigen::Matrix<T, 3, 1> p_2 = innerT * p_c;
+    T uo = p_2[0] / p_2[2];
+    T vo = p_2[1] / p_2[2];
+    const T& fx = innerT.coeffRef(0, 0);
+    const T& cx = innerT.coeffRef(0, 2);
+    const T& fy = innerT.coeffRef(1, 1);
+    const T& cy = innerT.coeffRef(1, 2);
+    T xo = (uo - cx) / fx;
+    T yo = (vo - cy) / fy;
+    T r2 = xo * xo + yo * yo;
+    T r4 = r2 * r2;
+    T distortion = 1.0 + distorT[0] * r2 + distorT[1] * r4 + distorT[4] * r2 * r4;
+    T xd = xo * distortion + (distorT[2] * xo * yo + distorT[2] * xo * yo) +
+            distorT[3] * (r2 + xo * xo + xo * xo);
+    T yd = yo * distortion + distorT[3] * xo * yo + distorT[3] * xo * yo +
+            distorT[2] * (r2 + yo * yo + yo * yo);
+    T ud = fx * xd + cx;
+    T vd = fy * yd + cy;
+
+    if(T(pd.direction(0)) == T(0.0) && T(pd.direction(1)) == T(0.0))
+    {
+      residuals[0] = ud - T(pd.u);
+      residuals[1] = vd - T(pd.v);
+    }
+    else
+    {
+      residuals[0] = ud - T(pd.u);
+      residuals[1] = vd - T(pd.v);
+      Eigen::Matrix<T, 2, 2> I = Eigen::Matrix<float, 2, 2>::Identity().cast<T>();
+      Eigen::Matrix<T, 2, 1> n = pd.direction.cast<T>();
+      Eigen::Matrix<T, 1, 2> nt = pd.direction.transpose().cast<T>();
+      Eigen::Matrix<T, 2, 2> V = n * nt;
+      V = I - V;
+      Eigen::Matrix<T, 2, 1> R = Eigen::Matrix<float, 2, 1>::Zero().cast<T>();
+      R.coeffRef(0, 0) = residuals[0];
+      R.coeffRef(1, 0) = residuals[1];
+      R = V * R;
+      residuals[0] = R.coeffRef(0, 0);
+      residuals[1] = R.coeffRef(1, 0);
+    }
+    #endif
+    return true;
+  }
+  static ceres::CostFunction *Create(VPnPData p)
+  {
+    return (new ceres::AutoDiffCostFunction<vpnp_calib, 2, 4, 3>(new vpnp_calib(p)));
+  }
+
+private:
+  VPnPData pd;
 };
 
 
@@ -1030,10 +1120,39 @@ void mapJet(double v, double vmin, double vmax, uint8_t &r, uint8_t &g,
               buildVPnp(camera_, test_params, match_dis,
                                 true, camera_.rgb_edge_cloud_,
                                 lidar_edge_cloud_, pnp_list);
+              Eigen::Matrix3d R;
+              Eigen::Vector3d T;
+              R = camera_.ext_R;
+              T = camera_.ext_t;
+              Eigen::Quaterniond q(R);
+              double ext[7];
+              ext[0] = q.x(); ext[1] = q.y(); ext[2] = q.z(); ext[3] = q.w();
+              ext[4] = T[0]; ext[5] = T[1]; ext[6] = T[2];
+              Eigen::Map<Eigen::Quaterniond> m_q = Eigen::Map<Eigen::Quaterniond>(ext);
+              Eigen::Map<Eigen::Vector3d> m_t = Eigen::Map<Eigen::Vector3d>(ext + 4);
+
+              ceres::LocalParameterization* q_parameterization = new ceres::EigenQuaternionParameterization();
+              ceres::Problem problem;
+              problem.AddParameterBlock(ext, 4, q_parameterization);
+              problem.AddParameterBlock(ext + 4, 3);
+              for(auto val: pnp_list)
+              {
+                ceres::CostFunction* cost_function;
+                if(only_calib_rotation_)
+                {
+                  // cost_function = vpnp_calib_rotation::Create(val, T);
+                  // problem.AddResidualBlock(cost_function, NULL, ext);
+                }
+                else
+                {
+                  cost_function = vpnp_calib::Create(val);
+                  problem.AddResidualBlock(cost_function, NULL, ext, ext + 4);
+                }
               cv::Mat projection_img = getProjectionImg(camera_,lidar_edge_cloud_,test_params);
               // cv::resize(projection_img, projection_img, cv::Size(), 0.5, 0.5, cv::INTER_LINEAR);
               cv::imshow("rough calib", projection_img);
               cv::waitKey(0);
+              }
             }
           }
         }

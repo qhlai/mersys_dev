@@ -12,6 +12,7 @@
 #include "calib/common.h"
 
 
+
 // https://github.com/hku-mars/livox_camera_calib
 namespace mersys {
 
@@ -35,6 +36,7 @@ public:
     ext_t << t(0), t(1), t(2);
   }
 };
+
 
 class Calibration {
 public:
@@ -91,6 +93,9 @@ public:
                  const pcl::PointCloud<pcl::PointXYZ>::Ptr& cam_edge_clouds_2d,
                  const pcl::PointCloud<pcl::PointXYZI>::Ptr& lidar_edge_clouds_3d,
                  std::vector<VPnPData>& pnp_list)            ->void;
+
+
+    bool        only_calib_rotation_      =        false;
 
 };
 

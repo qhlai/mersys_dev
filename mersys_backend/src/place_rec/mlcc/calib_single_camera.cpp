@@ -4,7 +4,7 @@
 
 #include "calib_single_camera.hpp"
 #include "ceres/ceres.h"
-#include "common.h"
+// #include "common.h"
 
 #define debug_mode
 
