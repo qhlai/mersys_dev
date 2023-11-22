@@ -96,7 +96,7 @@ set (INCLUDE_DIRS
     # ${PROJECT_SOURCE_DIR}/src/communicator/msgs
     # ${PROJECT_SOURCE_DIR}/src/communicator/client/mersys_backend
     ${PROJECT_SOURCE_DIR}/src/place_rec
-    ${PROJECT_SOURCE_DIR}/src/place_rec/calib
+    # ${PROJECT_SOURCE_DIR}/src/place_rec/calib
     ${PROJECT_SOURCE_DIR}/src/visualizer
 )
 
@@ -151,8 +151,8 @@ file(GLOB_RECURSE PLACE_INC_FILES
 ${PROJECT_SOURCE_DIR}/src/place_rec/place_rec.hpp
 ${PROJECT_SOURCE_DIR}/src/place_rec/scancontext/*.hpp
 ${PROJECT_SOURCE_DIR}/src/place_rec/scancontext/*.h
-${PROJECT_SOURCE_DIR}/src/place_rec/livox_cam/*.hpp
-${PROJECT_SOURCE_DIR}/src/place_rec/livox_cam/*.h
+# ${PROJECT_SOURCE_DIR}/src/place_rec/livox_cam/*.hpp
+# ${PROJECT_SOURCE_DIR}/src/place_rec/livox_cam/*.h
 ${PROJECT_SOURCE_DIR}/src/place_rec/livox_cam_calib.hpp
 # ${PROJECT_SOURCE_DIR}/src/visualizer/visualizer.cpp
 )

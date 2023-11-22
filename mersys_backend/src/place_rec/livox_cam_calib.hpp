@@ -9,7 +9,7 @@
 // #include "scancontext/Scancontext.h"
 // #include "mapmanager.hpp"
 #include "map_rgb.hpp"
-
+#include "calib/common.h"
 
 
 // https://github.com/hku-mars/livox_camera_calib
@@ -84,7 +84,13 @@ public:
     Calibration();
     virtual auto add_lidar(PointCloudEXPtr pc)        ->void;
     virtual auto add_img(ImageEXPtr img,bool if_undistort)        ->void;
-
+    virtual auto roughCalib(Camera& camera_,pcl::PointCloud<pcl::PointXYZI>::Ptr& lidar_edge_cloud_, double search_resolution, int max_iter)        ->void;
+    virtual auto buildVPnp(const Camera& cam,
+                 const Vector6d& extrinsic_params, const int dis_threshold,
+                 const bool show_residual,
+                 const pcl::PointCloud<pcl::PointXYZ>::Ptr& cam_edge_clouds_2d,
+                 const pcl::PointCloud<pcl::PointXYZI>::Ptr& lidar_edge_clouds_3d,
+                 std::vector<VPnPData>& pnp_list)            ->void;
 
 };
 

@@ -26,6 +26,7 @@
 
 
 
+
 // https://github.com/hku-mars/livox_camera_calib
 namespace mersys {
 
@@ -104,6 +105,7 @@ public:
 protected:
     virtual auto CheckBuffer_pc()                                                          ->bool;
     virtual auto CheckBuffer_img()                                                          ->bool;
+    virtual auto CheckBuffer_pcl()                                                          ->bool;
     virtual auto DetectLoop()                                                           ->bool;
     virtual auto DetectLoop_C()                                                           ->bool;
     virtual auto ComputeSE3()                                                           ->bool;

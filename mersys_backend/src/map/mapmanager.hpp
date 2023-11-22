@@ -112,6 +112,7 @@ public:
     // auto GetDatabase()                                                                  ->DatabasePtr;
     // auto EraseFromDatabase(KeyframePtr kf)                                              ->void;
     SCManager scManager;
+    // Calibration calibration;
     PointCloudEXVector cl_pcs;
     // PointCloudVector cl_pcs_d;
     PointCloudEXPtr pc;

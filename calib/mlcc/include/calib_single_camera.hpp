@@ -910,10 +910,10 @@ public:
         Eigen::Vector3d pt1(point_3d.x, point_3d.y, point_3d.z);
         Eigen::Vector3d pt2(0, 0, 1);      
       #ifdef FISHEYE
-        if(cos_angle(q_ * pt1 + t_, pt2) > cos(DEG2RAD(cam_fov_/2.0))) // fisheye cam FoV check
+        if(cos_angle_2(q_ * pt1 + t_, pt2) > cos(DEG2RAD(cam_fov_/2.0))) // fisheye cam FoV check
           pts_3d.emplace_back(cv::Point3f(pt1(0), pt1(1), pt1(2)));
       #else
-        if(cos_angle(q_ * pt1 + t_, pt2) > 0.8) // FoV check
+        if(cos_angle_2(q_ * pt1 + t_, pt2) > 0.8) // FoV check
           pts_3d.emplace_back(cv::Point3f(pt1(0), pt1(1), pt1(2)));
       #endif
     }
@@ -928,6 +928,7 @@ public:
     // std::cout << "camera_matrix:"<<std::endl<<camera_matrix << std::endl;
     // std::cout << "distortion_coeff:"<<std::endl<<distortion_coeff << std::endl;
     // std::cout << "pts_2d.size():"<<std::endl<<pts_2d.size() << std::endl;
+    //这里就是把3d点云投影成2d
     cv::projectPoints(pts_3d, r_vec, t_vec, camera_matrix, distortion_coeff, pts_2d);
     #endif
     // ROS_INFO_STREAM("roughCalib1.4");
@@ -1146,7 +1147,7 @@ public:
     S << 0, 0, 0, 0;
     for(size_t i = 0; i < points.size(); i++)
     {
-      Eigen::Matrix2d s = (points[i] - mean_point) * (points[i] - mean_point).transpose();
+      Eigen::Matrix2d s = (points[i] - mean_point) * (points[i] - mean_point).transpose(); // 协方差
       S += s;
     }
     Eigen::EigenSolver<Eigen::Matrix<double, 2, 2>> es(S);
@@ -1188,7 +1189,7 @@ public:
       pcl::PointXYZI point = lidar_cloud->points[i];
       Eigen::Vector3d pt1(point.x, point.y, point.z);
       Eigen::Vector3d pt2(0, 0, 1);
-      if(cos_angle(q_ * pt1 + t_, pt2) > cos(DEG2RAD(cam_fov_/2.0))) // FoV check
+      if(cos_angle_2(q_ * pt1 + t_, pt2) > cos(DEG2RAD(cam_fov_/2.0))) // FoV check
       {
         float depth = sqrt(pow(point.x, 2) + pow(point.y, 2) + pow(point.z, 2));
         if(depth > 2.5 && depth < 50)
@@ -1303,7 +1304,7 @@ public:
       pcl::PointXYZI point_3d = lidar_cloud_->points[i];
       Eigen::Vector3d pt1(point_3d.x, point_3d.y, point_3d.z);
       Eigen::Vector3d pt2(0, 0, 1);
-      if(cos_angle(q_ * pt1 + t_, pt2) > cos(DEG2RAD(cam_fov_/2.0)))
+      if(cos_angle_2(q_ * pt1 + t_, pt2) > cos(DEG2RAD(cam_fov_/2.0)))
       {
         lidar_cloud->points[cnt].x = pt1(0);
         lidar_cloud->points[cnt].y = pt1(1);

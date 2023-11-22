@@ -232,6 +232,10 @@ auto PlaceRecognition::CheckBuffer_img()->bool {
     std::unique_lock<std::mutex> lock(mtx_in_);
     return (!buffer_imgs_in_.empty());
 }
+auto PlaceRecognition::CheckBuffer_pcl()->bool {
+    std::unique_lock<std::mutex> lock(mtx_in_);
+    return (!buffer_pcs_large_in_.empty());
+}
 auto PlaceRecognition::ComputeSE3() -> bool {
 
     // const size_t nInitialCandidates = mvpEnoughConsistentCandidates.size();
@@ -420,10 +424,12 @@ auto PlaceRecognition::DetectLoop_C()->bool {
         std::unique_lock<std::mutex> lock(mtx_in_);
         img_query_ = buffer_imgs_in_.front();
         buffer_imgs_in_.pop_front();
-        pc_query_ = buffer_pcs_in_.front();
-        buffer_pcs_in_.pop_front();
+        pc_query_ = buffer_pcs_large_in_.front();
+        buffer_pcs_large_in_.pop_front();
         // img_query_->SetNotErase();
     }
+    
+    // auto calib = mapmanager_->calibration.Calibration()
     
     // mapmanager_->AddToDatabase(pc_query_);
 
@@ -506,18 +512,21 @@ auto PlaceRecognition::Run()->void {
     while(1){
         // std::cout<<"add query"<<std::endl;
         if (CheckBuffer_pc()) {
-            if (CheckBuffer_img()) {
-            num_runs++;
-            bool detected = DetectLoop_C(); 
-            }
+            // if (CheckBuffer_img()) {
+            // num_runs++;
+            // bool detected = DetectLoop_C(); 
+            // }
             num_runs++;
             bool detected = DetectLoop(); 
         }
 
-        // if (CheckBuffer_img()) {
-        //     num_runs++;
-        //     bool detected = DetectLoop_C(); 
-        // }
+        if (CheckBuffer_img()) {
+            if (CheckBuffer_pcl()){
+                num_runs++;
+                bool detected = DetectLoop_C(); 
+            }
+            
+        }
 
         if(this->ShallFinish()){
             std::cout << "PlaceRec " << ": close" << std::endl;

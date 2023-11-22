@@ -1,4 +1,5 @@
-#pragma once
+#ifndef HIERARCHICAL_BA
+#define HIERARCHICAL_BA
 
 #include <thread>
 #include <fstream>
@@ -8,10 +9,9 @@
 #include <Eigen/SparseCholesky>
 #include <visualization_msgs/Marker.h>
 #include <visualization_msgs/MarkerArray.h>
-#include <sensor_msgs/PointCloud2.h>
-#include <ros/ros.h>
+
 #include "tools.hpp"
-#include "calib/common.h"
+#include "../common.h"
 
 #define WIN_SIZE 10
 #define GAP 5
@@ -110,7 +110,7 @@ public:
         Eigen::SelfAdjointEigenSolver<Eigen::Matrix3d> saes(covMats[i].cov());
         Eigen::Vector3d child_direct = saes.eigenvectors().col(0);
 
-        if(fabs(child_direct.dot(direct)) > 0.98)
+        if(fabs(child_direct.dot(direct)) > 0.98)//两个特征向量的角度
           num_qua++;
         num_all++;
       }
@@ -130,15 +130,15 @@ public:
       for(uint k = 0; k < 3; k++)
         if(pvec_orig[j][k] > voxel_center[k])
           xyz[k] = 1;
-      int leafnum = 4*xyz[0] + 2*xyz[1] + xyz[2];
-      if(leaves[leafnum] == nullptr)
+      int leafnum = 4*xyz[0] + 2*xyz[1] + xyz[2];//相当于左移2 1 0位
+      if(leaves[leafnum] == nullptr)//创建叶节点
       {
         leaves[leafnum] = new OCTO_TREE_NODE(eigen_thr);
         leaves[leafnum]->voxel_center[0] = voxel_center[0] + (2*xyz[0]-1)*quater_length;
         leaves[leafnum]->voxel_center[1] = voxel_center[1] + (2*xyz[1]-1)*quater_length;
         leaves[leafnum]->voxel_center[2] = voxel_center[2] + (2*xyz[2]-1)*quater_length;
         leaves[leafnum]->quater_length = quater_length / 2.0;
-        leaves[leafnum]->layer = layer + 1;
+        leaves[leafnum]->layer = layer + 1;//第几层叶节点
       }
       /*原始点云信息*/
       leaves[leafnum]->vec_orig.push_back(pvec_orig[j]);
@@ -147,7 +147,7 @@ public:
     PLV(3)().swap(pvec_orig);
   }
 
-  void recut()
+  void recut()//相当于把体素重新切得更小，同时赋予类型
   {
     if(octo_state == UNKNOWN)
     {
@@ -160,7 +160,7 @@ public:
         return;
       }
 
-      if(judge_eigen(layer))
+      if(judge_eigen(layer))//体素中分八块的特征向量与总特征向量方向相同，即体素为面
       {
         octo_state = PLANE;
 
@@ -168,15 +168,15 @@ public:
         VOX_FACTOR covMat = sig_orig;
         Eigen::SelfAdjointEigenSolver<Eigen::Matrix3d> saes(covMat.cov());
         value_vector = saes.eigenvalues();
-        center = covMat.v / covMat.N;
-        direct = saes.eigenvectors().col(0);
+        center = covMat.v / covMat.N;//体素中心
+        direct = saes.eigenvectors().col(0);//返回一个矩阵，其中的每一列是一个计算得到的特征向量。
 
         plane_ptr->covariance = covMat.cov();
         plane_ptr->center = center;
-        plane_ptr->normal = direct;
-        plane_ptr->radius = sqrt(value_vector[2]);
+        plane_ptr->normal = direct;//面的矢量方向
+        plane_ptr->radius = sqrt(value_vector[2]);//计算自伴随矩阵的特征值的开方，可以近似地获得点云的曲率信息
         plane_ptr->min_eigen_value = value_vector[0];
-        plane_ptr->d = -direct.dot(center);
+        plane_ptr->d = -direct.dot(center);//表示两个向量之间的方向相似程度
         plane_ptr->p_center.x = center(0);
         plane_ptr->p_center.y = center(1);
         plane_ptr->p_center.z = center(2);
@@ -192,7 +192,7 @@ public:
       }
       else
       {
-        if(layer == layer_limit)
+        if(layer == layer_limit)// 叶节点层数
         {
           octo_state = MID_NODE;
           PLV(3)().swap(vec_orig);
@@ -204,7 +204,7 @@ public:
     
     for(int i = 0; i < 8; i++)
       if(leaves[i] != nullptr)
-        leaves[i]->recut();
+        leaves[i]->recut();///递归子节点/
   }
 
   void get_plane_list(std::vector<Plane*>& plane_list)
@@ -287,3 +287,5 @@ public:
   OCTO_TREE_ROOT(float _eigen_thr): OCTO_TREE_NODE(_eigen_thr){}
   PLV(3) all_points;
 };
+
+#endif
