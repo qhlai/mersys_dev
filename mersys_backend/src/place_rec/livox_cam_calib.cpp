@@ -1066,7 +1066,6 @@ void mapJet(double v, double vmin, double vmax, uint8_t &r, uint8_t &g,
         std::shared_ptr<pcl::PointCloud<pcl::PointXYZ>> sharedCloudPtr(new pcl::PointCloud<pcl::PointXYZ>(*rgb_edge_cloud_));
         image_edge_cloud_map_[img->GetFrameClientID()]=sharedCloudPtr;
 
-        // return rgb_edge_cloud_
         // ROS_INFO_STREAM("Initialization complete2");
     }
     auto Calibration::roughCalib(Camera& camera_,pcl::PointCloud<pcl::PointXYZI>::Ptr& lidar_edge_cloud_, double search_resolution, int max_iter)  -> void
@@ -1148,6 +1147,21 @@ void mapJet(double v, double vmin, double vmax, uint8_t &r, uint8_t &g,
                   cost_function = vpnp_calib::Create(val);
                   problem.AddResidualBlock(cost_function, NULL, ext, ext + 4);
                 }
+              ceres::Solver::Options options;
+              options.preconditioner_type = ceres::JACOBI;
+              options.linear_solver_type = ceres::SPARSE_SCHUR;
+              options.minimizer_progress_to_stdout = false;
+              options.trust_region_strategy_type = ceres::LEVENBERG_MARQUARDT;
+
+              ceres::Solver::Summary summary;
+              ceres::Solve(options, &problem, &summary);
+              #ifdef debug_mode
+              cout << summary.BriefReport() << endl;
+              #endif
+
+              camera_.update_Rt(m_q.toRotationMatrix(), m_t);
+              vector<VPnPData>().swap(pnp_list);
+
               cv::Mat projection_img = getProjectionImg(camera_,lidar_edge_cloud_,test_params);
               // cv::resize(projection_img, projection_img, cv::Size(), 0.5, 0.5, cv::INTER_LINEAR);
               cv::imshow("rough calib", projection_img);

@@ -114,6 +114,9 @@ protected:
 
     // // Infrastructure
     MapManagerPtr                  mapmanager_;
+
+    Camera                         camera_;
+    Calibration                    calibration_;
     // SCManager                      scManager;
     std::queue<std::pair<int, int> >                        scLoopICPBuf;
     // std::queue<std::pair<int, int> >                        
@@ -135,6 +138,9 @@ protected:
     ImageEXPtr                        img_match_;
     PointCloud::Ptr                   sc_pcs_d;
     PointCloud::Ptr                   pts_cloud;
+
+    pcl::PointCloud<pcl::PointXYZI>::Ptr               lidar_edge_cloud_;
+    pcl::PointCloud<pcl::PointXYZI>::Ptr               rgb_edge_cloud_;
     // std::vector< size_t >             last_loop_frame_id;
     map<idpair,size_t>                last_loops_;
     // std::vector< std::shared_ptr <ros::Publisher> >

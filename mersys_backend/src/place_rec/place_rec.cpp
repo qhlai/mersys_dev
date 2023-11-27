@@ -423,9 +423,12 @@ auto PlaceRecognition::DetectLoop_C()->bool {
     {
         std::unique_lock<std::mutex> lock(mtx_in_);
         img_query_ = buffer_imgs_in_.front();
+        calibration_.add_img(img_query_, true);
         buffer_imgs_in_.pop_front();
         pc_query_ = buffer_pcs_large_in_.front();
+        calibration_.add_lidar(pc_query_);
         buffer_pcs_large_in_.pop_front();
+        // Calibration::roughCalib(camera_,)
         // img_query_->SetNotErase();
     }
     
