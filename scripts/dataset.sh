@@ -84,7 +84,7 @@ fi
 
 # rosbag filter 2023-08-02-23-10-07fixed.bag 2023-08-02-23-10-07fixed_part3.bag "t.secs >= 1690989203 and t.secs <= 1690989193"
 # name_dataset='2023-08-02-23-10-07fixed.bag'
-# # path_dataset='/media/lqh/WDC/dataset/r3live_offical/hku_campus_seq_00.bag'
+# # path_dataset='/media/uestc/WDC/dataset/r3live_offical/hku_campus_seq_00.bag'
 
 # rosbag play --clock -r 2  ${path_dataset}${name_dataset}
 

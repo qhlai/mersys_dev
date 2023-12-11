@@ -1,7 +1,7 @@
 #!/bin/bash
-# path_dataset='/media/lqh/WDC/dataset/r3live_offical'
+# path_dataset='/media/uestc/WDC/dataset/r3live_offical'
 # path_dataset='/home/uestc/dataset/r3live_offical'
-path_dataset='/media/lqh/WDC/dataset/mersys/2023-08-02-22-37-57fixed.bag'
+path_dataset='/media/uestc/WDC/dataset/mersys/2023-08-02-22-37-57fixed.bag'
 path_workspace='~/ros/r3live'
 
 #gnome-terminal -t "catkin_make" -x bash -c "catkin_make;exec bash;"

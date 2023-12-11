@@ -419,19 +419,42 @@ auto PlaceRecognition::DetectLoop()->bool {
 }
 auto PlaceRecognition::DetectLoop_C()->bool {
 
-    // performSCLoopClosure();
+    performSCLoopClosure();
     {
         std::unique_lock<std::mutex> lock(mtx_in_);
         img_query_ = buffer_imgs_in_.front();
-        calibration_.add_img(img_query_, true);
+        rgb_edge_cloud_ = calibration_.add_img(img_query_, true);
         buffer_imgs_in_.pop_front();
+
         pc_query_ = buffer_pcs_large_in_.front();
-        calibration_.add_lidar(pc_query_);
+        lidar_edge_cloud_ =calibration_.add_lidar(pc_query_);
         buffer_pcs_large_in_.pop_front();
-        // Calibration::roughCalib(camera_,)
+        
+        //first init 
+        camera_.update_Rt(Eigen::Matrix3d::Zero(), Eigen::Vector3d::Zero());
+        calibration_.roughCalib(camera_, lidar_edge_cloud_, rgb_edge_cloud_, DEG2RAD(0.1), 30);
         // img_query_->SetNotErase();
     }
     
+    Eigen::Vector3d euler_angle = camera_.ext_R.eulerAngles(2, 1, 0);
+    Eigen::Vector3d transation = camera_.ext_t;
+    Vector6d calib_params;
+    calib_params << euler_angle(0), euler_angle(1), euler_angle(2), transation(0), transation(1), transation(2);
+    Eigen::Matrix3d R;
+    Eigen::Vector3d T;
+    R = camera_.ext_R;
+    T = camera_.ext_t;
+    // // outfile.open(result_file, ofstream::app);
+    // // for(int i = 0; i < 3; i++)
+    // //     outfile << R(i, 0) << "," << R(i, 1) << "," << R(i, 2) << "," << T[i] << "\n";
+    // // outfile << 0 << "," << 0 << "," << 0 << "," << 1 << "\n";
+    // // outfile.close();
+
+     /* visualize the colorized point cloud */
+    calib_params << euler_angle(0), euler_angle(1), euler_angle(2),
+                    transation(0), transation(1), transation(2);
+    calibration_.colorCloud(calib_params, 1, camera_, img_query_->img_, pc_query_);
+
     // auto calib = mapmanager_->calibration.Calibration()
     
     // mapmanager_->AddToDatabase(pc_query_);

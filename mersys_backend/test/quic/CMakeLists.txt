@@ -41,7 +41,7 @@ find_package(catkin REQUIRED COMPONENTS
                     # livox_ros_driver
             )
             
-#set(MSQUIC_DIR "/home/lqh/ros/r3live_ws/src/mersys/mersys_backend/src/thirdparty/msquic/build/")
+#set(MSQUIC_DIR "/home/uestc/ros/r3live_ws/src/mersys/mersys_backend/src/thirdparty/msquic/build/")
 set(MSQUIC_INCLUDE_DIRS "./quic_inc")
 set(MSQUIC_LIBRARIES "./quic_libs/libmsquic.so")
 

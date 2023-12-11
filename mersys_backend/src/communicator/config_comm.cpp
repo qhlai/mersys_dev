@@ -14,6 +14,8 @@ auto GetServerIP()->std::string {
 
 auto ShowParamsComm()->void
 {
+    std::cout  << "1111111111111" << s3_comm << std::endl; 
+
     std::cout << "++++++++++ System ++++++++++" << std::endl;
     std::cout << "server_ip: " << mersys_params::sys::server_ip << std::endl;
     std::cout << "port: " << mersys_params::sys::port << std::endl;

@@ -1,6 +1,6 @@
 <launch>
    <arg name="namespace" default="robot1" />
-   <arg name="file_path" default="/media/lqh/WDC/dataset/mersys/" />
+   <arg name="file_path" default="/media/uestc/WDC/dataset/mersys/" />
    <arg name="file_name" default="2023-08-02-23-10-07fixed.bag" />
    <arg name="play_speed" default="1.5" />
 

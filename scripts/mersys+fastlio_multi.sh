@@ -13,7 +13,7 @@ gnome-terminal -t "roslaunch" -x bash -c "gdb  -ex run  /home/lqh/ros/r3live_ws/
 
 elif [ "$username" = "uestc" ];then
 
-gnome-terminal -t "roslaunch" -x bash -c "gdb  -ex run  /home/uestc/mersys_ws/devel/lib/mersys_backend/mersys_backend_node;exec bash;"
+gnome-terminal -t "roslaunch" -x bash -c "gdb  -ex run  /home/uestc/colive_ws/devel/lib/mersys_backend/mersys_backend_node;exec bash;"
 fi
 
 

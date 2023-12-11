@@ -1011,7 +1011,7 @@ void mapJet(double v, double vmin, double vmax, uint8_t &r, uint8_t &g,
 
     }
 
-    auto Calibration::add_lidar(PointCloudEXPtr pc) -> void
+    auto Calibration::add_lidar(PointCloudEXPtr pc) -> pcl::PointCloud<pcl::PointXYZI>::Ptr
     {
         std::unordered_map<VOXEL_LOC, OCTO_TREE_ROOT*> surf_map;
         ROS_INFO_STREAM("use_ada_voxel");
@@ -1056,8 +1056,9 @@ void mapJet(double v, double vmin, double vmax, uint8_t &r, uint8_t &g,
         //TODO: 提高性能
         mersys::TypeDefs::PointCloudPtr sharedCloudPtr(new pcl::PointCloud<pcl::PointXYZI>(*lidar_edge_cloud_));
         lidar_edge_cloud_map_[pc->GetFrameClientID()]=sharedCloudPtr;
+        return lidar_edge_cloud_;
     }
-    auto Calibration::add_img(ImageEXPtr img,bool if_undistort=true) -> void
+    auto Calibration::add_img(ImageEXPtr img,bool if_undistort=true) -> pcl::PointCloud<pcl::PointXYZ>::Ptr
     {
         pcl::PointCloud<pcl::PointXYZ>::Ptr rgb_edge_cloud_;
         cv::Mat gray_img, rgb_edge_img;
@@ -1065,10 +1066,10 @@ void mapJet(double v, double vmin, double vmax, uint8_t &r, uint8_t &g,
         edgeDetector(mersys_params::fusion::rgb_canny_threshold_, mersys_params::fusion::rgb_edge_minLen_, gray_img, rgb_edge_img, rgb_edge_cloud_);
         std::shared_ptr<pcl::PointCloud<pcl::PointXYZ>> sharedCloudPtr(new pcl::PointCloud<pcl::PointXYZ>(*rgb_edge_cloud_));
         image_edge_cloud_map_[img->GetFrameClientID()]=sharedCloudPtr;
-
+        return rgb_edge_cloud_;
         // ROS_INFO_STREAM("Initialization complete2");
     }
-    auto Calibration::roughCalib(Camera& camera_,pcl::PointCloud<pcl::PointXYZI>::Ptr& lidar_edge_cloud_, double search_resolution, int max_iter)  -> void
+    auto Calibration::roughCalib(Camera& camera_,pcl::PointCloud<pcl::PointXYZI>::Ptr& lidar_edge_cloud_, pcl::PointCloud<pcl::PointXYZ>::Ptr& rgb_edge_cloud_, double search_resolution, int max_iter)  -> void
     {
       float match_dis = 25;
       Eigen::Vector3d fix_adjust_euler(0, 0, 0);
@@ -1164,8 +1165,8 @@ void mapJet(double v, double vmin, double vmax, uint8_t &r, uint8_t &g,
 
               cv::Mat projection_img = getProjectionImg(camera_,lidar_edge_cloud_,test_params);
               // cv::resize(projection_img, projection_img, cv::Size(), 0.5, 0.5, cv::INTER_LINEAR);
-              cv::imshow("rough calib", projection_img);
-              cv::waitKey(0);
+              // cv::imshow("rough calib", projection_img);
+              // cv::waitKey(0);
               }
             }
           }
@@ -1371,6 +1372,74 @@ void mapJet(double v, double vmin, double vmax, uint8_t &r, uint8_t &g,
           pnp_list.push_back(pnp);
       }
     }
+  }
+
+  auto Calibration::colorCloud(const Vector6d& extrinsic_params, const int density, const Camera& cam,
+                  const cv::Mat& rgb_img,
+                  const PointCloudEXPtr& lidar_cloud_)         ->void
+  { 
+    PointCloud lidar_cloud = lidar_cloud_->pts_cloud;
+    Eigen::AngleAxisd rotation_vector3;
+    rotation_vector3 =
+      Eigen::AngleAxisd(extrinsic_params[0], Eigen::Vector3d::UnitZ()) *
+      Eigen::AngleAxisd(extrinsic_params[1], Eigen::Vector3d::UnitY()) *
+      Eigen::AngleAxisd(extrinsic_params[2], Eigen::Vector3d::UnitX());
+    Eigen::Quaterniond q_(rotation_vector3);
+    cv::Mat camera_matrix = (cv::Mat_<double>(3, 3)
+      << cam.fx_, cam.s_, cam.cx_, 0.0, cam.fy_, cam.cy_, 0.0, 0.0, 1.0);
+    cv::Mat distortion_coeff = (cv::Mat_<double>(1, 5)
+      << cam.k1_, cam.k2_, cam.p1_, cam.p2_, cam.k3_);
+    cv::Mat r_vec = (cv::Mat_<double>(3, 1)
+      << rotation_vector3.angle() * rotation_vector3.axis().transpose()[0],
+         rotation_vector3.angle() * rotation_vector3.axis().transpose()[1],
+         rotation_vector3.angle() * rotation_vector3.axis().transpose()[2]);
+    cv::Mat t_vec = (cv::Mat_<double>(3, 1)
+      << extrinsic_params[3], extrinsic_params[4], extrinsic_params[5]);
+    Eigen::Vector3d t_(extrinsic_params[3], extrinsic_params[4], extrinsic_params[5]);
+
+    pcl::PointCloud<pcl::PointXYZRGB>::Ptr color_cloud(new pcl::PointCloud<pcl::PointXYZRGB>);
+    std::vector<cv::Point3f> pts_3d;
+    for(size_t i = 0; i < lidar_cloud.size(); i += density)
+    {
+      pcl::PointXYZI point = lidar_cloud[i];
+      Eigen::Vector3d pt1(point.x, point.y, point.z);
+      Eigen::Vector3d pt2(0, 0, 1);
+      if(cos_angle(q_ * pt1 + t_, pt2) > cos(DEG2RAD(mersys_params::fusion::cam_fov_/2.0))) // FoV check
+      {
+        float depth = sqrt(pow(point.x, 2) + pow(point.y, 2) + pow(point.z, 2));
+        if(depth > 2.5 && depth < 50)
+          pts_3d.emplace_back(cv::Point3f(pt1(0), pt1(1), pt1(2)));
+      }
+    }
+    std::vector<cv::Point2f> pts_2d;
+    #ifdef FISHEYE
+    cv::fisheye::projectPoints(pts_3d, pts_2d, r_vec, t_vec, camera_.camera_matrix_, camera_.dist_coeffs_);
+    #else
+    cv::projectPoints(pts_3d, r_vec, t_vec, camera_matrix, distortion_coeff, pts_2d);
+    #endif
+    int image_rows = rgb_img.rows;
+    int image_cols = rgb_img.cols;
+
+    for(size_t i = 0; i < pts_2d.size(); i++)
+    {
+      if(pts_2d[i].x > 1 && pts_2d[i].x < image_cols - 1 && pts_2d[i].y > 1 && pts_2d[i].y < image_rows - 1)
+      {
+        cv::Scalar color = rgb_img.at<cv::Vec3b>(pts_2d[i]);
+        if(color[0] == 0 && color[1] == 0 && color[2] == 0) continue;
+        if(pts_3d[i].x > 100) continue;
+        Eigen::Vector3d pt(pts_3d[i].x, pts_3d[i].y, pts_3d[i].z);
+        pcl::PointXYZRGB p;
+        p.x = pt(0); p.y = pt(1); p.z = pt(2);
+        p.b = color[0]; p.g = color[1]; p.r = color[2];
+        color_cloud->points.push_back(p);
+      }
+    }
+    color_cloud->width = color_cloud->points.size();
+    color_cloud->height = 1;
+    // sensor_msgs::PointCloud2 pub_cloud;
+    // pcl::toROSMsg(*color_cloud, pub_cloud);
+    // pub_cloud.header.frame_id = "camera_init";
+    // pub_color_cloud.publish(pub_cloud);
   }
    
 }

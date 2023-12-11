@@ -19,9 +19,9 @@ int main(int argc, char** argv)
 {
   // Load input point cloud with intensity information
   pcl::PointCloud<pcl::PointXYZI>::Ptr cloud(new pcl::PointCloud<pcl::PointXYZI>);
-  pcl::io::loadPCDFile<pcl::PointXYZI>("/home/lqh/ros/r3live_ws/output/frames/pcd_large/0/1627807357.700470.pcd", *cloud);
+  pcl::io::loadPCDFile<pcl::PointXYZI>("/home/uestc/ros/r3live_ws/output/frames/pcd_large/0/1627807357.700470.pcd", *cloud);
 
-  // pcl::io::loadPCDFile<pcl::PointXYZI>("/home/lqh/ros/r3live_ws/output/frames/pcd_large/0/1627807357.700470.pcd", *cloud);
+  // pcl::io::loadPCDFile<pcl::PointXYZI>("/home/uestc/ros/r3live_ws/output/frames/pcd_large/0/1627807357.700470.pcd", *cloud);
   // Compute normals
   pcl::NormalEstimation<pcl::PointXYZI, pcl::Normal> ne;
   pcl::PointCloud<pcl::Normal>::Ptr normals(new pcl::PointCloud<pcl::Normal>);
@@ -110,7 +110,7 @@ pcl::PointXYZ pt2(coefficients->values[3], coefficients->values[4], coefficients
   // }
 
   // // Save image to file
-  // cv::imwrite ("/home/lqh/ros/r3live_ws/output/frames/projected_image.png", img);
+  // cv::imwrite ("/home/uestc/ros/r3live_ws/output/frames/projected_image.png", img);
 
 // viewer.addLine(pt1, pt2, 0, 0, 255,"line");  // Add line to viewer with blue color
   viewer.spin();

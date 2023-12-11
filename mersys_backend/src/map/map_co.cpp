@@ -178,7 +178,6 @@ Map::Map(MapPtr map_target, MapPtr map_tofuse, TransformType T_wtofuse_wmatch)
 }
 // 只有在激光雷达发生较长时间在同一场景静止或者允许位移和旋转不大时，组装大型点云
 auto Map::LongTimeStay(PointCloudEXPtr pc)->void {
-
         idpair curr_id = pc->GetFrameClientID();
         // if(pc->GetClient() == m_id_last_huge_move.second)
         TransformType T = pc->GetPoseTsw();

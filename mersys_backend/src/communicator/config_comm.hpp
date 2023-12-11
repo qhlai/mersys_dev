@@ -10,16 +10,26 @@
 #include "tools_read_parm.hpp"
 #include "typedefs_base.hpp"
 
+
 namespace mersys_params {
 
 using precision_t = mersys::TypeDefs::precision_t;
 
 const std::string s0_comm (__FILE__);
 const std::size_t p0_comm = s0_comm.find("mersys/mersys_backend/src/communicator");
-const std::string s1_comm (s0_comm.substr(0,p0_comm));
-const std::string s2_comm ("mersys/mersys_backend/config/config_comm.yaml");
+const std::string s1_comm = (p0_comm != std::string::npos) ? s0_comm.substr(0, p0_comm) : "";
+const std::string s2_comm = "/mersys/mersys_backend/config/config_comm.yaml";
 const std::string s3_comm = s1_comm + s2_comm;
-const std::string conf_comm (s3_comm);//config_comm_path
+// const std::string conf_comm = s3_comm;  // config_comm_path
+const std::string conf_comm = "/home/uestc/colive_ws/src/mersys_dev/mersys_backend/config/config_comm.yaml";  // config_comm_path
+
+
+
+// const std::size_t p0_comm = s0_comm.find("mersys/mersys_backend/src/communicator");
+// const std::string s1_comm (s0_comm.substr(0,p0_comm));
+// const std::string s2_comm ("mersys/mersys_backend/config/config_comm.yaml");
+// const std::string s3_comm = s1_comm + s2_comm;
+// const std::string conf_comm (s3_comm);//config_comm_path
 
 // const std::string config_comm(__FILE__);
 // opencv 的版本有问题

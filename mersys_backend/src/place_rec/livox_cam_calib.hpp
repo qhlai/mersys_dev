@@ -84,15 +84,18 @@ public:
     // enum ProjectionType { DEPTH, INTENSITY, BOTH };
 public:
     Calibration();
-    virtual auto add_lidar(PointCloudEXPtr pc)        ->void;
-    virtual auto add_img(ImageEXPtr img,bool if_undistort)        ->void;
-    virtual auto roughCalib(Camera& camera_,pcl::PointCloud<pcl::PointXYZI>::Ptr& lidar_edge_cloud_, double search_resolution, int max_iter)        ->void;
+    virtual auto add_lidar(PointCloudEXPtr pc)        ->pcl::PointCloud<pcl::PointXYZI>::Ptr;
+    virtual auto add_img(ImageEXPtr img,bool if_undistort)        ->pcl::PointCloud<pcl::PointXYZ>::Ptr;
+    virtual auto roughCalib(Camera& camera_,pcl::PointCloud<pcl::PointXYZI>::Ptr& lidar_edge_cloud_, pcl::PointCloud<pcl::PointXYZ>::Ptr& rgb_edge_cloud_, double search_resolution, int max_iter)        ->void;
     virtual auto buildVPnp(const Camera& cam,
                  const Vector6d& extrinsic_params, const int dis_threshold,
                  const bool show_residual,
                  const pcl::PointCloud<pcl::PointXYZ>::Ptr& cam_edge_clouds_2d,
                  const pcl::PointCloud<pcl::PointXYZI>::Ptr& lidar_edge_clouds_3d,
                  std::vector<VPnPData>& pnp_list)            ->void;
+    virtual auto colorCloud(const Vector6d& extrinsic_params, const int density, const Camera& cam,
+                  const cv::Mat& rgb_img,
+                  const PointCloudEXPtr& lidar_cloud_)         ->void;
 
 
     bool        only_calib_rotation_      =        false;

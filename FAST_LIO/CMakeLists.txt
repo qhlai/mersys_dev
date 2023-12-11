@@ -43,7 +43,7 @@ find_package(PythonLibs REQUIRED)
 find_path(MATPLOTLIB_CPP_INCLUDE_DIRS "matplotlibcpp.h")
 
 
-# set(mersys_backend_DIR "/home/lqh/ros/r3live_ws/build/mersys/mersys_backend")
+# set(mersys_backend_DIR "/home/uestc/ros/r3live_ws/build/mersys/mersys_backend")
 
 find_package(catkin REQUIRED COMPONENTS
   geometry_msgs

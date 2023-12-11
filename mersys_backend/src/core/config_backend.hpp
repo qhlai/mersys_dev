@@ -41,7 +41,8 @@ const std::string s0 (__FILE__);
 const std::size_t p0 = s0.find("mersys/mersys_backend/src/core");
 const std::string s1 (s0.substr(0,p0));
 const std::string s2 ("mersys/mersys_backend/config/config_backend.yaml");
-const std::string s3 = s1 + s2;
+// const std::string s3 = s1 + s2;
+const std::string s3 = "/home/uestc/colive_ws/src/mersys_dev/mersys_backend/config/config_backend.yaml";
 const std::string conf (s3);
 
 const std::string out0 (__FILE__);

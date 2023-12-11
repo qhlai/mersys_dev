@@ -111,11 +111,11 @@
 			"charconv": "cpp"
 		},
 		"python.autoComplete.extraPaths": [
-			"/home/lqh/ros/covins_ws/devel/lib/python3/dist-packages",
+			"/home/uestc/ros/covins_ws/devel/lib/python3/dist-packages",
 			"/opt/ros/noetic/lib/python3/dist-packages"
 		],
 		"python.analysis.extraPaths": [
-			"/home/lqh/ros/covins_ws/devel/lib/python3/dist-packages",
+			"/home/uestc/ros/covins_ws/devel/lib/python3/dist-packages",
 			"/opt/ros/noetic/lib/python3/dist-packages"
 		]
 	}

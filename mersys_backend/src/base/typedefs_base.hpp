@@ -64,7 +64,7 @@
 #define POINTCLOUD_HAVE_INTENSITY 1
 #define DISPLAY_POINTCLOUD_INTENSITY 1
 #define USING_OPENCV_TBB 1
-#define SAVE_FRAMES 1
+#define SAVE_FRAMES 0
 // namespace pcl{
 // // public:
 //     class PointXYZI;

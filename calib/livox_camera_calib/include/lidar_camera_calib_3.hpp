@@ -842,10 +842,10 @@ void Calibration::initVoxel(
 
 
   // 更快 ,但人工不可读
-  pcl::io::savePCDFileBinary(std::string("/home/lqh/ros/r3live_ws/output/frames/1.pcd"), test_cloud_1);
+  pcl::io::savePCDFileBinary(std::string("/home/uestc/ros/r3live_ws/output/frames/1.pcd"), test_cloud_1);
 
 
-  pcl::io::savePCDFileBinary(std::string("/home/lqh/ros/r3live_ws/output/frames/2.pcd"), test_cloud_2);
+  pcl::io::savePCDFileBinary(std::string("/home/uestc/ros/r3live_ws/output/frames/2.pcd"), test_cloud_2);
 
   sensor_msgs::PointCloud2 pub_cloud;
   pcl::toROSMsg(test_cloud_1, pub_cloud);

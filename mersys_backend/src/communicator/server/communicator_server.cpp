@@ -215,17 +215,21 @@ auto Communicator_server::ProcessPointCloudIn()->void {
 
             
             // map_->AddPointCloud_large(p_pc_large_tmp);
-            #ifdef SAVE_FRAMES         
-            if(mersys_params::sys::save_frames){
-            pc->save_to_pcd( std::string(mersys_params::sys::output_dir).append("/frames/pcd/").append(std::to_string(pc->GetClientID())).append("/"), std::to_string(pc->GetTimeStamp()) , 0);
-            }
-            #endif            
+            // std::cout << "44444444"<<std::endl;
+            // #ifdef SAVE_FRAMES    
+            // if(mersys_params::sys::save_frames){
+            // pc->save_to_pcd( std::string(mersys_params::sys::output_dir).append("/frames/pcd/").append(std::to_string(pc->GetClientID())).append("/"), std::to_string(pc->GetTimeStamp()) , 0);
+            // }
+            // #endif            
         }
 
         if(mersys_params::placerec::active){
+            // std::cout << "55555555"<<std::endl;
             placerec_->InsertKeyframe(pc);
+            // std::cout << "65555555"<<std::endl;
             placerec_->InsertLargeKeyframe(p_pc_large_tmp);      
         }
+        std::cout << "75555555"<<std::endl;
     }
 }
 auto Communicator_server::ProcessImagesIn()->void {

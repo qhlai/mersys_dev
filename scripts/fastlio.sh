@@ -15,7 +15,7 @@ sleep 3
 # gnome-terminal -t "rosbag play" -x bash -c "./dataset.sh;exec bash;"
 # gnome-terminal -t "rosbag play" -x bash -c "rosbag play ${path_dataset}/hku_campus_seq_00.bag;exec bash;"
 # gnome-terminal -t "rosbag play" -x bash -c "rosbag play -r 3 ${path_dataset};exec bash;"
-rosbag play -r 2 /home/lqh/dataset/mersys/2023-09-19-20-18-04fixed.bag
+rosbag play -r 2 /home/uestc/dataset/mersys/2023-09-19-20-18-04fixed.bag
 #rosbag play -r 2 /home/uestc/dataset/HILTI/Basement_1.bag
 1695126285  
 1695126500

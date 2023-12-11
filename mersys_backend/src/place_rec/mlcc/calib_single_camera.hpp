@@ -1160,184 +1160,184 @@ public:
     direction << evecs.real()(0, evalsMax), evecs.real()(1, evalsMax);
   }
 
-  void colorCloud(const Vector6d& extrinsic_params, const int density, const Camera& cam,
-                  const cv::Mat& rgb_img,
-                  const pcl::PointCloud<pcl::PointXYZI>::Ptr& lidar_cloud)
-  {
-    Eigen::AngleAxisd rotation_vector3;
-    rotation_vector3 =
-      Eigen::AngleAxisd(extrinsic_params[0], Eigen::Vector3d::UnitZ()) *
-      Eigen::AngleAxisd(extrinsic_params[1], Eigen::Vector3d::UnitY()) *
-      Eigen::AngleAxisd(extrinsic_params[2], Eigen::Vector3d::UnitX());
-    Eigen::Quaterniond q_(rotation_vector3);
-    cv::Mat camera_matrix = (cv::Mat_<double>(3, 3)
-      << cam.fx_, cam.s_, cam.cx_, 0.0, cam.fy_, cam.cy_, 0.0, 0.0, 1.0);
-    cv::Mat distortion_coeff = (cv::Mat_<double>(1, 5)
-      << cam.k1_, cam.k2_, cam.p1_, cam.p2_, cam.k3_);
-    cv::Mat r_vec = (cv::Mat_<double>(3, 1)
-      << rotation_vector3.angle() * rotation_vector3.axis().transpose()[0],
-         rotation_vector3.angle() * rotation_vector3.axis().transpose()[1],
-         rotation_vector3.angle() * rotation_vector3.axis().transpose()[2]);
-    cv::Mat t_vec = (cv::Mat_<double>(3, 1)
-      << extrinsic_params[3], extrinsic_params[4], extrinsic_params[5]);
-    Eigen::Vector3d t_(extrinsic_params[3], extrinsic_params[4], extrinsic_params[5]);
+  // void colorCloud(const Vector6d& extrinsic_params, const int density, const Camera& cam,
+  //                 const cv::Mat& rgb_img,
+  //                 const pcl::PointCloud<pcl::PointXYZI>::Ptr& lidar_cloud)
+  // {
+  //   Eigen::AngleAxisd rotation_vector3;
+  //   rotation_vector3 =
+  //     Eigen::AngleAxisd(extrinsic_params[0], Eigen::Vector3d::UnitZ()) *
+  //     Eigen::AngleAxisd(extrinsic_params[1], Eigen::Vector3d::UnitY()) *
+  //     Eigen::AngleAxisd(extrinsic_params[2], Eigen::Vector3d::UnitX());
+  //   Eigen::Quaterniond q_(rotation_vector3);
+  //   cv::Mat camera_matrix = (cv::Mat_<double>(3, 3)
+  //     << cam.fx_, cam.s_, cam.cx_, 0.0, cam.fy_, cam.cy_, 0.0, 0.0, 1.0);
+  //   cv::Mat distortion_coeff = (cv::Mat_<double>(1, 5)
+  //     << cam.k1_, cam.k2_, cam.p1_, cam.p2_, cam.k3_);
+  //   cv::Mat r_vec = (cv::Mat_<double>(3, 1)
+  //     << rotation_vector3.angle() * rotation_vector3.axis().transpose()[0],
+  //        rotation_vector3.angle() * rotation_vector3.axis().transpose()[1],
+  //        rotation_vector3.angle() * rotation_vector3.axis().transpose()[2]);
+  //   cv::Mat t_vec = (cv::Mat_<double>(3, 1)
+  //     << extrinsic_params[3], extrinsic_params[4], extrinsic_params[5]);
+  //   Eigen::Vector3d t_(extrinsic_params[3], extrinsic_params[4], extrinsic_params[5]);
 
-    pcl::PointCloud<pcl::PointXYZRGB>::Ptr color_cloud(new pcl::PointCloud<pcl::PointXYZRGB>);
-    std::vector<cv::Point3f> pts_3d;
-    for(size_t i = 0; i < lidar_cloud->size(); i += density)
-    {
-      pcl::PointXYZI point = lidar_cloud->points[i];
-      Eigen::Vector3d pt1(point.x, point.y, point.z);
-      Eigen::Vector3d pt2(0, 0, 1);
-      if(cos_angle_1(q_ * pt1 + t_, pt2) > cos(DEG2RAD(cam_fov_/2.0))) // FoV check
-      {
-        float depth = sqrt(pow(point.x, 2) + pow(point.y, 2) + pow(point.z, 2));
-        if(depth > 2.5 && depth < 50)
-          pts_3d.emplace_back(cv::Point3f(pt1(0), pt1(1), pt1(2)));
-      }
-    }
-    std::vector<cv::Point2f> pts_2d;
-    #ifdef FISHEYE
-    cv::fisheye::projectPoints(pts_3d, pts_2d, r_vec, t_vec, camera_.camera_matrix_, camera_.dist_coeffs_);
-    #else
-    cv::projectPoints(pts_3d, r_vec, t_vec, camera_matrix, distortion_coeff, pts_2d);
-    #endif
-    int image_rows = rgb_img.rows;
-    int image_cols = rgb_img.cols;
+  //   pcl::PointCloud<pcl::PointXYZRGB>::Ptr color_cloud(new pcl::PointCloud<pcl::PointXYZRGB>);
+  //   std::vector<cv::Point3f> pts_3d;
+  //   for(size_t i = 0; i < lidar_cloud->size(); i += density)
+  //   {
+  //     pcl::PointXYZI point = lidar_cloud->points[i];
+  //     Eigen::Vector3d pt1(point.x, point.y, point.z);
+  //     Eigen::Vector3d pt2(0, 0, 1);
+  //     if(cos_angle_1(q_ * pt1 + t_, pt2) > cos(DEG2RAD(cam_fov_/2.0))) // FoV check
+  //     {
+  //       float depth = sqrt(pow(point.x, 2) + pow(point.y, 2) + pow(point.z, 2));
+  //       if(depth > 2.5 && depth < 50)
+  //         pts_3d.emplace_back(cv::Point3f(pt1(0), pt1(1), pt1(2)));
+  //     }
+  //   }
+  //   std::vector<cv::Point2f> pts_2d;
+  //   #ifdef FISHEYE
+  //   cv::fisheye::projectPoints(pts_3d, pts_2d, r_vec, t_vec, camera_.camera_matrix_, camera_.dist_coeffs_);
+  //   #else
+  //   cv::projectPoints(pts_3d, r_vec, t_vec, camera_matrix, distortion_coeff, pts_2d);
+  //   #endif
+  //   int image_rows = rgb_img.rows;
+  //   int image_cols = rgb_img.cols;
 
-    for(size_t i = 0; i < pts_2d.size(); i++)
-    {
-      if(pts_2d[i].x > 1 && pts_2d[i].x < image_cols - 1 && pts_2d[i].y > 1 && pts_2d[i].y < image_rows - 1)
-      {
-        cv::Scalar color = rgb_img.at<cv::Vec3b>(pts_2d[i]);
-        if(color[0] == 0 && color[1] == 0 && color[2] == 0) continue;
-        if(pts_3d[i].x > 100) continue;
-        Eigen::Vector3d pt(pts_3d[i].x, pts_3d[i].y, pts_3d[i].z);
-        pcl::PointXYZRGB p;
-        p.x = pt(0); p.y = pt(1); p.z = pt(2);
-        p.b = color[0]; p.g = color[1]; p.r = color[2];
-        color_cloud->points.push_back(p);
-      }
-    }
-    color_cloud->width = color_cloud->points.size();
-    color_cloud->height = 1;
-    sensor_msgs::PointCloud2 pub_cloud;
-    pcl::toROSMsg(*color_cloud, pub_cloud);
-    pub_cloud.header.frame_id = "camera_init";
-    pub_color_cloud.publish(pub_cloud);
-  }
+  //   for(size_t i = 0; i < pts_2d.size(); i++)
+  //   {
+  //     if(pts_2d[i].x > 1 && pts_2d[i].x < image_cols - 1 && pts_2d[i].y > 1 && pts_2d[i].y < image_rows - 1)
+  //     {
+  //       cv::Scalar color = rgb_img.at<cv::Vec3b>(pts_2d[i]);
+  //       if(color[0] == 0 && color[1] == 0 && color[2] == 0) continue;
+  //       if(pts_3d[i].x > 100) continue;
+  //       Eigen::Vector3d pt(pts_3d[i].x, pts_3d[i].y, pts_3d[i].z);
+  //       pcl::PointXYZRGB p;
+  //       p.x = pt(0); p.y = pt(1); p.z = pt(2);
+  //       p.b = color[0]; p.g = color[1]; p.r = color[2];
+  //       color_cloud->points.push_back(p);
+  //     }
+  //   }
+  //   color_cloud->width = color_cloud->points.size();
+  //   color_cloud->height = 1;
+  //   sensor_msgs::PointCloud2 pub_cloud;
+  //   pcl::toROSMsg(*color_cloud, pub_cloud);
+  //   pub_cloud.header.frame_id = "camera_init";
+  //   pub_color_cloud.publish(pub_cloud);
+  // }
 
-  void projection(const Vector6d& extrinsic_params, const Camera& cam,
-                  const pcl::PointCloud<pcl::PointXYZI>::Ptr& lidar_cloud,
-                  cv::Mat& projection_img)
-  {
-    std::vector<cv::Point3f> pts_3d;
-    std::vector<float> intensity_list;
-    Eigen::AngleAxisd rotation_vector3;
-    rotation_vector3 =
-      Eigen::AngleAxisd(extrinsic_params[0], Eigen::Vector3d::UnitZ()) *
-      Eigen::AngleAxisd(extrinsic_params[1], Eigen::Vector3d::UnitY()) *
-      Eigen::AngleAxisd(extrinsic_params[2], Eigen::Vector3d::UnitX());
-    for(size_t i = 0; i < lidar_cloud->size(); i++)
-    {
-      pcl::PointXYZI point_3d = lidar_cloud->points[i];
-      pts_3d.emplace_back(cv::Point3f(point_3d.x, point_3d.y, point_3d.z));
-      intensity_list.emplace_back(lidar_cloud->points[i].intensity);
-    }
-    cv::Mat camera_matrix = (cv::Mat_<double>(3, 3)
-      << cam.fx_, cam.s_, cam.cx_, 0.0, cam.fy_, cam.cy_, 0.0, 0.0, 1.0);
-    cv::Mat distortion_coeff =
-      (cv::Mat_<double>(1, 5) << cam.k1_, cam.k2_, cam.p1_, cam.p2_, cam.k3_);
-    cv::Mat r_vec = (cv::Mat_<double>(3, 1)
-      << rotation_vector3.angle() * rotation_vector3.axis().transpose()[0],
-         rotation_vector3.angle() * rotation_vector3.axis().transpose()[1],
-         rotation_vector3.angle() * rotation_vector3.axis().transpose()[2]);
-    cv::Mat t_vec = (cv::Mat_<double>(3, 1)
-      << extrinsic_params[3], extrinsic_params[4], extrinsic_params[5]);
-    // project 3d-points into image view
-    std::vector<cv::Point2f> pts_2d;
-    #ifdef FISHEYE
-    cv::fisheye::projectPoints(pts_3d, pts_2d, r_vec, t_vec, camera_.camera_matrix_, camera_.dist_coeffs_);
-    #else
-    cv::projectPoints(pts_3d, r_vec, t_vec, camera_matrix, distortion_coeff, pts_2d);
-    #endif
-    cv::Mat image_project = cv::Mat::zeros(cam.height_, cam.width_, CV_16UC1);
-    cv::Mat rgb_image_project = cv::Mat::zeros(cam.height_, cam.width_, CV_8UC3);
-    for(size_t i = 0; i < pts_2d.size(); ++i)
-    {
-      cv::Point2f point_2d = pts_2d[i];
-      if(point_2d.x <= 0 || point_2d.x >= cam.width_ || point_2d.y <= 0 || point_2d.y >= cam.height_)
-        continue;
-      else
-      {
-        // test depth and intensity both
-        float depth = sqrt(pow(pts_3d[i].x, 2) + pow(pts_3d[i].y, 2) + pow(pts_3d[i].z, 2));
-        if(depth >= 40) depth = 40;
-        float grey = depth / 40 * 65535;
-        image_project.at<ushort>(point_2d.y, point_2d.x) = grey;
-      }
-    }
-    cv::Mat grey_image_projection;
-    cv::cvtColor(rgb_image_project, grey_image_projection, cv::COLOR_BGR2GRAY);
+  // void projection(const Vector6d& extrinsic_params, const Camera& cam,
+  //                 const pcl::PointCloud<pcl::PointXYZI>::Ptr& lidar_cloud,
+  //                 cv::Mat& projection_img)
+  // {
+  //   std::vector<cv::Point3f> pts_3d;
+  //   std::vector<float> intensity_list;
+  //   Eigen::AngleAxisd rotation_vector3;
+  //   rotation_vector3 =
+  //     Eigen::AngleAxisd(extrinsic_params[0], Eigen::Vector3d::UnitZ()) *
+  //     Eigen::AngleAxisd(extrinsic_params[1], Eigen::Vector3d::UnitY()) *
+  //     Eigen::AngleAxisd(extrinsic_params[2], Eigen::Vector3d::UnitX());
+  //   for(size_t i = 0; i < lidar_cloud->size(); i++)
+  //   {
+  //     pcl::PointXYZI point_3d = lidar_cloud->points[i];
+  //     pts_3d.emplace_back(cv::Point3f(point_3d.x, point_3d.y, point_3d.z));
+  //     intensity_list.emplace_back(lidar_cloud->points[i].intensity);
+  //   }
+  //   cv::Mat camera_matrix = (cv::Mat_<double>(3, 3)
+  //     << cam.fx_, cam.s_, cam.cx_, 0.0, cam.fy_, cam.cy_, 0.0, 0.0, 1.0);
+  //   cv::Mat distortion_coeff =
+  //     (cv::Mat_<double>(1, 5) << cam.k1_, cam.k2_, cam.p1_, cam.p2_, cam.k3_);
+  //   cv::Mat r_vec = (cv::Mat_<double>(3, 1)
+  //     << rotation_vector3.angle() * rotation_vector3.axis().transpose()[0],
+  //        rotation_vector3.angle() * rotation_vector3.axis().transpose()[1],
+  //        rotation_vector3.angle() * rotation_vector3.axis().transpose()[2]);
+  //   cv::Mat t_vec = (cv::Mat_<double>(3, 1)
+  //     << extrinsic_params[3], extrinsic_params[4], extrinsic_params[5]);
+  //   // project 3d-points into image view
+  //   std::vector<cv::Point2f> pts_2d;
+  //   #ifdef FISHEYE
+  //   cv::fisheye::projectPoints(pts_3d, pts_2d, r_vec, t_vec, camera_.camera_matrix_, camera_.dist_coeffs_);
+  //   #else
+  //   cv::projectPoints(pts_3d, r_vec, t_vec, camera_matrix, distortion_coeff, pts_2d);
+  //   #endif
+  //   cv::Mat image_project = cv::Mat::zeros(cam.height_, cam.width_, CV_16UC1);
+  //   cv::Mat rgb_image_project = cv::Mat::zeros(cam.height_, cam.width_, CV_8UC3);
+  //   for(size_t i = 0; i < pts_2d.size(); ++i)
+  //   {
+  //     cv::Point2f point_2d = pts_2d[i];
+  //     if(point_2d.x <= 0 || point_2d.x >= cam.width_ || point_2d.y <= 0 || point_2d.y >= cam.height_)
+  //       continue;
+  //     else
+  //     {
+  //       // test depth and intensity both
+  //       float depth = sqrt(pow(pts_3d[i].x, 2) + pow(pts_3d[i].y, 2) + pow(pts_3d[i].z, 2));
+  //       if(depth >= 40) depth = 40;
+  //       float grey = depth / 40 * 65535;
+  //       image_project.at<ushort>(point_2d.y, point_2d.x) = grey;
+  //     }
+  //   }
+  //   cv::Mat grey_image_projection;
+  //   cv::cvtColor(rgb_image_project, grey_image_projection, cv::COLOR_BGR2GRAY);
 
-    image_project.convertTo(image_project, CV_8UC1, 1 / 256.0);
-    projection_img = image_project.clone();
-  }
+  //   image_project.convertTo(image_project, CV_8UC1, 1 / 256.0);
+  //   projection_img = image_project.clone();
+  // }
 
-  cv::Mat getProjectionImg(const Vector6d& extrinsic_params)
-  {
-    cv::Mat depth_projection_img;
-    Camera cam = camera_;
-    pcl::PointCloud<pcl::PointXYZI>::Ptr lidar_cloud(new pcl::PointCloud<PointType>);
+  // cv::Mat getProjectionImg(const Vector6d& extrinsic_params)
+  // {
+  //   cv::Mat depth_projection_img;
+  //   Camera cam = camera_;
+  //   pcl::PointCloud<pcl::PointXYZI>::Ptr lidar_cloud(new pcl::PointCloud<PointType>);
 
-    Eigen::AngleAxisd rotation_vector3;
-    rotation_vector3 =
-      Eigen::AngleAxisd(extrinsic_params[0], Eigen::Vector3d::UnitZ()) *
-      Eigen::AngleAxisd(extrinsic_params[1], Eigen::Vector3d::UnitY()) *
-      Eigen::AngleAxisd(extrinsic_params[2], Eigen::Vector3d::UnitX());
-    Eigen::Quaterniond q_(rotation_vector3);
-    Eigen::Vector3d t_(extrinsic_params[3], extrinsic_params[4], extrinsic_params[5]);
-    int cnt = 0;
-    lidar_cloud->points.resize(5e6);
-    for(size_t i = 0; i < lidar_cloud_->points.size(); i++)
-    {
-      pcl::PointXYZI point_3d = lidar_cloud_->points[i];
-      Eigen::Vector3d pt1(point_3d.x, point_3d.y, point_3d.z);
-      Eigen::Vector3d pt2(0, 0, 1);
-      if(cos_angle_1(q_ * pt1 + t_, pt2) > cos(DEG2RAD(cam_fov_/2.0)))
-      {
-        lidar_cloud->points[cnt].x = pt1(0);
-        lidar_cloud->points[cnt].y = pt1(1);
-        lidar_cloud->points[cnt].z = pt1(2);
-        lidar_cloud->points[cnt].intensity = lidar_cloud_->points[i].intensity;
-        cnt++;
-      }
-    }
-    std::cout << "lidar cloud size:" << lidar_cloud->size() << std::endl;
-    lidar_cloud->points.resize(cnt);
-    // downsample_voxel(*lidar_cloud, 0.03);
-    projection(extrinsic_params, cam, lidar_cloud, depth_projection_img);
-    cv::Mat map_img = cv::Mat::zeros(cam.height_, cam.width_, CV_8UC3);
-    for(int x = 0; x < map_img.cols; x++)
-    {
-      for(int y = 0; y < map_img.rows; y++)
-      {
-        uint8_t r, g, b;
-        float norm = depth_projection_img.at<uchar>(y, x) / 256.0;
-        mapJet(norm, 0, 1, r, g, b);
-        map_img.at<cv::Vec3b>(y, x)[0] = b;
-        map_img.at<cv::Vec3b>(y, x)[1] = g;
-        map_img.at<cv::Vec3b>(y, x)[2] = r;
-      }
-    }
-    // cv::resize(projection_img, projection_img, cv::Size(), 0.5, 0.5, cv::INTER_LINEAR);
-    cv::imshow("rough calib map_img", map_img);
-    cv::imshow("rough calib cam.rgb_img_", cam.rgb_img_);
-    // cv::waitKey(10);
+  //   Eigen::AngleAxisd rotation_vector3;
+  //   rotation_vector3 =
+  //     Eigen::AngleAxisd(extrinsic_params[0], Eigen::Vector3d::UnitZ()) *
+  //     Eigen::AngleAxisd(extrinsic_params[1], Eigen::Vector3d::UnitY()) *
+  //     Eigen::AngleAxisd(extrinsic_params[2], Eigen::Vector3d::UnitX());
+  //   Eigen::Quaterniond q_(rotation_vector3);
+  //   Eigen::Vector3d t_(extrinsic_params[3], extrinsic_params[4], extrinsic_params[5]);
+  //   int cnt = 0;
+  //   lidar_cloud->points.resize(5e6);
+  //   for(size_t i = 0; i < lidar_cloud_->points.size(); i++)
+  //   {
+  //     pcl::PointXYZI point_3d = lidar_cloud_->points[i];
+  //     Eigen::Vector3d pt1(point_3d.x, point_3d.y, point_3d.z);
+  //     Eigen::Vector3d pt2(0, 0, 1);
+  //     if(cos_angle_1(q_ * pt1 + t_, pt2) > cos(DEG2RAD(cam_fov_/2.0)))
+  //     {
+  //       lidar_cloud->points[cnt].x = pt1(0);
+  //       lidar_cloud->points[cnt].y = pt1(1);
+  //       lidar_cloud->points[cnt].z = pt1(2);
+  //       lidar_cloud->points[cnt].intensity = lidar_cloud_->points[i].intensity;
+  //       cnt++;
+  //     }
+  //   }
+  //   std::cout << "lidar cloud size:" << lidar_cloud->size() << std::endl;
+  //   lidar_cloud->points.resize(cnt);
+  //   // downsample_voxel(*lidar_cloud, 0.03);
+  //   projection(extrinsic_params, cam, lidar_cloud, depth_projection_img);
+  //   cv::Mat map_img = cv::Mat::zeros(cam.height_, cam.width_, CV_8UC3);
+  //   for(int x = 0; x < map_img.cols; x++)
+  //   {
+  //     for(int y = 0; y < map_img.rows; y++)
+  //     {
+  //       uint8_t r, g, b;
+  //       float norm = depth_projection_img.at<uchar>(y, x) / 256.0;
+  //       mapJet(norm, 0, 1, r, g, b);
+  //       map_img.at<cv::Vec3b>(y, x)[0] = b;
+  //       map_img.at<cv::Vec3b>(y, x)[1] = g;
+  //       map_img.at<cv::Vec3b>(y, x)[2] = r;
+  //     }
+  //   }
+  //   // cv::resize(projection_img, projection_img, cv::Size(), 0.5, 0.5, cv::INTER_LINEAR);
+  //   cv::imshow("rough calib map_img", map_img);
+  //   cv::imshow("rough calib cam.rgb_img_", cam.rgb_img_);
+  //   // cv::waitKey(10);
 
-    cv::Mat merge_img = 0.8 * map_img + 0.8 * cam.rgb_img_;
-    return merge_img;
-  }
+  //   cv::Mat merge_img = 0.8 * map_img + 0.8 * cam.rgb_img_;
+  //   return merge_img;
+  // }
 };
 
 #endif

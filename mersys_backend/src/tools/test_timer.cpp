@@ -53,7 +53,7 @@ int main()
     printf_program("Test_timer");
     Common_tools::Timer timer;
     Common_tools::Cost_time_logger cost_time_logger;
-    cost_time_logger.init_log("/home/lqh/ros/temp/cost_time_logger.log");
+    cost_time_logger.init_log("/home/uestc/ros/temp/cost_time_logger.log");
     for(int i =0 ; i < 100; i ++)
     {
         timer.tic("Test_1");

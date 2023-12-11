@@ -2,7 +2,7 @@
 
 LiDARNumber: 3
 ImageNumber: 3
-# DataPath: "/home/lqh/ros/r3live_ws/src/mersys/calib/mlcc/single_test/"
+# DataPath: "/home/uestc/ros/r3live_ws/src/mersys/calib/mlcc/single_test/"
 DataPath: "/home/uestc/colive_ws/src/mersys_dev/calib/mlcc/single_test/"
 CameraFoV: 100
 
