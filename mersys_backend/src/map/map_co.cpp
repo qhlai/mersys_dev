@@ -177,7 +177,8 @@ Map::Map(MapPtr map_target, MapPtr map_tofuse, TransformType T_wtofuse_wmatch)
 
 }
 // 只有在激光雷达发生较长时间在同一场景静止或者允许位移和旋转不大时，组装大型点云
-auto Map::LongTimeStay(PointCloudEXPtr pc)->void {
+auto Map::LongTimeStay(PointCloudEXPtr pc)->bool {
+        int valid=false;
         idpair curr_id = pc->GetFrameClientID();
         // if(pc->GetClient() == m_id_last_huge_move.second)
         TransformType T = pc->GetPoseTsw();
@@ -197,21 +198,23 @@ auto Map::LongTimeStay(PointCloudEXPtr pc)->void {
         precision_t time_diff = pc->timestamp_- m_timestamp_last_huge_move;
         if (time_diff<0){
                 std::cout<<"Error time_diff<0"<< std::endl;
-                return;
+                return false;
         }
         // time_diff不能太长， ps_dis可以长点，rot_diff不要太大
         if(pos_dis >5 || rot_diff > 30 || time_diff > 15){
+            // std::cout << COUTERROR << "stay" <<curr_id.first << "and"<< m_id_last_huge_move.first<< std::endl;
         // if(pos_dis >0.5 || rot_diff > 10 || time_diff > 15){
             // 开始组装大点云
             if(m_id_last_huge_move.second!=curr_id.second ){
-                std::cout << COUTERROR << "m_id_last_huge_move.second!=curr_id.second" << std::endl;
+                // std::cout << COUTERROR << "m_id_last_huge_move.second!=curr_id.second" << std::endl;
             }
             // clang-format off
-            if(curr_id.first-m_id_last_huge_move.first > 80   // 至少要多少帧组装
+            if(curr_id.first-m_id_last_huge_move.first > 30   // 至少要多少帧组装
             && m_id_last_huge_move.second==curr_id.second ){
+                //  std::cout << COUTERROR << "stay1" << std::endl;
             // clang-format on
                 idpair index = idpair(m_id_last_huge_move.first,m_id_last_huge_move.second);
-                p_pc_large_tmp=nullptr;
+                // p_pc_large_tmp=nullptr;
 
                 auto pc = this->GetPointCloudEX(index);
                 p_pc_large_tmp.reset(new PointCloudEX(*pc));
@@ -222,27 +225,32 @@ auto Map::LongTimeStay(PointCloudEXPtr pc)->void {
                     p_pc_large_tmp->add_and_merge_pointcloudex(pc);
                    
                 }
-
                 if(p_pc_large_tmp->pts_cloud.size()>300000){
                     // pointclouds_large_[p_pc_large_tmp->id_] = p_pc_large_tmp;
+                    // std::cout << COUTDEBUG << "AddPointCloud_large" << p_pc_large_tmp->pts_cloud.size() << std::endl;
                     this->AddPointCloud_large(p_pc_large_tmp);
+                    valid=true;
                     #ifdef SAVE_FRAMES       
                     if(mersys_params::sys::save_frames){
                         
                         p_pc_large_tmp->save_to_pcd( std::string(mersys_params::sys::output_dir).append("/frames/pcd_large/").append(std::to_string(p_pc_large_tmp->GetClientID())).append("/"), std::to_string(p_pc_large_tmp->GetTimeStamp()) , 0);
                     }
                     #endif
+
                 }else{
                     std::cout << COUTERROR << "size()<400000 ignored "<< p_pc_large_tmp->pts_cloud.size() << std::endl;
+                    // p_pc_large_tmp=nullptr;
+                    p_pc_large_tmp.reset(new PointCloudEX());
                 }
 
-
+                m_id_last_huge_move=curr_id;
+                m_T_last_huge_move=pc->GetPoseTsw();
+                m_timestamp_last_huge_move=pc->timestamp_;
 
             }
-            m_id_last_huge_move=curr_id;
-            m_T_last_huge_move=pc->GetPoseTsw();
-            m_timestamp_last_huge_move=pc->timestamp_;
+
         }
+        return valid;
 
 }
 // auto Map::AddPointCloud(PointCloudEXPtr pc)->void {
@@ -353,25 +361,53 @@ auto Map::Add2RGBMap_service()->void {
 
 }
 
-auto Map::Add2RGBMap(PointCloudEXPtr pc)->void {
+auto Map::Add2RGBMap(PointCloudEXPtr pc, pcl::PointCloud<pcl::PointXYZRGB>::Ptr pc_rgb )->void {
     int m_append_global_map_point_step = 1; // 间隔一个点加入global map
     bool m_if_record_mvs =false;//if record_offline_map
     if ( m_if_record_mvs )
     {
         std::vector< std::shared_ptr< RGB_pts > > pts_last_hitted;
         pts_last_hitted.reserve( 1e6 );
+        if(pc_rgb==nullptr){
+            m_number_of_new_visited_voxel = m_map_rgb_pts->append_points_to_global_map( pc, &pts_last_hitted,m_append_global_map_point_step);
 
-        m_number_of_new_visited_voxel = m_map_rgb_pts->append_points_to_global_map( pc, &pts_last_hitted,m_append_global_map_point_step);
+            m_map_rgb_pts->m_mutex_pts_last_visited->lock();
+            m_map_rgb_pts->m_pts_last_hitted = pts_last_hitted;
+            m_map_rgb_pts->m_mutex_pts_last_visited->unlock();
+        }
+        else{
+            m_number_of_new_visited_voxel = m_map_rgb_pts->append_points_to_global_map( pc, &pts_last_hitted,m_append_global_map_point_step, pc_rgb);
 
-        m_map_rgb_pts->m_mutex_pts_last_visited->lock();
-        m_map_rgb_pts->m_pts_last_hitted = pts_last_hitted;
-        m_map_rgb_pts->m_mutex_pts_last_visited->unlock();
+            m_map_rgb_pts->m_mutex_pts_last_visited->lock();
+            m_map_rgb_pts->m_pts_last_hitted = pts_last_hitted;
+            m_map_rgb_pts->m_mutex_pts_last_visited->unlock();
+        }
+        
 
     }else{
         m_number_of_new_visited_voxel = m_map_rgb_pts->append_points_to_global_map( pc, nullptr,m_append_global_map_point_step);
     }
 
 }
+// auto Map::Add2RGBMap(PointCloudEXPtr pc, pcl::PointCloud<pcl::PointXYZRGB>::Ptr pc_rgb )->void {
+//     int m_append_global_map_point_step = 1; // 间隔一个点加入global map
+//     bool m_if_record_mvs =false;//if record_offline_map
+//     if ( m_if_record_mvs )
+//     {
+//         std::vector< std::shared_ptr< RGB_pts > > pts_last_hitted;
+//         pts_last_hitted.reserve( 1e6 );
+
+//         m_number_of_new_visited_voxel = m_map_rgb_pts->append_points_to_global_map( pc, &pts_last_hitted,m_append_global_map_point_step, pc_rgb);
+
+//         m_map_rgb_pts->m_mutex_pts_last_visited->lock();
+//         m_map_rgb_pts->m_pts_last_hitted = pts_last_hitted;
+//         m_map_rgb_pts->m_mutex_pts_last_visited->unlock();
+
+//     }else{
+//         m_number_of_new_visited_voxel = m_map_rgb_pts->append_points_to_global_map( pc, nullptr,m_append_global_map_point_step, pc_rgb);
+//     }
+
+// }
 auto Map::AddLoopConstraint(LoopConstraint lc)->void {
     std::unique_lock<std::mutex> lock(mtx_map_);
     // std::cout << COUTDEBUG << "frame: " << lc.pc1->GetClientID() << lc.pc2->GetClientID()<<std::endl;

@@ -12,6 +12,7 @@
 
 #include "pointcloud_ex.hpp"
 #include "image_ex.hpp"
+
 // #include "livox_cam_calib.hpp"
 
 namespace mersys {
@@ -229,11 +230,11 @@ auto PlaceRecognition::CheckBuffer_pc()->bool {
     return (!buffer_pcs_in_.empty());
 }
 auto PlaceRecognition::CheckBuffer_img()->bool {
-    std::unique_lock<std::mutex> lock(mtx_in_);
+    // std::unique_lock<std::mutex> lock(mtx_in_);
     return (!buffer_imgs_in_.empty());
 }
 auto PlaceRecognition::CheckBuffer_pcl()->bool {
-    std::unique_lock<std::mutex> lock(mtx_in_);
+    // std::unique_lock<std::mutex> lock(mtx_in_);
     return (!buffer_pcs_large_in_.empty());
 }
 auto PlaceRecognition::ComputeSE3() -> bool {
@@ -418,24 +419,36 @@ auto PlaceRecognition::DetectLoop()->bool {
     return false;
 }
 auto PlaceRecognition::DetectLoop_C()->bool {
-
+std::cout << COUTDEBUG << "DetectLoop_C" << std::endl;
     performSCLoopClosure();
     {
         std::unique_lock<std::mutex> lock(mtx_in_);
-        img_query_ = buffer_imgs_in_.front();
-        rgb_edge_cloud_ = calibration_.add_img(img_query_, true);
-        buffer_imgs_in_.pop_front();
-
-        pc_query_ = buffer_pcs_large_in_.front();
-        lidar_edge_cloud_ =calibration_.add_lidar(pc_query_);
-        buffer_pcs_large_in_.pop_front();
+        std::unique_lock<std::mutex> lock1(mapmanager_->mtx_allimgs_);
+        for(const auto& img: mapmanager_->all_imgs){
+            rgb_edge_cloud_ = calibration_.add_img(img, true);
+            pc_query_ = buffer_pcs_large_in_.front();
+            lidar_edge_cloud_ =calibration_.add_lidar(pc_query_);
+            buffer_pcs_large_in_.pop_front();
+            camera_.update_Rt(Eigen::Matrix3d::Zero(), Eigen::Vector3d::Zero());
+            calibration_.roughCalib(camera_, lidar_edge_cloud_, rgb_edge_cloud_, DEG2RAD(0.1), 30);
+            // buffer_imgs_in_.pop_front();
+        }
         
-        //first init 
-        camera_.update_Rt(Eigen::Matrix3d::Zero(), Eigen::Vector3d::Zero());
-        calibration_.roughCalib(camera_, lidar_edge_cloud_, rgb_edge_cloud_, DEG2RAD(0.1), 30);
-        // img_query_->SetNotErase();
+        // img_query_ = buffer_imgs_in_.front();
+        // rgb_edge_cloud_ = calibration_.add_img(img_query_, true);
+        // buffer_imgs_in_.pop_front();
+
+        // pc_query_ = buffer_pcs_large_in_.front();
+        // lidar_edge_cloud_ =calibration_.add_lidar(pc_query_);
+        // buffer_pcs_large_in_.pop_front();
+        
+        // //first init 
+        // camera_.update_Rt(Eigen::Matrix3d::Zero(), Eigen::Vector3d::Zero());
+        // calibration_.roughCalib(camera_, lidar_edge_cloud_, rgb_edge_cloud_, DEG2RAD(0.1), 30);
+        // // img_query_->SetNotErase();
     }
     
+    map_ = pc_query_->map_;
     Eigen::Vector3d euler_angle = camera_.ext_R.eulerAngles(2, 1, 0);
     Eigen::Vector3d transation = camera_.ext_t;
     Vector6d calib_params;
@@ -453,8 +466,10 @@ auto PlaceRecognition::DetectLoop_C()->bool {
      /* visualize the colorized point cloud */
     calib_params << euler_angle(0), euler_angle(1), euler_angle(2),
                     transation(0), transation(1), transation(2);
-    calibration_.colorCloud(calib_params, 1, camera_, img_query_->img_, pc_query_);
-
+    pcl::PointCloud<pcl::PointXYZRGB>::Ptr color_cloud(new pcl::PointCloud<pcl::PointXYZRGB>);
+    color_cloud = calibration_.colorCloud(calib_params, 1, camera_, img_query_->img_, pc_query_);
+    map_->Add2RGBMap(pc_query_, color_cloud);
+    std::cout << COUTERROR << "mllc found" << std::endl;
     // auto calib = mapmanager_->calibration.Calibration()
     
     // mapmanager_->AddToDatabase(pc_query_);
@@ -522,7 +537,20 @@ auto PlaceRecognition::InsertKeyframe(PointCloudEXPtr pc)->void {
 }
 auto PlaceRecognition::InsertLargeKeyframe(PointCloudEXPtr pc_large)->void {
     std::unique_lock<std::mutex> lock(mtx_in_);
-    buffer_pcs_large_in_.push_back(pc_large);   
+        std::cout << COUTDEBUG << "InsertLargeKeyframe" << std::endl;
+        if(pc_large==nullptr){
+            std::cout << COUTFATAL << "InsertLargeKeyframe nullptr" << std::endl;
+            return;
+        }
+        // std::cout << COUTDEBUG << "InsertLargeKeyframe" << pc_large->pts_cloud.size()<< std::endl;
+        buffer_pcs_large_in_.push_back(pc_large); 
+        std::cout <<"SIZE"<<buffer_pcs_large_in_.size()<<std::endl;
+        //     if (CheckBuffer_pcl()){
+               
+        //         std::cout << COUTDEBUG << "SIZE123" << std::endl;
+        //         // bool detected = DetectLoop_C(); 
+        //     }
+ 
 }
 auto PlaceRecognition::InsertKeyframe1(ImageEXPtr img)->void {
     std::unique_lock<std::mutex> lock(mtx_in_);
@@ -536,23 +564,23 @@ auto PlaceRecognition::Run()->void {
 
     m_thread_pool_ptr->commit_task(&PlaceRecognition::process_icp,this);
     while(1){
+        num_runs++;
         // std::cout<<"add query"<<std::endl;
         if (CheckBuffer_pc()) {
             // if (CheckBuffer_img()) {
             // num_runs++;
             // bool detected = DetectLoop_C(); 
             // }
-            num_runs++;
+            
             bool detected = DetectLoop(); 
         }
 
-        if (CheckBuffer_img()) {
             if (CheckBuffer_pcl()){
-                num_runs++;
+                std::cout << COUTDEBUG << "InsertPCL" << std::endl;
                 bool detected = DetectLoop_C(); 
             }
             
-        }
+        
 
         if(this->ShallFinish()){
             std::cout << "PlaceRec " << ": close" << std::endl;

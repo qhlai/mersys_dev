@@ -229,7 +229,7 @@ fusion.Voxel.down_sample_size: 0.02
 fusion.Plane.min_points_size: 60
 fusion.normal_theta_min: 10
 fusion.normal_theta_max: 170
-fusion.max_size: 4
+fusion.max_size: 10
 fusion.Ransac.dis_threshold: 0.03
 fusion.Ransac.iter_num: 200
 fusion.Edge.min_dis_threshold: 0.05

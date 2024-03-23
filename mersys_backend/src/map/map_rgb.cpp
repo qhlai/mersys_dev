@@ -121,9 +121,12 @@ void RGB_pts::Intensity2Rgb( int colormap_type){
     // Split the RGB channels
     // Vector3Type  rgb_value;
     cv::Vec3b* ptr = colormap.ptr<cv::Vec3b>();
-    bgr_intensity[0] = ptr[0][0];  // blue channel
-    bgr_intensity[1] = ptr[0][1];  // green channel
-    bgr_intensity[2] = ptr[0][2];  // red channel
+    // bgr_intensity[0] = ptr[0][0];  // blue channel
+    // bgr_intensity[1] = ptr[0][1];  // green channel
+    // bgr_intensity[2] = ptr[0][2];  // red channel
+    bgr_intensity[0] = 255;  // blue channel
+    bgr_intensity[1] = 0;  // green channel
+    bgr_intensity[2] = 0;  // red channel
 #endif
 #if 0
     cv::Mat colormap;
@@ -359,7 +362,126 @@ void Global_map::unset_busy()
 }
 // 这里是单机，要改成多机
 // template <typename T>
-int Global_map::append_points_to_global_map(TypeDefs::PointCloudEXPtr pc_in,  std::vector<std::shared_ptr<RGB_pts>> *pts_added_vec, int step)
+// int Global_map::append_points_to_global_map(TypeDefs::PointCloudEXPtr pc_in,  std::vector<std::shared_ptr<RGB_pts>> *pts_added_vec, int step)
+// {
+//     wait_free();
+//     set_busy();
+//     uint32_t client_id=pc_in->GetClientID();
+//     double added_time=pc_in->GetTimeStamp();
+//     // Common_tools::Timer tim;
+//     // tim.tic();
+//     int acc = 0;
+//     int rej = 0;
+//     if (pts_added_vec != nullptr)
+//     {
+//         pts_added_vec->clear();
+//     }
+//     std::unordered_set< std::shared_ptr< RGB_Voxel > > voxels_recent_visited;
+//     if (m_recent_visited_voxel_activated_time == 0)
+//     {
+//         voxels_recent_visited.clear();
+//     }
+//     else
+//     {
+//         // 从 m_voxels_recent_visited 中移除最近未访问的体素。
+//         m_mutex_m_box_recent_hitted->lock();
+//         voxels_recent_visited = m_voxels_recent_visited[client_id];
+//         m_mutex_m_box_recent_hitted->unlock();
+//         for( Voxel_set_iterator it = voxels_recent_visited.begin(); it != voxels_recent_visited.end();  )
+//         {
+//             if ( added_time - ( *it )->m_last_visited_time > m_recent_visited_voxel_activated_time ) // 将该体素从集合中移除
+//             {
+//                 it = voxels_recent_visited.erase( it );
+//                 continue;
+//             }
+//             it++;
+//         }
+//         cout << "Restored voxel number = " << voxels_recent_visited.size() << endl;
+//     }
+//     // pc_in->pts_cloud
+//     // 要转移到真实位置
+//     TypeDefs::PointCloud pc = pc_in->get_transformed_pc();
+
+//     int number_of_voxels_before_add = voxels_recent_visited.size();
+//     int pt_size = pc.points.size();
+//     // // step = 4;
+//     for (int pt_idx = 0; pt_idx < pt_size; pt_idx += step)
+//     {
+//         int add = 1;
+//         int grid_x = std::round(pc.points[pt_idx].x / m_minimum_pts_size);
+//         int grid_y = std::round(pc.points[pt_idx].y / m_minimum_pts_size);
+//         int grid_z = std::round(pc.points[pt_idx].z / m_minimum_pts_size);
+//         int box_x =  std::round(pc.points[pt_idx].x / m_voxel_resolution);
+//         int box_y =  std::round(pc.points[pt_idx].y / m_voxel_resolution);
+//         int box_z =  std::round(pc.points[pt_idx].z / m_voxel_resolution);
+//         if (m_hashmap_3d_pts.if_exist(grid_x, grid_y, grid_z))// 这里写错了吗？
+//         {
+//             add = 0;
+//             if (pts_added_vec != nullptr)
+//             {
+//                 pts_added_vec->push_back(m_hashmap_3d_pts.m_map_3d_hash_map[grid_x][grid_y][grid_z]);
+//             }
+//         }
+//         RGB_voxel_ptr box_ptr;
+//         if(!m_hashmap_voxels.if_exist(box_x, box_y, box_z))
+//         {
+//             std::shared_ptr<RGB_Voxel> box_rgb = std::make_shared<RGB_Voxel>();
+//             m_hashmap_voxels.insert( box_x, box_y, box_z, box_rgb );
+//             box_ptr = box_rgb;
+//         }
+//         else
+//         {
+//             box_ptr = m_hashmap_voxels.m_map_3d_hash_map[box_x][box_y][box_z];
+//         }
+        
+//         box_ptr->m_last_visited_time = added_time;
+//         if (add == 0)
+//         {
+//             rej++;
+//             continue;
+//         }
+//         acc++;
+//         std::shared_ptr<RGB_pts> pt_rgb = std::make_shared<RGB_pts>();
+
+//         pt_rgb->set_pos(TypeDefs::Vector3Type(
+//             pc.points[pt_idx].x, 
+//             pc.points[pt_idx].y, 
+//             pc.points[pt_idx].z));
+
+//         pt_rgb->m_pt_index = m_rgb_pts_vec.size();
+// // for intensity
+// #if POINTCLOUD_HAVE_INTENSITY
+//         pt_rgb->intensity=pc.points[pt_idx].intensity;
+//         // float intensity = static_cast<float>(map_rgb_pts.m_rgb_pts_vec[ i ]->intensity);
+//         // TypeDefs::Vector3Type bgr = getRgbFromIntensity(pt_rgb->intensity, cv::COLORMAP_RAINBOW);
+// #if DISPLAY_POINTCLOUD_INTENSITY
+//         pt_rgb->Intensity2Rgb(cv::COLORMAP_HSV);
+//         // colored_point.r = static_cast<uint8_t>(r * 255);
+//         // colored_point.g = static_cast<uint8_t>(g * 255);
+//         // colored_point.b = static_cast<uint8_t>(b * 255);
+// #endif
+//         // pc_rgb.points[ pub_idx_size ].r = bgr[2];
+//         // pc_rgb.points[ pub_idx_size ].g = bgr[1];
+//         // pc_rgb.points[ pub_idx_size ].b = bgr[0];
+//         // std::cout << COUTDEBUG << "intensity:"<<intensity<< std::endl;
+// #endif
+//         m_rgb_pts_vec.push_back(pt_rgb);
+//         m_hashmap_3d_pts.insert(grid_x, grid_y, grid_z, pt_rgb);
+//         box_ptr->add_pt(pt_rgb);
+//         if (pts_added_vec != nullptr)
+//         {
+//             pts_added_vec->push_back(pt_rgb);
+//         }
+//     }
+//     unset_busy();
+//     m_mutex_m_box_recent_hitted->lock();
+//     m_voxels_recent_visited[pc_in->GetClientID()] = voxels_recent_visited ;
+//     m_mutex_m_box_recent_hitted->unlock();
+//     // std::cout << COUTDEBUG <<"m_rgb_pts_vec size:"<<m_rgb_pts_vec.size()<<", pts_added_vec size:"<< pts_added_vec->size()<<std::endl;
+//     return (m_voxels_recent_visited[client_id].size() -  number_of_voxels_before_add);
+//     // return 0;
+// }
+int Global_map::append_points_to_global_map(TypeDefs::PointCloudEXPtr pc_in,  std::vector<std::shared_ptr<RGB_pts>> *pts_added_vec, int step, pcl::PointCloud<pcl::PointXYZRGB>::Ptr pc_rgb )
 {
     wait_free();
     set_busy();
@@ -432,7 +554,7 @@ int Global_map::append_points_to_global_map(TypeDefs::PointCloudEXPtr pc_in,  st
         }
         
         box_ptr->m_last_visited_time = added_time;
-        if (add == 0)
+        if (add == 0 && pc_rgb!=nullptr)
         {
             rej++;
             continue;
@@ -451,17 +573,31 @@ int Global_map::append_points_to_global_map(TypeDefs::PointCloudEXPtr pc_in,  st
         pt_rgb->intensity=pc.points[pt_idx].intensity;
         // float intensity = static_cast<float>(map_rgb_pts.m_rgb_pts_vec[ i ]->intensity);
         // TypeDefs::Vector3Type bgr = getRgbFromIntensity(pt_rgb->intensity, cv::COLORMAP_RAINBOW);
-#if DISPLAY_POINTCLOUD_INTENSITY
-        pt_rgb->Intensity2Rgb(cv::COLORMAP_HSV);
-        // colored_point.r = static_cast<uint8_t>(r * 255);
-        // colored_point.g = static_cast<uint8_t>(g * 255);
-        // colored_point.b = static_cast<uint8_t>(b * 255);
-#endif
+
         // pc_rgb.points[ pub_idx_size ].r = bgr[2];
         // pc_rgb.points[ pub_idx_size ].g = bgr[1];
         // pc_rgb.points[ pub_idx_size ].b = bgr[0];
         // std::cout << COUTDEBUG << "intensity:"<<intensity<< std::endl;
 #endif
+//判断pc_rgb是否为nullptr
+        if(pc_rgb==nullptr){
+            #if DISPLAY_POINTCLOUD_INTENSITY
+                pt_rgb->Intensity2Rgb(cv::COLORMAP_HSV);
+                // colored_point.r = static_cast<uint8_t>(r * 255);
+                // colored_point.g = static_cast<uint8_t>(g * 255);
+                // colored_point.b = static_cast<uint8_t>(b * 255);
+        #else    
+            pt_rgb->bgr_intensity[0]=0;
+            pt_rgb->bgr_intensity[1]=0;
+            pt_rgb->bgr_intensity[2]=0;
+        #endif
+
+        }
+        else{
+            pt_rgb->bgr_intensity[0]=pc_rgb->points[pt_idx].b;
+            pt_rgb->bgr_intensity[1]=pc_rgb->points[pt_idx].g;
+            pt_rgb->bgr_intensity[2]=pc_rgb->points[pt_idx].r;
+        }      
         m_rgb_pts_vec.push_back(pt_rgb);
         m_hashmap_3d_pts.insert(grid_x, grid_y, grid_z, pt_rgb);
         box_ptr->add_pt(pt_rgb);
@@ -478,6 +614,7 @@ int Global_map::append_points_to_global_map(TypeDefs::PointCloudEXPtr pc_in,  st
     return (m_voxels_recent_visited[client_id].size() -  number_of_voxels_before_add);
     // return 0;
 }
+
 void Global_map::merge(TypeDefs::RGBMapPtr &map_tofuse, TypeDefs::TransformType &T_wtofuse_wtarget, int step){
 
     std::cout << COUTNOTICE <<"merge"<< std::endl;

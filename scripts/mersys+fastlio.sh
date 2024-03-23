@@ -11,7 +11,7 @@ gnome-terminal -t "roslaunch" -x bash -c "cd ../../../;source ./devel/setup.bash
 sleep 3
 
 # gnome-terminal -t "rosbag play" -x bash -c "./dataset.sh;exec bash;"
-path_dataset='/home/uestc/dataset/mersys/2023-09-19-19-33-05fixed.bag_1.bag'
+path_dataset='/home/uestc/dataset/mersys/2024-03-07-16-34-43fixed.bag'
 gnome-terminal -t "rosbag play" -x bash -c "rosbag play -r 1 ${path_dataset};exec bash;"
 
 

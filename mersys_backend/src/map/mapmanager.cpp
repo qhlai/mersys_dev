@@ -222,6 +222,15 @@ auto MapManager::Run()->void {
         usleep(5000);
     }
 }
+
+auto MapManager::MapNum()->int{
+    return maps_.size();
+}
+
+ auto MapManager::PushImg(ImageEXPtr img)->void{
+    std::unique_lock<std::mutex> lock(mtx_allimgs_);
+    all_imgs.push_back(img);
+ }
 // 获取共享map
 auto MapManager::CheckoutMap(int map_id, int &check_num)->MapPtr {
     std::unique_lock<std::mutex> lock(mtx_access_);

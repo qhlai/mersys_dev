@@ -174,62 +174,26 @@ auto Communicator_server::ProcessPointCloudIn()->void {
     while(!pointclouds_new_.empty()) {
         PointCloudEXPtr pc = pointclouds_new_.front();
         pointclouds_new_.pop_front();
-
+        bool if_large;
         if(static_cast<int>(pc->id_.second) == client_id_) {
             if(most_recent_pc_id_ == defpair) most_recent_pc_id_ = pc->id_;
             else most_recent_pc_id_.first = std::max(most_recent_pc_id_.first,pc->id_.first);
             // map_->pointclouds_.push_back(pc);
 
             map_->AddPointCloud(pc);
-            map_->LongTimeStay(pc);
-            // if(static_cast<int>(pc->id_.first) == 50){
-            //     map_->WritePathToFile("test");
-            // }
-            
-            // 建立大型点云
-            // 几帧合一的大型点云
-            // static TransformType base_frame_transform_;
-            // static bool base_frame_update_=false;
-            // if(p_pc_large_tmp){
-            //     // std::cout << "1"<<std::endl;
-            //     if(p_pc_large_tmp->pts_cloud.size()<400000){
 
-            //         p_pc_large_tmp->add_and_merge_pointcloudex(pc);
-            //     }else{
-            //         // std::cout << "3"<<std::endl;
-            //         // pointclouds_large_[p_pc_large_tmp->id_] = p_pc_large_tmp;
+            if_large=map_->LongTimeStay(pc);
 
-            //         #ifdef SAVE_FRAMES       
-            //         if(mersys_params::sys::save_frames){
-                        
-            //             p_pc_large_tmp->save_to_pcd( std::string(mersys_params::sys::output_dir).append("/frames/pcd_large/").append(std::to_string(p_pc_large_tmp->GetClientID())).append("/"), std::to_string(p_pc_large_tmp->GetTimeStamp()) , 0);
-            //         }
-            //         #endif
-            //         p_pc_large_tmp.reset();
-            //     }
-            // }else{
-            //     // std::cout << "4"<<std::endl;
-            //     p_pc_large_tmp.reset(new PointCloudEX(*pc));
-            //     // base_frame_transform_=pc->GetPoseTsw();
-            // }
-
-            
-            // map_->AddPointCloud_large(p_pc_large_tmp);
-            // std::cout << "44444444"<<std::endl;
-            // #ifdef SAVE_FRAMES    
-            // if(mersys_params::sys::save_frames){
-            // pc->save_to_pcd( std::string(mersys_params::sys::output_dir).append("/frames/pcd/").append(std::to_string(pc->GetClientID())).append("/"), std::to_string(pc->GetTimeStamp()) , 0);
-            // }
-            // #endif            
         }
 
         if(mersys_params::placerec::active){
             // std::cout << "55555555"<<std::endl;
             placerec_->InsertKeyframe(pc);
             // std::cout << "65555555"<<std::endl;
-            placerec_->InsertLargeKeyframe(p_pc_large_tmp);      
+            if(if_large)
+                placerec_->InsertLargeKeyframe(map_->p_pc_large_tmp);      
         }
-        std::cout << "75555555"<<std::endl;
+        // std::cout << "75555555"<<std::endl;
     }
 }
 auto Communicator_server::ProcessImagesIn()->void {
@@ -260,6 +224,7 @@ auto Communicator_server::ProcessImagesIn()->void {
                 // pc->map_=map_;
                 std::cout<<"Added image id: "<<img->id_.first<<" of client:"<<img->id_.second <<" img size: "<<img->img_.rows<<std::endl;
                 images_new_.push_back(img);
+                mapmanager_->PushImg(img);
                 last_processed_img_msg_ = img->id_;
             }else{
                 // TODO: 

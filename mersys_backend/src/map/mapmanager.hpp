@@ -70,6 +70,9 @@ public:
 
     using idpairVector           = TypeDefs::idpairVector;
     using PointCloudEXVector= TypeDefs::PointCloudEXVector;
+    // using ImageEXVector= TypeDefs::ImageEXVector;
+    using ImageEXList= TypeDefs::ImageEXList;
+    using ImageEXPtr= TypeDefs::ImageEXPtr;
     using PointCloudVector   = TypeDefs::PointCloudVector;
     
     using MapTransform   = TypeDefs::MapTransform;
@@ -90,7 +93,8 @@ public:
     auto SetCheckoutBlock(int map_id, bool val)                                         ->bool;    
     auto InitializeMap(int map_id)                                                      ->void;
     auto ReturnMap(int map_id, int& check_num)                                          ->void;
-
+    auto MapNum()                                          ->int;
+    auto PushImg(ImageEXPtr img)                                          ->void;
     auto RegisterMap(MapPtr external_map)                                               ->bool;
 
     auto RegisterMerge(MergeInformation merge_data)                                     ->void;
@@ -114,6 +118,8 @@ public:
     SCManager scManager;
     // Calibration calibration;
     PointCloudEXVector cl_pcs;
+
+    ImageEXList all_imgs;
     // PointCloudVector cl_pcs_d;
     PointCloudEXPtr pc;
     PointCloud::Ptr          pcl_pc_d;
@@ -139,6 +145,7 @@ public:
 // noiseModel::Base::shared_ptr robustLoopNoise;
 // noiseModel::Base::shared_ptr robustGPSNoise;
     std::mutex                  mtx_database_;
+        std::mutex                  mtx_allimgs_;
 protected:
 
     auto CheckMergeBuffer()            ->bool;
@@ -183,6 +190,8 @@ protected:
 
     // Sync
     std::mutex                  mtx_access_;
+
+
     // std::mutex                  mtx_scancontext_;
     // std::mutex                  mtx_database_;
     std::mutex                  mtx_pgo_maps_;

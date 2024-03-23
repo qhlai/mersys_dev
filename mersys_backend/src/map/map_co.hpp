@@ -131,14 +131,15 @@ public:
     virtual auto AddPointCloud(PointCloudEXPtr pc, bool suppress_output=false)->void;
     virtual auto AddPointCloud_large(PointCloudEXPtr pc, bool suppress_output=false)->void;
     virtual auto Add2RGBMap_service()->void;
-    virtual auto Add2RGBMap(PointCloudEXPtr pc)->void;
+    virtual auto Add2RGBMap(PointCloudEXPtr pc, pcl::PointCloud<pcl::PointXYZRGB>::Ptr pc_rgb = nullptr)->void;
+    // virtual auto Add2RGBMap(PointCloudEXPtr pc, pcl::PointCloud<pcl::PointXYZRGB>::Ptr pc_rgb)->void;
     // virtual auto RenderRGBMap_service()->void;
 
     virtual auto AddLoopConstraint(LoopConstraint lc)                                   ->void;
     virtual auto GetLoopConstraints()                                                   ->LoopVector;
 
 
-    virtual auto LongTimeStay(PointCloudEXPtr pc)                                                   ->void;
+    virtual auto LongTimeStay(PointCloudEXPtr pc)                                                   ->bool;
 
 
     virtual auto WritePathToFile(std::string suffix, const bool trnc=true)->void;

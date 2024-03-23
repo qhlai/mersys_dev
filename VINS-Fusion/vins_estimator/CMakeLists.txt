@@ -18,8 +18,8 @@ find_package(catkin REQUIRED COMPONENTS
     # livox_ros_driver
     pcl_ros
     mersys_backend)
-
-find_package(OpenCV 4 REQUIRED)
+# set(OpenCV_DIR /home/uestc/fanqin/opencv-4.9.0.bak/build)
+find_package(OpenCV 4.2 REQUIRED)
 find_package(PCL 1.10 REQUIRED)
 # message(WARNING "OpenCV_VERSION: ${OpenCV_VERSION}")
 

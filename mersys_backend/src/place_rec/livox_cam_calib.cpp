@@ -22,6 +22,7 @@
 #include <pcl/sample_consensus/ransac.h>
 #include <pcl/sample_consensus/sac_model_plane.h>
 #include <pcl/search/kdtree.h>
+#include <pcl/io/pcd_io.h>
 #include <pcl/segmentation/sac_segmentation.h>
 #include <pcl_conversions/pcl_conversions.h>
 
@@ -359,13 +360,16 @@ void mapJet(double v, double vmin, double vmax, uint8_t &r, uint8_t &g,
   void estimate_edge(std::unordered_map<VOXEL_LOC, OCTO_TREE_ROOT*>& surf_map,pcl::PointCloud<pcl::PointXYZI>::Ptr lidar_edge_cloud_)
   {
     ros::Rate loop(500);
-    lidar_edge_cloud_ = pcl::PointCloud<pcl::PointXYZI>::Ptr(new pcl::PointCloud<pcl::PointXYZI>);
+    int cnt=0;
+    // lidar_edge_cloud_ = pcl::PointCloud<pcl::PointXYZI>::Ptr(new pcl::PointCloud<pcl::PointXYZI>);
     for(auto iter = surf_map.begin(); iter != surf_map.end(); iter++)
     {
+      cnt++;
       std::vector<Plane*> plane_list;
       std::vector<Plane*> merge_plane_list;
       iter->second->get_plane_list(plane_list);
 
+      // std::cout <<COUTERROR<< "plane_list.size:" << plane_list.size() << std::endl;
       if(plane_list.size() > 1)
       {
         pcl::KdTreeFLANN<pcl::PointXYZI> kd_tree;
@@ -378,11 +382,13 @@ void mapJet(double v, double vmin, double vmax, uint8_t &r, uint8_t &g,
         }
         kd_tree.setInputCloud(input_cloud.makeShared());
         mergePlane(plane_list, merge_plane_list);
+        std::cout <<COUTERROR<< "merge_plane_list.size:" << merge_plane_list.size() << std::endl;
         if(merge_plane_list.size() <= 1) continue;
-
+// pcl::PointCloud<pcl::PointXYZRGB> color_cloud1;
+          pcl::PointCloud<pcl::PointXYZRGB> color_cloud;
         for(auto plane: merge_plane_list)
         {
-          pcl::PointCloud<pcl::PointXYZRGB> color_cloud;
+
           std::vector<unsigned int> colors;
           colors.push_back(static_cast<unsigned int>(rand() % 255));
           colors.push_back(static_cast<unsigned int>(rand() % 255));
@@ -394,19 +400,22 @@ void mapJet(double v, double vmin, double vmax, uint8_t &r, uint8_t &g,
             pi.r = colors[0]; pi.g = colors[1]; pi.b = colors[2];
             color_cloud.points.push_back(pi);
           }
+// color_cloud1+=color_cloud;
           // sensor_msgs::PointCloud2 dbg_msg;
           // pcl::toROSMsg(color_cloud, dbg_msg);
           // dbg_msg.header.frame_id = "camera_init";
           // pub_plane.publish(dbg_msg);
           loop.sleep();
         }
-
+            std::string file_name = std::string("/home/uestc/r3live_output/").append(to_string(cnt)).append(".pcd");
+            // 更快 ,但人工不可读
+            pcl::io::savePCDFileBinary(std::string(file_name), color_cloud);
         for(size_t p1_index = 0; p1_index < merge_plane_list.size()-1; p1_index++)
           for(size_t p2_index = p1_index+1; p2_index < merge_plane_list.size(); p2_index++)
           {
             std::vector<Eigen::Vector3d> line_point;
             projectLine(merge_plane_list[p1_index], merge_plane_list[p2_index], line_point);
-            
+            std::cout <<COUTERROR<< "line_point.size:" << line_point.size() << std::endl;
             if(line_point.size() == 0) break;
 
             pcl::PointCloud<pcl::PointXYZI> line_cloud, debug_cloud;
@@ -430,6 +439,7 @@ void mapJet(double v, double vmin, double vmax, uint8_t &r, uint8_t &g,
                 {
                   line_cloud.points.push_back(p);
                   lidar_edge_cloud_->points.push_back(p);
+                  std::cout <<COUTERROR<< "lidar_edge_cloud+1" << std::endl;
                 }
               }
             }
@@ -440,6 +450,7 @@ void mapJet(double v, double vmin, double vmax, uint8_t &r, uint8_t &g,
             // pcl::toROSMsg(debug_cloud, dbg_msg);
             // dbg_msg.header.frame_id = "camera_init";
             // pub_color_cloud.publish(dbg_msg);
+            std::cout << COUTERROR << "original lidar edge size:" << lidar_edge_cloud_->size() << std::endl;
             loop.sleep();
           }
       }
@@ -607,6 +618,7 @@ void mapJet(double v, double vmin, double vmax, uint8_t &r, uint8_t &g,
 
   void initVoxel(pcl::PointCloud<pcl::PointXYZI>& lidar_cloud_, const float voxel_size, std::unordered_map<VOXEL_LOC, Voxel*>& voxel_map)
   {
+    int cnt =0;
     ROS_INFO_STREAM("Building Voxel");    
     for(size_t i = 0; i < lidar_cloud_.size(); i++)
     {
@@ -635,8 +647,14 @@ void mapJet(double v, double vmin, double vmax, uint8_t &r, uint8_t &g,
       }
     }
     for(auto iter = voxel_map.begin(); iter != voxel_map.end(); iter++)
-      if(iter->second->cloud->size() > 20)
+      if(iter->second->cloud->size() > 20){
+        cnt++;
         downsample_voxel(*(iter->second->cloud), 0.03);
+        std::string file_name = std::string("/home/uestc/r3live_output/").append(to_string(cnt)).append(".pcd");
+        // 更快 ,但人工不可读
+        pcl::io::savePCDFileBinary(std::string(file_name), *(iter->second->cloud));
+      }
+        
   }
 
   void LiDAREdgeExtraction(const std::unordered_map<VOXEL_LOC, Voxel*>& voxel_map,
@@ -647,9 +665,10 @@ void mapJet(double v, double vmin, double vmax, uint8_t &r, uint8_t &g,
     ros::Rate loop(5000);
     lidar_edge_cloud_ =
       pcl::PointCloud<pcl::PointXYZI>::Ptr(new pcl::PointCloud<pcl::PointXYZI>);
+      std::cout <<COUTERROR<< "voxel_map.size:" << voxel_map.size() << std::endl;
     for(auto iter = voxel_map.begin(); iter != voxel_map.end(); iter++)
     {
-      if(iter->second->cloud->size() > 50)
+      if(iter->second->cloud->size() > 30)
       {
         std::vector<SinglePlane> plane_lists;
         // 创建一个体素滤波器
@@ -735,7 +754,9 @@ void mapJet(double v, double vmin, double vmax, uint8_t &r, uint8_t &g,
           loop.sleep();
         }
         std::vector<pcl::PointCloud<pcl::PointXYZI>> edge_cloud_lists;
+        std::cout << COUTERROR << "plane_lists.size:" << plane_lists.size() << std::endl;
         calcLine(plane_lists, mersys_params::fusion::voxel_size_, iter->second->voxel_origin, edge_cloud_lists);
+        std::cout << COUTERROR << "edge_cloud_lists.size:" << edge_cloud_lists.size() << std::endl;
         if(edge_cloud_lists.size() > 0 && edge_cloud_lists.size() <= 5)
           for(size_t a = 0; a < edge_cloud_lists.size(); a++)
           {
@@ -1015,31 +1036,28 @@ void mapJet(double v, double vmin, double vmax, uint8_t &r, uint8_t &g,
     {
         std::unordered_map<VOXEL_LOC, OCTO_TREE_ROOT*> surf_map;
         ROS_INFO_STREAM("use_ada_voxel");
-        bool use_ada_voxel =true;
-        pcl::PointCloud<pcl::PointXYZI>::Ptr lidar_edge_cloud_;
+        bool use_ada_voxel =false;
+        lidar_edge_cloud_ = pcl::PointCloud<pcl::PointXYZI>::Ptr(new pcl::PointCloud<pcl::PointXYZI>);
         if(use_ada_voxel)
         {
           cut_voxel(surf_map, pc->pts_cloud, mersys_params::fusion::voxel_size_, mersys_params::fusion::eigen_ratio_);
-          // std::cout << "surf_map.size"<< surf_map.size() << std::endl;
+          std::cout << "surf_map.size"<< surf_map.size() << std::endl;
           for(auto iter = surf_map.begin(); iter != surf_map.end(); ++iter)
             iter->second->recut();
           // std::cout << "surf_map.size"<< surf_map.size() << std::endl;
 
-          // #if 1
-          //   pcl::PointCloud<pcl::PointXYZINormal> color_cloud;
-          //   visualization_msgs::MarkerArray marker_array;
+          #if 1
+            pcl::PointCloud<pcl::PointXYZINormal> color_cloud;
+            visualization_msgs::MarkerArray marker_array;
+            sensor_msgs::PointCloud2 dbg_msg;
+            std::cout << "color_cloud.size"<< color_cloud.size() << std::endl;
 
-          //   for(auto iter = surf_map.begin(); iter != surf_map.end(); ++iter)
-          //     iter->second->tras_display(color_cloud, marker_array);
+            // pcl::toROSMsg(color_cloud, dbg_msg);
+            // dbg_msg.header.frame_id = "camera_init";
+            // pub_residual.publish(dbg_msg);
 
-          //   sensor_msgs::PointCloud2 dbg_msg;
-          //   std::cout << "color_cloud.size"<< color_cloud.size() << std::endl;
-          //   pcl::toROSMsg(color_cloud, dbg_msg);
-          //   dbg_msg.header.frame_id = "camera_init";
-          //   pub_residual.publish(dbg_msg);
-
-          //   pub_direct.publish(marker_array);
-          // #endif
+            // pub_direct.publish(marker_array);
+          #endif
 
           estimate_edge(surf_map,lidar_edge_cloud_);
         }
@@ -1376,7 +1394,7 @@ void mapJet(double v, double vmin, double vmax, uint8_t &r, uint8_t &g,
 
   auto Calibration::colorCloud(const Vector6d& extrinsic_params, const int density, const Camera& cam,
                   const cv::Mat& rgb_img,
-                  const PointCloudEXPtr& lidar_cloud_)         ->void
+                  const PointCloudEXPtr& lidar_cloud_)         ->pcl::PointCloud<pcl::PointXYZRGB>::Ptr
   { 
     PointCloud lidar_cloud = lidar_cloud_->pts_cloud;
     Eigen::AngleAxisd rotation_vector3;
@@ -1440,6 +1458,7 @@ void mapJet(double v, double vmin, double vmax, uint8_t &r, uint8_t &g,
     // pcl::toROSMsg(*color_cloud, pub_cloud);
     // pub_cloud.header.frame_id = "camera_init";
     // pub_color_cloud.publish(pub_cloud);
+    return color_cloud;
   }
    
 }

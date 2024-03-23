@@ -1,9 +1,8 @@
 <launch>
    
-    <node name="image_transport" pkg="image_transport" type="republish" args="compressed in:=/camera/image_color raw out:=/camera/image_color" />
     <!--node name="image_transport" pkg="image_transport" type="republish" args="compressed in:=/camera/image_color/compressed out:=/camera/image_color" /-->
 
-    <node pkg="vins" type="vins_node" name="vins_node" output="screen" args="$(find vins)../config/euroc/euroc_mono_imu_config_livox.yaml" /> 
+    <node pkg="vins" type="vins_node" name="vins_node" output="screen" args="$(find vins)../config/realsense_d435i/realsense_stereo_imu_config.yaml" /> 
 
     <!--node name="rvizvisualisation" pkg="rviz" type="rviz" output="log" args="-d $(find vins)/../config/vins_rviz_config.rviz" /-->
     

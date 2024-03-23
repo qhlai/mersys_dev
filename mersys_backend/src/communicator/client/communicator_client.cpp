@@ -145,6 +145,7 @@ auto Communicator_client::ProcessImageOut()->void {
             if(cnt >= mersys_params::comm::max_sent_kfs_per_iteration) break;
         }
         this->PassDataBundle(map_chunk);
+        std::cout << COUTDEBUG << "1111111111111111111" <<std::endl;
     }
 }
 

@@ -189,8 +189,8 @@ struct Global_map
     void wait_free();
     void unset_busy();
     // template < typename T >
-    int append_points_to_global_map( TypeDefs::PointCloudEXPtr pc_in,  std::vector< RGB_pt_ptr > *pts_added_vec = nullptr, int step = 1 );
-
+    // int append_points_to_global_map( TypeDefs::PointCloudEXPtr pc_in,  std::vector< RGB_pt_ptr > *pts_added_vec = nullptr, int step = 1);
+    int append_points_to_global_map( TypeDefs::PointCloudEXPtr pc_in,  std::vector< RGB_pt_ptr > *pts_added_vec = nullptr, int step = 1, pcl::PointCloud<pcl::PointXYZRGB>::Ptr pc_rgb = nullptr );
     // TypeDefs::Vector3Type getRgbFromIntensity(double gray_value, int colormap_type);
     void render_with_a_image( TypeDefs::ImageEXPtr img_ptr, int if_select = 1 );
     void selection_points_for_projection(TypeDefs::ImageEXPtr image_pose, std::vector< std::shared_ptr< RGB_pts > > *pc_out_vec = nullptr,

@@ -117,6 +117,7 @@ protected:
 
     mersys::Camera                         camera_;
     mersys::Calibration                    calibration_;
+    MapPtr                         map_                                                    = nullptr;
     // SCManager                      scManager;
     std::queue<std::pair<int, int> >                        scLoopICPBuf;
     // std::queue<std::pair<int, int> >                        

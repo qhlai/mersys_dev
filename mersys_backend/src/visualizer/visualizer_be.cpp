@@ -136,7 +136,7 @@ auto Visualizer::DrawMap(MapPtr map)->void {
     vb.loops = map->GetLoopConstraints();
     vb.map=map;
     vb.vis_T=map->m_T;
-    // vb.frame_num_image=
+    vb.frame_num_image=map->GetImageEXs().size();
     vb.frame_num_pointcloud=map->GetPointCloudEXs().size();
     vb.frame = "camera_init";
     vb.poseMap=map->GetPoseMap();
@@ -744,10 +744,10 @@ auto Visualizer::Run()->void{
         //     // this->PubPointCloud_service();
         // }
         
-        // if(board_cnt%3==0){
-        //     // print_dash_board();this->PubPointCloud_service();
-        //     this->PubPointCloud_service();
-        // }
+        if(board_cnt%3==0){
+            print_dash_board();
+            // this->PubPointCloud_service();
+        }
         board_cnt++;
         vis_data_.clear();
         // limit frequency, TODO: should be modified later may like this
@@ -787,7 +787,7 @@ void Visualizer::print_dash_board()
     else
     {
         std::cout << "\r\n" << endl;
-        std::cout << ANSI_COLOR_WHITE_BOLD << "======================= mersys Dashboard ======================" << ANSI_COLOR_RESET << std::endl;
+        std::cout << ANSI_COLOR_WHITE_BOLD << "==================== mersys backend dashboard ===================" << ANSI_COLOR_RESET << std::endl;
         g_last_stamped_mem_mb = mem_used_mb ;
     }
     
@@ -823,6 +823,7 @@ void Visualizer::print_dash_board()
     std::cout << out_str_line_2 << ANSI_COLOR_RESET << "          ";
     ANSI_SCREEN_FLUSH;
     // std::cout     
+    std::cout << "\r\n" << endl;
 }
 
 // void R3LIVE::service_pub_rgb_maps()

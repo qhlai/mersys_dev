@@ -1,5 +1,5 @@
 #!/bin/bash
-path_dataset='/media/lqh/WDC/dataset/mersys/2023-08-02-22-37-57fixed.bag'
+path_dataset='/home/uestc/dataset/mersys/2024-03-07-16-34-43fixed.bag'
 path_workspace='~/ros/r3live'
 
 #gnome-terminal -t "catkin_make" -x bash -c "catkin_make;exec bash;"

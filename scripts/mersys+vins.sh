@@ -1,7 +1,7 @@
 #!/bin/bash
 # path_dataset='/media/uestc/WDC/dataset/r3live_offical'
 # path_dataset='/home/uestc/dataset/r3live_offical'
-path_dataset='/media/uestc/WDC/dataset/mersys/2023-08-02-22-37-57fixed.bag'
+path_dataset='/home/uestc/dataset/mersys/2024-03-19-17-26-54fixed.bag'
 path_workspace='~/ros/r3live'
 
 #gnome-terminal -t "catkin_make" -x bash -c "catkin_make;exec bash;"
@@ -21,7 +21,7 @@ gnome-terminal -t "roslaunch" -x bash -c "gdb  -ex run  /home/lqh/ros/r3live_ws/
 
 elif [ "$username" = "uestc" ];then
 
-gnome-terminal -t "roslaunch" -x bash -c "gdb  -ex run  /home/uestc/mersys_ws/devel/lib/mersys_backend/mersys_backend_node;exec bash;"
+gnome-terminal -t "roslaunch" -x bash -c "gdb  -ex run  /home/uestc/colive_ws/devel/lib/mersys_backend/mersys_backend_node;exec bash;"
 fi
 
 
@@ -29,10 +29,12 @@ fi
 
 sleep 3
 
-gnome-terminal -t "roslaunch vins node" -x bash -c "cd ../../../;source ./devel/setup.bash;roslaunch vins vins_run.launch;exec bash;"
-
-
-sleep 3
+#gnome-terminal -t "roslaunch vins node" -x bash -c "cd ../../../;source ./devel/setup.bash;roslaunch vins vins_run.launch;exec bash;"
+# gnome-terminal -t "roslaunch vins node" -x bash -c "cd ../../../;source ./devel/setup.bash;roslaunch vins c2i.launch;exec bash;"
+# gnome-terminal -t "roslaunch vins node" -x bash -c "gdb  -ex run --args  /home/uestc/colive_ws/devel/.private/vins/lib/vins/vins_node /home/uestc/colive_ws/src/mersys_dev/VINS-Fusion/config/euroc/euroc_mono_imu_config_livox.yaml;exec bash;"
+# gnome-terminal -t "roslaunch vins node" -x bash -c "gdb  -ex run --args  /home/uestc/colive_ws/devel/.private/vins/lib/vins/vins_node /home/uestc/colive_ws/src/mersys_dev/VINS-Fusion/config/realsense_d435i/realsense_stereo_imu_config.yaml;exec bash;"
+gnome-terminal -t "roslaunch vins node" -x bash -c "gdb  -ex run --args  /home/uestc/colive_ws/devel/.private/vins/lib/vins/vins_node /home/uestc/colive_ws/src/mersys_dev/VINS-Fusion/config/realsense_d435i/realsense_stereo_imu_config.yaml;exec bash;"
+sleep 5
 
 gnome-terminal -t "rosbag play" -x bash -c "rosbag play ${path_dataset};exec bash;"
 

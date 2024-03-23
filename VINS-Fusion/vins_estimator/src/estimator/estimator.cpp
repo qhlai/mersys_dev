@@ -407,9 +407,10 @@ void Estimator::processMeasurements()
 
         std::chrono::milliseconds dura(2);
         std::this_thread::sleep_for(dura);
-    }
     comm_->TryPassKeyImgToComm(img);
-    std::cout << ">>> mersys: Start comm thread 3 " << std::endl;
+    std::cout << ">>> mersys: Start comm thread 3 " << std::endl;        
+    }
+
 }
 
 void Estimator::initFirstIMUPose(vector<pair<double, Eigen::Vector3d>> &accVector)
